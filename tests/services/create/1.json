@@ -1,0 +1,14 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "testservice"
+  },
+  "spec": {
+    "ports": [
+      {
+        "port": 80
+      }
+    ]
+  }
+}

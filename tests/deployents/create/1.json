@@ -1,0 +1,26 @@
+{
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "nginxdeploy"
+  },
+  "spec": {
+    "replicas": 2,
+    "template": {
+      "metadata": {
+        "name": "nginxbla",
+        "labels": {
+          "test": "test"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "nginx1",
+            "image": "nginx"
+          }
+        ]
+      }
+    }
+  }
+}
