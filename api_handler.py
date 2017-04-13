@@ -26,7 +26,7 @@ class ApiHandler:
                 kind
             )
 
-        result = request_post(url, self.headers, self.TIMEOUT, json_to_send)
+        result = make_request(url, self.headers, self.TIMEOUT, json_to_send, method="POST")
 
         return result
 
@@ -35,9 +35,7 @@ class ApiHandler:
             self.server
         )
 
-        # print(url)
-
-        result = request_post(url, self.headers, self.TIMEOUT, json_to_send)
+        result = make_request(url+"?cpu=500&memory=1g", self.headers, self.TIMEOUT, json_to_send, method="POST")
 
         return result
 
@@ -58,9 +56,7 @@ class ApiHandler:
             name
         )
 
-        # print(url)
-
-        result = request_put(url, self.headers, self.TIMEOUT, json_to_send)
+        result = make_request(url, self.headers, self.TIMEOUT, json_to_send, method="PUT")
 
         return result
 
@@ -74,7 +70,7 @@ class ApiHandler:
 
         # print(url)
 
-        result = request_put(url, self.headers, self.TIMEOUT, json_to_send)
+        result = make_request(url, self.headers, self.TIMEOUT, json_to_send, method="PUT")
 
         return result
 
@@ -89,9 +85,7 @@ class ApiHandler:
                 self.server
             )
 
-        # print(url)
-
-        result = request_post(url, self.headers, self.TIMEOUT, json_to_send)
+        result = make_request(url, self.headers, self.TIMEOUT, json_to_send, method="POST")
 
         return result
 
@@ -105,9 +99,8 @@ class ApiHandler:
             kind,
             name
         )
-        # print('DELETE {}'.format(url))
 
-        result = request_delete(url, self.headers, self.TIMEOUT)
+        result = make_request(url, self.headers, self.TIMEOUT, method="DELETE")
 
         return result
 
@@ -117,7 +110,7 @@ class ApiHandler:
             name
         )
 
-        result = request_delete(url, self.headers, self.TIMEOUT)
+        result = make_request(url, self.headers, self.TIMEOUT, method="DELETE")
 
         return result
 
@@ -139,9 +132,7 @@ class ApiHandler:
                 kind
             )
 
-        # print(url)
-
-        result = request_get(url, self.headers, self.TIMEOUT)
+        result = make_request(url, self.headers, self.TIMEOUT)
 
         return result
 
@@ -156,9 +147,7 @@ class ApiHandler:
                 self.server
             )
 
-        # print(url)
-
-        result = request_get(url, self.headers, self.TIMEOUT)
+        result = make_request(url, self.headers, self.TIMEOUT)
 
         return result
 
@@ -179,60 +168,41 @@ def request_exceptions_decorate(func):
     return func_wrapper
 
 
+
 @request_exceptions_decorate
-def request_get(url, headers, timeout):
-    r = requests.get(
-        url,
-        headers=headers,
-        timeout=timeout
-    )
+def make_request(url, headers, timeout, method="GET", json_to_send=None):
+    if method == "DELETE":
+        r = requests.delete(
+            url,
+            headers=headers,
+            timeout=timeout
+        )
+    elif method == "POST":
+        r = requests.post(
+            url,
+            data=json.dumps(json_to_send),
+            timeout=timeout,
+            headers=headers
+        )
+    elif method == "PUT":
+        r = requests.put(
+            url,
+            data=json.dumps(json_to_send),
+            timeout=timeout,
+            headers=headers
+        )
+    else:
+        r = requests.get(
+            url,
+            headers=headers,
+            timeout=timeout
+        )
+
     if r.status_code == 200:
         return json.loads(r.text)
     else:
         raise StatusException(r.status_code, r._content)
 
-
-@request_exceptions_decorate
-def request_delete(url, headers, timeout):
-    r = requests.delete(
-        url,
-        headers=headers,
-        timeout=timeout
-    )
-    if r.status_code == 200:
-        return json.loads(r.text)
-    else:
-        raise StatusException(r.status_code, r._content)
-
-
-@request_exceptions_decorate
-def request_post(url, headers, timeout, json_to_send):
-    r = requests.post(
-        url,
-        data=json.dumps(json_to_send),
-        timeout=timeout,
-        headers=headers
-    )
-    if r.status_code == 200:
-        return json.loads(r.text)
-    else:
-        raise StatusException(r.status_code, r._content)
-
-
-@request_exceptions_decorate
-def request_put(url, headers, timeout, json_to_send):
-    r = requests.put(
-        url,
-        data=json.dumps(json_to_send),
-        timeout=timeout,
-        headers=headers
-    )
-    # print(url)
-    # print(vars(r))
-    if r.status_code == 200:
-        return json.loads(r.text)
-    else:
-        raise StatusException(r.status_code, r._content)
 
 
 class StatusException(Exception):

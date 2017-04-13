@@ -5,7 +5,8 @@
       "BUFFER_SIZE": 1024,
       "AUTH_FORM": {
         "channel": "default",
-        "login": "guest"
+        "login": "guest",
+        "token": "O2+N9fU1KaWk4p0mr4mjQa1tsu93BHAZIjzh6ewWAAg="
       }
 
   },

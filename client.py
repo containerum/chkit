@@ -3,7 +3,7 @@ import json
 import yaml
 import datetime
 from data import kinds, output_formats, deployment_json
-from parser import create_parser
+from parser import *
 from tcp_handler import TcpHandler
 from api_handler import ApiHandler
 from bcolors import BColors
@@ -296,13 +296,13 @@ class Client:
             return kind, name
 
         elif not self.args['file'] and not self.args['kind']:
-            self.parser.error('you should pass at least one required argument: KIND or FILE')
+            self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
         elif self.args['file'] and self.args['kind']:
-            self.parser.error('you should pass either KIND, or FILE, not both')
+            self.parser.error(KIND_OR_FILE_BOTH_ERROR)
         elif self.args['file'] and self.args['name']:
-            self.parser.error('you should pass either NAME, or FILE, not both')
+            self.parser.error(NAME_OR_FILE_BOTH_ERROR)
         elif self.args['kind'] and not self.args['name']:
-            self.parser.error('NAME is required with KIND argument')
+            self.parser.error(NAME_WITH_KIND_ERROR)
 
     def construct_get(self):
         if self.args['file'] and not self.args['kind'] and not self.args['name']:
@@ -317,11 +317,11 @@ class Client:
             return kind, name
 
         elif not self.args['file'] and not self.args['kind']:
-            self.parser.error('you should pass at least one required argument: KIND or FILE')
+            self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
         elif self.args['file'] and self.args['kind']:
-            self.parser.error('you should pass either KIND, or FILE, not both')
+            self.parser.error(KIND_OR_FILE_BOTH_ERROR)
         elif self.args['file'] and self.args['name']:
-            self.parser.error('you should pass either NAME, or FILE, not both')
+            self.parser.error(NAME_OR_FILE_BOTH_ERROR)
 
 
 def main():

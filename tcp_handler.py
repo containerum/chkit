@@ -1,9 +1,8 @@
 import socket
 import json
-import os
 from bcolors import BColors
 from config_json_handler import get_json_from_config
-from warnings import *
+from keywords import *
 
 config_json_data = get_json_from_config()
 
@@ -16,9 +15,8 @@ class TcpHandler:
         self.AUTH_FORM = {
             "channel": config_json_data.get("tcp_handler").get("AUTH_FORM").get("channel"),
             "login": config_json_data.get("tcp_handler").get("AUTH_FORM").get("login"),
-            "token": read_token()
+            "token": config_json_data.get("tcp_handler").get("AUTH_FORM").get("token"),
         }
-
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def connect(self):
@@ -69,10 +67,3 @@ class TcpHandler:
 
     def close(self):
         self.s.close()
-
-
-def read_token():
-    path = os.path.dirname(os.path.realpath(__file__))
-    file_name = os.path.join(path, 'tcp_token')
-    with open(file_name, 'r', encoding='utf-8') as f:
-        return f.read()
