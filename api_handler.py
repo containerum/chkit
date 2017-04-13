@@ -1,16 +1,15 @@
 import json
 import requests
+from config_json_handler import get_json_from_config
+
+config_json_data = get_json_from_config()
 
 
 class ApiHandler:
     def __init__(self):
-        self.server = 'http://146.185.135.181:8080'
-        self.headers = {
-            # 'Content-Type': 'application/json-patch+json',
-            # 'TCP-Connection-Name': 'none'
-            'Authorization': '31'
-        }
-        self.TIMEOUT = 10
+        self.server = config_json_data.get("api_handler").get("server")
+        self.headers = config_json_data.get("api_handler").get("headers")
+        self.TIMEOUT = config_json_data.get("api_handler").get("timeout")
 
     def create(self, json_to_send):
         kind = '{}s'.format(json_to_send['kind'].lower())

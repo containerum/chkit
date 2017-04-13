@@ -1,0 +1,21 @@
+{
+  "tcp_handler": {
+      "TCP_IP": "146.185.135.181",
+      "TCP_PORT": 3000,
+      "BUFFER_SIZE": 1024,
+      "AUTH_FORM": {
+        "channel": "default",
+        "login": "guest"
+      }
+
+  },
+  "api_handler": {
+      "server": "http://146.185.135.181:8080",
+      "headers": {
+        "Authorization": "31"
+      },
+      "TIMEOUT": 10
+
+  },
+  "version": "0.1"
+}

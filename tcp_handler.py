@@ -2,16 +2,20 @@ import socket
 import json
 import os
 from bcolors import BColors
+from config_json_handler import get_json_from_config
+from warnings import *
+
+config_json_data = get_json_from_config()
 
 
 class TcpHandler:
     def __init__(self):
-        self.TCP_IP = '146.185.135.181'
-        self.TCP_PORT = 3000
-        self.BUFFER_SIZE = 1024
+        self.TCP_IP = config_json_data.get("tcp_handler").get("TCP_IP")
+        self.TCP_PORT = config_json_data.get("tcp_handler").get("TCP_PORT")
+        self.BUFFER_SIZE = config_json_data.get("tcp_handler").get("BUFFER_SIZE")
         self.AUTH_FORM = {
-            "channel": "default",
-            "login": "guest",
+            "channel": config_json_data.get("tcp_handler").get("AUTH_FORM").get("channel"),
+            "login": config_json_data.get("tcp_handler").get("AUTH_FORM").get("login"),
             "token": read_token()
         }
 
@@ -22,7 +26,7 @@ class TcpHandler:
         self.s.send((json.dumps(self.AUTH_FORM) + '\n').encode('utf-8'))
         data = self.s.recv(self.BUFFER_SIZE)
         if not data:
-            raise RuntimeError("tcp socket connection broken")
+            raise RuntimeError(TCP_RUNTIME_ERROR)
         else:
             result = json.loads(data.decode('utf-8'))
 
@@ -33,7 +37,7 @@ class TcpHandler:
         while data[-1::] != '\n':
             received = self.s.recv(self.BUFFER_SIZE).decode('utf-8')
             if not received:
-                raise RuntimeError("tcp socket connection broken")
+                raise RuntimeError(TCP_RUNTIME_ERROR)
             print('{}tcp received {} bytes...{}'.format(
                 BColors.OKBLUE,
                 len(received),
@@ -49,7 +53,7 @@ class TcpHandler:
             result = json.loads(data)
             print('{}{}...{} {}OK{}'.format(
                 BColors.OKBLUE,
-                'tcp complete',
+                TCP_COMPLETE,
                 BColors.ENDC,
                 BColors.BOLD,
                 BColors.ENDC

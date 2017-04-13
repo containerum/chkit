@@ -4,16 +4,17 @@ import yaml
 import datetime
 from data import kinds, output_formats, deployment_json
 from parser import create_parser
-from get_version import get_version
 from tcp_handler import TcpHandler
 from api_handler import ApiHandler
 from bcolors import BColors
+from config_json_handler import get_json_from_config
 
+config_json_data = get_json_from_config()
 
 class Client:
     def __init__(self):
         self.path = os.getcwd()
-        self.version = get_version()
+        self.version = config_json_data.get("version")
         self.parser = create_parser(kinds, output_formats, self.version)
         self.tcp_handler = TcpHandler()
         self.api_handler = ApiHandler()
