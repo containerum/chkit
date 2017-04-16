@@ -8,12 +8,13 @@ config_json_data = get_json_from_config()
 
 
 class TcpHandler:
-    def __init__(self):
+    def __init__(self, uuid_v4, debug):
+        self.debug = debug
         self.TCP_IP = config_json_data.get("tcp_handler").get("TCP_IP")
         self.TCP_PORT = config_json_data.get("tcp_handler").get("TCP_PORT")
         self.BUFFER_SIZE = config_json_data.get("tcp_handler").get("BUFFER_SIZE")
         self.AUTH_FORM = {
-            "channel": config_json_data.get("tcp_handler").get("AUTH_FORM").get("channel"),
+            "channel": uuid_v4,
             "login": config_json_data.get("tcp_handler").get("AUTH_FORM").get("login"),
             "token": config_json_data.get("tcp_handler").get("AUTH_FORM").get("token"),
         }
@@ -36,11 +37,12 @@ class TcpHandler:
             received = self.s.recv(self.BUFFER_SIZE).decode('utf-8')
             if not received:
                 raise RuntimeError(TCP_RUNTIME_ERROR)
-            print('{}tcp received {} bytes...{}'.format(
-                BColors.OKBLUE,
-                len(received),
-                BColors.ENDC
-            ))
+            if self.debug:
+                print('{}tcp received {} bytes...{}'.format(
+                    BColors.OKBLUE,
+                    len(received),
+                    BColors.ENDC
+                ))
             data += received
             # print(len(data))
             # print(data[-1::] == '\n')
@@ -49,13 +51,14 @@ class TcpHandler:
 
         try:
             result = json.loads(data)
-            print('{}{}...{} {}OK{}'.format(
-                BColors.OKBLUE,
-                TCP_COMPLETE,
-                BColors.ENDC,
-                BColors.BOLD,
-                BColors.ENDC
-            ))
+            if self.debug:
+                print('{}{}...{} {}OK{}'.format(
+                    BColors.OKBLUE,
+                    TCP_COMPLETE,
+                    BColors.ENDC,
+                    BColors.BOLD,
+                    BColors.ENDC
+                ))
         except:
             with open('received_str', 'w', encoding='utf-8') as w:
                 w.write(data.decode('utf-8'))

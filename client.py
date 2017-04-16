@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import json
 import yaml
@@ -7,7 +8,9 @@ from parser import *
 from tcp_handler import TcpHandler
 from api_handler import ApiHandler
 from bcolors import BColors
-from config_json_handler import get_json_from_config
+from config_json_handler import get_json_from_config, set_token_to_json_config
+from answer_parsers import GetParser
+import uuid
 
 config_json_data = get_json_from_config()
 
@@ -16,12 +19,23 @@ class Client:
         self.path = os.getcwd()
         self.version = config_json_data.get("version")
         self.parser = create_parser(kinds, output_formats, self.version)
-        self.tcp_handler = TcpHandler()
-        self.api_handler = ApiHandler()
-        self.args = {}
+        uuid_v4 = str(uuid.uuid4())
+        self.args = vars(self.parser.parse_args())
+        self.debug = self.args.get("debug")
+        self.tcp_handler = TcpHandler(uuid_v4, self.args.get("debug"))
+        self.api_handler = ApiHandler(uuid_v4)
+
+
+    def modify_config(self):
+        if self.args.get("set_token"):
+            set_token_to_json_config(self.args.get("set_token"))
+
+    def logout(self):
+        set_token_to_json_config("")
+        print("Bye!")
 
     def go(self):
-        self.args = vars(self.parser.parse_args())
+
 
         self.check_file_existence()
         self.check_arguments()
@@ -41,10 +55,17 @@ class Client:
         elif self.args['command'] == 'replace':
             self.go_replace()
 
+        elif self.args['command'] == 'config':
+            self.modify_config()
+
+        elif self.args['command'] == 'logout':
+            self.logout()
+
     def go_run(self):
         json_to_send = self.construct_run()
+        if self.debug:
+            self.log_time()
 
-        self.log_time()
         self.tcp_connect()
 
         # with open(os.path.join(self.path, 'run_good.json'), 'r', encoding='utf-8') as f:
@@ -76,8 +97,8 @@ class Client:
 
     def go_get(self):
         kind, name = self.construct_get()
-
-        self.log_time()
+        if self.debug:
+            self.log_time()
         self.tcp_connect()
 
         namespace = self.args['namespace']
@@ -91,17 +112,19 @@ class Client:
 
         self.tcp_handler.close()
 
-    def get_and_handle_tcp_result(self, command_name):
+    def get_and_handle_tcp_result(self, command_name, wide=False):
         try:
             tcp_result = self.tcp_handler.receive()
             if command_name == 'get':
                 if not tcp_result.get('status') == 'Failure':
-                    print('{}{}{}'.format(
-                        BColors.OKBLUE,
-                        'get result:\n',
-                        BColors.ENDC
-                    ))
-                    self.print_result(tcp_result)
+                    if self.args.get("debug"):
+
+                        print('{}{}{}'.format(
+                            BColors.OKBLUE,
+                            'get result:\n',
+                            BColors.ENDC
+                        ))
+                    self.print_result(tcp_result, wide)
 
             self.print_result_status(tcp_result, command_name)
 
@@ -163,7 +186,7 @@ class Client:
             self.parser.print_help()
 
     def handle_api_result(self, api_result):
-        if api_result.get('id'):
+        if api_result.get('id') and self.debug:
             print('{}{}...{} {}OK{}'.format(
                 BColors.OKBLUE,
                 'api connection',
@@ -183,7 +206,7 @@ class Client:
     def tcp_connect(self):
         try:
             tcp_auth_result = self.tcp_handler.connect()
-            if tcp_auth_result.get('ok'):
+            if tcp_auth_result.get('ok') and self.debug:
                 # print(tcp_auth_result)
                 print('{}{}...{} {}OK{}'.format(
                     BColors.OKBLUE,
@@ -207,7 +230,7 @@ class Client:
                 BColors.ENDC
             ))
 
-        else:
+        elif self.debug:
             print('{}{}...{} {}OK{}'.format(
                 BColors.WARNING,
                 message,
@@ -216,13 +239,13 @@ class Client:
                 BColors.ENDC
             ))
 
-    def print_result(self, result):
+    def print_result(self, result , wide):
         if self.args['output'] == 'yaml':
             yaml_result = yaml.dump(result, default_flow_style=False)
             print(yaml_result)
         else:
-            json_result = json.dumps(result, indent=2)
-            print(json_result)
+
+            GetParser(result).show_human_readable_result()
 
     def log_time(self):
         print('{}{}{}'.format(

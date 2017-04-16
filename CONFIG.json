@@ -1,22 +1,19 @@
 {
-  "tcp_handler": {
-      "TCP_IP": "146.185.135.181",
-      "TCP_PORT": 3000,
-      "BUFFER_SIZE": 1024,
-      "AUTH_FORM": {
-        "channel": "default",
-        "login": "guest",
-        "token": "O2+N9fU1KaWk4p0mr4mjQa1tsu93BHAZIjzh6ewWAAg="
-      }
-
-  },
-  "api_handler": {
-      "server": "http://146.185.135.181:8080",
-      "headers": {
-        "Authorization": "31"
-      },
-      "TIMEOUT": 10
-
-  },
-  "version": "0.1"
+    "version": "0.1",
+    "tcp_handler": {
+        "BUFFER_SIZE": 1024,
+        "AUTH_FORM": {
+            "token": "O2+N9fU1KaWk4p0mr4mjQa1tsu93BHAZIjzh6ewWAAg=",
+            "login": "alice@gmail.com"
+        },
+        "TCP_IP": "146.185.135.181",
+        "TCP_PORT": 3000
+    },
+    "api_handler": {
+        "TIMEOUT": 10,
+        "headers": {
+            "Authorization": "O2+N9fU1KaWk4p0mr4mjQa1tsu93BHAZIjzh6ewWAAg="
+        },
+        "server": "http://146.185.135.181:8080"
+    }
 }
