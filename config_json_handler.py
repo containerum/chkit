@@ -8,6 +8,7 @@ def get_json_from_config():
     data = json.loads(json_data)
     return data
 
+
 def set_token_to_json_config(token):
     try:
         json_data = open(FILE_CONFIG).read()

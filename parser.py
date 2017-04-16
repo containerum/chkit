@@ -1,4 +1,3 @@
-#coding=utf8
 import argparse
 import argcomplete
 
@@ -7,9 +6,9 @@ KIND_OR_FILE_BOTH_ERROR = "you should pass either KIND, or FILE, not both"
 NAME_OR_FILE_BOTH_ERROR = "you should pass either NAME, or FILE, not both"
 NAME_WITH_KIND_ERROR = "NAME is required with KIND argument"
 
+
 def create_parser(kinds, output_formats, version):
     parser = argparse.ArgumentParser(prog='client', description='This is help for %(prog)s')
-
     parser._positionals.title = 'client commands'
 
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(version))

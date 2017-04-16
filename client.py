@@ -14,6 +14,7 @@ import uuid
 
 config_json_data = get_json_from_config()
 
+
 class Client:
     def __init__(self):
         self.path = os.getcwd()
