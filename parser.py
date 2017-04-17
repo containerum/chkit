@@ -49,13 +49,13 @@ def create_parser(kinds, output_formats, version):
     parser_get.add_argument('-o', '--output', help='output format, default: json', choices=output_formats)
     parser_get.add_argument('--namespace', help='namespace, optional', required=False)
 
-    config_usg = 'client config (--set-token TOKEN)'
+    config_usg = 'client config (--set-token TOKEN  --set_default_namespace NAMESPACE)'
     parser_create = subparsers.add_parser('config', help='modify config', usage=config_usg)
-    parser_create.add_argument('--set-token', '-t', help='token', required=True)
+    parser_create.add_argument('--set-token', '-t', help='token', required=False)
+    parser_create.add_argument('--set_default_namespace', '-n', help='default namespace', required=False)
 
     logout_usg = 'client logout'
     parser_create = subparsers.add_parser('logout', help='logout user', usage=logout_usg)
-
 
     argcomplete.autocomplete(parser)
 

@@ -7,10 +7,13 @@ from data import kinds, output_formats, deployment_json
 from parser import *
 from tcp_handler import TcpHandler
 from api_handler import ApiHandler
+from webclient_api_handler import WebClient
 from bcolors import BColors
-from config_json_handler import get_json_from_config, set_token_to_json_config
-from answer_parsers import GetParser
+from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config
+from answer_parsers import TcpApiParser, WebClientApiParser
 import uuid
+import getpass
+
 
 config_json_data = get_json_from_config()
 
@@ -26,18 +29,17 @@ class Client:
         self.tcp_handler = TcpHandler(uuid_v4, self.args.get("debug"))
         self.api_handler = ApiHandler(uuid_v4)
 
-
     def modify_config(self):
         if self.args.get("set_token"):
             set_token_to_json_config(self.args.get("set_token"))
+        if self.args.get("set_default_namespace"):
+            set_default_namespace_to_json_config(self.args.get("set_default_namespace"))
 
     def logout(self):
         set_token_to_json_config("")
         print("Bye!")
 
     def go(self):
-
-
         self.check_file_existence()
         self.check_arguments()
 
@@ -105,13 +107,13 @@ class Client:
         namespace = self.args['namespace']
         if kind != 'namespaces':
             api_result = self.api_handler.get(kind, name, namespace)
+            self.handle_api_result(api_result)
+            self.get_and_handle_tcp_result('get')
+            self.tcp_handler.close()
         else:
-            api_result = self.api_handler.get_namespaces(name)
-        self.handle_api_result(api_result)
-
-        self.get_and_handle_tcp_result('get')
-
-        self.tcp_handler.close()
+            webclient = WebClient()
+            api_result = webclient.get_namespaces()
+            WebClientApiParser(api_result).show_human_readable_result()
 
     def get_and_handle_tcp_result(self, command_name, wide=False):
         try:
@@ -125,7 +127,7 @@ class Client:
                             'get result:\n',
                             BColors.ENDC
                         ))
-                    self.print_result(tcp_result, wide)
+                    self.print_result(tcp_result)
 
             self.print_result_status(tcp_result, command_name)
 
@@ -240,13 +242,13 @@ class Client:
                 BColors.ENDC
             ))
 
-    def print_result(self, result , wide):
+    def print_result(self, result):
         if self.args['output'] == 'yaml':
-            yaml_result = yaml.dump(result, default_flow_style=False)
-            print(yaml_result)
+            print(yaml.dump(result, default_flow_style=False))
+        elif self.args['output'] == 'json':
+            print(json.dumps(result, indent=4))
         else:
-
-            GetParser(result).show_human_readable_result()
+            TcpApiParser(result).show_human_readable_result()
 
     def log_time(self):
         print('{}{}{}'.format(

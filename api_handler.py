@@ -36,7 +36,8 @@ class ApiHandler:
             self.server
         )
 
-        result = make_request(url+"?cpu=500M&memory=500M&user=00000000-0000-0000-0000-000000000007", self.headers, self.TIMEOUT, "POST", json_to_send)
+        result = make_request(url+"?cpu=500M&memory=500M&user=00000000-0000-0000-0000-000000000007", self.headers,
+                              self.TIMEOUT, "POST", json_to_send)
 
         return result
 
@@ -115,7 +116,7 @@ class ApiHandler:
 
     def get(self, kind, name, namespace):
         if not namespace:
-            namespace = 'default'
+            namespace = config_json_data.get("default_namespace")
 
         if name:
             url = '{}/namespaces/{}/{}/{}'.format(
@@ -144,7 +145,7 @@ class ApiHandler:
                 self.server
             )
 
-        result = make_request(url, self.headers, self.TIMEOUT)
+        result = make_request(url, self.headers, self.TIMEOUT, "GET")
 
         return result
 
@@ -164,7 +165,6 @@ def request_exceptions_decorate(func):
             return {'error': 'connection error'}
 
     return func_wrapper
-
 
 
 @request_exceptions_decorate
@@ -199,9 +199,7 @@ def make_request(url, headers, timeout, method, json_to_send=None):
     if r.status_code == 200:
         return json.loads(r.text)
     else:
-        print(r.text)
         raise StatusException(r.status_code, r._content)
-
 
 
 class StatusException(Exception):

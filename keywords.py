@@ -3,3 +3,5 @@ TCP_COMPLETE = 'tcp complete'
 API_CONNECTION_ERROR = 'connection error'
 API_TIMEOUT_ERROR = 'timeout'
 EMPTY_NAMESPACE = 'Empty namespace!'
+SUCCESS_CHANGED = "Success changed!"
+NO_NAMESPACES = "You don't have namespaces!"

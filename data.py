@@ -7,7 +7,8 @@ kinds = [
 
 output_formats = [
     'yaml',
-    'json'
+    'json',
+    'pretty',
 ]
 
 deployment_json = {

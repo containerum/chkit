@@ -1,10 +1,10 @@
 from datetime import datetime
 from dateutil import parser
 from prettytable import PrettyTable
-from keywords import EMPTY_NAMESPACE
+from keywords import EMPTY_NAMESPACE, NO_NAMESPACES
 
 
-class GetParser:
+class TcpApiParser:
     def __init__(self, row_answer):
         self.items = row_answer.get("results")[0].get("data").get("items")
 
@@ -30,6 +30,27 @@ class GetParser:
         else:
             print(EMPTY_NAMESPACE)
 
+
+class WebClientApiParser():
+    def __init__(self, row_answer):
+        self.items = row_answer
+
+    def show_human_readable_result(self):
+        if self.items:
+            self.table = PrettyTable(["ID",  "IS ACTIVE",  "AGE", "CPU", "CPU LIMIT", "MEMORY", "MEMORY LIMIT"])
+            self.table.align = "l"
+            for i in self.items:
+                status = i.get("active")
+                name = i.get("id")
+                cpu = i.get("cpu")
+                cpu_limit = i.get("cpu_limit")
+                memory = i.get("memory")
+                memory_limit = i.get("memory_limit")
+                time = get_datetime_diff(i.get("created"))
+                self.table.add_row([name,  status,  time, cpu, cpu_limit, memory, memory_limit])
+            print(self.table)
+        else:
+            print(NO_NAMESPACES)
 
 def get_datetime_diff(timestamp):
     created_date = parser.parse(timestamp)
