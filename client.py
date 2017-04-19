@@ -12,7 +12,6 @@ from bcolors import BColors
 from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config
 from answer_parsers import TcpApiParser, WebClientApiParser
 import uuid
-import getpass
 
 
 config_json_data = get_json_from_config()
@@ -105,15 +104,21 @@ class Client:
         self.tcp_connect()
 
         namespace = self.args['namespace']
-        if kind != 'namespaces':
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+        if kind in ('pod', "pods", "po"):
             api_result = self.api_handler.get(kind, name, namespace)
             self.handle_api_result(api_result)
             self.get_and_handle_tcp_result('get')
             self.tcp_handler.close()
         else:
             webclient = WebClient()
-            api_result = webclient.get_namespaces()
-            WebClientApiParser(api_result).show_human_readable_result()
+            if kind in ("deployment", "deployments", "deploy"):
+                api_result = webclient.get_deployments(namespace)
+                WebClientApiParser(api_result).show_human_readable_deployment_list()
+            else:
+                api_result = webclient.get_namespaces()
+                WebClientApiParser(api_result).show_human_readable_namespace_list()
 
     def get_and_handle_tcp_result(self, command_name, wide=False):
         try:
@@ -248,7 +253,7 @@ class Client:
         elif self.args['output'] == 'json':
             print(json.dumps(result, indent=4))
         else:
-            TcpApiParser(result).show_human_readable_result()
+            TcpApiParser(result)
 
     def log_time(self):
         print('{}{}{}'.format(

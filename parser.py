@@ -40,19 +40,21 @@ def create_parser(kinds, output_formats, version):
     parser_replace.add_argument('-f', '--file', help='input file', required=True)
     parser_replace.add_argument('--namespace', help='namespace, optional', required=False)
 
-    get_usg = 'client get (--kind KIND [-n NAME] | -f FILE) [-o OUTPUT] [--namespace NAMESPACE] [--debug -D {True|False}]'
+    get_usg = 'client get (--kind KIND [-n NAME] | -f FILE) [-o OUTPUT] [--namespace NAMESPACE] [--debug -D ]'
     parser_get = subparsers.add_parser('get', help='get object info', usage=get_usg)
     parser_get._optionals.title = 'get arguments'
-    parser_get.add_argument('-k', '--kind', help='object kind', choices=kinds)
+    parser_get.add_argument('kind', help='object kind', choices=kinds, )
+    parser_get.add_argument('name', help='object name to get info, optional', nargs='*')
+    #parser_get.add_argument('-k', '--kind', help='object kind', choices=kinds)
     parser_get.add_argument('-f', '--file', help='input file')
-    parser_get.add_argument('-n', '--name', help='object name to get info, optional', required=False)
+
     parser_get.add_argument('-o', '--output', help='output format, default: json', choices=output_formats)
     parser_get.add_argument('--namespace', help='namespace, optional', required=False)
 
     config_usg = 'client config (--set-token TOKEN  --set_default_namespace NAMESPACE)'
     parser_create = subparsers.add_parser('config', help='modify config', usage=config_usg)
     parser_create.add_argument('--set-token', '-t', help='token', required=False)
-    parser_create.add_argument('--set_default_namespace', '-n', help='default namespace', required=False)
+    parser_create.add_argument('--set_default_namespace', '-ns', help='default namespace', required=False)
 
     logout_usg = 'client logout'
     parser_create = subparsers.add_parser('logout', help='logout user', usage=logout_usg)

@@ -115,15 +115,14 @@ class ApiHandler:
         return result
 
     def get(self, kind, name, namespace):
-        if not namespace:
-            namespace = config_json_data.get("default_namespace")
+
 
         if name:
             url = '{}/namespaces/{}/{}/{}'.format(
                 self.server,
                 namespace,
                 kind,
-                name
+                name[0]
             )
         else:
             url = '{}/namespaces/{}/{}'.format(

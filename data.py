@@ -1,6 +1,10 @@
 kinds = [
+    'po',
     'pods',
+    'pod',
     'deployments',
+    'deployment',
+    'deploy'
     'services',
     'namespaces'
 ]

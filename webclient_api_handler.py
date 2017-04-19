@@ -8,14 +8,14 @@ config_json_data = get_json_from_config()
 
 
 def user_is_authenticated(func):
-    def wrapper(self):
+    def wrapper(self, namespace=None):
         url = self.server + "/api/token_status"
         r = requests.get(url, headers=config_json_data.get("webclient_api_handler").get("headers"))
         if r.status_code == 401:
             self.login()
-            return func(self)
+            return func(self,namespace)
         else:
-            return func(self)
+            return func(self, namespace)
 
     return wrapper
 
@@ -25,10 +25,12 @@ class WebClient:
         self.server = config_json_data.get("webclient_api_handler").get("server")
         self.headers = config_json_data.get("webclient_api_handler").get("headers")
 
-    def decode_password(self,password):
+    @staticmethod
+    def decode_password(password):
         return base64.b64decode(password.encode("utf8")).decode("utf8")
 
-    def encode_password(self,password):
+    @staticmethod
+    def encode_password(password):
         return base64.b64encode(password.encode("utf8")).decode("utf8")
 
     def login(self):
@@ -37,8 +39,6 @@ class WebClient:
         if not username or not password:
             username = input("Username:")
             password = getpass.getpass()
-
-
 
         url = self.server + "/api/login"
         r = requests.post(url, data={"username": username, "password": password})
@@ -66,7 +66,8 @@ class WebClient:
         r = requests.get(url, headers=self.headers)
         return json.loads(r.text)
 
-
-
-
-
+    @user_is_authenticated
+    def get_deployments(self, namespace):
+        url = "%s/api/namespaces/%s/deployments" % (self.server, namespace)
+        r = requests.get(url, headers=self.headers)
+        return json.loads(r.text)
