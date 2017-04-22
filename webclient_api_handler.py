@@ -8,14 +8,14 @@ config_json_data = get_json_from_config()
 
 
 def user_is_authenticated(func):
-    def wrapper(self, namespace=None):
+    def wrapper(self, *args):
         url = self.server + "/api/token_status"
         r = requests.get(url, headers=config_json_data.get("webclient_api_handler").get("headers"))
         if r.status_code == 401:
             self.login()
-            return func(self,namespace)
+            return func(self, *args)
         else:
-            return func(self, namespace)
+            return func(self, *args)
 
     return wrapper
 
@@ -69,5 +69,11 @@ class WebClient:
     @user_is_authenticated
     def get_deployments(self, namespace):
         url = "%s/api/namespaces/%s/deployments" % (self.server, namespace)
+        r = requests.get(url, headers=self.headers)
+        return json.loads(r.text)
+
+    @user_is_authenticated
+    def get_deployment(self, namespace, deployment):
+        url = "%s/api/namespaces/%s/deployments/%s" % (self.server, namespace, deployment)
         r = requests.get(url, headers=self.headers)
         return json.loads(r.text)

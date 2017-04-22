@@ -4,6 +4,8 @@ from prettytable import PrettyTable
 from keywords import EMPTY_NAMESPACE, NO_NAMESPACES
 
 
+
+
 class TcpApiParser:
     def __init__(self, row_answer):
         if row_answer.get("results")[0].get("data").get("kind") == "PodList":
@@ -13,15 +15,6 @@ class TcpApiParser:
         if row_answer.get("results")[0].get("data").get("kind") == "Pod":
             self.result = row_answer
             self.show_human_readable_pod()
-
-        if row_answer.get("results")[0].get("data").get("kind") == "Deployment":
-            self.result = row_answer
-            self.show_human_readable_deployment()
-
-        if row_answer.get("results")[0].get("data").get("kind") == "DeploymentList":
-            self.items = row_answer
-            self.show_human_readable_deploymentlist()
-
 
     def show_human_readable_pod(self):
         metadata = self.result.get("results")[0].get("data").get("metadata")
@@ -110,10 +103,10 @@ class TcpApiParser:
             print(EMPTY_NAMESPACE)
 
 
-
-class WebClientApiParser():
+class WebClientApiParser:
     def __init__(self, row_answer):
         self.items = row_answer
+        self.result = row_answer
 
     def show_human_readable_namespace_list(self):
         if self.items:
@@ -146,6 +139,30 @@ class WebClientApiParser():
             print(table)
         else:
             print(NO_NAMESPACES)
+
+    def show_human_readable_deployment(self, namespace):
+        status = self.result.get("status")
+        conditions = self.result.get("conditions")
+        containers = self.result.get("containers")
+        #print(self.result)
+        if self.result:
+            print("%-20s %s" % ("Name:", self.result.get("name")))
+            print("%-20s %s" % ("Namespace:", namespace))
+            print("%-20s %s" % ("CreationTimeStamp:", parser.parse(self.result.get("created_at"))))
+            print("Labels:")
+            for key,value in self.result.get("labels").items():
+                print("\t%s=%s" % (key, value))
+            status_tuple = ("Status:", status.get("updated"), "updated", status.get("total"), "total",
+                            status.get("available"), "available", status.get("unavailable"), "unavailable")
+            print("%-20s %s %s | %s %s | %s %s | %s %s" % status_tuple)
+            print("Conditions:")
+            conditions_table = PrettyTable(["TYPE", "STATUS", "REASON"])
+            for c in conditions:
+                conditions_table.add_row([c.get("type"), c.get("status"), c.get("reason")])
+            print(conditions_table)
+            print("Containers:")
+            for c in containers:
+                print("\t%s" % c.get("name"))
 
 
 def get_datetime_diff(timestamp):

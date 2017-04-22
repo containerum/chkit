@@ -111,14 +111,18 @@ class Client:
             self.handle_api_result(api_result)
             self.get_and_handle_tcp_result('get')
             self.tcp_handler.close()
-        else:
+        elif kind in ("deployment", "deployments", "deploy"):
             webclient = WebClient()
-            if kind in ("deployment", "deployments", "deploy"):
+            if self.args.get("name"):
+                api_result = webclient.get_deployment(namespace, self.args.get("name")[0])
+                WebClientApiParser(api_result).show_human_readable_deployment(namespace)
+            else:
                 api_result = webclient.get_deployments(namespace)
                 WebClientApiParser(api_result).show_human_readable_deployment_list()
-            else:
-                api_result = webclient.get_namespaces()
-                WebClientApiParser(api_result).show_human_readable_namespace_list()
+        else:
+            webclient = WebClient()
+            api_result = webclient.get_namespaces()
+            WebClientApiParser(api_result).show_human_readable_namespace_list()
 
     def get_and_handle_tcp_result(self, command_name, wide=False):
         try:
