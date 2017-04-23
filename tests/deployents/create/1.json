@@ -17,7 +17,11 @@
         "containers": [
           {
             "name": "nginx1",
-            "image": "nginx"
+            "image": "nginx",
+            "resources":{
+              "cpu":2,
+              "memory":"1Gi"
+            }
           }
         ]
       }

@@ -144,7 +144,7 @@ class WebClientApiParser:
         status = self.result.get("status")
         conditions = self.result.get("conditions")
         containers = self.result.get("containers")
-        #print(self.result)
+        print(self.result)
         if self.result:
             print("%-20s %s" % ("Name:", self.result.get("name")))
             print("%-20s %s" % ("Namespace:", namespace))
