@@ -4,7 +4,7 @@ kinds = [
     'pod',
     'deployments',
     'deployment',
-    'deploy'
+    'deploy',
     'services',
     'namespaces'
 ]
@@ -20,17 +20,11 @@ deployment_json = {
     "apiVersion": "extensions/v1beta1",
     "metadata": {
         "name": '',
-        "namespace": 'default',
         "labels": {
-            "run": ''
         }
     },
     "spec": {
-        "selector": {
-            "matchLabels": {
-                "run": ''
-            }
-        },
+        "replicas": '',
         "template": {
             "metadata": {
                 "name": '',
@@ -44,7 +38,18 @@ deployment_json = {
                         "name": '',
                         "image": '',
                         "ports": [],
-                        "env": []
+                        "env": [],
+                        "commands": [],
+                        "resources":{
+                            "limits": {
+                                "cpu": "",
+                                "memory": ''
+                            },
+                            "requests":{
+                                "cpu": "",
+                                "memory": ""
+                            }
+                        }
                     }
                 ]
             }

@@ -1,28 +1,28 @@
 {
-    "default_namespace": "default",
+    "webclient_api_handler": {
+        "headers": {
+            "Authorization": "eyJhbGciOiJIUzI1NiJ9.WyIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDciLCJhbGljZUBnbWFpbC5jb20iLDE0OTMxMjA5NzJd.SLBbKujIE24hRdz8GUsabiiPuQbdG1aG_rbg9yjt9Wk"
+        },
+        "password": "c3RyZW5naHQ=",
+        "server": "http://139.59.146.89",
+        "username": "alice@gmail.com"
+    },
     "api_handler": {
         "headers": {
             "Authorization": "O2+N9fU1KaWk4p0mr4mjQa1tsu93BHAZIjzh6ewWAAg="
         },
-        "server": "http://146.185.135.181:8080",
-        "TIMEOUT": 10
+        "TIMEOUT": 10,
+        "server": "http://146.185.135.181:8080"
     },
+    "version": "0.1",
+    "default_namespace": "default",
     "tcp_handler": {
-        "TCP_IP": "146.185.135.181",
-        "TCP_PORT": 3000,
         "AUTH_FORM": {
             "login": "alice@gmail.com",
             "token": "O2+N9fU1KaWk4p0mr4mjQa1tsu93BHAZIjzh6ewWAAg="
         },
-        "BUFFER_SIZE": 1024
-    },
-    "version": "0.1",
-    "webclient_api_handler": {
-        "headers": {
-            "Authorization": "eyJhbGciOiJIUzI1NiJ9.WyIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDciLCJhbGljZUBnbWFpbC5jb20iLDE0OTI4NjExNDBd.s-LufCy4Ln4CFnFSRd_nR_8obJu5QdmlGHeAvUMnUIU"
-        },
-        "server": "http://139.59.146.89",
-        "username": "alice@gmail.com",
-        "password": "c3RyZW5naHQ="
+        "BUFFER_SIZE": 1024,
+        "TCP_PORT": 3000,
+        "TCP_IP": "146.185.135.181"
     }
 }

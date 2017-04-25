@@ -126,6 +126,7 @@ class WebClientApiParser:
             print(NO_NAMESPACES)
 
     def show_human_readable_deployment_list(self):
+        print(self.items)
         if self.items:
             table = PrettyTable(["NAME",  "PODS ACTIVE",  "CPU",  "RAM", "AGE"])
             table.align = "l"
@@ -144,7 +145,6 @@ class WebClientApiParser:
         status = self.result.get("status")
         conditions = self.result.get("conditions")
         containers = self.result.get("containers")
-        print(self.result)
         if self.result:
             print("%-20s %s" % ("Name:", self.result.get("name")))
             print("%-20s %s" % ("Namespace:", namespace))

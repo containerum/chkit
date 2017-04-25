@@ -19,7 +19,7 @@
             "name": "nginx1",
             "image": "nginx",
             "resources":{
-              "cpu":2,
+              "cpu": ',
               "memory":"1Gi"
             }
           }

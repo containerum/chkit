@@ -44,10 +44,10 @@ class TcpHandler:
                     BColors.ENDC
                 ))
             data += received
+            print(data)
             # print(len(data))
             # print(data[-1::] == '\n')
         # data = self.s.recv(self.BUFFER_SIZE)
-        # print(data)
 
         try:
             result = json.loads(data)

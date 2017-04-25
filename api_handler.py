@@ -28,7 +28,6 @@ class ApiHandler:
             )
 
         result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
-
         return result
 
     def create_namespaces(self, json_to_send):
@@ -175,7 +174,7 @@ def make_request(url, headers, timeout, method, json_to_send=None):
             timeout=timeout
         )
     elif method == "POST":
-        print(url,headers, json_to_send, timeout)
+        #print(url,headers, json_to_send, timeout)
         r = requests.post(
             url,
             data=json.dumps(json_to_send),

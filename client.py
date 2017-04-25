@@ -12,6 +12,8 @@ from bcolors import BColors
 from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config
 from answer_parsers import TcpApiParser, WebClientApiParser
 import uuid
+from keywords import JSON_TEMPLATES_RUN_FILE
+from run_configure  import  RunConfigure
 
 
 config_json_data = get_json_from_config()
@@ -89,6 +91,7 @@ class Client:
 
         if kind != 'namespaces':
             api_result = self.api_handler.create(json_to_send)
+            #print(api_result)
         else:
             api_result = self.api_handler.create_namespaces(json_to_send)
         self.handle_api_result(api_result)
@@ -267,41 +270,65 @@ class Client:
         ))
 
     def construct_run(self):
-        json_to_send = deployment_json
 
-        json_to_send['metadata']['name'] = self.args['name']
-        if self.args['namespace']:
-            json_to_send['metadata']['namespace'] = self.args['namespace']
-        if self.args['replicas']:
-            json_to_send['spec']['replicas'] = self.args['replicas']
-        json_to_send['spec']['selector']['matchLabels']['run'] = self.args['name']
-        json_to_send['metadata']['labels']['run'] = self.args['name']
-        json_to_send['spec']['template']['metadata']['labels']['run'] = self.args['name']
+        if self.args.get("kind") in ("deploy", "deployment", "deployments"):
+            json_to_send = deployment_json
+            json_to_send['metadata']['name'] = self.args['name']
+            if self.args["configure"] and not self.args.get("iamge"):
+                runconfigure = RunConfigure()
+                param_dict = runconfigure.get_data_from_console()
+                image = param_dict["image"]
+                ports = param_dict["ports"]
+                labels = param_dict["labels"]
+                env = param_dict["env"]
+                cpu = param_dict["cpu"]
+                memory = param_dict["memory"]
+                replicas = param_dict["replicas"]
+                commands = param_dict["commands"]
 
-        json_to_send['spec']['template']['metadata']['name'] = self.args['name']
-        json_to_send['spec']['template']['spec']['containers'][0]['name'] = self.args['name']
-        json_to_send['spec']['template']['spec']['containers'][0]['image'] = self.args['image']
-        if self.args['ports']:
-            json_to_send['spec']['template']['spec']['containers'][0]['ports'] = [
-                {
-                    'containerPort': port,
-                    'name': '',
-                    'protocol': 'TCP'
-                }
-                for port in self.args['ports']
-                ]
-        if self.args['env']:
-            json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
-                {
-                    "name": key_value.split('=')[0],
-                    "value": key_value.split('=')[1]
-                }
-                for key_value in self.args['env']]
+            elif self.args.get("image") and not self.args["configure"]:
+                image = self.args["image"]
+                ports = self.args["ports"]
+                labels = self.args["labels"]
+                env = self.args["env"]
+                cpu = self.args["cpu"]
+                memory = self.args["memory"]
+                replicas = self.args["replicas"]
+                commands = self.args["commands"]
 
-        with open(os.path.join('/home/gree-gorey/Py/client/client/', 'run.json'), 'w', encoding='utf-8') as w:
-            json.dump(json_to_send, w, indent=4)
+            if self.args["configure"] or self.args["image"]:
+                json_to_send['spec']['replicas'] = replicas
+                json_to_send['spec']['template']['metadata']['labels']['run'] = self.args['name']
+                json_to_send['spec']['template']['metadata']['name'] = self.args['name']
+                json_to_send['spec']['template']['spec']['containers'][0]['name'] = self.args['name']
+                json_to_send['spec']['template']['spec']['containers'][0]['image'] = image
+                if commands:
+                    json_to_send['spec']['template']['spec']['containers'][0]['command'] = commands
+                if ports:
+                    for port in ports:
+                        json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
+                            'containerPort': port
+                        })
 
-        return json_to_send
+                if labels:
+                    for label in labels:
+                        key, value = label.split("=")
+                        json_to_send['metadata']['labels'].update({key: value})
+                if env:
+                    json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
+                        {
+                            "name": key_value.split('=')[0],
+                            "value": key_value.split('=')[1]
+                        }
+                        for key_value in env]
+                json_to_send['spec']['template']['spec']['containers'][0]['resources']["limits"]['cpu'] = cpu
+                json_to_send['spec']['template']['spec']['containers'][0]['resources']["limits"]['memory'] = memory
+                json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
+                json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
+                with open(os.path.join(os.path.dirname(__name__), JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
+                    json.dump(json_to_send, w, indent=4)
+
+                return json_to_send
 
     def get_json_from_file(self):
         file_name = os.path.join(self.path, self.args['file'])

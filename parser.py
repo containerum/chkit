@@ -16,14 +16,25 @@ def create_parser(kinds, output_formats, version):
 
     subparsers = parser.add_subparsers(help='use «[COMMAND] --help» to get detailed help for the command',  dest='command')
 
-    parser_run = subparsers.add_parser('run', help='run deployment')
+    parser_run = subparsers.add_parser('run', help='client run deployment NAME '
+                                                   '—image=imagename [--replicas=1] '
+                                                   '[--env="key1=value1"] [--env="key2=value2"]'
+                                                   ' [--port=3000] [--port=3001] '
+                                                   '[--command="/bin/bash"][--command="/bin/bash2"]'
+                                                   ' [--volume="name:pathTo"] [--volume="name2:pathTo2"]')
     parser_run._optionals.title = 'run arguments'
-    parser_run.add_argument('-n', '--name', help='name, required', required=True)
-    parser_run.add_argument('-i', '--image', help='image, required', required=True)
+    parser_run.add_argument('kind', help='object kind', choices=kinds)
+    parser_run.add_argument('name', help='name, required')
+    parser_run.add_argument('-i', '--image', help='image, required', required=False)
     parser_run.add_argument('-e', '--env', nargs='*', help='environment names, optional', required=False)
-    parser_run.add_argument('-p', '--ports', type=int, nargs='*', help='ports, optional', required=False)
-    parser_run.add_argument('-r', '--replicas', type=int, help='replicas, optional', required=False)
+    parser_run.add_argument('-p', '--ports', type=int, nargs='*', help='ports , optional', required=False)
+    parser_run.add_argument('--commands', nargs='*', help='commands , optional', required=False)
+    parser_run.add_argument('--labels', nargs='*', help='labels , optional', required=False)
+    parser_run.add_argument('-r', '--replicas', type=int, help='replicas, optional', default=1, required=False)
+    parser_run.add_argument('-m', '--memory', help='memory, optional', default="128Mi", required=False)
+    parser_run.add_argument('-c', '--cpu', help='cpu, optional', default="100m", required=False)
     parser_run.add_argument('--namespace', help='namespace, optional', required=False)
+    parser_run.add_argument('--configure', action='store_true', default=False, help='input params in console')
 
     parser_create = subparsers.add_parser('create', help='create object')
     parser_create.add_argument('-f', '--file', help='input file', required=True)

@@ -5,3 +5,4 @@ API_TIMEOUT_ERROR = 'timeout'
 EMPTY_NAMESPACE = 'Empty namespace!'
 SUCCESS_CHANGED = "Success changed!"
 NO_NAMESPACES = "You don't have namespaces!"
+JSON_TEMPLATES_RUN_FILE = "json_templates/run.json"
