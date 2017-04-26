@@ -9,10 +9,10 @@
 
 ## Возможное написание этих типов
 
-`pods`: `po`,`pods`,`pod`
-`deployments`: `deploy`,`deployment`,`deployments`
-`services`: `service`,`services`,`srv`
-`namespaces`: `namespaces`,`namespace`
+- `pods`: `po`,`pods`,`pod`
+- `deployments`: `deploy`,`deployment`,`deployments`
+- `services`: `service`,`services`,`srv`
+- `namespaces`: `namespaces`,`namespace`
 
 ## Получение информации
 
@@ -41,17 +41,11 @@ client get TYPE  [-n NAMESPACE | --namespace NAMESPACE ]
 ```
 
 Вывод информации объекте в форматах {`json`,`yaml`,`pretty`}
-По умолчанию установлен `pretty`
+- По умолчанию установлен `pretty`
 ```
 client get TYPE -o FORMAT
 ```
 
-
-## Запуск деплоя
-
-```
-client run -n=myname --image=imagename --env KEY1=VALUE1 KEY2=VALUE2 --ports 8080 5000 --replicas=2 --namespace=default
-```
 
 ## Вывод хелпера
 
