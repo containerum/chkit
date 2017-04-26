@@ -4,17 +4,31 @@ from prettytable import PrettyTable
 from keywords import EMPTY_NAMESPACE, NO_NAMESPACES
 
 
-
-
 class TcpApiParser:
     def __init__(self, row_answer):
         if row_answer.get("results")[0].get("data").get("kind") == "PodList":
             self.items = row_answer.get("results")[0].get("data").get("items")
-            self.show_human_readable_podlist()
+            self.show_human_readable_pod_list()
 
         if row_answer.get("results")[0].get("data").get("kind") == "Pod":
             self.result = row_answer
             self.show_human_readable_pod()
+
+        if row_answer.get("results")[0].get("data").get("kind") == "DeploymentList":
+            self.result = row_answer
+            self.show_human_readable_deployment_list()
+
+        if row_answer.get("results")[0].get("data").get("kind") == "Deployment":
+            self.result = row_answer
+            self.show_human_readable_deployment()
+
+        if row_answer.get("results")[0].get("data").get("kind") == "ServiceList":
+            self.result = row_answer
+            self.show_human_readable_service_list()
+
+        if row_answer.get("results")[0].get("data").get("kind") == "Service":
+            self.result = row_answer
+            self.show_human_readable_service()
 
     def show_human_readable_pod(self):
         metadata = self.result.get("results")[0].get("data").get("metadata")
@@ -43,11 +57,12 @@ class TcpApiParser:
                 print("\t\t%-20s %s" % ("Command:", "".join(c.get("command"))))
             print("\t\tPorts:")
             #print("\t\t\t%-20s %-10s %-10s" % ("Name", "Protocol", "ContPort"))
-            ports = PrettyTable(["Name", "Protocol", "ContPort"])
-            for p in c.get("ports"):
-                #print("\t\t\t%-20s %-10s %-10s" % (p.get("name"), p.get("protocol"), p.get("containerPort")))
-                ports.add_row([p.get("name"), p.get("protocol"), p.get("containerPort")])
-            print(ports)
+            if c.get("ports"):
+                ports = PrettyTable(["Name", "Protocol", "ContPort"])
+                for p in c.get("ports"):
+                    #print("\t\t\t%-20s %-10s %-10s" % (p.get("name"), p.get("protocol"), p.get("containerPort")))
+                    ports.add_row([p.get("name"), p.get("protocol"), p.get("containerPort")])
+                print(ports)
             if c.get("env"):
                 env = PrettyTable(["Name","Value"])
                 print("\t\tEnvironment:")
@@ -80,7 +95,7 @@ class TcpApiParser:
                 # print("\t%-30s %s" % ("Status:", s.get("status")))
             print(StatusTable)
 
-    def show_human_readable_podlist(self):
+    def show_human_readable_pod_list(self):
         if self.items:
             table = PrettyTable(["NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP"])
             table.align = "l"
@@ -101,6 +116,105 @@ class TcpApiParser:
             print(table)
         else:
             print(EMPTY_NAMESPACE)
+
+    def show_human_readable_deployment_list(self):
+        if self.result:
+            items = self.result.get("results")[0].get("data").get("items")
+            table = PrettyTable(["NAME",  "PODS ACTIVE",  "CPU",  "RAM", "AGE"])
+            table.align = "l"
+            for i in items:
+                name = i.get("metadata").get("name")
+                cpu = i.get("spec").get("template").get("spec").get("containers")[0].get("resources")\
+                    .get("limits").get("cpu")
+                if i.get("status").get("availableReplicas"):
+                    pods_active = i.get("status").get("availableReplicas")
+                else:
+                    pods_active = 0
+                memory = i.get("spec").get("template").get("spec").get("containers")[0].get("resources")\
+                    .get("limits").get("memory")
+                time = get_datetime_diff(i.get("metadata").get("creationTimestamp"))
+                table.add_row([name,  pods_active,  cpu,  memory, time])
+            print(table)
+        else:
+            print(NO_NAMESPACES)
+
+    def show_human_readable_deployment(self):
+        status = self.result.get("results")[0].get("data").get("status")
+        strategy = self.result.get("results")[0].get("data").get("spec").get("strategy")
+        conditions = self.result.get("results")[0].get("data").get("status").get("conditions")
+        containers = self.result.get("results")[0].get("data").get("spec").get("template")\
+            .get("spec").get("containers")
+        if self.result:
+            print("%-30s %s" % ("Name:", self.result.get("name")))
+            print("%-30s %s" % ("Namespace:", self.result.get("namespace")))
+            print("%-30s %s" % ("CreationTimeStamp:",
+                                parser.parse(self.result.get("results")[0].get("data")
+                                             .get("metadata").get("creationTimestamp"))))
+            print("Labels:")
+            for key,value in self.result.get("results")[0].get("data").get("metadata").get("labels").items():
+                print("\t%s=%s" % (key, value))
+            print("Selectors:")
+            for key,value in self.result.get("results")[0].get("data").get("spec").get("selector").get("matchLabels").items():
+                print("\t%s=%s" % (key, value))
+            status_tuple = ("Replicas:", status.get("updatedReplicas"), "updated", status.get("replicas"), "total",
+                            status.get("replicas")-status.get("unavailableReplicas"), "available", status.get("unavailableReplicas"), "unavailable")
+            print("%-30s %s %s | %s %s | %s %s | %s %s" % status_tuple)
+            print("%-30s %s " % ("Strategy", strategy.get("type")))
+            strategy_type = strategy.get("type")[0].lower() + strategy.get("type")[1:]
+            print("%-30s %s max unavailable, %s max surge" % (strategy.get("type")+"Strategy",
+                                                              strategy.get(strategy_type).get("maxUnavailable"),
+                                                              strategy.get(strategy_type).get("maxSurge")))
+            print("Conditions:")
+            conditions_table = PrettyTable(["TYPE", "STATUS", "REASON"])
+            for c in conditions:
+                conditions_table.add_row([c.get("type"), c.get("status"), c.get("reason")])
+            print(conditions_table)
+            print("Containers:")
+            for c in containers:
+                print("\t%s" % c.get("name"))
+
+    def show_human_readable_service_list(self):
+        if self.result:
+            items = self.result.get("results")[0].get("data").get("items")
+            table = PrettyTable(["NAME",  "CLUSTER-IP",  "EXTERNAL-IP",  "PORT(S)", "AGE"])
+            table.align = "l"
+            for i in items:
+                name = i.get("metadata").get("name")
+                cluster_ip = i.get("spec").get("clusterIP")
+                if i.get("spec").get("externalIPs"):
+                    external_ip = " ,\n".join(i.get("spec").get("externalIPs"))
+                else:
+                    external_ip = "<none>"
+                ports = i.get("spec").get("ports")
+                for p in range(len(ports)):
+                    if ports[p].get("port") == ports[p].get("targetPort"):
+                        ports[p] = ("%s/%s" % (ports[p].get("port"), ports[p].get("protocol")))
+                    else:
+                        ports[p] = ("%s:%s/%s" % (ports[p].get("port"), ports[p].get("targetPort"), ports[p].get("protocol")))
+                sum_ports = " ,\n".join(ports)
+                time = get_datetime_diff(i.get("metadata").get("creationTimestamp"))
+                table.add_row([name,  cluster_ip,  external_ip, sum_ports, time])
+            print(table)
+
+    def show_human_readable_service(self):
+        if self.result:
+            print("%-30s %s" % ("Name:", self.result.get("name")))
+            print("%-30s %s" % ("Namespace:", self.result.get("namespace")))
+            for key,value in self.result.get("results")[0].get("data").get("metadata").get("labels").items():
+                print("\t%s=%s" % (key, value))
+            print("Selectors:")
+            for key,value in self.result.get("results")[0].get("data").get("spec").get("selector").items():
+                print("\t%s=%s" % (key, value))
+            print("%-30s %s " % ("Type:", self.result.get("results")[0].get("data").get("spec").get("type")))
+            print("%-30s %s " % ("IP:", self.result.get("results")[0].get("data").get("spec").get("clusterIP")))
+            ports = self.result.get("results")[0].get("data").get("spec").get("ports")
+            for p in ports:
+                if p.get("port") == p.get("targetPort"):
+                    print("%-30s %s/%s" % ("Port:", p.get("port"), p.get("protocol")))
+                else:
+                    print("%-30s %s:%s/%s" % ("Port:", p.get("port"), p.get("targetPort"), p.get("protocol")))
+            print("%-30s %s " % ("External IPs:", "----"))
+
 
 
 class WebClientApiParser:

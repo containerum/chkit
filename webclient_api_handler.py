@@ -70,10 +70,12 @@ class WebClient:
     def get_deployments(self, namespace):
         url = "%s/api/namespaces/%s/deployments" % (self.server, namespace)
         r = requests.get(url, headers=self.headers)
-        return json.loads(r.text)
+        if r.status_code == 200:
+            return json.loads(r.text)
 
     @user_is_authenticated
     def get_deployment(self, namespace, deployment):
         url = "%s/api/namespaces/%s/deployments/%s" % (self.server, namespace, deployment)
         r = requests.get(url, headers=self.headers)
-        return json.loads(r.text)
+        if r.status_code == 200:
+            return json.loads(r.text)

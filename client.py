@@ -13,7 +13,7 @@ from config_json_handler import get_json_from_config, set_token_to_json_config,s
 from answer_parsers import TcpApiParser, WebClientApiParser
 import uuid
 from keywords import JSON_TEMPLATES_RUN_FILE
-from run_configure  import  RunConfigure
+from run_configure import RunConfigure
 
 
 config_json_data = get_json_from_config()
@@ -109,23 +109,19 @@ class Client:
         namespace = self.args['namespace']
         if not namespace:
             namespace = config_json_data.get("default_namespace")
-        if kind in ('pod', "pods", "po"):
-            api_result = self.api_handler.get(kind, name, namespace)
-            self.handle_api_result(api_result)
-            self.get_and_handle_tcp_result('get')
-            self.tcp_handler.close()
-        elif kind in ("deployment", "deployments", "deploy"):
-            webclient = WebClient()
-            if self.args.get("name"):
-                api_result = webclient.get_deployment(namespace, self.args.get("name")[0])
-                WebClientApiParser(api_result).show_human_readable_deployment(namespace)
-            else:
-                api_result = webclient.get_deployments(namespace)
-                WebClientApiParser(api_result).show_human_readable_deployment_list()
+        if kind in ("deployments", "deploy", "deployment"):
+            kind = "deployments"
+        elif kind in ("po", "pods", "pod"):
+            kind = "pods"
+        elif kind in ("service", "services", "svc"):
+            kind = "services"
         else:
-            webclient = WebClient()
-            api_result = webclient.get_namespaces()
-            WebClientApiParser(api_result).show_human_readable_namespace_list()
+            kind = "namespaces"
+
+        api_result = self.api_handler.get(kind, name, namespace)
+        self.handle_api_result(api_result)
+        self.get_and_handle_tcp_result('get')
+        self.tcp_handler.close()
 
     def get_and_handle_tcp_result(self, command_name, wide=False):
         try:

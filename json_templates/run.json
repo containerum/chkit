@@ -16,17 +16,17 @@
                             }
                         },
                         "commands": [],
-                        "image": "sfdfd",
-                        "name": "bkabklabla",
+                        "image": "sfdfdhfgfgg",
+                        "name": "bka",
                         "env": [],
                         "ports": []
                     }
                 ]
             },
             "metadata": {
-                "name": "bkabklabla",
+                "name": "bka",
                 "labels": {
-                    "run": "bkabklabla"
+                    "run": "bka"
                 }
             }
         },
@@ -34,7 +34,7 @@
     },
     "apiVersion": "extensions/v1beta1",
     "metadata": {
-        "name": "bkabklabla",
+        "name": "bka",
         "labels": {}
     }
 }

@@ -5,8 +5,11 @@ kinds = [
     'deployments',
     'deployment',
     'deploy',
+    'service',
     'services',
-    'namespaces'
+    'svc',
+    'namespaces',
+    'namespace'
 ]
 
 output_formats = [
