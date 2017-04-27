@@ -2,7 +2,7 @@ import json
 from bcolors import BColors
 from keywords import SUCCESS_CHANGED
 import os.path
-FILE_CONFIG = os.path.dirname(__file__) + "/CONFIG.json"
+FILE_CONFIG = os.path.dirname(__file__) + "/var/lib/containerium/CONFIG.json"
 
 
 def get_json_from_config():
