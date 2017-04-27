@@ -278,7 +278,6 @@ class WebClientApiParser:
             for c in containers:
                 print("\t%s" % c.get("name"))
 
-
 def get_datetime_diff(timestamp):
     created_date = parser.parse(timestamp)
     current_date = datetime.now()

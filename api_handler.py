@@ -88,6 +88,21 @@ class ApiHandler:
 
         return result
 
+    def expose(self, json_to_send, namespace):
+        if namespace:
+            url = '{}/namespaces/{}/services'.format(
+                self.server,
+                namespace
+            )
+        else:
+            url = '{}/namespaces/default/services'.format(
+                self.server
+            )
+
+        result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
+
+        return result
+
     def delete(self, kind, name, namespace):
         if not namespace:
             namespace = 'default'
@@ -115,7 +130,6 @@ class ApiHandler:
 
     def get(self, kind, name, namespace):
 
-
         if name:
             url = '{}/namespaces/{}/{}/{}'.format(
                 self.server,
@@ -132,7 +146,7 @@ class ApiHandler:
         result = make_request(url, self.headers, self.TIMEOUT, "GET")
         return result
 
-    def get_namespaces(self, name):
+    def get_namespaces(self, name=None):
         if name:
             url = '{}/namespaces/{}'.format(
                 self.server,

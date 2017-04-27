@@ -3,7 +3,7 @@ import os
 import json
 import yaml
 import datetime
-from data import kinds, output_formats, deployment_json
+from data import kinds, output_formats, deployment_json, service_json
 from parser import *
 from tcp_handler import TcpHandler
 from api_handler import ApiHandler
@@ -44,6 +44,15 @@ class Client:
         self.check_file_existence()
         self.check_arguments()
 
+        if self.args.get("kind") in ("deployments", "deploy", "deployment"):
+            self.args["kind"] = "deployments"
+        elif self.args.get("kind") in ("po", "pods", "pod"):
+            self.args["kind"] = "pods"
+        elif self.args.get("kind") in ("service", "services", "svc"):
+            self.args["kind"] = "services"
+        else:
+            self.args["kind"] = "namespaces"
+
         if self.args['command'] == 'run':
             self.go_run()
 
@@ -62,6 +71,9 @@ class Client:
         elif self.args['command'] == 'config':
             self.modify_config()
 
+        elif self.args['command'] == 'expose':
+            self.go_expose()
+
         elif self.args['command'] == 'logout':
             self.logout()
 
@@ -72,13 +84,26 @@ class Client:
 
         self.tcp_connect()
 
-        # with open(os.path.join(self.path, 'run_good.json'), 'r', encoding='utf-8') as f:
-        #     json_to_send = json.load(f)
+        api_result = self.api_handler.expose(json_to_send)
+        self.handle_api_result(api_result)
+        self.get_and_handle_tcp_result('run')
 
-        api_result = self.api_handler.run(json_to_send)
+        self.tcp_handler.close()
+
+    def go_expose(self):
+        json_to_send = self.construct_expose()
+        if self.debug:
+            self.log_time()
+
+        self.tcp_connect()
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+
+        api_result = self.api_handler.expose(json_to_send, namespace)
         self.handle_api_result(api_result)
 
-        self.get_and_handle_tcp_result('run')
+        self.get_and_handle_tcp_result('expose')
 
         self.tcp_handler.close()
 
@@ -91,7 +116,6 @@ class Client:
 
         if kind != 'namespaces':
             api_result = self.api_handler.create(json_to_send)
-            #print(api_result)
         else:
             api_result = self.api_handler.create_namespaces(json_to_send)
         self.handle_api_result(api_result)
@@ -106,22 +130,21 @@ class Client:
             self.log_time()
         self.tcp_connect()
 
-        namespace = self.args['namespace']
+        namespace = self.args.get('namespace')
         if not namespace:
             namespace = config_json_data.get("default_namespace")
-        if kind in ("deployments", "deploy", "deployment"):
-            kind = "deployments"
-        elif kind in ("po", "pods", "pod"):
-            kind = "pods"
-        elif kind in ("service", "services", "svc"):
-            kind = "services"
-        else:
-            kind = "namespaces"
 
-        api_result = self.api_handler.get(kind, name, namespace)
+        if kind == "namespaces":
+            if self.args.get("name"):
+                api_result = self.api_handler.get_namespaces(self.args.get("name")[0])
+            else:
+                api_result = self.api_handler.get_namespaces()
+        else:
+            api_result = self.api_handler.get(kind, name, namespace)
         self.handle_api_result(api_result)
-        self.get_and_handle_tcp_result('get')
+        json_result = self.get_and_handle_tcp_result('get')
         self.tcp_handler.close()
+        return json_result
 
     def get_and_handle_tcp_result(self, command_name, wide=False):
         try:
@@ -138,6 +161,7 @@ class Client:
                     self.print_result(tcp_result)
 
             self.print_result_status(tcp_result, command_name)
+            return tcp_result
 
         except RuntimeError as e:
             print('{}{}{}'.format(
@@ -145,6 +169,7 @@ class Client:
                 e,
                 BColors.ENDC
             ))
+            return None
 
     def go_delete(self):
         kind, name = self.construct_delete()
@@ -154,6 +179,8 @@ class Client:
 
         self.args['output'] = 'yaml'
         namespace = self.args['namespace']
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
         if kind != 'namespaces':
             api_result = self.api_handler.delete(kind, name, namespace)
         else:
@@ -186,7 +213,7 @@ class Client:
 
     def check_file_existence(self):
         if 'file' in self.args:
-            if self.args.get('file') is not None:
+            if self.args.get('file'):
                 if not os.path.isfile(os.path.join(self.path, self.args.get('file'))):
                     self.parser.error('no such file: {}'.format(
                         os.path.join(self.path, self.args.get('file'))
@@ -251,12 +278,13 @@ class Client:
             ))
 
     def print_result(self, result):
-        if self.args['output'] == 'yaml':
-            print(yaml.dump(result, default_flow_style=False))
-        elif self.args['output'] == 'json':
-            print(json.dumps(result, indent=4))
-        else:
-            TcpApiParser(result)
+        if self.args.get("command") != "expose":
+            if self.args.get('output') == 'yaml':
+                print(yaml.dump(result, default_flow_style=False))
+            elif self.args['output'] == 'json':
+                print(json.dumps(result, indent=4))
+            else:
+                TcpApiParser(result)
 
     def log_time(self):
         print('{}{}{}'.format(
@@ -266,7 +294,6 @@ class Client:
         ))
 
     def construct_run(self):
-
         if self.args.get("kind") in ("deploy", "deployment", "deployments"):
             json_to_send = deployment_json
             json_to_send['metadata']['name'] = self.args['name']
@@ -363,23 +390,40 @@ class Client:
             self.parser.error(NAME_WITH_KIND_ERROR)
 
     def construct_get(self):
-        if self.args['file'] and not self.args['kind'] and not self.args['name']:
+        if self.args.get('file') and not self.args['kind'] and not self.args['name']:
             body = self.get_json_from_file()
             name = body['metadata']['name']
             kind = '{}s'.format(body['kind'].lower())
             return kind, name
 
-        elif not self.args['file'] and self.args['kind']:
+        elif not self.args.get('file') and self.args['kind']:
             kind = self.args['kind']
             name = self.args['name']
             return kind, name
 
-        elif not self.args['file'] and not self.args['kind']:
+        elif not self.args.get('file') and not self.args['kind']:
             self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
         elif self.args['file'] and self.args['kind']:
             self.parser.error(KIND_OR_FILE_BOTH_ERROR)
         elif self.args['file'] and self.args['name']:
             self.parser.error(NAME_OR_FILE_BOTH_ERROR)
+
+    def construct_expose(self):
+        json_to_send = service_json
+        ports = self.args.get("ports")
+        if ports:
+            for p in ports:
+                p = p.split(":")
+                if len(p) == 3:
+                    json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2], "targetPort": int(p[1])})
+                elif len(p) == 2:
+                    json_to_send["spec"]["ports"].append({"name": p[0], "protocol": "TCP", "targetPort": int(p[1])})
+        result = self.go_get()
+        labels = result.get("results")[0].get("data")\
+            .get("spec").get("template").get("metadata").get("labels")
+        json_to_send["metadata"]["labels"] = labels
+        json_to_send["metadata"]["name"] = self.args["name"][0]
+        return json_to_send
 
 
 def main():

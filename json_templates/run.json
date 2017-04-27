@@ -17,16 +17,16 @@
                         },
                         "commands": [],
                         "image": "sfdfdhfgfgg",
-                        "name": "bka",
+                        "name": "bka3",
                         "env": [],
                         "ports": []
                     }
                 ]
             },
             "metadata": {
-                "name": "bka",
+                "name": "vecher",
                 "labels": {
-                    "run": "bka"
+                    "run": "bka3"
                 }
             }
         },
@@ -34,7 +34,7 @@
     },
     "apiVersion": "extensions/v1beta1",
     "metadata": {
-        "name": "bka",
+        "name": "bka3",
         "labels": {}
     }
 }

@@ -15,12 +15,12 @@ class TcpHandler:
         self.BUFFER_SIZE = config_json_data.get("tcp_handler").get("BUFFER_SIZE")
         self.AUTH_FORM = {
             "channel": uuid_v4,
-            "login": config_json_data.get("tcp_handler").get("AUTH_FORM").get("login"),
             "token": config_json_data.get("tcp_handler").get("AUTH_FORM").get("token"),
         }
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 
     def connect(self):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((self.TCP_IP, self.TCP_PORT))
         self.s.send((json.dumps(self.AUTH_FORM) + '\n').encode('utf-8'))
         data = self.s.recv(self.BUFFER_SIZE)
