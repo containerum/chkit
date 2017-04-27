@@ -23,7 +23,7 @@
                 ]
             },
             "metadata": {
-                "name": "blabla4",
+                "name": "yulka",
                 "labels": {
                     "run": "bka3"
                 }
@@ -33,7 +33,7 @@
     },
     "apiVersion": "extensions/v1beta1",
     "metadata": {
-        "name": "blabla4",
+        "name": "yulka",
         "labels": {}
     }
 }

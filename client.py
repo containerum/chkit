@@ -352,7 +352,7 @@ class Client:
                 json_to_send['spec']['template']['spec']['containers'][0]['resources']["limits"]['memory'] = memory
                 json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
                 json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
-                with open(os.path.join(os.path.dirname(__name__), JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
+                with open(os.path.join("/var/lib/containerium/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
                     json.dump(json_to_send, w, indent=4)
 
                 return json_to_send

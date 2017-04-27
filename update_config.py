@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import json
 from bcolors import BColors
 from keywords import SUCCESS_CHANGED
