@@ -66,7 +66,7 @@ client get TYPE -o FORMAT
 ## Создание deployments, services через файл
 
 ```
-client create TYPE -f FILE
+client create  -f FILE
 ```
 
 ## Создание service с помощью сгенерированного json-файла

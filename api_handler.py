@@ -12,13 +12,13 @@ class ApiHandler:
         self.headers.update({"Channel": uuid_v4})
         self.TIMEOUT = config_json_data.get("api_handler").get("TIMEOUT")
 
-    def create(self, json_to_send):
+    def create(self, json_to_send, namespace=None):
         kind = '{}s'.format(json_to_send['kind'].lower())
 
-        if json_to_send.get('metadata').get('namespace'):
+        if namespace:
             url = '{}/namespaces/{}/{}'.format(
                 self.server,
-                json_to_send.get('metadata').get('namespace'),
+                namespace,
                 kind
             )
         else:

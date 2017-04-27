@@ -114,8 +114,12 @@ class Client:
         json_to_send = self.get_json_from_file()
         kind = '{}s'.format(json_to_send.get('kind')).lower()
 
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+
         if kind != 'namespaces':
-            api_result = self.api_handler.create(json_to_send)
+            api_result = self.api_handler.create(json_to_send, namespace)
         else:
             api_result = self.api_handler.create_namespaces(json_to_send)
         self.handle_api_result(api_result)

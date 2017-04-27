@@ -1,27 +1,27 @@
 {
+    "version": "1.0",
     "api_handler": {
         "TIMEOUT": 10,
+        "server": "http://192.168.1.128:3333",
         "headers": {
             "Authorization": ""
-        },
-        "server": "http://192.168.1.128:3333"
+        }
     },
     "webclient_api_handler": {
+        "password": "",
         "username": "",
+        "server": "http://139.59.146.89",
         "headers": {
             "Authorization": ""
-        },
-        "password": "",
-        "server": "http://139.59.146.89"
+        }
     },
+    "default_namespace": "",
     "tcp_handler": {
         "AUTH_FORM": {
             "token": ""
         },
-        "TCP_IP": "146.185.135.181",
+        "TCP_PORT": 3000,
         "BUFFER_SIZE": 1024,
-        "TCP_PORT": 3000
-    },
-    "version": "1.0",
-    "default_namespace": ""
+        "TCP_IP": "146.185.135.181"
+    }
 }

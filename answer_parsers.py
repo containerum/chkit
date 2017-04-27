@@ -280,7 +280,7 @@ class WebClientApiParser:
 
 def get_datetime_diff(timestamp):
     created_date = parser.parse(timestamp)
-    current_date = datetime.now()
+    current_date = datetime.utcnow()
     diff = ((current_date.year - created_date.year, "Y"),(current_date.month - created_date.month, "M"),
             (current_date.day - created_date.day, "d"), (current_date.hour - created_date.hour, "h"),
             (current_date.minute - created_date.minute, "m"), (current_date.second - created_date.second,"s"))

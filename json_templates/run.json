@@ -15,7 +15,6 @@
                                 "cpu": "100m"
                             }
                         },
-                        "commands": [],
                         "image": "sfdfdhfgfgg",
                         "name": "bka3",
                         "env": [],
