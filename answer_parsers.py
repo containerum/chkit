@@ -78,14 +78,16 @@ class TcpApiParser:
             print("System:")
             print("\t%-30s %s" % ("PodIP:", system.get("podIP")))
             print("\t%-30s %s" % ("Phase:", system.get("phase")))
-            print("\t%-30s %s" % ("StartTime:", parser.parse(system.get("startTime"))))
+            if system.get("startTime"):
+                print("\t%-30s %s" % ("StartTime:", parser.parse(system.get("startTime"))))
             print("\t%-30s %s" % ("TerminationGracePeriodSeconds:", termination))
             print("\t%-30s %s" % ("RestartPolicy:", restartPolicy))
             print("ContainerStatuses:")
-            containerStatuses = PrettyTable(["Name","Ready","Restart Count"])
-            for cs in container_statuses:
-                containerStatuses.add_row([cs.get("name"), cs.get("ready"), cs.get("restartCount")])
-            print(containerStatuses)
+            if container_statuses:
+                containerStatuses = PrettyTable(["Name","Ready","Restart Count"])
+                for cs in container_statuses:
+                    containerStatuses.add_row([cs.get("name"), cs.get("ready"), cs.get("restartCount")])
+                print(containerStatuses)
             print("Status:")
             StatusTable = PrettyTable(["Type:", "LastTransitionTime:", "Status:"])
             for s in status:

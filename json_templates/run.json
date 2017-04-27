@@ -16,14 +16,14 @@
                             }
                         },
                         "image": "sfdfdhfgfgg",
-                        "name": "bka3",
+                        "name": "ba3",
                         "env": [],
                         "ports": []
                     }
                 ]
             },
             "metadata": {
-                "name": "vecher",
+                "name": "blabla4",
                 "labels": {
                     "run": "bka3"
                 }
@@ -33,7 +33,7 @@
     },
     "apiVersion": "extensions/v1beta1",
     "metadata": {
-        "name": "bka3",
+        "name": "blabla4",
         "labels": {}
     }
 }
