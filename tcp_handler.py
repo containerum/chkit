@@ -18,7 +18,6 @@ class TcpHandler:
             "token": config_json_data.get("tcp_handler").get("AUTH_FORM").get("token"),
         }
 
-
     def connect(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((self.TCP_IP, self.TCP_PORT))

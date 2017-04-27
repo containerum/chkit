@@ -56,18 +56,15 @@ class TcpApiParser:
             if c.get("command"):
                 print("\t\t%-20s %s" % ("Command:", "".join(c.get("command"))))
             print("\t\tPorts:")
-            #print("\t\t\t%-20s %-10s %-10s" % ("Name", "Protocol", "ContPort"))
             if c.get("ports"):
                 ports = PrettyTable(["Name", "Protocol", "ContPort"])
                 for p in c.get("ports"):
-                    #print("\t\t\t%-20s %-10s %-10s" % (p.get("name"), p.get("protocol"), p.get("containerPort")))
                     ports.add_row([p.get("name"), p.get("protocol"), p.get("containerPort")])
                 print(ports)
             if c.get("env"):
                 env = PrettyTable(["Name","Value"])
                 print("\t\tEnvironment:")
                 for e in c.get("env"):
-                    #print("\t\t\t%-20s %-10s %-10s" % (p.get("name"), p.get("protocol"), p.get("containerPort")))
                     env.add_row([e.get("name"), e.get("value")])
                 print(env)
             print("\t\tResourceLimit:")
@@ -92,9 +89,6 @@ class TcpApiParser:
             StatusTable = PrettyTable(["Type:", "LastTransitionTime:", "Status:"])
             for s in status:
                 StatusTable.add_row([s.get("type"), parser.parse(s.get("lastTransitionTime")), s.get("status")])
-                # print("\t%-30s %s" % ("Type:", s.get("type")))
-                # print("\t%-30s %s" % ("LastTransitionTime:", parser.parse(s.get("lastTransitionTime"))))
-                # print("\t%-30s %s" % ("Status:", s.get("status")))
             print(StatusTable)
 
     def show_human_readable_pod_list(self):
@@ -279,6 +273,7 @@ class WebClientApiParser:
             print("Containers:")
             for c in containers:
                 print("\t%s" % c.get("name"))
+
 
 def get_datetime_diff(timestamp):
     created_date = parser.parse(timestamp)
