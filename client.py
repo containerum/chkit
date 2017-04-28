@@ -427,6 +427,7 @@ class Client:
             .get("spec").get("template").get("metadata").get("labels")
         json_to_send["metadata"]["labels"] = labels
         json_to_send["metadata"]["name"] = self.args["name"][0]
+        json_to_send["spec"]["selector"].update({"app": self.args["name"][0]})
         return json_to_send
 
 

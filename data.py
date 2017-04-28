@@ -70,6 +70,7 @@ service_json = {
     },
     "spec": {
         "ports": [
-        ]
+        ],
+        "selector":{}
     }
 }

@@ -2,15 +2,15 @@
     "version": "1.0",
     "api_handler": {
         "headers": {
-            "Authorization": "D1Z+AQguQmC293uaaJYXcfyFjie2stYA6phoxrdBZK0="
+            "Authorization": ""
         },
         "TIMEOUT": 10,
-        "server": "http://192.168.1.128:3333"
+        "server": "http://146.185.135.181:3333"
     },
     "tcp_handler": {
         "TCP_IP": "146.185.135.181",
         "AUTH_FORM": {
-            "token": "D1Z+AQguQmC293uaaJYXcfyFjie2stYA6phoxrdBZK0="
+            "token": ""
         },
         "BUFFER_SIZE": 1024,
         "TCP_PORT": 3000
