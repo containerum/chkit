@@ -196,11 +196,14 @@ class TcpApiParser:
         if self.result:
             print("%-30s %s" % ("Name:", self.result.get("name")))
             print("%-30s %s" % ("Namespace:", self.result.get("namespace")))
-            for key,value in self.result.get("results")[0].get("data").get("metadata").get("labels").items():
-                print("\t%s=%s" % (key, value))
-            print("Selectors:")
-            for key,value in self.result.get("results")[0].get("data").get("spec").get("selector").items():
-                print("\t%s=%s" % (key, value))
+            if self.result.get("results")[0].get("data").get("metadata").get("labels"):
+                print("Labels:")
+                for key,value in self.result.get("results")[0].get("data").get("metadata").get("labels").items():
+                    print("\t%s=%s" % (key, value))
+            if self.result.get("results")[0].get("data").get("spec").get("selector"):
+                print("Selectors:")
+                for key,value in self.result.get("results")[0].get("data").get("spec").get("selector").items():
+                    print("\t%s=%s" % (key, value))
             print("%-30s %s " % ("Type:", self.result.get("results")[0].get("data").get("spec").get("type")))
             print("%-30s %s " % ("IP:", self.result.get("results")[0].get("data").get("spec").get("clusterIP")))
             ports = self.result.get("results")[0].get("data").get("spec").get("ports")
@@ -209,7 +212,11 @@ class TcpApiParser:
                     print("%-30s %s/%s" % ("Port:", p.get("port"), p.get("protocol")))
                 else:
                     print("%-30s %s:%s/%s" % ("Port:", p.get("port"), p.get("targetPort"), p.get("protocol")))
-            print("%-30s %s " % ("External IPs:", "----"))
+            if self.result.get("results")[0].get("data").get("spec").get("externalIPs"):
+                print("%-30s %s " % ("External IPs:", " ,".join(self.result.get("results")[0].get("data")
+                                                                .get("spec").get("externalIPs"))))
+            else:
+                print("%-30s %s " % ("External IPs:", "----"))
 
 
 

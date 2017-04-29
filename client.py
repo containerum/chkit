@@ -428,6 +428,7 @@ class Client:
         json_to_send["metadata"]["labels"] = labels
         json_to_send["metadata"]["name"] = self.args["name"][0]
         json_to_send["spec"]["selector"].update({"app": self.args["name"][0]})
+        print(json_to_send)
         return json_to_send
 
 

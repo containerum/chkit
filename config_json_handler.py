@@ -20,7 +20,7 @@ def set_token_to_json_config(token):
         data.get("tcp_handler").get("AUTH_FORM")["token"] = token
         data.get("api_handler").get("headers")["Authorization"] = token
         with open(FILE_CONFIG, "w") as file:
-            file.write(json.dumps(data, file, indent=4))
+            file.write(json.dumps(data,  indent=4))
         file.close()
         print('{}{}{} '.format(
                 BColors.OKBLUE,
@@ -45,7 +45,7 @@ def set_default_namespace_to_json_config(namespace):
         data = json.loads(json_data)
         data["default_namespace"] = namespace
         with open(FILE_CONFIG, "w") as file:
-            file.write(json.dumps(data, file, indent=4))
+            file.write(json.dumps(data,  indent=4))
         file.close()
         print('{}{} {}'.format(
                 BColors.OKBLUE,
