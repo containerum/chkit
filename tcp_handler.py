@@ -57,7 +57,7 @@ class TcpHandler:
                     BColors.BOLD,
                     BColors.ENDC
                 ))
-        except:
+        except Exception:
             with open('received_str', 'w', encoding='utf-8') as w:
                 w.write(data.decode('utf-8'))
             result = {}
