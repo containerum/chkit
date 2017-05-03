@@ -108,7 +108,8 @@ class Client:
         self.tcp_handler.close()
 
     def go_create(self):
-        self.log_time()
+        if self.args.get("debug"):
+            self.log_time()
         self.tcp_connect()
 
         json_to_send = self.get_json_from_file()
@@ -272,7 +273,8 @@ class Client:
                 BColors.ENDC
             ))
 
-        elif self.debug:
+
+        elif self.args["command"] != "get":
             print('{}{}...{} {}OK{}'.format(
                 BColors.WARNING,
                 message,

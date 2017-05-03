@@ -29,6 +29,9 @@ class TcpApiParser:
         if row_answer.get("results")[0].get("data").get("kind") == "Namespace":
             self.show_human_readable_namespace()
 
+        if row_answer.get("results")[0].get("data").get("kind") == "ResourceQuota":
+            self.show_human_readable_namespace_list()
+
     def show_human_readable_pod(self):
         metadata = self.result.get("results")[0].get("data").get("metadata")
         containers = self.result.get("results")[0].get("data").get("spec").get("containers")
@@ -223,65 +226,38 @@ class TcpApiParser:
                 print("%-30s %s " % ("External IPs:", "----"))
 
     def show_human_readable_namespace(self):
-        metadata = self.result.get("results")[0].get("data").get("metadata")
-        containers = self.result.get("results")[0].get("data").get("spec").get("containers")
-        restartPolicy = self.result.get("results")[0].get("data").get("spec").get("restartPolicy")
-        termination = self.result.get("results")[0].get("data").get("spec").get("terminationGracePeriodSeconds")
-        system = self.result.get("results")[0].get("data").get("status")
-        container_statuses = self.result.get("results")[0].get("data").get("status").get("containerStatuses")
-        status = self.result.get("results")[0].get("data").get("status").get("conditions")
+        name = self.result.get("results")[0].get("data").get("metadata").get("name")
+        phase = self.result.get("results")[0].get("data").get("status").get("phase")
+        creationTimeStamp = self.result.get("results")[0].get("data").get("metadata").get("creationTimestamp")
 
-        print("Describe:")
-        print("\t%-20s %s" % ("UserId:", self.result.get("UserId")))
-        print("\t%-20s %s" % ("Channel:", self.result.get("channel")))
-        print("\t%-20s %s" % ("CommandId:", self.result.get("id")))
-        print("Pod:")
-        print("\t%-20s %s" % ("CreationTime:", parser.parse(metadata.get("creationTimestamp"))))
-        print("\tLabel:")
-        print("\t\t%-20s %s" % ("App:", metadata.get("labels").get("app")))
-        print("\t\t%-20s %s" % ("PodTemplateHash:", metadata.get("labels").get("pod-template-hash")))
-        print("\t\t%-20s %s" % ("Role:", metadata.get("labels").get("role")))
-        print("\t\t%-20s %s" % ("CommandId:", self.result.get("id")))
-        print("Containers:")
-        for c in containers:
-            print("\t%s" % c.get("name"))
-            if c.get("command"):
-                print("\t\t%-20s %s" % ("Command:", "".join(c.get("command"))))
-            print("\t\tPorts:")
-            if c.get("ports"):
-                ports = PrettyTable(["Name", "Protocol", "ContPort"])
-                for p in c.get("ports"):
-                    ports.add_row([p.get("name"), p.get("protocol"), p.get("containerPort")])
-                print(ports)
-            if c.get("env"):
-                env = PrettyTable(["Name","Value"])
-                print("\t\tEnvironment:")
-                for e in c.get("env"):
-                    env.add_row([e.get("name"), e.get("value")])
-                print(env)
-            print("\t\tResourceLimit:")
-            print("\t\t\t%-10s %s" % ("CPU:", c.get("resources").get("limits").get("cpu")))
-            print("\t\t\t%-10s %s" % ("Memory:", c.get("resources").get("limits").get("memory")))
-            print("\t\t%-20s %s" % ("Image:", c.get("image")))
-            print("\t\t%-20s %s" % ("ImagePullPolicy:", c.get("imagePullPolicy")))
-            print("System:")
-            print("\t%-30s %s" % ("PodIP:", system.get("podIP")))
-            print("\t%-30s %s" % ("Phase:", system.get("phase")))
-            if system.get("startTime"):
-                print("\t%-30s %s" % ("StartTime:", parser.parse(system.get("startTime"))))
-            print("\t%-30s %s" % ("TerminationGracePeriodSeconds:", termination))
-            print("\t%-30s %s" % ("RestartPolicy:", restartPolicy))
-            print("ContainerStatuses:")
-            if container_statuses:
-                containerStatuses = PrettyTable(["Name","Ready","Restart Count"])
-                for cs in container_statuses:
-                    containerStatuses.add_row([cs.get("name"), cs.get("ready"), cs.get("restartCount")])
-                print(containerStatuses)
-            print("Status:")
-            StatusTable = PrettyTable(["Type:", "LastTransitionTime:", "Status:"])
-            for s in status:
-                StatusTable.add_row([s.get("type"), parser.parse(s.get("lastTransitionTime")), s.get("status")])
-            print(StatusTable)
+        hard = self.result.get("results")[1].get("data").get("status").get("hard")
+        used = self.result.get("results")[1].get("data").get("status").get("used")
+
+        print("%-20s %s" % ("Name:", name))
+        print("%-20s %s" % ("Phase:", phase))
+        print("%-20s %s" % ("CreationTime:", parser.parse(creationTimeStamp)))
+        print("Hard:")
+        print("\t%-20s %s" % ("CPU", hard.get("requests.cpu")))
+        print("\t%-20s %s" % ("Memory", hard.get("requests.memory")))
+        print("Used:")
+        print("\t%-20s %s" % ("CPU", used.get("requests.cpu")))
+        print("\t%-20s %s" % ("Memory", used.get("requests.memory")))
+
+    def show_human_readable_namespace_list(self):
+        items = self.result.get("results")
+        if items:
+            table = PrettyTable(["NAME", "HARD CPU", "HARD MEMORY", "USED CPU", "USED MEMORY", "AGE" ])
+            table.align = "l"
+            for i in items:
+                name = i.get("data").get("metadata").get("namespace")
+                hard = i.get("data").get("status").get("hard")
+                used = i.get("data").get("status").get("used")
+                time = get_datetime_diff(i.get("data").get("metadata").get("creationTimestamp"))
+                table.add_row([name, hard.get("limits.cpu"), hard.get("limits.memory"), used.get("limits.cpu"),
+                               used.get("limits.memory"), time])
+            print(table)
+        else:
+            print(EMPTY_NAMESPACE)
 
 
 class WebClientApiParser:
