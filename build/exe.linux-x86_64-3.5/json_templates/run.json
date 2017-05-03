@@ -1,0 +1,38 @@
+{
+    "kind": "Deployment",
+    "spec": {
+        "template": {
+            "spec": {
+                "containers": [
+                    {
+                        "resources": {
+                            "requests": {
+                                "memory": "128Mi",
+                                "cpu": "100m"
+                            },
+                            "limits": {
+                                "memory": "128Mi",
+                                "cpu": "100m"
+                            }
+                        },
+                        "image": "sfdfdhfgfgg",
+                        "name": "ba3",
+                        "env": [],
+                        "ports": []
+                    }
+                ]
+            },
+            "metadata": {
+                "name": "yulka",
+                "labels": {
+                    "run": "bka3"
+                }
+            }
+        },
+        "replicas": 1
+    },
+    "apiVersion": "extensions/v1beta1",
+    "metadata": {
+        "name": "yulka",
+    }
+}
