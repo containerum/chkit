@@ -84,7 +84,7 @@ class Client:
 
         self.tcp_connect()
 
-        api_result = self.api_handler.expose(json_to_send)
+        api_result = self.api_handler.run(json_to_send)
         self.handle_api_result(api_result)
         self.get_and_handle_tcp_result('run')
 
@@ -332,6 +332,7 @@ class Client:
                 if commands:
                     json_to_send['spec']['template']['spec']['containers'][0]['command'] = commands
                 if ports:
+                    json_to_send['spec']['template']['spec']['containers'][0]['ports'] = []
                     for port in ports:
                         json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
                             'containerPort': port
@@ -348,11 +349,9 @@ class Client:
                             "value": key_value.split('=')[1]
                         }
                         for key_value in env]
-                json_to_send['spec']['template']['spec']['containers'][0]['resources']["limits"]['cpu'] = cpu
-                json_to_send['spec']['template']['spec']['containers'][0]['resources']["limits"]['memory'] = memory
                 json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
                 json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
-                with open(os.path.join("/var/lib/containerium/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
+                with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
                     json.dump(json_to_send, w, indent=4)
 
                 return json_to_send

@@ -152,8 +152,12 @@ class TcpApiParser:
             print("Selectors:")
             for key,value in self.result.get("results")[0].get("data").get("spec").get("selector").get("matchLabels").items():
                 print("\t%s=%s" % (key, value))
-            status_tuple = ("Replicas:", status.get("updatedReplicas"), "updated", status.get("replicas"), "total",
+            if status.get("unavailableReplicas"):
+                status_tuple = ("Replicas:", status.get("updatedReplicas"), "updated", status.get("replicas"), "total",
                             status.get("replicas")-status.get("unavailableReplicas"), "available", status.get("unavailableReplicas"), "unavailable")
+            else:
+                status_tuple = ("Replicas:", status.get("updatedReplicas"), "updated", status.get("replicas"), "total",
+                            status.get("availableReplicas"), "available", status.get("replicas")-status.get("availableReplicas"), "unavailable")
             print("%-30s %s %s | %s %s | %s %s | %s %s" % status_tuple)
             print("%-30s %s " % ("Strategy", strategy.get("type")))
             strategy_type = strategy.get("type")[0].lower() + strategy.get("type")[1:]
@@ -217,7 +221,6 @@ class TcpApiParser:
                                                                 .get("spec").get("externalIPs"))))
             else:
                 print("%-30s %s " % ("External IPs:", "----"))
-
 
 
 class WebClientApiParser:

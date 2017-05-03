@@ -20,38 +20,28 @@ output_formats = [
 ]
 
 deployment_json = {
-    'kind': 'Deployment',
-    "apiVersion": "extensions/v1beta1",
+    "kind": "Deployment",
     "metadata": {
-        "name": '',
-        "labels": {
-        }
+        "name": ""
     },
     "spec": {
-        "replicas": '',
+        "replicas": 1,
         "template": {
             "metadata": {
-                "name": '',
+                "name": "",
                 "labels": {
-                    "run": ''
+                    "test": ""
                 }
             },
             "spec": {
                 "containers": [
                     {
-                        "name": '',
-                        "image": '',
-                        "ports": [],
-                        "env": [],
-                        "commands": [],
-                        "resources":{
-                            "limits": {
-                                "cpu": "",
-                                "memory": ''
-                            },
-                            "requests":{
-                                "cpu": "",
-                                "memory": ""
+                        "name": "",
+                        "image": "",
+                        "resources": {
+                            "requests": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
                             }
                         }
                     }
@@ -65,12 +55,11 @@ service_json = {
     "apiVersion": "v1",
     "kind": "Service",
     "metadata": {
-        "labels": {},
         "name": "",
     },
     "spec": {
         "ports": [
         ],
-        "selector":{}
+        "selector": {}
     }
 }
