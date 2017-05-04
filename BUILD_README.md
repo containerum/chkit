@@ -8,7 +8,7 @@ git clone https://bitbucket.org/exonch/ch-sdk && cd ch-sdk
 
 Затем необходимо установить `python3.5` и пакетный менеждер `python3-pip`:
 ```
-$ sudo apt-get install python3.5 python3-pip
+$ sudo apt-get install python3 python3-pip
 ```
 
 Далее необходимо установить некоторые системные пакеты(только на Linux):

@@ -272,8 +272,6 @@ class Client:
                 result.get('message'),
                 BColors.ENDC
             ))
-
-
         elif self.args["command"] != "get":
             print('{}{}...{} {}OK{}'.format(
                 BColors.WARNING,
