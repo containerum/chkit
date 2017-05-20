@@ -13,6 +13,32 @@ def get_json_from_config():
     return data
 
 
+def show_namespace_token_from_config():
+    try:
+        json_data = open(FILE_CONFIG).read()
+        data = json.loads(json_data)
+        print('{}namespace: {} {}'.format(
+                BColors.OKGREEN,
+                data.get("default_namespace"),
+                BColors.ENDC
+            ))
+        print('{}token: {} {}'.format(
+                BColors.OKGREEN,
+                data.get("tcp_handler").get("AUTH_FORM")["token"],
+                BColors.ENDC
+            ))
+        return True
+
+    except Exception as e:
+        print('{}{}{} {}'.format(
+                BColors.FAIL,
+                "Error: ",
+                e,
+                BColors.ENDC,
+            ))
+        return False
+
+
 def set_token_to_json_config(token):
     try:
         json_data = open(FILE_CONFIG).read()
@@ -26,6 +52,12 @@ def set_token_to_json_config(token):
                 BColors.OKBLUE,
                 SUCCESS_CHANGED,
                 BColors.ENDC,
+            ))
+
+        print('{}token: {} {}'.format(
+                BColors.OKGREEN,
+                token,
+                BColors.ENDC
             ))
         return True
 
@@ -50,6 +82,11 @@ def set_default_namespace_to_json_config(namespace):
         print('{}{} {}'.format(
                 BColors.OKBLUE,
                 SUCCESS_CHANGED,
+                BColors.ENDC
+            ))
+        print('{}namespace: {} {}'.format(
+                BColors.OKGREEN,
+                namespace,
                 BColors.ENDC
             ))
         return True

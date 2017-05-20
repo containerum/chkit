@@ -13,6 +13,30 @@ kinds = [
     'namespace'
 ]
 
+expose_kinds = [
+    'deployments',
+    'deployment',
+    'deploy'
+]
+
+run_kinds = [
+    'deployments',
+    'deployment',
+    'deploy'
+]
+
+delete_kinds = [
+    'po',
+    'pods',
+    'pod',
+    'deployments',
+    'deployment',
+    'deploy',
+    'service',
+    'services',
+    'svc'
+]
+
 output_formats = [
     'yaml',
     'json',

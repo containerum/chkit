@@ -3,16 +3,17 @@ import os
 import json
 import yaml
 import datetime
-from data import kinds, output_formats, deployment_json, service_json
+from data import deployment_json, service_json
 from parser import *
 from tcp_handler import TcpHandler
 from api_handler import ApiHandler
 from webclient_api_handler import WebClient
 from bcolors import BColors
-from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config
+from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config,\
+    show_namespace_token_from_config
 from answer_parsers import TcpApiParser, WebClientApiParser
 import uuid
-from keywords import JSON_TEMPLATES_RUN_FILE
+from keywords import JSON_TEMPLATES_RUN_FILE, LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE
 from run_configure import RunConfigure
 
 
@@ -23,20 +24,24 @@ class Client:
     def __init__(self):
         self.path = os.getcwd()
         self.version = config_json_data.get("version")
-        self.parser = create_parser(kinds, output_formats, self.version)
+        self.parser = create_parser(self.version)
         uuid_v4 = str(uuid.uuid4())
         self.args = vars(self.parser.parse_args())
         self.debug = self.args.get("debug")
         self.tcp_handler = TcpHandler(uuid_v4, self.args.get("debug"))
         self.api_handler = ApiHandler(uuid_v4)
 
-    def modify_config(self):
-        if self.args.get("set_token"):
-            set_token_to_json_config(self.args.get("set_token"))
-        if self.args.get("set_default_namespace"):
-            set_default_namespace_to_json_config(self.args.get("set_default_namespace"))
+    def go_config(self):
+        if self.args.get("v"):
+            show_namespace_token_from_config()
+        else:
+            if self.args.get("set_token"):
+                set_token_to_json_config(self.args.get("set_token"))
+            if self.args.get("set_default_namespace"):
+                set_default_namespace_to_json_config(self.args.get("set_default_namespace"))
 
-    def logout(self):
+    @staticmethod
+    def logout():
         set_token_to_json_config("")
         print("Bye!")
 
@@ -69,7 +74,7 @@ class Client:
             self.go_replace()
 
         elif self.args['command'] == 'config':
-            self.modify_config()
+            self.go_config()
 
         elif self.args['command'] == 'expose':
             self.go_expose()
@@ -79,19 +84,8 @@ class Client:
 
     def go_run(self):
         json_to_send = self.construct_run()
-        if self.debug:
-            self.log_time()
-
-        self.tcp_connect()
-
-        api_result = self.api_handler.run(json_to_send)
-        self.handle_api_result(api_result)
-        self.get_and_handle_tcp_result('run')
-
-        self.tcp_handler.close()
-
-    def go_expose(self):
-        json_to_send = self.construct_expose()
+        if not json_to_send:
+            return
         if self.debug:
             self.log_time()
 
@@ -99,9 +93,27 @@ class Client:
         namespace = self.args.get('namespace')
         if not namespace:
             namespace = config_json_data.get("default_namespace")
+        api_result = self.api_handler.run(json_to_send, namespace)
+        if not self.handle_api_result(api_result):
+            return
+        self.get_and_handle_tcp_result('run')
+        self.tcp_handler.close()
+
+    def go_expose(self):
+        json_to_send = self.construct_expose()
+        if self.debug:
+            self.log_time()
+
+        if not json_to_send:
+            return
+        self.tcp_connect()
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
 
         api_result = self.api_handler.expose(json_to_send, namespace)
-        self.handle_api_result(api_result)
+        if not self.handle_api_result(api_result):
+            return
 
         self.get_and_handle_tcp_result('expose')
 
@@ -123,7 +135,8 @@ class Client:
             api_result = self.api_handler.create(json_to_send, namespace)
         else:
             api_result = self.api_handler.create_namespaces(json_to_send)
-        self.handle_api_result(api_result)
+        if not self.handle_api_result(api_result):
+            return
 
         self.get_and_handle_tcp_result('create')
 
@@ -146,7 +159,9 @@ class Client:
                 api_result = self.api_handler.get_namespaces()
         else:
             api_result = self.api_handler.get(kind, name, namespace)
-        self.handle_api_result(api_result)
+        if not self.handle_api_result(api_result):
+            return
+
         json_result = self.get_and_handle_tcp_result('get')
         self.tcp_handler.close()
         return json_result
@@ -190,7 +205,8 @@ class Client:
             api_result = self.api_handler.delete(kind, name, namespace)
         else:
             api_result = self.api_handler.delete_namespaces(name)
-        self.handle_api_result(api_result)
+        if not self.handle_api_result(api_result):
+            return
 
         self.get_and_handle_tcp_result('delete')
 
@@ -210,7 +226,8 @@ class Client:
             api_result = self.api_handler.replace(json_to_send, namespace)
         else:
             api_result = self.api_handler.replace_namespaces(json_to_send)
-        self.handle_api_result(api_result)
+        if not self.handle_api_result(api_result):
+            return
 
         self.get_and_handle_tcp_result('replace')
 
@@ -229,14 +246,23 @@ class Client:
             self.parser.print_help()
 
     def handle_api_result(self, api_result):
-        if api_result.get('id') and self.debug:
-            print('{}{}...{} {}OK{}'.format(
-                BColors.OKBLUE,
-                'api connection',
-                BColors.ENDC,
-                BColors.BOLD,
-                BColors.ENDC
-            ))
+        if api_result.get('id'):
+            if self.debug:
+                print('{}{}...{} {}OK{}'.format(
+                    BColors.OKBLUE,
+                    'api connection',
+                    BColors.ENDC,
+                    BColors.BOLD,
+                    BColors.ENDC
+                ))
+                print('{}{}{}{}'.format(
+                    BColors.OKGREEN,
+                    'Command Id: ',
+                    api_result.get('id'),
+                    BColors.ENDC,
+
+                ))
+            return True
         elif 'error' in api_result:
             print('{}api error: {}{}'.format(
                 BColors.FAIL,
@@ -244,7 +270,7 @@ class Client:
                 BColors.ENDC
             ))
             self.tcp_handler.close()
-            exit()
+            return
 
     def tcp_connect(self):
         try:
@@ -291,17 +317,28 @@ class Client:
                 TcpApiParser(result)
 
     def log_time(self):
-        print('{}{}{}'.format(
-            BColors.WARNING,
-            str(datetime.datetime.now())[11:19:],
-            BColors.ENDC
-        ))
+        if self.args["debug"]:
+            print('{}{}{}'.format(
+                BColors.WARNING,
+                str(datetime.datetime.now())[11:19:],
+                BColors.ENDC
+            ))
 
     def construct_run(self):
         if self.args.get("kind") in ("deploy", "deployment", "deployments"):
             json_to_send = deployment_json
+            if not self.args["name"].islower():
+                e = LOWER_CASE_ERROR
+                print('{}{}{} {}'.format(
+                BColors.FAIL,
+                "Error: ",
+                e,
+                BColors.ENDC,
+                ))
+                return
             json_to_send['metadata']['name'] = self.args['name']
-            if self.args["configure"] and not self.args.get("iamge"):
+
+            if self.args["configure"] and not self.args.get("image"):
                 runconfigure = RunConfigure()
                 param_dict = runconfigure.get_data_from_console()
                 image = param_dict["image"]
@@ -323,38 +360,47 @@ class Client:
                 replicas = self.args["replicas"]
                 commands = self.args["commands"]
 
-            if self.args["configure"] or self.args["image"]:
-                json_to_send['spec']['replicas'] = replicas
-                json_to_send['spec']['template']['metadata']['labels']['run'] = self.args['name']
-                json_to_send['spec']['template']['metadata']['name'] = self.args['name']
-                json_to_send['spec']['template']['spec']['containers'][0]['name'] = self.args['name']
-                json_to_send['spec']['template']['spec']['containers'][0]['image'] = image
-                if commands:
-                    json_to_send['spec']['template']['spec']['containers'][0]['command'] = commands
-                if ports:
-                    json_to_send['spec']['template']['spec']['containers'][0]['ports'] = []
-                    for port in ports:
-                        json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
-                            'containerPort': port
-                        })
+            if not self.args["configure"] and not self.args["image"]:
+                e = NO_IMAGE_AND_CONFIGURE_ERROR
+                print('{}{}{} {}'.format(
+                BColors.FAIL,
+                "Error: ",
+                e,
+                BColors.ENDC,
+                ))
+                return
 
-                if labels:
-                    for label in labels:
-                        key, value = label.split("=")
-                        json_to_send['metadata']['labels'].update({key: value})
-                if env:
-                    json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
-                        {
-                            "name": key_value.split('=')[0],
-                            "value": key_value.split('=')[1]
-                        }
-                        for key_value in env]
-                json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
-                json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
-                with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
-                    json.dump(json_to_send, w, indent=4)
+            json_to_send['spec']['replicas'] = replicas
+            json_to_send['spec']['template']['metadata']['labels']['run'] = self.args['name']
+            json_to_send['spec']['template']['metadata']['name'] = self.args['name']
+            json_to_send['spec']['template']['spec']['containers'][0]['name'] = self.args['name']
+            json_to_send['spec']['template']['spec']['containers'][0]['image'] = image
+            if commands:
+                json_to_send['spec']['template']['spec']['containers'][0]['command'] = commands
+            if ports:
+                json_to_send['spec']['template']['spec']['containers'][0]['ports'] = []
+                for port in ports:
+                    json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
+                        'containerPort': port
+                    })
 
-                return json_to_send
+            if labels:
+                for label in labels:
+                    key, value = label.split("=")
+                    json_to_send['metadata']['labels'].update({key: value})
+            if env:
+                json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
+                    {
+                        "name": key_value.split('=')[0],
+                        "value": key_value.split('=')[1]
+                    }
+                    for key_value in env]
+            json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
+            json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
+            with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
+                json.dump(json_to_send, w, indent=4)
+
+            return json_to_send
 
     def get_json_from_file(self):
         file_name = os.path.join(self.path, self.args['file'])
@@ -412,6 +458,7 @@ class Client:
             self.parser.error(NAME_OR_FILE_BOTH_ERROR)
 
     def construct_expose(self):
+        print(self.args)
         json_to_send = service_json
         ports = self.args.get("ports")
         if ports:
@@ -422,12 +469,15 @@ class Client:
                 elif len(p) == 2:
                     json_to_send["spec"]["ports"].append({"name": p[0], "protocol": "TCP", "targetPort": int(p[1])})
         result = self.go_get()
+        if not result:
+            return
         labels = result.get("results")[0].get("data")\
             .get("spec").get("template").get("metadata").get("labels")
         json_to_send["metadata"]["labels"] = labels
         json_to_send["metadata"]["name"] = self.args["name"][0]
         json_to_send["spec"]["selector"].update({"app": self.args["name"][0]})
-        print(json_to_send)
+        with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w', encoding='utf-8') as w:
+                json.dump(json_to_send, w, indent=4)
         return json_to_send
 
 

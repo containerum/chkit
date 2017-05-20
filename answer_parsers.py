@@ -94,8 +94,8 @@ class TcpApiParser:
             print(StatusTable)
 
     def show_human_readable_pod_list(self):
-        items = self.result.get("results")[0].get("data").get("items")
-        if items:
+        if self.result:
+            items = self.result.get("results")[0].get("data").get("items")
             table = PrettyTable(["NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP"])
             table.align = "l"
             for i in items:

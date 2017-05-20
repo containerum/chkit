@@ -73,11 +73,11 @@ class ApiHandler:
 
         return result
 
-    def run(self, json_to_send):
-        if json_to_send.get('metadata').get('namespace'):
+    def run(self, json_to_send, namespace=None):
+        if namespace:
             url = '{}/namespaces/{}/deployments'.format(
                 self.server,
-                json_to_send.get('metadata').get('namespace')
+                namespace
             )
         else:
             url = '{}/namespaces/default/deployments'.format(
