@@ -1,30 +1,33 @@
 {
-  "kind": "Deployment",
-  "apiVersion": "extensions/v1beta1",
-  "metadata": {
-    "name": "nginxdeploy"
-  },
-  "spec": {
-    "replicas": 2,
-    "template": {
-      "metadata": {
-        "name": "nginxbla",
-        "labels": {
-          "test": "test"
-        }
-      },
-      "spec": {
-        "containers": [
-          {
-            "name": "nginx1",
-            "image": "nginx",
-            "resources":{
-              "cpu": ',
-              "memory":"1Gi"
+    "metadata": {
+        "name": "deplo4"
+    },
+    "kind": "Deployment",
+    "spec": {
+        "template": {
+            "metadata": {
+                "labels": {
+                    "run": "deplo4",
+                    "test": ""
+                },
+                "name": "deplo4"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "deplo4",
+                        "resources": {
+                            "requests": {
+                                "memory": "128Mi",
+                                "cpu": "100m"
+                            }
+                        },
+                        "image": "ubuntu"
+                    }
+                ]
             }
-          }
-        ]
-      }
+        },
+        "replicas": 1
     }
-  }
 }
+
