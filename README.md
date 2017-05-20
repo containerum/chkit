@@ -24,6 +24,11 @@ client config --set-default-namespace NAMESPACE | -ns NAMESPACE
 client logout
 ```
 
+Посмотреть текущие настройки конфига
+```
+client config -v
+```
+
 ## Возможное написание этих типов
 
 - `pods`: `po`,`pods`,`pod`
