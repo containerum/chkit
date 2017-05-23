@@ -1,14 +1,24 @@
 {
-  "kind": "Service",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "testservice"
-  },
-  "spec": {
-    "ports": [
-      {
-        "port": 80
-      }
-    ]
-  }
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "deplo4",
+        "labels": {
+            "test": "",
+            "default": "deplo4",
+            "run": "deplo4"
+        }
+    },
+    "spec": {
+        "selector": {
+            "app": "deplo4"
+        },
+        "ports": [
+            {
+                "name": "redis",
+                "protocol": "TCP",
+                "targetPort": 3306
+            }
+        ]
+    }
 }

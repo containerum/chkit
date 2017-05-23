@@ -1,28 +1,30 @@
 import socket
 import json
-import os
 from bcolors import BColors
+from config_json_handler import get_json_from_config
+from keywords import *
+
+config_json_data = get_json_from_config()
 
 
 class TcpHandler:
-    def __init__(self):
-        self.TCP_IP = '146.185.135.181'
-        self.TCP_PORT = 3000
-        self.BUFFER_SIZE = 1024
+    def __init__(self, uuid_v4, debug):
+        self.debug = debug
+        self.TCP_IP = config_json_data.get("tcp_handler").get("TCP_IP")
+        self.TCP_PORT = config_json_data.get("tcp_handler").get("TCP_PORT")
+        self.BUFFER_SIZE = config_json_data.get("tcp_handler").get("BUFFER_SIZE")
         self.AUTH_FORM = {
-            "channel": "default",
-            "login": "guest",
-            "token": read_token()
+            "channel": uuid_v4,
+            "token": config_json_data.get("tcp_handler").get("AUTH_FORM").get("token"),
         }
 
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
     def connect(self):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((self.TCP_IP, self.TCP_PORT))
         self.s.send((json.dumps(self.AUTH_FORM) + '\n').encode('utf-8'))
         data = self.s.recv(self.BUFFER_SIZE)
         if not data:
-            raise RuntimeError("tcp socket connection broken")
+            raise RuntimeError(TCP_RUNTIME_ERROR)
         else:
             result = json.loads(data.decode('utf-8'))
 
@@ -33,28 +35,29 @@ class TcpHandler:
         while data[-1::] != '\n':
             received = self.s.recv(self.BUFFER_SIZE).decode('utf-8')
             if not received:
-                raise RuntimeError("tcp socket connection broken")
-            print('{}tcp received {} bytes...{}'.format(
-                BColors.OKBLUE,
-                len(received),
-                BColors.ENDC
-            ))
+                raise RuntimeError(TCP_RUNTIME_ERROR)
+            if self.debug:
+                print('{}tcp received {} bytes...{}'.format(
+                    BColors.OKBLUE,
+                    len(received),
+                    BColors.ENDC
+                ))
             data += received
             # print(len(data))
             # print(data[-1::] == '\n')
         # data = self.s.recv(self.BUFFER_SIZE)
-        # print(data)
 
         try:
             result = json.loads(data)
-            print('{}{}...{} {}OK{}'.format(
-                BColors.OKBLUE,
-                'tcp complete',
-                BColors.ENDC,
-                BColors.BOLD,
-                BColors.ENDC
-            ))
-        except:
+            if self.debug:
+                print('{}{}...{} {}OK{}'.format(
+                    BColors.OKBLUE,
+                    TCP_COMPLETE,
+                    BColors.ENDC,
+                    BColors.BOLD,
+                    BColors.ENDC
+                ))
+        except Exception:
             with open('received_str', 'w', encoding='utf-8') as w:
                 w.write(data.decode('utf-8'))
             result = {}
@@ -67,8 +70,15 @@ class TcpHandler:
         self.s.close()
 
 
-def read_token():
-    path = os.path.dirname(os.path.realpath(__file__))
-    file_name = os.path.join(path, 'tcp_token')
-    with open(file_name, 'r', encoding='utf-8') as f:
-        return f.read()
+def check_http_status(result):
+    status = result.get("results")[0].get("HttpStatusCode")
+    if status != 200:
+        message = result.get("results")[0].get("data").get("message")
+        print('{}{}{} {}'.format(
+            BColors.FAIL,
+            "Error: ",
+            message,
+            BColors.ENDC,
+            ))
+        return False
+    return True

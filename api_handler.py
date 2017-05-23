@@ -1,24 +1,24 @@
 import json
 import requests
+from config_json_handler import get_json_from_config
+
+config_json_data = get_json_from_config()
 
 
 class ApiHandler:
-    def __init__(self):
-        self.server = 'http://146.185.135.181:8080'
-        self.headers = {
-            # 'Content-Type': 'application/json-patch+json',
-            # 'TCP-Connection-Name': 'none'
-            'Authorization': '31'
-        }
-        self.TIMEOUT = 10
+    def __init__(self, uuid_v4):
+        self.server = config_json_data.get("api_handler").get("server")
+        self.headers = config_json_data.get("api_handler").get("headers")
+        self.headers.update({"Channel": uuid_v4})
+        self.TIMEOUT = config_json_data.get("api_handler").get("TIMEOUT")
 
-    def create(self, json_to_send):
+    def create(self, json_to_send, namespace=None):
         kind = '{}s'.format(json_to_send['kind'].lower())
 
-        if json_to_send.get('metadata').get('namespace'):
+        if namespace:
             url = '{}/namespaces/{}/{}'.format(
                 self.server,
-                json_to_send.get('metadata').get('namespace'),
+                namespace,
                 kind
             )
         else:
@@ -27,8 +27,7 @@ class ApiHandler:
                 kind
             )
 
-        result = request_post(url, self.headers, self.TIMEOUT, json_to_send)
-
+        result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
         return result
 
     def create_namespaces(self, json_to_send):
@@ -36,9 +35,8 @@ class ApiHandler:
             self.server
         )
 
-        # print(url)
-
-        result = request_post(url, self.headers, self.TIMEOUT, json_to_send)
+        result = make_request(url+"?cpu=500M&memory=500M&user=00000000-0000-0000-0000-000000000007", self.headers,
+                              self.TIMEOUT, "POST", json_to_send)
 
         return result
 
@@ -59,9 +57,7 @@ class ApiHandler:
             name
         )
 
-        # print(url)
-
-        result = request_put(url, self.headers, self.TIMEOUT, json_to_send)
+        result = make_request(url, self.headers, self.TIMEOUT, json_to_send, method="PUT")
 
         return result
 
@@ -73,26 +69,37 @@ class ApiHandler:
             name
         )
 
-        # print(url)
-
-        result = request_put(url, self.headers, self.TIMEOUT, json_to_send)
+        result = make_request(url, self.headers, self.TIMEOUT, "PUT", json_to_send)
 
         return result
 
-    def run(self, json_to_send):
-        if json_to_send.get('metadata').get('namespace'):
+    def run(self, json_to_send, namespace=None):
+        if namespace:
             url = '{}/namespaces/{}/deployments'.format(
                 self.server,
-                json_to_send.get('metadata').get('namespace')
+                namespace
             )
         else:
             url = '{}/namespaces/default/deployments'.format(
                 self.server
             )
 
-        # print(url)
+        result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
 
-        result = request_post(url, self.headers, self.TIMEOUT, json_to_send)
+        return result
+
+    def expose(self, json_to_send, namespace):
+        if namespace:
+            url = '{}/namespaces/{}/services'.format(
+                self.server,
+                namespace
+            )
+        else:
+            url = '{}/namespaces/default/services'.format(
+                self.server
+            )
+
+        result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
 
         return result
 
@@ -106,9 +113,8 @@ class ApiHandler:
             kind,
             name
         )
-        # print('DELETE {}'.format(url))
 
-        result = request_delete(url, self.headers, self.TIMEOUT)
+        result = make_request(url, self.headers, self.TIMEOUT, "DELETE")
 
         return result
 
@@ -118,20 +124,18 @@ class ApiHandler:
             name
         )
 
-        result = request_delete(url, self.headers, self.TIMEOUT)
+        result = make_request(url, self.headers, self.TIMEOUT, "DELETE")
 
         return result
 
     def get(self, kind, name, namespace):
-        if not namespace:
-            namespace = 'default'
 
         if name:
             url = '{}/namespaces/{}/{}/{}'.format(
                 self.server,
                 namespace,
                 kind,
-                name
+                name[0]
             )
         else:
             url = '{}/namespaces/{}/{}'.format(
@@ -139,14 +143,10 @@ class ApiHandler:
                 namespace,
                 kind
             )
-
-        # print(url)
-
-        result = request_get(url, self.headers, self.TIMEOUT)
-
+        result = make_request(url, self.headers, self.TIMEOUT, "GET")
         return result
 
-    def get_namespaces(self, name):
+    def get_namespaces(self, name=None):
         if name:
             url = '{}/namespaces/{}'.format(
                 self.server,
@@ -157,9 +157,7 @@ class ApiHandler:
                 self.server
             )
 
-        # print(url)
-
-        result = request_get(url, self.headers, self.TIMEOUT)
+        result = make_request(url, self.headers, self.TIMEOUT, "GET")
 
         return result
 
@@ -174,62 +172,42 @@ def request_exceptions_decorate(func):
             return {'error': str(e)}
         except StatusException as e:
             return {'error': str(e)}
-        except:
+        except Exception as e:
+            print(e)
             return {'error': 'connection error'}
 
     return func_wrapper
 
 
 @request_exceptions_decorate
-def request_get(url, headers, timeout):
-    r = requests.get(
-        url,
-        headers=headers,
-        timeout=timeout
-    )
-    if r.status_code == 200:
-        return json.loads(r.text)
+def make_request(url, headers, timeout, method, json_to_send=None):
+    if method == "DELETE":
+        r = requests.delete(
+            url,
+            headers=headers,
+            timeout=timeout
+        )
+    elif method == "POST":
+        #print(url,headers, json_to_send, timeout)
+        r = requests.post(
+            url,
+            data=json.dumps(json_to_send),
+            timeout=timeout,
+            headers=headers
+        )
+    elif method == "PUT":
+        r = requests.put(
+            url,
+            data=json.dumps(json_to_send),
+            timeout=timeout,
+            headers=headers
+        )
     else:
-        raise StatusException(r.status_code, r._content)
-
-
-@request_exceptions_decorate
-def request_delete(url, headers, timeout):
-    r = requests.delete(
-        url,
-        headers=headers,
-        timeout=timeout
-    )
-    if r.status_code == 200:
-        return json.loads(r.text)
-    else:
-        raise StatusException(r.status_code, r._content)
-
-
-@request_exceptions_decorate
-def request_post(url, headers, timeout, json_to_send):
-    r = requests.post(
-        url,
-        data=json.dumps(json_to_send),
-        timeout=timeout,
-        headers=headers
-    )
-    if r.status_code == 200:
-        return json.loads(r.text)
-    else:
-        raise StatusException(r.status_code, r._content)
-
-
-@request_exceptions_decorate
-def request_put(url, headers, timeout, json_to_send):
-    r = requests.put(
-        url,
-        data=json.dumps(json_to_send),
-        timeout=timeout,
-        headers=headers
-    )
-    # print(url)
-    # print(vars(r))
+        r = requests.get(
+            url,
+            headers=headers,
+            timeout=timeout
+        )
     if r.status_code == 200:
         return json.loads(r.text)
     else:

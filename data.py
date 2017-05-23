@@ -1,48 +1,87 @@
 kinds = [
+    'po',
     'pods',
+    'pod',
     'deployments',
+    'deployment',
+    'deploy',
+    'service',
     'services',
-    'namespaces'
+    'svc',
+    'ns',
+    'namespaces',
+    'namespace'
+]
+
+expose_kinds = [
+    'deployments',
+    'deployment',
+    'deploy'
+]
+
+run_kinds = [
+    'deployments',
+    'deployment',
+    'deploy'
+]
+
+delete_kinds = [
+    'po',
+    'pods',
+    'pod',
+    'deployments',
+    'deployment',
+    'deploy',
+    'service',
+    'services',
+    'svc'
 ]
 
 output_formats = [
     'yaml',
-    'json'
+    'json',
+    'pretty',
 ]
 
 deployment_json = {
-    'kind': 'Deployment',
-    "apiVersion": "extensions/v1beta1",
+    "kind": "Deployment",
     "metadata": {
-        "name": '',
-        "namespace": 'default',
-        "labels": {
-            "run": ''
-        }
+        "name": "",
+        "labels": {}
     },
     "spec": {
-        "selector": {
-            "matchLabels": {
-                "run": ''
-            }
-        },
+        "replicas": 1,
         "template": {
             "metadata": {
-                "name": '',
-                "labels": {
-                    "run": ''
-                }
+                "labels": {}
             },
             "spec": {
                 "containers": [
                     {
-                        "name": '',
-                        "image": '',
-                        "ports": [],
-                        "env": []
+                        "name": "",
+                        "image": "",
+                        "resources": {
+                            "requests": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            }
+                        }
                     }
                 ]
             }
         }
+    }
+}
+
+service_json = {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": {
+        "name": "",
+    },
+    "spec": {
+        "ports": [
+        ],
+        "selector": {}
     }
 }
