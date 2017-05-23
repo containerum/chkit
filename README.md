@@ -10,13 +10,13 @@
 ## Настройка CONFIG.json
 Установить токен для доступа
 ```
-client config  --set-token TOKEN | -t TOKEN
+client config  --set-token TOKEN 
 ```
 
 
 Установить namespace по умолчанию
 ```
-client config --set-default-namespace NAMESPACE | -ns NAMESPACE
+client config --set-default-namespace NAMESPACE 
 ```
 
 Сброс токена (завершение сессии)
@@ -69,20 +69,19 @@ client get TYPE -o FORMAT
 ```
 
 ## Создание deployments, services через файл
-
 ```
 client create  -f FILE
 ```
 
 ## Создание service с помощью сгенерированного json-файла
 ```
-client expose {deploy|deployment|deployments} DEPLOY_NAME -p PORTNAME:TARGETPORT:PROTOCOL
+client expose {deploy|deployment|deployments} DEPLOY_NAME [-p --port PORTNAME:TARGETPORT:PROTOCOL]
 ```
 ПО умолчанию `PROTOCOL` - TCP
 
 ## Создание deployment с помощью сгенерированного json-файла
 ```
-client run {deployment,deploy,deployments} NAME —image=imagename [--replicas=1][--env="key1=value1"] [--env="key2=value2"]'
+client run  NAME —image=imagename [--replicas=1][--env="key1=value1"] [--env="key2=value2"]'
    [--port=3000] [--port=3001][--command="/bin/bash"][--command="/bin/bash2"][--volume="name:pathTo"]
 ```
 
@@ -107,7 +106,6 @@ client {delete,create,get,config,run} -h
 ```
 
 ## Вывод версии
-
 ```
 client --version
 ```

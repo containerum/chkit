@@ -325,82 +325,81 @@ class Client:
             ))
 
     def construct_run(self):
-        if self.args.get("kind") in ("deploy", "deployment", "deployments"):
-            json_to_send = deployment_json
-            if not self.args["name"].islower():
-                e = LOWER_CASE_ERROR
-                print('{}{}{} {}'.format(
-                BColors.FAIL,
-                "Error: ",
-                e,
-                BColors.ENDC,
-                ))
-                return
-            json_to_send['metadata']['name'] = self.args['name']
+        json_to_send = deployment_json
+        if not self.args["name"].islower():
+            e = LOWER_CASE_ERROR
+            print('{}{}{} {}'.format(
+            BColors.FAIL,
+            "Error: ",
+            e,
+            BColors.ENDC,
+            ))
+            return
+        json_to_send['metadata']['name'] = self.args['name']
 
-            if self.args["configure"] and not self.args.get("image"):
-                runconfigure = RunConfigure()
-                param_dict = runconfigure.get_data_from_console()
-                image = param_dict["image"]
-                ports = param_dict["ports"]
-                labels = param_dict["labels"]
-                env = param_dict["env"]
-                cpu = param_dict["cpu"]
-                memory = param_dict["memory"]
-                replicas = param_dict["replicas"]
-                commands = param_dict["commands"]
+        if self.args["configure"] and not self.args.get("image"):
+            runconfigure = RunConfigure()
+            param_dict = runconfigure.get_data_from_console()
+            image = param_dict["image"]
+            ports = param_dict["ports"]
+            labels = param_dict["labels"]
+            env = param_dict["env"]
+            cpu = param_dict["cpu"]
+            memory = param_dict["memory"]
+            replicas = param_dict["replicas"]
+            commands = param_dict["commands"]
 
-            elif self.args.get("image") and not self.args["configure"]:
-                image = self.args["image"]
-                ports = self.args["ports"]
-                labels = self.args["labels"]
-                env = self.args["env"]
-                cpu = self.args["cpu"]
-                memory = self.args["memory"]
-                replicas = self.args["replicas"]
-                commands = self.args["commands"]
+        elif self.args.get("image") and not self.args["configure"]:
+            image = self.args["image"]
+            ports = self.args["ports"]
+            labels = self.args["labels"]
+            env = self.args["env"]
+            cpu = self.args["cpu"]
+            memory = self.args["memory"]
+            replicas = self.args["replicas"]
+            commands = self.args["commands"]
 
-            if not self.args["configure"] and not self.args["image"]:
-                e = NO_IMAGE_AND_CONFIGURE_ERROR
-                print('{}{}{} {}'.format(
-                BColors.FAIL,
-                "Error: ",
-                e,
-                BColors.ENDC,
-                ))
-                return
+        if not self.args["configure"] and not self.args["image"]:
+            e = NO_IMAGE_AND_CONFIGURE_ERROR
+            print('{}{}{} {}'.format(
+            BColors.FAIL,
+            "Error: ",
+            e,
+            BColors.ENDC,
+            ))
+            return
 
-            json_to_send['spec']['replicas'] = replicas
-            json_to_send['spec']['template']['metadata']['labels']['run'] = self.args['name']
-            json_to_send['spec']['template']['metadata']['name'] = self.args['name']
-            json_to_send['spec']['template']['spec']['containers'][0]['name'] = self.args['name']
-            json_to_send['spec']['template']['spec']['containers'][0]['image'] = image
-            if commands:
-                json_to_send['spec']['template']['spec']['containers'][0]['command'] = commands
-            if ports:
-                json_to_send['spec']['template']['spec']['containers'][0]['ports'] = []
-                for port in ports:
-                    json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
-                        'containerPort': port
-                    })
+        json_to_send['spec']['replicas'] = replicas
+        json_to_send['spec']['template']['metadata']['labels']['run'] = self.args['name']
+        json_to_send['spec']['template']['metadata']['name'] = self.args['name']
+        json_to_send['spec']['template']['spec']['containers'][0]['name'] = self.args['name']
+        json_to_send['spec']['template']['spec']['containers'][0]['image'] = image
+        if commands:
+            json_to_send['spec']['template']['spec']['containers'][0]['command'] = commands
+        if ports:
+            json_to_send['spec']['template']['spec']['containers'][0]['ports'] = []
+            for port in ports:
+                json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
+                    'containerPort': port
+                })
 
-            if labels:
-                for label in labels:
-                    key, value = label.split("=")
-                    json_to_send['metadata']['labels'].update({key: value})
-            if env:
-                json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
-                    {
-                        "name": key_value.split('=')[0],
-                        "value": key_value.split('=')[1]
-                    }
-                    for key_value in env]
-            json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
-            json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
-            with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
-                json.dump(json_to_send, w, indent=4)
+        if labels:
+            for label in labels:
+                key, value = label.split("=")
+                json_to_send['spec']['template']['metadata']['labels'].update({key: value})
+        if env:
+            json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
+                {
+                    "name": key_value.split('=')[0],
+                    "value": key_value.split('=')[1]
+                }
+                for key_value in env]
+        json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
+        json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
+        with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
+            json.dump(json_to_send, w, indent=4)
 
-            return json_to_send
+        return json_to_send
 
     def get_json_from_file(self):
         file_name = os.path.join(self.path, self.args['file'])
@@ -458,9 +457,9 @@ class Client:
             self.parser.error(NAME_OR_FILE_BOTH_ERROR)
 
     def construct_expose(self):
-        print(self.args)
         json_to_send = service_json
         ports = self.args.get("ports")
+        self.args["kind"] = "deployments"
         if ports:
             for p in ports:
                 p = p.split(":")

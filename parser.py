@@ -17,8 +17,7 @@ def create_parser(version):
 
     subparsers = parser.add_subparsers(help='use «[COMMAND] --help» to get detailed help for the command',  dest='command')
     run_description = "Running deployement genereting json file"
-    run_usg = 'client run {deployment,deploy,deployments} NAME\\ '\
-                                                   '—image IMAGE_NAME [--replicas=1]\\ '\
+    run_usg = 'client run  NAME --configure | —image IMAGE_NAME [--replicas=1]\\ '\
                                                    '[--env="key1=value1"][--env="key2=value2"]\\'\
                                                    '[--port=3000] [--port=3001]\\ '\
                                                    '[--command="/bin/bash"][--command="/bin/bash2"]\\ '\
@@ -26,7 +25,6 @@ def create_parser(version):
                                                    '[-h | --help]'
     parser_run = subparsers.add_parser('run', help=run_usg, usage=run_usg, description=run_description)
     parser_run._optionals.title = 'run arguments'
-    parser_run.add_argument('kind', help='object kind', choices=run_kinds)
     parser_run.add_argument('name', help='name, required')
     parser_run.add_argument('-i', '--image', help='image, required', required=False)
     parser_run.add_argument('-e', '--env', nargs='*', help='environment names, optional', required=False)
@@ -69,10 +67,10 @@ def create_parser(version):
     parser_get.add_argument('--namespace', help='namespace, optional', required=False)
 
     config_description = "Show and changing user's config settings"
-    config_usg = 'client config (--set-token -t TOKEN  | --set-default-namespace -ns NAMESPACE | -v)[-h | --help]'
+    config_usg = 'client config (--set-token TOKEN  | --set-default-namespace NAMESPACE | -v)[-h | --help]'
     parser_config = subparsers.add_parser('config', help=config_usg, usage=config_usg, description=config_description)
-    parser_config.add_argument('--set-token', '-t', help='token', required=False)
-    parser_config.add_argument('--set-default-namespace', '-ns', help='default namespace', required=False)
+    parser_config.add_argument('--set-token', help='token', required=False)
+    parser_config.add_argument('--set-default-namespace', help='default namespace', required=False)
     parser_config.add_argument("-v", action='store_true', default=False, help='print current config settings')
 
     logout_usg = 'client logout'
@@ -82,7 +80,7 @@ def create_parser(version):
     expose_usg = 'client expose KIND NAME [-p --ports PORTNAME:TARGETPORT:PROTOCOL][-h | --help]'
     expose_description = "Exposing service genereting json file"
     parser_expose = subparsers.add_parser('expose', help=expose_usg, usage=expose_usg, description=expose_description)
-    parser_expose.add_argument('kind', help='object kind', nargs='*', default="deploy")
+    parser_expose.add_argument('kind', help='object kind', choices=expose_kinds)
     parser_expose.add_argument('name', help='object name to get info, optional', nargs='*')
     parser_expose.add_argument('--ports', '-p', help='target port', nargs='*', required=True)
 
