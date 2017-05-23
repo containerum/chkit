@@ -32,13 +32,12 @@ class Client:
         self.api_handler = ApiHandler(uuid_v4)
 
     def go_config(self):
-        if self.args.get("v"):
-            show_namespace_token_from_config()
-        else:
             if self.args.get("set_token"):
                 set_token_to_json_config(self.args.get("set_token"))
-            if self.args.get("set_default_namespace"):
+            elif self.args.get("set_default_namespace"):
                 set_default_namespace_to_json_config(self.args.get("set_default_namespace"))
+            else:
+                show_namespace_token_from_config()
 
     @staticmethod
     def logout():
@@ -315,6 +314,7 @@ class Client:
                 result = result["results"][0].get("data")
                 print(yaml.dump(result, default_flow_style=False))
             elif self.args['output'] == 'json':
+                print(json.dumps(result,indent=4))
                 result = result["results"][0].get("data")
                 print(json.dumps(result, indent=4))
             else:
