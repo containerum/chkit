@@ -2,6 +2,7 @@ import argparse
 import argcomplete
 from data import kinds, output_formats, run_kinds, delete_kinds, expose_kinds
 
+
 ONE_REQUIRED_ARGUMENT_ERROR = "you should pass at least one required argument: KIND or FILE"
 KIND_OR_FILE_BOTH_ERROR = "you should pass either KIND, or FILE, not both"
 NAME_OR_FILE_BOTH_ERROR = "you should pass either NAME, or FILE, not both"

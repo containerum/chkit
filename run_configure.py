@@ -34,7 +34,7 @@ class RunConfigure:
                         env = env.split(" ")
                     param_dict.update({"env": env})
                 if not param_dict.get("cpu"):
-                    cpu = input("Enter  CPU cores count:")
+                    cpu = input("Enter  CPU cores count(*m):")
                     if cpu:
                         self.cpu = cpu
                     param_dict.update({"cpu": self.cpu})

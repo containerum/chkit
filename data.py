@@ -47,16 +47,13 @@ deployment_json = {
     "kind": "Deployment",
     "metadata": {
         "name": "",
-        "labels": ""
+        "labels": {}
     },
     "spec": {
         "replicas": 1,
         "template": {
             "metadata": {
-                "name": "",
-                "labels": {
-                    "test": "app"
-                }
+                "labels": {}
             },
             "spec": {
                 "containers": [

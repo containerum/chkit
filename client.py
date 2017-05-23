@@ -15,6 +15,7 @@ from answer_parsers import TcpApiParser, WebClientApiParser
 import uuid
 from keywords import JSON_TEMPLATES_RUN_FILE, LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE
 from run_configure import RunConfigure
+from random import randint
 
 
 config_json_data = get_json_from_config()
@@ -374,8 +375,6 @@ class Client:
             return
 
         json_to_send['spec']['replicas'] = replicas
-        json_to_send['spec']['template']['metadata']['labels']['run'] = self.args['name']
-        json_to_send['spec']['template']['metadata']['name'] = self.args['name']
         json_to_send['spec']['template']['spec']['containers'][0]['name'] = self.args['name']
         json_to_send['spec']['template']['spec']['containers'][0]['image'] = image
         if commands:
@@ -477,7 +476,7 @@ class Client:
         labels = result.get("results")[0].get("data")\
             .get("spec").get("template").get("metadata").get("labels")
         json_to_send["metadata"]["labels"] = labels
-        json_to_send["metadata"]["name"] = self.args["name"][0]
+        json_to_send["metadata"]["name"] = self.args["name"][0] + str(randint(1, 99))
         json_to_send["spec"]["selector"].update({"app": self.args["name"][0]})
         with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w', encoding='utf-8') as w:
                 json.dump(json_to_send, w, indent=4)
