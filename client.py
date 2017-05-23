@@ -5,7 +5,7 @@ import yaml
 import datetime
 from data import deployment_json, service_json
 from parser import *
-from tcp_handler import TcpHandler
+from tcp_handler import TcpHandler, check_http_status
 from api_handler import ApiHandler
 from webclient_api_handler import WebClient
 from bcolors import BColors
@@ -164,9 +164,11 @@ class Client:
 
         json_result = self.get_and_handle_tcp_result('get')
         self.tcp_handler.close()
+        if not check_http_status(json_result):
+            return
         return json_result
 
-    def get_and_handle_tcp_result(self, command_name, wide=False):
+    def get_and_handle_tcp_result(self, command_name):
         try:
             tcp_result = self.tcp_handler.receive()
             if command_name == 'get':
@@ -310,8 +312,10 @@ class Client:
     def print_result(self, result):
         if self.args.get("command") != "expose":
             if self.args.get('output') == 'yaml':
+                result = result["results"][0].get("data")
                 print(yaml.dump(result, default_flow_style=False))
             elif self.args['output'] == 'json':
+                result = result["results"][0].get("data")
                 print(json.dumps(result, indent=4))
             else:
                 TcpApiParser(result)

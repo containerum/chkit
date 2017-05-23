@@ -64,7 +64,7 @@ def create_parser(version):
     parser_get.add_argument('-f', '--file', help='input file')
 
     parser_get.add_argument('-o', '--output', help='output format, default: json', choices=output_formats)
-    parser_get.add_argument('--namespace', help='namespace, optional', required=False)
+    parser_get.add_argument('-n','--namespace', help='namespace, optional', required=False)
 
     config_description = "Show and changing user's config settings"
     config_usg = 'client config (--set-token TOKEN  | --set-default-namespace NAMESPACE | -v)[-h | --help]'

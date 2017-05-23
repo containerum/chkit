@@ -68,3 +68,17 @@ class TcpHandler:
 
     def close(self):
         self.s.close()
+
+
+def check_http_status(result):
+    status = result.get("results")[0].get("HttpStatusCode")
+    if status != 200:
+        message = result.get("results")[0].get("data").get("message")
+        print('{}{}{} {}'.format(
+            BColors.FAIL,
+            "Error: ",
+            message,
+            BColors.ENDC,
+            ))
+        return False
+    return True

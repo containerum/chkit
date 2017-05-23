@@ -54,7 +54,7 @@ deployment_json = {
             "metadata": {
                 "name": "",
                 "labels": {
-                    "test": ""
+                    "test": "app"
                 }
             },
             "spec": {
