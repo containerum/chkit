@@ -2,6 +2,7 @@ from datetime import datetime
 from dateutil import parser
 from prettytable import PrettyTable
 from keywords import EMPTY_NAMESPACE, NO_NAMESPACES
+import re
 
 
 class TcpApiParser:
@@ -122,15 +123,29 @@ class TcpApiParser:
             table = PrettyTable(["NAME",  "PODS ACTIVE",  "CPU",  "RAM", "AGE"])
             table.align = "l"
             for i in items:
+                containers = i.get("spec").get("template").get("spec").get("containers")
                 name = i.get("metadata").get("name")
-                cpu = i.get("spec").get("template").get("spec").get("containers")[0].get("resources")\
-                    .get("limits").get("cpu")
+                cpu = 0
+                memory = 0
+                cpu_prefix = "m"
+                memory_prefix = "Mi"
                 if i.get("status").get("availableReplicas"):
-                    pods_active = i.get("status").get("availableReplicas")
+                        pods_active = i.get("status").get("availableReplicas")
+                        for c in containers:
+                            cpu += int(c.get("resources").get("limits").get("cpu")[:-1])
+                            cpu_prefix = c.get("resources").get("limits").get("cpu")[-1]
+                            memory_prefix = c.get("resources").get("limits").get("memory")[-2:]
+                            if memory_prefix == "Gi":
+                                memory += 1024*int(c.get("resources").get("limits").get("memory")[:-2])
+                            else:
+                                memory += int(c.get("resources").get("limits").get("memory")[:-2])
+                        cpu *= pods_active
+                        memory *= pods_active
                 else:
                     pods_active = 0
-                memory = i.get("spec").get("template").get("spec").get("containers")[0].get("resources")\
-                    .get("limits").get("memory")
+                cpu = str(cpu) + cpu_prefix
+                memory = str(memory) + memory_prefix
+
                 time = get_datetime_diff(i.get("metadata").get("creationTimestamp"))
                 table.add_row([name,  pods_active,  cpu,  memory, time])
             print(table)
@@ -138,6 +153,7 @@ class TcpApiParser:
             print(NO_NAMESPACES)
 
     def show_human_readable_deployment(self):
+        all_replicas = self.result.get("results")[0].get("data").get("spec").get("replicas")
         status = self.result.get("results")[0].get("data").get("status")
         strategy = self.result.get("results")[0].get("data").get("spec").get("strategy")
         conditions = self.result.get("results")[0].get("data").get("status").get("conditions")
@@ -157,10 +173,10 @@ class TcpApiParser:
                 print("\t%s=%s" % (key, value))
             if status.get("unavailableReplicas"):
                 status_tuple = ("Replicas:", status.get("updatedReplicas"), "updated", status.get("replicas"), "total",
-                            status.get("replicas")-status.get("unavailableReplicas"), "available", status.get("unavailableReplicas"), "unavailable")
+                            all_replicas-status.get("unavailableReplicas"), "available", status.get("unavailableReplicas"), "unavailable")
             else:
                 status_tuple = ("Replicas:", status.get("updatedReplicas"), "updated", status.get("replicas"), "total",
-                            status.get("availableReplicas"), "available", status.get("replicas")-status.get("availableReplicas"), "unavailable")
+                            status.get("availableReplicas"), "available", all_replicas-status.get("availableReplicas"), "unavailable")
             print("%-30s %s %s | %s %s | %s %s | %s %s" % status_tuple)
             print("%-30s %s " % ("Strategy", strategy.get("type")))
             strategy_type = strategy.get("type")[0].lower() + strategy.get("type")[1:]

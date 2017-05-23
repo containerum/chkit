@@ -390,7 +390,7 @@ class Client:
         if labels:
             for label in labels:
                 key, value = label.split("=")
-                json_to_send['spec']['template']['metadata']['labels'].update({key: value})
+                json_to_send['metadata']['labels'].update({key: value})
         if env:
             json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
                 {

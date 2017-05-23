@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "name": "deplo4"
+        "name": "deplo4",
     },
     "kind": "Deployment",
     "spec": {

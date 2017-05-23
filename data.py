@@ -46,7 +46,8 @@ output_formats = [
 deployment_json = {
     "kind": "Deployment",
     "metadata": {
-        "name": ""
+        "name": "",
+        "labels": ""
     },
     "spec": {
         "replicas": 1,
