@@ -98,7 +98,7 @@ def create_parser(version):
     parser_expose.add_argument('--ports', '-p', help='target port, PORTS = PORTNAME:TARGETPORT:PROTOCOL, default: PROTOCOL = TCP', nargs='*', required=True)
     parser_expose.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
-    set_usg = 'client set FIELD (-f FILENAME | TYPE NAME) CONTAINER_NAME_1=CONTAINER_IMAGE_1 ... CONTAINER_NAME_N=CONTAINER_IMAGE_N'
+    set_usg = 'client set FIELD (-f FILENAME | TYPE NAME) CONTAINER_NAME=CONTAINER_IMAGE [-n --namespace NAMESPACE]'
     set_description = 'Change image in containers'
     parser_set = subparsers.add_parser('set', help=set_usg, usage=set_usg, description=set_description,
                                        formatter_class=formatter_class)

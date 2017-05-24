@@ -486,7 +486,6 @@ class Client:
             return
         labels = result.get("results")[0].get("data")\
             .get("spec").get("template").get("metadata").get("labels")
-        labels.pop(self.namespace)
         json_to_send["metadata"]["labels"] = labels
         json_to_send["metadata"]["name"] = self.args["name"][0] + str(randint(1, 99))
         json_to_send["spec"]["selector"] = labels
