@@ -141,7 +141,7 @@ class ApiHandler:
                 self.server,
                 namespace,
                 kind,
-                name[0]
+                name
             )
         else:
             url = '{}/namespaces/{}/{}'.format(

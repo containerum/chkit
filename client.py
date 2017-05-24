@@ -176,9 +176,10 @@ class Client:
         if not self.namespace:
             self.namespace = config_json_data.get("default_namespace")
 
+        print(kind, name)
         if kind == "namespaces":
             if self.args.get("name"):
-                api_result = self.api_handler.get_namespaces(self.args.get("name")[0])
+                api_result = self.api_handler.get_namespaces(self.args.get("name"))
             else:
                 api_result = self.api_handler.get_namespaces()
         else:
@@ -375,13 +376,7 @@ class Client:
             commands = self.args["commands"]
 
         if not self.args["configure"] and not self.args["image"]:
-            e = NO_IMAGE_AND_CONFIGURE_ERROR
-            print('{}{}{} {}'.format(
-            BColors.FAIL,
-            "Error: ",
-            e,
-            BColors.ENDC,
-            ))
+            self.parser.error(NO_IMAGE_AND_CONFIGURE_ERROR)
             return
 
         json_to_send['spec']['replicas'] = replicas
@@ -431,15 +426,37 @@ class Client:
             ))
 
     def construct_delete(self):
-        if self.args['file'] and not self.args['kind'] and not self.args['name']:
+        if self.args['file'] and self.args['kind'] == "namespaces" and not self.args['name']:
             body = self.get_json_from_file()
             name = body['metadata']['name']
             kind = '{}s'.format(body['kind'].lower())
             return kind, name
 
-        elif not self.args['file'] and self.args['kind'] and self.args['name']:
+        elif not self.args['file'] and self.args['kind'] != "namespaces" and self.args['name']:
             kind = self.args['kind']
             name = self.args['name']
+            return kind, name
+
+        elif not self.args['file'] and self.args['kind'] == "namespaces":
+            self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
+        elif self.args['file'] and self.args['kind'] == "namespaces":
+            self.parser.error(KIND_OR_FILE_BOTH_ERROR)
+        elif self.args['file'] and self.args['name']:
+            self.parser.error(NAME_OR_FILE_BOTH_ERROR)
+        elif self.args['kind'] != "namespaces" and not self.args['name']:
+            self.parser.error(NAME_WITH_KIND_ERROR)
+
+    def construct_get(self):
+        print(self.args)
+        if self.args['file'] and not self.args['kind']  and not self.args['name']:
+            body = self.get_json_from_file()
+            name = body['metadata']['name']
+            kind = '{}s'.format(body['kind'].lower())
+            return kind, name
+
+        elif not self.args['file'] and self.args['kind'] :
+            kind = self.args['kind']
+            name = self.args.get('name')
             return kind, name
 
         elif not self.args['file'] and not self.args['kind']:
@@ -448,27 +465,7 @@ class Client:
             self.parser.error(KIND_OR_FILE_BOTH_ERROR)
         elif self.args['file'] and self.args['name']:
             self.parser.error(NAME_OR_FILE_BOTH_ERROR)
-        elif self.args['kind'] and not self.args['name']:
-            self.parser.error(NAME_WITH_KIND_ERROR)
 
-    def construct_get(self):
-        if self.args.get('file') and not self.args['kind'] and not self.args['name']:
-            body = self.get_json_from_file()
-            name = body['metadata']['name']
-            kind = '{}s'.format(body['kind'].lower())
-            return kind, name
-
-        elif not self.args.get('file') and self.args['kind']:
-            kind = self.args['kind']
-            name = self.args['name']
-            return kind, name
-
-        elif not self.args.get('file') and not self.args['kind']:
-            self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
-        elif self.args['file'] and self.args['kind']:
-            self.parser.error(KIND_OR_FILE_BOTH_ERROR)
-        elif self.args['file'] and self.args['name']:
-            self.parser.error(NAME_OR_FILE_BOTH_ERROR)
 
     def construct_expose(self):
         json_to_send = service_json

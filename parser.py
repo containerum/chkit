@@ -56,8 +56,8 @@ def create_parser(version):
     parser_delete = subparsers.add_parser('delete', help=delete_usg, usage=delete_usg, description=delete_description,
                                           formatter_class=formatter_class)
     parser_delete._optionals.title = 'delete arguments'
-    parser_delete.add_argument('kind', help='{deployment,service,pod} object kind', choices=delete_kinds, metavar="KIND")
-    parser_delete.add_argument('name', help='object name to delete', metavar="NAME")
+    parser_delete.add_argument('kind', help='{deployment,service,pod} object kind', nargs="?", choices=delete_kinds, metavar="KIND")
+    parser_delete.add_argument('name', help='object name to delete', metavar="NAME", nargs="?")
     parser_delete.add_argument('--file', '-f', help='input file')
     parser_delete.add_argument('--namespace', '-n', help='namespace, optional', required=False)
 
@@ -70,18 +70,18 @@ def create_parser(version):
     parser_get = subparsers.add_parser('get', help=get_usg, usage=get_usg, description=get_description,
                                        formatter_class=formatter_class)
     parser_get._optionals.title = 'get arguments'
-    parser_get.add_argument('kind', help='{namespace,deployment,service,pod} object kind', choices=kinds, metavar="KIND")
-    parser_get.add_argument('name', help='object name to get info', metavar="NAME", nargs='*')
+    parser_get.add_argument('kind', help='{namespace,deployment,service,pod} object kind', choices=kinds, default="", metavar="KIND", nargs='?')
+    parser_get.add_argument('name', help='object name to get info', metavar="NAME", nargs='?')
     parser_get.add_argument('--file', '-f', help='input file')
     parser_get.add_argument('--output', '-o', help='{yaml,json} output format, default: json', choices=output_formats, metavar="OUTPUT")
     parser_get.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
     config_description = "Show and changing user's config settings"
-    config_usg = 'client config (--set-token TOKEN  | --set-default-namespace NAMESPACE )[-h | --help]'
+    config_usg = 'client config (--set-token -t TOKEN  | --set-default-namespace -n NAMESPACE )[-h | --help]'
     parser_config = subparsers.add_parser('config', help=config_usg, usage=config_usg, description=config_description,
                                           formatter_class=formatter_class)
-    parser_config.add_argument('--set-token', help='token', required=False)
-    parser_config.add_argument('--set-default-namespace', help='default namespace', required=False)
+    parser_config.add_argument('--set-token', '-t', help='token', required=False)
+    parser_config.add_argument('--set-default-namespace', '-n', help='default namespace', required=False)
 
 
     logout_usg = 'client logout'
