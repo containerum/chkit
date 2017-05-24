@@ -7,11 +7,10 @@ from data import deployment_json, service_json
 from parser import *
 from tcp_handler import TcpHandler, check_http_status
 from api_handler import ApiHandler
-from webclient_api_handler import WebClient
 from bcolors import BColors
 from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config,\
     show_namespace_token_from_config
-from answer_parsers import TcpApiParser, WebClientApiParser
+from answer_parsers import TcpApiParser
 import uuid
 from keywords import JSON_TEMPLATES_RUN_FILE, LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE
 from run_configure import RunConfigure
@@ -96,8 +95,11 @@ class Client:
         api_result = self.api_handler.run(json_to_send, namespace)
         if not self.handle_api_result(api_result):
             return
-        self.get_and_handle_tcp_result('run')
+        json_result = self.get_and_handle_tcp_result('run')
+
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go_expose(self):
         json_to_send = self.construct_expose()
@@ -115,9 +117,10 @@ class Client:
         if not self.handle_api_result(api_result):
             return
 
-        self.get_and_handle_tcp_result('expose')
-
+        json_result = self.get_and_handle_tcp_result('expose')
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go_create(self):
         if self.args.get("debug"):
@@ -138,9 +141,10 @@ class Client:
         if not self.handle_api_result(api_result):
             return
 
-        self.get_and_handle_tcp_result('create')
-
+        json_result = self.get_and_handle_tcp_result('create')
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go_get(self):
         kind, name = self.construct_get()
@@ -164,7 +168,7 @@ class Client:
 
         json_result = self.get_and_handle_tcp_result('get')
         self.tcp_handler.close()
-        if not check_http_status(json_result):
+        if not check_http_status(json_result, self.args.get("command")):
             return
         return json_result
 
@@ -182,7 +186,6 @@ class Client:
                         ))
                     self.print_result(tcp_result)
 
-            self.print_result_status(tcp_result, command_name)
             return tcp_result
 
         except RuntimeError as e:
@@ -210,9 +213,10 @@ class Client:
         if not self.handle_api_result(api_result):
             return
 
-        self.get_and_handle_tcp_result('delete')
-
+        json_result = self.get_and_handle_tcp_result('delete')
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go_replace(self):
         self.log_time()
@@ -231,9 +235,11 @@ class Client:
         if not self.handle_api_result(api_result):
             return
 
-        self.get_and_handle_tcp_result('replace')
+        json_result = self.get_and_handle_tcp_result('replace')
 
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def check_file_existence(self):
         if 'file' in self.args:
@@ -290,22 +296,6 @@ class Client:
             print('{}{}{}'.format(
                 BColors.FAIL,
                 e,
-                BColors.ENDC
-            ))
-
-    def print_result_status(self, result, message):
-        if result.get('status') == 'Failure':
-            print('{}error: {}{}'.format(
-                BColors.FAIL,
-                result.get('message'),
-                BColors.ENDC
-            ))
-        elif self.args["command"] != "get":
-            print('{}{}...{} {}OK{}'.format(
-                BColors.WARNING,
-                message,
-                BColors.ENDC,
-                BColors.BOLD,
                 BColors.ENDC
             ))
 
@@ -477,7 +467,7 @@ class Client:
             .get("spec").get("template").get("metadata").get("labels")
         json_to_send["metadata"]["labels"] = labels
         json_to_send["metadata"]["name"] = self.args["name"][0] + str(randint(1, 99))
-        json_to_send["spec"]["selector"].update({"app": self.args["name"][0]})
+        json_to_send["spec"]["selector"] = labels
         with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w', encoding='utf-8') as w:
                 json.dump(json_to_send, w, indent=4)
         return json_to_send

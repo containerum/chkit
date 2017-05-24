@@ -2,7 +2,6 @@ from datetime import datetime
 from dateutil import parser
 from prettytable import PrettyTable
 from keywords import EMPTY_NAMESPACE, NO_NAMESPACES
-import re
 
 
 class TcpApiParser:
@@ -36,7 +35,7 @@ class TcpApiParser:
     def show_human_readable_pod(self):
         metadata = self.result.get("results")[0].get("data").get("metadata")
         containers = self.result.get("results")[0].get("data").get("spec").get("containers")
-        restartPolicy = self.result.get("results")[0].get("data").get("spec").get("restartPolicy")
+        restart_policy = self.result.get("results")[0].get("data").get("spec").get("restartPolicy")
         termination = self.result.get("results")[0].get("data").get("spec").get("terminationGracePeriodSeconds")
         system = self.result.get("results")[0].get("data").get("status")
         container_statuses = self.result.get("results")[0].get("data").get("status").get("containerStatuses")
@@ -65,7 +64,7 @@ class TcpApiParser:
                     ports.add_row([p.get("name"), p.get("protocol"), p.get("containerPort")])
                 print(ports)
             if c.get("env"):
-                env = PrettyTable(["Name","Value"])
+                env = PrettyTable(["Name", "Value"])
                 print("\t\tEnvironment:")
                 for e in c.get("env"):
                     env.add_row([e.get("name"), e.get("value")])
@@ -81,13 +80,13 @@ class TcpApiParser:
             if system.get("startTime"):
                 print("\t%-30s %s" % ("StartTime:", parser.parse(system.get("startTime"))))
             print("\t%-30s %s" % ("TerminationGracePeriodSeconds:", termination))
-            print("\t%-30s %s" % ("RestartPolicy:", restartPolicy))
+            print("\t%-30s %s" % ("RestartPolicy:", restart_policy))
             print("ContainerStatuses:")
             if container_statuses:
-                containerStatuses = PrettyTable(["Name","Ready","Restart Count"])
+                container_statuses_table = PrettyTable(["Name","Ready","Restart Count"])
                 for cs in container_statuses:
-                    containerStatuses.add_row([cs.get("name"), cs.get("ready"), cs.get("restartCount")])
-                print(containerStatuses)
+                    container_statuses_table.add_row([cs.get("name"), cs.get("ready"), cs.get("restartCount")])
+                print(container_statuses_table)
             print("Status:")
             StatusTable = PrettyTable(["Type:", "LastTransitionTime:", "Status:"])
             for s in status:
@@ -120,7 +119,7 @@ class TcpApiParser:
     def show_human_readable_deployment_list(self):
         if self.result:
             items = self.result.get("results")[0].get("data").get("items")
-            table = PrettyTable(["NAME",  "PODS ACTIVE",  "CPU",  "RAM", "AGE"])
+            table = PrettyTable(["NAME",  "PODS", "PODS ACTIVE",  "CPU",  "RAM", "AGE"])
             table.align = "l"
             for i in items:
                 containers = i.get("spec").get("template").get("spec").get("containers")
@@ -129,25 +128,30 @@ class TcpApiParser:
                 memory = 0
                 cpu_prefix = "m"
                 memory_prefix = "Mi"
-                if i.get("status").get("availableReplicas"):
-                        pods_active = i.get("status").get("availableReplicas")
+                pods_active = i.get("status").get("availableReplicas")
+                if not pods_active:
+                    pods_active = 0
+                if i.get("spec").get("replicas"):
+                        pods = i.get("spec").get("replicas")
                         for c in containers:
-                            cpu += int(c.get("resources").get("limits").get("cpu")[:-1])
-                            cpu_prefix = c.get("resources").get("limits").get("cpu")[-1]
+                            if "m" in c.get("resources").get("limits").get("cpu"):
+                                cpu += int(c.get("resources").get("limits").get("cpu")[:-1])
+                            else:
+                                cpu += int(c.get("resources").get("limits").get("cpu"))*1000
                             memory_prefix = c.get("resources").get("limits").get("memory")[-2:]
                             if memory_prefix == "Gi":
                                 memory += 1024*int(c.get("resources").get("limits").get("memory")[:-2])
                             else:
                                 memory += int(c.get("resources").get("limits").get("memory")[:-2])
-                        cpu *= pods_active
-                        memory *= pods_active
+                        cpu *= pods
+                        memory *= pods
                 else:
-                    pods_active = 0
+                    pods = 0
                 cpu = str(cpu) + cpu_prefix
                 memory = str(memory) + memory_prefix
 
                 time = get_datetime_diff(i.get("metadata").get("creationTimestamp"))
-                table.add_row([name,  pods_active,  cpu,  memory, time])
+                table.add_row([name,  pods, pods_active, cpu,  memory, time])
             print(table)
         else:
             print(NO_NAMESPACES)
@@ -274,68 +278,6 @@ class TcpApiParser:
             print(table)
         else:
             print(EMPTY_NAMESPACE)
-
-
-class WebClientApiParser:
-    def __init__(self, row_answer):
-        self.items = row_answer
-        self.result = row_answer
-
-    def show_human_readable_namespace_list(self):
-        if self.items:
-            table = PrettyTable(["ID",  "IS ACTIVE",  "AGE", "CPU", "CPU LIMIT", "MEMORY", "MEMORY LIMIT"])
-            table.align = "l"
-            for i in self.items:
-                status = i.get("active")
-                name = i.get("id")
-                cpu = i.get("cpu")
-                cpu_limit = i.get("cpu_limit")
-                memory = i.get("memory")
-                memory_limit = i.get("memory_limit")
-                time = get_datetime_diff(i.get("created"))
-                table.add_row([name,  status,  time, cpu, cpu_limit, memory, memory_limit])
-            print(table)
-        else:
-            print(NO_NAMESPACES)
-
-    def show_human_readable_deployment_list(self):
-        print(self.items)
-        if self.items:
-            table = PrettyTable(["NAME",  "PODS ACTIVE",  "CPU",  "RAM", "AGE"])
-            table.align = "l"
-            for i in self.items:
-                name = i.get("name")
-                cpu = i.get("cpu")
-                pods_active = i.get("pods_active")
-                memory = i.get("ram")
-                time = get_datetime_diff(i.get("created_at"))
-                table.add_row([name,  pods_active,  cpu,  memory, time])
-            print(table)
-        else:
-            print(NO_NAMESPACES)
-
-    def show_human_readable_deployment(self, namespace):
-        status = self.result.get("status")
-        conditions = self.result.get("conditions")
-        containers = self.result.get("containers")
-        if self.result:
-            print("%-20s %s" % ("Name:", self.result.get("name")))
-            print("%-20s %s" % ("Namespace:", namespace))
-            print("%-20s %s" % ("CreationTimeStamp:", parser.parse(self.result.get("created_at"))))
-            print("Labels:")
-            for key,value in self.result.get("labels").items():
-                print("\t%s=%s" % (key, value))
-            status_tuple = ("Status:", status.get("updated"), "updated", status.get("total"), "total",
-                            status.get("available"), "available", status.get("unavailable"), "unavailable")
-            print("%-20s %s %s | %s %s | %s %s | %s %s" % status_tuple)
-            print("Conditions:")
-            conditions_table = PrettyTable(["TYPE", "STATUS", "REASON"])
-            for c in conditions:
-                conditions_table.add_row([c.get("type"), c.get("status"), c.get("reason")])
-            print(conditions_table)
-            print("Containers:")
-            for c in containers:
-                print("\t%s" % c.get("name"))
 
 
 def get_datetime_diff(timestamp):
