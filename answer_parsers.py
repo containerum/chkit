@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil import parser
 from prettytable import PrettyTable
 from keywords import EMPTY_NAMESPACE, NO_NAMESPACES
@@ -282,10 +282,12 @@ class TcpApiParser:
 
 def get_datetime_diff(timestamp):
     created_date = parser.parse(timestamp)
-    created_date.utcoffset()
+    created_date = created_date.replace(tzinfo=None)
     current_date = datetime.utcnow()
-    diff = ((current_date.year - created_date.year, "Y"),(current_date.month - created_date.month, "M"),
-            (current_date.day - created_date.day, "d"), (current_date.hour - created_date.hour, "h"),
-            (current_date.minute - created_date.minute, "m"), (current_date.second - created_date.second,"s"))
+    t_delta = current_date - created_date
+    t_delta = datetime(1, 1, 1, 0, 0, 0, 0) + t_delta
+    diff = ((t_delta.year - 1, "Y"), (t_delta.month - 1, "M"),
+            (t_delta.day - 1, "d"), (t_delta.hour, "h"),
+            (t_delta.hour, "m"), (t_delta.second, "s"))
     diff = tuple(filter(lambda x: x[0] > 0, diff))[0]
     return str(diff[0]) + diff[1]

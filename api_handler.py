@@ -135,7 +135,6 @@ class ApiHandler:
         return result
 
     def get(self, kind, name, namespace):
-
         if name:
             url = '{}/namespaces/{}/{}/{}'.format(
                 self.server,
@@ -194,7 +193,6 @@ def make_request(url, headers, timeout, method, json_to_send=None):
             timeout=timeout
         )
     elif method == "POST":
-        #print(url,headers, json_to_send, timeout)
         r = requests.post(
             url,
             data=json.dumps(json_to_send),

@@ -35,6 +35,8 @@ class Client:
             if self.args.get("set_token"):
                 set_token_to_json_config(self.args.get("set_token"))
             elif self.args.get("set_default_namespace"):
+                if not self.test_namespace(self.args.get("set_default_namespace")):
+                    return
                 set_default_namespace_to_json_config(self.args.get("set_default_namespace"))
             else:
                 show_namespace_token_from_config()
@@ -152,10 +154,11 @@ class Client:
         self.tcp_connect()
 
         json_to_send = self.get_json_from_file()
-
-        namespace = self.args.get('namespace')
+        namespace = json_to_send["metadata"].get("namespace")
         if not namespace:
-            namespace = config_json_data.get("default_namespace")
+            namespace = self.args.get('namespace')
+            if not namespace:
+                namespace = config_json_data.get("default_namespace")
 
         api_result = self.api_handler.create(json_to_send, namespace)
         if not self.handle_api_result(api_result):
@@ -165,6 +168,22 @@ class Client:
         self.tcp_handler.close()
         if not check_http_status(json_result, self.args.get("command")):
             return
+
+    def test_namespace(self, namespace):
+        if self.debug:
+            self.log_time()
+        self.tcp_connect()
+
+        api_result = self.api_handler.get_namespaces(namespace)
+
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('check namespace')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, "check namespace"):
+            return
+        return True
 
     def go_get(self):
         kind, name = self.construct_get()
@@ -176,7 +195,6 @@ class Client:
         if not self.namespace:
             self.namespace = config_json_data.get("default_namespace")
 
-        print(kind, name)
         if kind == "namespaces":
             if self.args.get("name"):
                 api_result = self.api_handler.get_namespaces(self.args.get("name"))
@@ -447,7 +465,6 @@ class Client:
             self.parser.error(NAME_WITH_KIND_ERROR)
 
     def construct_get(self):
-        print(self.args)
         if self.args['file'] and not self.args['kind']  and not self.args['name']:
             body = self.get_json_from_file()
             name = body['metadata']['name']

@@ -16,7 +16,7 @@ def create_parser(version):
     parser._positionals.title = 'client commands'
 
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(version))
-    parser.add_argument("-D", '--debug', action='store_true', default=False, help='print debug messages to stdout')
+    parser.add_argument("-d", '--debug', action='store_true', default=False, help='print debug messages to stdout')
 
     subparsers = parser.add_subparsers(help='use «[COMMAND] --help» to get detailed help for the command',  dest='command')
     run_description = "Running deployement genereting json file"
@@ -77,7 +77,7 @@ def create_parser(version):
     parser_get.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
     config_description = "Show and changing user's config settings"
-    config_usg = 'client config (--set-token -t TOKEN  | --set-default-namespace -n NAMESPACE )[-h | --help]'
+    config_usg = 'client [--debug -d ] config (--set-token -t TOKEN  | --set-default-namespace -n NAMESPACE )[-h | --help]'
     parser_config = subparsers.add_parser('config', help=config_usg, usage=config_usg, description=config_description,
                                           formatter_class=formatter_class)
     parser_config.add_argument('--set-token', '-t', help='token', required=False)
