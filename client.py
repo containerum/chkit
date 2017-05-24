@@ -81,6 +81,33 @@ class Client:
         elif self.args['command'] == 'logout':
             self.logout()
 
+        elif self.args['command'] == 'set':
+            self.go_set()
+
+    def go_set(self):
+        if self.args.get("debug"):
+            self.log_time()
+        self.tcp_connect()
+
+        json_to_send = self.get_json_from_file()
+        kind = '{}s'.format(json_to_send.get('kind')).lower()
+
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+
+        if kind != 'namespaces':
+            api_result = self.api_handler.create(json_to_send, namespace)
+        else:
+            api_result = self.api_handler.create_namespaces(json_to_send)
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('create')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
+
     def go_run(self):
         json_to_send = self.construct_run()
         if not json_to_send:
@@ -152,9 +179,9 @@ class Client:
             self.log_time()
         self.tcp_connect()
 
-        namespace = self.args.get('namespace')
-        if not namespace:
-            namespace = config_json_data.get("default_namespace")
+        self.namespace = self.args.get('namespace')
+        if not self.namespace:
+            self.namespace = config_json_data.get("default_namespace")
 
         if kind == "namespaces":
             if self.args.get("name"):
@@ -162,13 +189,13 @@ class Client:
             else:
                 api_result = self.api_handler.get_namespaces()
         else:
-            api_result = self.api_handler.get(kind, name, namespace)
+            api_result = self.api_handler.get(kind, name, self.namespace)
         if not self.handle_api_result(api_result):
             return
 
         json_result = self.get_and_handle_tcp_result('get')
         self.tcp_handler.close()
-        if not check_http_status(json_result, self.args.get("command")):
+        if not check_http_status(json_result, "get"):
             return
         return json_result
 
@@ -465,6 +492,7 @@ class Client:
             return
         labels = result.get("results")[0].get("data")\
             .get("spec").get("template").get("metadata").get("labels")
+        labels.pop(self.namespace)
         json_to_send["metadata"]["labels"] = labels
         json_to_send["metadata"]["name"] = self.args["name"][0] + str(randint(1, 99))
         json_to_send["spec"]["selector"] = labels

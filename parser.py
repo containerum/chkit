@@ -97,19 +97,21 @@ def create_parser(version):
     parser_expose.add_argument('name', help='object name to get info', nargs='*', metavar="NAME")
     parser_expose.add_argument('--ports', '-p', help='target port, PORTS = PORTNAME:TARGETPORT:PROTOCOL, default: PROTOCOL = TCP', nargs='*', required=True)
 
-    set_usg = 'client set image (-f FILENAME | TYPE NAME) CONTAINER_NAME_1=CONTAINER_IMAGE_1 ... CONTAINER_NAME_N=CONTAINER_IMAGE_N'
+    set_usg = 'client set FIELD (-f FILENAME | TYPE NAME) CONTAINER_NAME_1=CONTAINER_IMAGE_1 ... CONTAINER_NAME_N=CONTAINER_IMAGE_N'
     set_description = 'Change image in containers'
-    parser_get = subparsers.add_parser('get', help=get_usg, usage=get_usg, description=get_description,
+    parser_set = subparsers.add_parser('set', help=set_usg, usage=set_usg, description=set_description,
                                        formatter_class=formatter_class)
-    parser_get._optionals.title = 'get arguments'
-    parser_get.add_argument('kind', help='{namespace,deployment,service,pod} object kind', choices=kinds, metavar="KIND")
-    parser_get.add_argument('name', help='object name to get info', metavar="NAME", nargs='*')
-    parser_get.add_argument('--file', '-f', help='input file')
-    parser_get.add_argument('--output', '-o', help='{yaml,json} output format, default: json', choices=output_formats, metavar="OUTPUT")
-    parser_get.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
+    parser_set._optionals.title = 'set arguments'
+    parser_set.add_argument('field', help='{image} spec field', choices=kinds, metavar="FIELD")
+    parser_set.add_argument('kind', help='{namespace,deployment,service,pod} object kind', choices=kinds, metavar="KIND")
+    parser_set.add_argument('name', help='object name to get info', metavar="NAME", nargs='?')
+    parser_set.add_argument('containers', help='pair of container and image', metavar="CONTAINERS", nargs='*')
+    parser_set.add_argument('--file', '-f', help='input file')
+    parser_set.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
     argcomplete.autocomplete(parser)
 
     return parser
+
 
 class MyFormatter(argparse.HelpFormatter):
     """

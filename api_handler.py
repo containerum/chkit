@@ -30,15 +30,21 @@ class ApiHandler:
         result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
         return result
 
-    def create_namespaces(self, json_to_send):
-        url = '{}/namespaces'.format(
-            self.server
-        )
-
-        result = make_request(url+"?cpu=500M&memory=500M&user=00000000-0000-0000-0000-000000000007", self.headers,
-                              self.TIMEOUT, "POST", json_to_send)
-
-        return result
+    # def set(self, json_to_send, namespace=None, deploy):
+    #     kind = '{}s'.format(json_to_send['kind'].lower())
+    #
+    #     if namespace:
+    #         url = '{}/namespaces/{}/deployments'.format(
+    #             self.server,
+    #             namespace
+    #         )
+    #     else:
+    #         url = '{}/namespaces/default/deployments'.format(
+    #             self.server
+    #         )
+    #
+    #     result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
+    #     return result
 
     def replace(self, json_to_send, namespace):
         kind = '{}s'.format(json_to_send['kind'].lower())
