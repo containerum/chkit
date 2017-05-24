@@ -25,6 +25,10 @@ run_kinds = [
     'deploy'
 ]
 
+fields = [
+    "image"
+]
+
 delete_kinds = [
     'po',
     'pods',
@@ -44,32 +48,34 @@ output_formats = [
 ]
 
 deployment_json = {
-    "kind": "Deployment",
     "metadata": {
-        "name": "",
+        "name": "deplo5",
         "labels": {}
     },
+    "kind": "Deployment",
     "spec": {
-        "replicas": 1,
         "template": {
             "metadata": {
-                "labels": {}
+                "labels": {
+                },
+                "name": "deplo4"
             },
             "spec": {
                 "containers": [
                     {
-                        "name": "",
-                        "image": "",
+                        "name": "deplo4",
                         "resources": {
                             "requests": {
-                                "cpu": "100m",
-                                "memory": "128Mi"
+                                "memory": "128Mi",
+                                "cpu": "100m"
                             }
-                        }
+                        },
+                        "image": "ubuntu"
                     }
                 ]
             }
-        }
+        },
+        "replicas": 1
     }
 }
 

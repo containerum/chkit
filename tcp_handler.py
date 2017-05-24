@@ -71,6 +71,7 @@ class TcpHandler:
 
 
 def check_http_status(result, command):
+    #print(json.dumps(result, indent=4))
     status = result.get("results")[0].get("HttpStatusCode")
     if status != 200:
         if type(result.get("results")[0].get("data")) == str:

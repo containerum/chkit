@@ -30,21 +30,21 @@ class ApiHandler:
         result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
         return result
 
-    # def set(self, json_to_send, namespace=None, deploy):
-    #     kind = '{}s'.format(json_to_send['kind'].lower())
-    #
-    #     if namespace:
-    #         url = '{}/namespaces/{}/deployments'.format(
-    #             self.server,
-    #             namespace
-    #         )
-    #     else:
-    #         url = '{}/namespaces/default/deployments'.format(
-    #             self.server
-    #         )
-    #
-    #     result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
-    #     return result
+    def set(self, json_to_send, container_name, namespace=None):
+        if namespace:
+            url = '{}/namespaces/{}/container/{}'.format(
+                self.server,
+                namespace,
+                container_name
+            )
+        else:
+            url = '{}/namespaces/default/container/{}'.format(
+                self.server,
+                container_name
+            )
+        print(url)
+        result = make_request(url, self.headers, self.TIMEOUT, "PATCH", json_to_send)
+        return result
 
     def replace(self, json_to_send, namespace):
         kind = '{}s'.format(json_to_send['kind'].lower())
@@ -203,6 +203,13 @@ def make_request(url, headers, timeout, method, json_to_send=None):
         )
     elif method == "PUT":
         r = requests.put(
+            url,
+            data=json.dumps(json_to_send),
+            timeout=timeout,
+            headers=headers
+        )
+    elif method == "PATCH":
+        r = requests.patch(
             url,
             data=json.dumps(json_to_send),
             timeout=timeout,

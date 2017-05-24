@@ -282,6 +282,7 @@ class TcpApiParser:
 
 def get_datetime_diff(timestamp):
     created_date = parser.parse(timestamp)
+    created_date.utcoffset()
     current_date = datetime.utcnow()
     diff = ((current_date.year - created_date.year, "Y"),(current_date.month - created_date.month, "M"),
             (current_date.day - created_date.day, "d"), (current_date.hour - created_date.hour, "h"),

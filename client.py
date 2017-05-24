@@ -89,21 +89,18 @@ class Client:
             self.log_time()
         self.tcp_connect()
 
-        json_to_send = self.get_json_from_file()
-        kind = '{}s'.format(json_to_send.get('kind')).lower()
-
         namespace = self.args.get('namespace')
         if not namespace:
             namespace = config_json_data.get("default_namespace")
 
-        if kind != 'namespaces':
-            api_result = self.api_handler.create(json_to_send, namespace)
-        else:
-            api_result = self.api_handler.create_namespaces(json_to_send)
+        container_name, image = self.args.get("container").split("=")
+        json_to_send = {"name": self.args.get("name"), "image": image}
+        api_result = self.api_handler.set(json_to_send, container_name, namespace)
+
         if not self.handle_api_result(api_result):
             return
 
-        json_result = self.get_and_handle_tcp_result('create')
+        json_result = self.get_and_handle_tcp_result('set')
         self.tcp_handler.close()
         if not check_http_status(json_result, self.args.get("command")):
             return
@@ -155,16 +152,12 @@ class Client:
         self.tcp_connect()
 
         json_to_send = self.get_json_from_file()
-        kind = '{}s'.format(json_to_send.get('kind')).lower()
 
         namespace = self.args.get('namespace')
         if not namespace:
             namespace = config_json_data.get("default_namespace")
 
-        if kind != 'namespaces':
-            api_result = self.api_handler.create(json_to_send, namespace)
-        else:
-            api_result = self.api_handler.create_namespaces(json_to_send)
+        api_result = self.api_handler.create(json_to_send, namespace)
         if not self.handle_api_result(api_result):
             return
 
@@ -407,6 +400,7 @@ class Client:
             for label in labels:
                 key, value = label.split("=")
                 json_to_send['metadata']['labels'].update({key: value})
+                json_to_send['spec']['template']['metadata']['labels'].update({key: value})
         if env:
             json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
                 {

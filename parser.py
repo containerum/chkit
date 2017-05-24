@@ -1,6 +1,6 @@
 import argparse
 import argcomplete
-from data import kinds, output_formats, run_kinds, delete_kinds, expose_kinds
+from data import kinds, output_formats, run_kinds, delete_kinds, expose_kinds, fields
 
 
 ONE_REQUIRED_ARGUMENT_ERROR = "you should pass at least one required argument: KIND or FILE"
@@ -89,23 +89,24 @@ def create_parser(version):
     parser_logout = subparsers.add_parser('logout', help=logout_usg, usage=logout_usg, description=logout_description,
                                           formatter_class=formatter_class)
 
-    expose_usg = 'client [--debug -d ] expose KIND NAME (-p --ports PORTS) [-h | --help]'
+    expose_usg = 'client [--debug -d ] expose KIND NAME (-p --ports PORTS) [--name][-h | --help]'
     expose_description = "Exposing service genereting json file"
     parser_expose = subparsers.add_parser('expose', help=expose_usg, usage=expose_usg, description=expose_description,
                                           formatter_class=formatter_class)
     parser_expose.add_argument('kind', help='{deployment} object kind', choices=expose_kinds, metavar="KIND")
     parser_expose.add_argument('name', help='object name to get info', nargs='*', metavar="NAME")
     parser_expose.add_argument('--ports', '-p', help='target port, PORTS = PORTNAME:TARGETPORT:PROTOCOL, default: PROTOCOL = TCP', nargs='*', required=True)
+    parser_expose.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
     set_usg = 'client set FIELD (-f FILENAME | TYPE NAME) CONTAINER_NAME_1=CONTAINER_IMAGE_1 ... CONTAINER_NAME_N=CONTAINER_IMAGE_N'
     set_description = 'Change image in containers'
     parser_set = subparsers.add_parser('set', help=set_usg, usage=set_usg, description=set_description,
                                        formatter_class=formatter_class)
     parser_set._optionals.title = 'set arguments'
-    parser_set.add_argument('field', help='{image} spec field', choices=kinds, metavar="FIELD")
-    parser_set.add_argument('kind', help='{namespace,deployment,service,pod} object kind', choices=kinds, metavar="KIND")
+    parser_set.add_argument('field', help='{image} spec field', choices=fields, metavar="FIELD")
+    parser_set.add_argument('kind', help='{deployment} object kind', choices=run_kinds, metavar="KIND")
     parser_set.add_argument('name', help='object name to get info', metavar="NAME", nargs='?')
-    parser_set.add_argument('containers', help='pair of container and image', metavar="CONTAINERS", nargs='*')
+    parser_set.add_argument('container', help='pair of container and image', metavar="CONTAINER", nargs='?')
     parser_set.add_argument('--file', '-f', help='input file')
     parser_set.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
     argcomplete.autocomplete(parser)
