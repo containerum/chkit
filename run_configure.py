@@ -11,6 +11,8 @@ class RunConfigure:
             try:
                 if not param_dict.get("image"):
                     image = input("Enter image:")
+                    if not image:
+                        raise ValueError("Image is required field")
                     param_dict.update({"image": image})
                 if not param_dict.get("ports"):
                     ports = input("Enter ports (8080 ... 4556):")

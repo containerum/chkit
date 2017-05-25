@@ -483,7 +483,6 @@ class Client:
         elif self.args['file'] and self.args['name']:
             self.parser.error(NAME_OR_FILE_BOTH_ERROR)
 
-
     def construct_expose(self):
         json_to_send = service_json
         ports = self.args.get("ports")
