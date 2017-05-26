@@ -1,0 +1,25 @@
+---
+metadata:
+  name: namespacenot
+  namespace: wanna-cry
+  labels:
+    roy: '2'
+kind: Deployment
+spec:
+  template:
+    metadata:
+      labels:
+        roy: '2'
+      name: hiworldpod
+    spec:
+      containers:
+      - name: hiworld
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 100m
+        image: gcr.io/google-samples/node-hello:1.0
+  replicas: 3
+  selector:
+    matchLabels:
+      roy: '2'

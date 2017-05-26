@@ -1,8 +1,8 @@
 {
     "metadata": {
-        "name": "deplo5",
+        "name": "deplo6",
         "labels": {
-            "run": "deplo4",
+            "run": "deplo6",
             "test": "bbtbt"
         }
     },
@@ -11,7 +11,7 @@
         "template": {
             "metadata": {
                 "labels": {
-                    "run": "deplo4",
+                    "run": "deplo6",
                     "test": "bbtbt"
                 },
                 "name": "deplo4"
@@ -19,7 +19,7 @@
             "spec": {
                 "containers": [
                     {
-                        "name": "deplo4",
+                        "name": "deplo6",
                         "resources": {
                             "requests": {
                                 "memory": "128Mi",

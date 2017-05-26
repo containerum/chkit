@@ -65,7 +65,7 @@ def create_parser(version):
     parser_expose.add_argument('--ports', '-p', help='target port, PORTS = PORTNAME:TARGETPORT:PROTOCOL, default: PROTOCOL = TCP', nargs='*', required=True)
     parser_expose.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
-    set_usg = 'chkit set FIELD (-f --file FILENAME | TYPE NAME) CONTAINER_NAME=CONTAINER_IMAGE [-n --namespace NAMESPACE]'
+    set_usg = 'chkit set FIELD (--file -f FILENAME | TYPE NAME) CONTAINER_NAME=CONTAINER_IMAGE [-n --namespace NAMESPACE][--help | -h]'
     set_description = 'Change image in containers'
     parser_set = subparsers.add_parser('set', help=set_usg, usage=set_usg, description=set_description,
                                        formatter_class=formatter_class)
@@ -77,7 +77,7 @@ def create_parser(version):
     parser_set.add_argument('--file', '-f', help='input file')
     parser_set.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
-    get_usg = 'chkit [--debug -d ] get (KIND [NAME] | -f FILE) [-o OUTPUT] [--namespace NAMESPACE][-h | --help]'
+    get_usg = 'chkit [--debug -d ] get (KIND [NAME] | --file -f FILE) [-o OUTPUT] [--namespace NAMESPACE][-h | --help]'
     get_description = "Show info about pod(s), service(s), namespace(s), deployment(s)"
     parser_get = subparsers.add_parser('get', help=get_usg, usage=get_usg, description=get_description,
                                        formatter_class=formatter_class)
@@ -89,7 +89,7 @@ def create_parser(version):
     parser_get.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
 
-    delete_usg = 'chkit [--debug -d ] delete (KIND NAME | -f FILE) [--namespace NAMESPACE][-h | --help]'
+    delete_usg = 'chkit [--debug -d ] delete (KIND NAME | --file -f FILE) [--namespace NAMESPACE][-h | --help]'
     delete_description = "Deleting pods,service,deployments by name"
     parser_delete = subparsers.add_parser('delete', help=delete_usg, usage=delete_usg, description=delete_description,
                                           formatter_class=formatter_class)

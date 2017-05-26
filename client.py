@@ -439,7 +439,18 @@ class Client:
                 file_name
             ))
         except json.decoder.JSONDecodeError as e:
-            self.parser.error('bad json: {}'.format(
+            pass
+
+        try:
+            with open(file_name, 'r', encoding='utf-8') as f:
+                body = yaml.load(f)
+                return body
+        except FileNotFoundError:
+            self.parser.error('no such file: {}'.format(
+                file_name
+            ))
+        except yaml.YAMLError as e:
+            self.parser.error('bad json or yaml: {}'.format(
                 e
             ))
 
