@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 from client import Client
 
+VERSION = "1.2.2"
+
 
 def main():
-    client = Client()
+    client = Client(VERSION)
     client.go()
 
 

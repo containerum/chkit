@@ -2,9 +2,9 @@ from cx_Freeze import Executable,setup
 
 setup(
     packages=['queue'],
-    name="client",
-    description="Containerum client",
-    version="1.0",
-    executables=[Executable("client.py")]
+    name="chkit",
+    description="Containerum Hosting Client",
+    version="1.2.2",
+    executables=[Executable("chkit.py")]
 )
 

@@ -20,9 +20,9 @@ config_json_data = get_json_from_config()
 
 
 class Client:
-    def __init__(self):
+    def __init__(self, version):
         self.path = os.getcwd()
-        self.version = config_json_data.get("version")
+        self.version = version
         self.parser = create_parser(self.version)
         uuid_v4 = str(uuid.uuid4())
         self.args = vars(self.parser.parse_args())
