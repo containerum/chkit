@@ -80,7 +80,6 @@ deployment_json = {
 }
 
 service_json = {
-    "apiVersion": "v1",
     "kind": "Service",
     "metadata": {
         "name": "",

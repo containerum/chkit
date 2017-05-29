@@ -15,6 +15,8 @@ import uuid
 from keywords import JSON_TEMPLATES_RUN_FILE, LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE
 from run_configure import RunConfigure
 from random import randint
+from datetime import datetime
+from hashlib import sha256, md5
 
 
 config_json_data = get_json_from_config()
@@ -128,16 +130,17 @@ class Client:
             return
 
     def go_expose(self):
-        json_to_send = self.construct_expose()
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+
+        json_to_send = self.construct_expose(namespace)
         if self.debug:
             self.log_time()
 
         if not json_to_send:
             return
         self.tcp_connect()
-        namespace = self.args.get('namespace')
-        if not namespace:
-            namespace = config_json_data.get("default_namespace")
 
         api_result = self.api_handler.expose(json_to_send, namespace)
         if not self.handle_api_result(api_result):
@@ -476,13 +479,13 @@ class Client:
             self.parser.error(NAME_WITH_KIND_ERROR)
 
     def construct_get(self):
-        if self.args['file'] and not self.args['kind']  and not self.args['name']:
+        if self.args.get('file') and not self.args.get('kind') and not self.args.get('name'):
             body = self.get_json_from_file()
             name = body['metadata']['name']
             kind = '{}s'.format(body['kind'].lower())
             return kind, name
 
-        elif not self.args['file'] and self.args['kind'] :
+        elif not self.args.get('file') and self.args.get('kind'):
             kind = self.args['kind']
             name = self.args.get('name')
             return kind, name
@@ -494,7 +497,8 @@ class Client:
         elif self.args['file'] and self.args['name']:
             self.parser.error(NAME_OR_FILE_BOTH_ERROR)
 
-    def construct_expose(self):
+    def construct_expose(self, namespace):
+        labels = {"external": "true"}
         json_to_send = service_json
         ports = self.args.get("ports")
         self.args["kind"] = "deployments"
@@ -502,16 +506,26 @@ class Client:
             for p in ports:
                 p = p.split(":")
                 if len(p) == 3:
-                    json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2], "targetPort": int(p[1])})
+                    if p[2] == "TCP" or p[2] == "UDP":
+                        json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2], "targetPort": int(p[1])})
+                    else:
+                        json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "targetPort": int(p[1])})
+                        labels["external"] = "false"
+                if len(p) == 4:
+                    json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "protocol": p[3],
+                                                         "targetPort": int(p[1])})
+                    labels["external"] = "false"
                 elif len(p) == 2:
                     json_to_send["spec"]["ports"].append({"name": p[0], "protocol": "TCP", "targetPort": int(p[1])})
         result = self.go_get()
         if not result:
             return
-        labels = result.get("results")[0].get("data")\
-            .get("spec").get("template").get("metadata").get("labels")
+        namespace_hash = sha256(namespace.encode('utf-8')).hexdigest()[:32]
+        labels.update({namespace_hash: self.args.get("name")})
         json_to_send["metadata"]["labels"] = labels
-        json_to_send["metadata"]["name"] = self.args["name"][0] + str(randint(1, 99))
+        json_to_send["metadata"]["name"] = self.args["name"] + "-" + \
+                                           md5((self.args.get("name")+str(datetime.now()))
+                                               .encode("utf-8")).hexdigest()[:4]
         json_to_send["spec"]["selector"] = labels
         with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w', encoding='utf-8') as w:
                 json.dump(json_to_send, w, indent=4)
