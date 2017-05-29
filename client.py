@@ -532,10 +532,3 @@ class Client:
         return json_to_send
 
 
-def main():
-    client = Client()
-    client.go()
-
-
-if __name__ == '__main__':
-    main()
