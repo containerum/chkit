@@ -288,6 +288,7 @@ def get_datetime_diff(timestamp):
     t_delta = datetime(1, 1, 1, 0, 0, 0, 0) + t_delta
     diff = ((t_delta.year - 1, "Y"), (t_delta.month - 1, "M"),
             (t_delta.day - 1, "d"), (t_delta.hour, "h"),
-            (t_delta.hour, "m"), (t_delta.second, "s"))
+            (t_delta.minute, "m"), (t_delta.second, "s"))
+    print(diff)
     diff = tuple(filter(lambda x: x[0] > 0, diff))[0]
     return str(diff[0]) + diff[1]

@@ -1,8 +1,6 @@
-#!/usr/bin/python3
 import os
 import json
 import yaml
-import datetime
 from data import deployment_json, service_json
 from parser import *
 from tcp_handler import TcpHandler, check_http_status
@@ -14,7 +12,6 @@ from answer_parsers import TcpApiParser
 import uuid
 from keywords import JSON_TEMPLATES_RUN_FILE, LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE
 from run_configure import RunConfigure
-from random import randint
 from datetime import datetime
 from hashlib import sha256, md5
 
@@ -347,7 +344,7 @@ class Client:
                 result = result["results"][0].get("data")
                 print(yaml.dump(result, default_flow_style=False))
             elif self.args['output'] == 'json':
-                print(json.dumps(result,indent=4))
+                print(json.dumps(result, indent=4))
                 result = result["results"][0].get("data")
                 print(json.dumps(result, indent=4))
             else:
@@ -357,7 +354,7 @@ class Client:
         if self.args["debug"]:
             print('{}{}{}'.format(
                 BColors.WARNING,
-                str(datetime.datetime.now())[11:19:],
+                str(datetime.now())[11:19:],
                 BColors.ENDC
             ))
 
