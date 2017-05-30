@@ -70,15 +70,34 @@ class TcpHandler:
         self.s.close()
 
 
-def check_http_status(result):
+def check_http_status(result, command):
+    #print(json.dumps(result, indent=4))
     status = result.get("results")[0].get("HttpStatusCode")
     if status != 200:
-        message = result.get("results")[0].get("data").get("message")
+        if type(result.get("results")[0].get("data")) == str:
+            message = result.get("results")[0].get("data")
+        else:
+            message = result.get("results")[0].get("data").get("message")
         print('{}{}{} {}'.format(
             BColors.FAIL,
             "Error: ",
             message,
             BColors.ENDC,
             ))
+        print('{}{}{} {}'.format(
+            BColors.FAIL,
+            "HTTP Status: ",
+            status,
+            BColors.ENDC,
+            ))
         return False
+    else:
+        if command != "get":
+            print('{}{}...{} {}OK{}'.format(
+                BColors.WARNING,
+                command,
+                BColors.ENDC,
+                BColors.BOLD,
+                BColors.ENDC
+            ))
     return True

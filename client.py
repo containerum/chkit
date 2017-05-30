@@ -1,30 +1,30 @@
-#!/usr/bin/python3
 import os
 import json
 import yaml
-import datetime
+import re
 from data import deployment_json, service_json
 from parser import *
 from tcp_handler import TcpHandler, check_http_status
 from api_handler import ApiHandler
-from webclient_api_handler import WebClient
 from bcolors import BColors
+from getpass import getpass
 from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config,\
     show_namespace_token_from_config
-from answer_parsers import TcpApiParser, WebClientApiParser
+from answer_parsers import TcpApiParser
 import uuid
 from keywords import JSON_TEMPLATES_RUN_FILE, LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE
 from run_configure import RunConfigure
-from random import randint
+from datetime import datetime
+from hashlib import sha256, md5
 
 
 config_json_data = get_json_from_config()
 
 
 class Client:
-    def __init__(self):
+    def __init__(self, version):
         self.path = os.getcwd()
-        self.version = config_json_data.get("version")
+        self.version = version
         self.parser = create_parser(self.version)
         uuid_v4 = str(uuid.uuid4())
         self.args = vars(self.parser.parse_args())
@@ -36,6 +36,8 @@ class Client:
             if self.args.get("set_token"):
                 set_token_to_json_config(self.args.get("set_token"))
             elif self.args.get("set_default_namespace"):
+                if not self.test_namespace(self.args.get("set_default_namespace")):
+                    return
                 set_default_namespace_to_json_config(self.args.get("set_default_namespace"))
             else:
                 show_namespace_token_from_config()
@@ -44,6 +46,35 @@ class Client:
     def logout():
         set_token_to_json_config("")
         print("Bye!")
+
+    def login(self):
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        is_valid = re.compile(email_regex)
+        try:
+            email = input('Enter your email: ')
+        except KeyboardInterrupt:
+            return
+        if not is_valid.findall(email):
+            print("Email is not valid")
+            return
+        try:
+            pwd = getpass()
+        except KeyboardInterrupt:
+            return
+        json_to_send = {"username": email, "password": md5((email+pwd).encode()).hexdigest()}
+        if self.args.get("debug"):
+            self.log_time()
+        self.tcp_connect()
+        api_result = self.api_handler.login(json_to_send)
+        if 'ok' in api_result:
+            set_token_to_json_config(api_result['token'])
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('post')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go(self):
         self.check_file_existence()
@@ -79,8 +110,35 @@ class Client:
         elif self.args['command'] == 'expose':
             self.go_expose()
 
+        elif self.args['command'] == 'login':
+            self.login()
+
         elif self.args['command'] == 'logout':
             self.logout()
+
+        elif self.args['command'] == 'set':
+            self.go_set()
+
+    def go_set(self):
+        if self.args.get("debug"):
+            self.log_time()
+        self.tcp_connect()
+
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+
+        container_name, image = self.args.get("container").split("=")
+        json_to_send = {"name": self.args.get("name"), "image": image}
+        api_result = self.api_handler.set(json_to_send, container_name, namespace)
+
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('set')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go_run(self):
         json_to_send = self.construct_run()
@@ -96,28 +154,33 @@ class Client:
         api_result = self.api_handler.run(json_to_send, namespace)
         if not self.handle_api_result(api_result):
             return
-        self.get_and_handle_tcp_result('run')
+        json_result = self.get_and_handle_tcp_result('run')
+
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go_expose(self):
-        json_to_send = self.construct_expose()
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+
+        json_to_send = self.construct_expose(namespace)
         if self.debug:
             self.log_time()
 
         if not json_to_send:
             return
         self.tcp_connect()
-        namespace = self.args.get('namespace')
-        if not namespace:
-            namespace = config_json_data.get("default_namespace")
 
         api_result = self.api_handler.expose(json_to_send, namespace)
         if not self.handle_api_result(api_result):
             return
 
-        self.get_and_handle_tcp_result('expose')
-
+        json_result = self.get_and_handle_tcp_result('expose')
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go_create(self):
         if self.args.get("debug"):
@@ -125,22 +188,36 @@ class Client:
         self.tcp_connect()
 
         json_to_send = self.get_json_from_file()
-        kind = '{}s'.format(json_to_send.get('kind')).lower()
-
-        namespace = self.args.get('namespace')
+        namespace = json_to_send["metadata"].get("namespace")
         if not namespace:
-            namespace = config_json_data.get("default_namespace")
+            namespace = self.args.get('namespace')
+            if not namespace:
+                namespace = config_json_data.get("default_namespace")
 
-        if kind != 'namespaces':
-            api_result = self.api_handler.create(json_to_send, namespace)
-        else:
-            api_result = self.api_handler.create_namespaces(json_to_send)
+        api_result = self.api_handler.create(json_to_send, namespace)
         if not self.handle_api_result(api_result):
             return
 
-        self.get_and_handle_tcp_result('create')
-
+        json_result = self.get_and_handle_tcp_result('create')
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
+
+    def test_namespace(self, namespace):
+        if self.debug:
+            self.log_time()
+        self.tcp_connect()
+
+        api_result = self.api_handler.get_namespaces(namespace)
+
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('check namespace')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, "check namespace"):
+            return
+        return True
 
     def go_get(self):
         kind, name = self.construct_get()
@@ -148,23 +225,23 @@ class Client:
             self.log_time()
         self.tcp_connect()
 
-        namespace = self.args.get('namespace')
-        if not namespace:
-            namespace = config_json_data.get("default_namespace")
+        self.namespace = self.args.get('namespace')
+        if not self.namespace:
+            self.namespace = config_json_data.get("default_namespace")
 
         if kind == "namespaces":
             if self.args.get("name"):
-                api_result = self.api_handler.get_namespaces(self.args.get("name")[0])
+                api_result = self.api_handler.get_namespaces(self.args.get("name"))
             else:
                 api_result = self.api_handler.get_namespaces()
         else:
-            api_result = self.api_handler.get(kind, name, namespace)
+            api_result = self.api_handler.get(kind, name, self.namespace)
         if not self.handle_api_result(api_result):
             return
 
         json_result = self.get_and_handle_tcp_result('get')
         self.tcp_handler.close()
-        if not check_http_status(json_result):
+        if not check_http_status(json_result, "get"):
             return
         return json_result
 
@@ -182,7 +259,6 @@ class Client:
                         ))
                     self.print_result(tcp_result)
 
-            self.print_result_status(tcp_result, command_name)
             return tcp_result
 
         except RuntimeError as e:
@@ -210,9 +286,10 @@ class Client:
         if not self.handle_api_result(api_result):
             return
 
-        self.get_and_handle_tcp_result('delete')
-
+        json_result = self.get_and_handle_tcp_result('delete')
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def go_replace(self):
         self.log_time()
@@ -231,9 +308,11 @@ class Client:
         if not self.handle_api_result(api_result):
             return
 
-        self.get_and_handle_tcp_result('replace')
+        json_result = self.get_and_handle_tcp_result('replace')
 
         self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
 
     def check_file_existence(self):
         if 'file' in self.args:
@@ -293,29 +372,12 @@ class Client:
                 BColors.ENDC
             ))
 
-    def print_result_status(self, result, message):
-        if result.get('status') == 'Failure':
-            print('{}error: {}{}'.format(
-                BColors.FAIL,
-                result.get('message'),
-                BColors.ENDC
-            ))
-        elif self.args["command"] != "get":
-            print('{}{}...{} {}OK{}'.format(
-                BColors.WARNING,
-                message,
-                BColors.ENDC,
-                BColors.BOLD,
-                BColors.ENDC
-            ))
-
     def print_result(self, result):
         if self.args.get("command") != "expose":
             if self.args.get('output') == 'yaml':
                 result = result["results"][0].get("data")
                 print(yaml.dump(result, default_flow_style=False))
             elif self.args['output'] == 'json':
-                print(json.dumps(result,indent=4))
                 result = result["results"][0].get("data")
                 print(json.dumps(result, indent=4))
             else:
@@ -325,7 +387,7 @@ class Client:
         if self.args["debug"]:
             print('{}{}{}'.format(
                 BColors.WARNING,
-                str(datetime.datetime.now())[11:19:],
+                str(datetime.now())[11:19:],
                 BColors.ENDC
             ))
 
@@ -365,13 +427,7 @@ class Client:
             commands = self.args["commands"]
 
         if not self.args["configure"] and not self.args["image"]:
-            e = NO_IMAGE_AND_CONFIGURE_ERROR
-            print('{}{}{} {}'.format(
-            BColors.FAIL,
-            "Error: ",
-            e,
-            BColors.ENDC,
-            ))
+            self.parser.error(NO_IMAGE_AND_CONFIGURE_ERROR)
             return
 
         json_to_send['spec']['replicas'] = replicas
@@ -390,6 +446,7 @@ class Client:
             for label in labels:
                 key, value = label.split("=")
                 json_to_send['metadata']['labels'].update({key: value})
+                json_to_send['spec']['template']['metadata']['labels'].update({key: value})
         if env:
             json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
                 {
@@ -415,20 +472,52 @@ class Client:
                 file_name
             ))
         except json.decoder.JSONDecodeError as e:
-            self.parser.error('bad json: {}'.format(
+            pass
+
+        try:
+            with open(file_name, 'r', encoding='utf-8') as f:
+                body = yaml.load(f)
+                return body
+        except FileNotFoundError:
+            self.parser.error('no such file: {}'.format(
+                file_name
+            ))
+        except yaml.YAMLError as e:
+            self.parser.error('bad json or yaml: {}'.format(
                 e
             ))
 
     def construct_delete(self):
-        if self.args['file'] and not self.args['kind'] and not self.args['name']:
+        if self.args['file'] and self.args['kind'] == "namespaces" and not self.args['name']:
             body = self.get_json_from_file()
             name = body['metadata']['name']
             kind = '{}s'.format(body['kind'].lower())
             return kind, name
 
-        elif not self.args['file'] and self.args['kind'] and self.args['name']:
+        elif not self.args['file'] and self.args['kind'] != "namespaces" and self.args['name']:
             kind = self.args['kind']
             name = self.args['name']
+            return kind, name
+
+        elif not self.args['file'] and self.args['kind'] == "namespaces":
+            self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
+        elif self.args['file'] and self.args['kind'] == "namespaces":
+            self.parser.error(KIND_OR_FILE_BOTH_ERROR)
+        elif self.args['file'] and self.args['name']:
+            self.parser.error(NAME_OR_FILE_BOTH_ERROR)
+        elif self.args['kind'] != "namespaces" and not self.args['name']:
+            self.parser.error(NAME_WITH_KIND_ERROR)
+
+    def construct_get(self):
+        if self.args.get('file') and not self.args.get('kind') and not self.args.get('name'):
+            body = self.get_json_from_file()
+            name = body['metadata']['name']
+            kind = '{}s'.format(body['kind'].lower())
+            return kind, name
+
+        elif not self.args.get('file') and self.args.get('kind'):
+            kind = self.args['kind']
+            name = self.args.get('name')
             return kind, name
 
         elif not self.args['file'] and not self.args['kind']:
@@ -437,29 +526,10 @@ class Client:
             self.parser.error(KIND_OR_FILE_BOTH_ERROR)
         elif self.args['file'] and self.args['name']:
             self.parser.error(NAME_OR_FILE_BOTH_ERROR)
-        elif self.args['kind'] and not self.args['name']:
-            self.parser.error(NAME_WITH_KIND_ERROR)
 
-    def construct_get(self):
-        if self.args.get('file') and not self.args['kind'] and not self.args['name']:
-            body = self.get_json_from_file()
-            name = body['metadata']['name']
-            kind = '{}s'.format(body['kind'].lower())
-            return kind, name
-
-        elif not self.args.get('file') and self.args['kind']:
-            kind = self.args['kind']
-            name = self.args['name']
-            return kind, name
-
-        elif not self.args.get('file') and not self.args['kind']:
-            self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
-        elif self.args['file'] and self.args['kind']:
-            self.parser.error(KIND_OR_FILE_BOTH_ERROR)
-        elif self.args['file'] and self.args['name']:
-            self.parser.error(NAME_OR_FILE_BOTH_ERROR)
-
-    def construct_expose(self):
+    def construct_expose(self, namespace):
+        labels = {}
+        is_external = {"external": "true"}
         json_to_send = service_json
         ports = self.args.get("ports")
         self.args["kind"] = "deployments"
@@ -467,26 +537,31 @@ class Client:
             for p in ports:
                 p = p.split(":")
                 if len(p) == 3:
-                    json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2], "targetPort": int(p[1])})
+                    if p[2].upper() == "TCP" or p[2].upper() == "UDP":
+                        json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2].upper(), "targetPort": int(p[1])})
+                    else:
+                        json_to_send["spec"]["ports"].append({"name": p[0],"protocol": "TCP", "port": int(p[2]), "targetPort": int(p[1])})
+                        is_external["external"] = "false"
+                if len(p) == 4:
+                    json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "protocol": p[3].upper(),
+                                                         "targetPort": int(p[1])})
+                    is_external["external"] = "false"
                 elif len(p) == 2:
                     json_to_send["spec"]["ports"].append({"name": p[0], "protocol": "TCP", "targetPort": int(p[1])})
         result = self.go_get()
         if not result:
             return
-        labels = result.get("results")[0].get("data")\
-            .get("spec").get("template").get("metadata").get("labels")
-        json_to_send["metadata"]["labels"] = labels
-        json_to_send["metadata"]["name"] = self.args["name"][0] + str(randint(1, 99))
-        json_to_send["spec"]["selector"].update({"app": self.args["name"][0]})
+        namespace_hash = sha256(namespace.encode('utf-8')).hexdigest()[:32]
+        labels.update({namespace_hash: self.args.get("name")})
+        json_to_send["metadata"]["labels"].update(labels)
+
+        json_to_send["metadata"]["labels"].update(is_external)
+        json_to_send["metadata"]["name"] = self.args["name"] + "-" + \
+                                           md5((self.args.get("name")+str(datetime.now()))
+                                               .encode("utf-8")).hexdigest()[:4]
+        json_to_send["spec"]["selector"].update(labels)
         with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w', encoding='utf-8') as w:
                 json.dump(json_to_send, w, indent=4)
         return json_to_send
 
 
-def main():
-    client = Client()
-    client.go()
-
-
-if __name__ == '__main__':
-    main()

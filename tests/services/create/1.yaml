@@ -1,0 +1,12 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: deplo4
+  labels: {}
+spec:
+  selector: {}
+  ports:
+  - name: redis
+    protocol: TCP
+    targetPort: 3306

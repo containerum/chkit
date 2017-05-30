@@ -30,14 +30,24 @@ class ApiHandler:
         result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
         return result
 
-    def create_namespaces(self, json_to_send):
-        url = '{}/namespaces'.format(
-            self.server
-        )
+    def login(self, json_to_send):
+        url = '{}/session/login'.format(self.server)
+        result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
+        return result
 
-        result = make_request(url+"?cpu=500M&memory=500M&user=00000000-0000-0000-0000-000000000007", self.headers,
-                              self.TIMEOUT, "POST", json_to_send)
-
+    def set(self, json_to_send, container_name, namespace=None):
+        if namespace:
+            url = '{}/namespaces/{}/container/{}'.format(
+                self.server,
+                namespace,
+                container_name
+            )
+        else:
+            url = '{}/namespaces/default/container/{}'.format(
+                self.server,
+                container_name
+            )
+        result = make_request(url, self.headers, self.TIMEOUT, "PATCH", json_to_send)
         return result
 
     def replace(self, json_to_send, namespace):
@@ -129,13 +139,12 @@ class ApiHandler:
         return result
 
     def get(self, kind, name, namespace):
-
         if name:
             url = '{}/namespaces/{}/{}/{}'.format(
                 self.server,
                 namespace,
                 kind,
-                name[0]
+                name
             )
         else:
             url = '{}/namespaces/{}/{}'.format(
@@ -188,7 +197,6 @@ def make_request(url, headers, timeout, method, json_to_send=None):
             timeout=timeout
         )
     elif method == "POST":
-        #print(url,headers, json_to_send, timeout)
         r = requests.post(
             url,
             data=json.dumps(json_to_send),
@@ -197,6 +205,13 @@ def make_request(url, headers, timeout, method, json_to_send=None):
         )
     elif method == "PUT":
         r = requests.put(
+            url,
+            data=json.dumps(json_to_send),
+            timeout=timeout,
+            headers=headers
+        )
+    elif method == "PATCH":
+        r = requests.patch(
             url,
             data=json.dumps(json_to_send),
             timeout=timeout,

@@ -1,0 +1,23 @@
+---
+metadata:
+  name: deplo6
+  labels:
+    run: deplo6
+    test: bbtbt
+kind: Deployment
+spec:
+  template:
+    metadata:
+      labels:
+        run: deplo6
+        test: bbtbt
+      name: deplo4
+    spec:
+      containers:
+      - name: deplo6
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 100m
+        image: ubuntu
+  replicas: 1

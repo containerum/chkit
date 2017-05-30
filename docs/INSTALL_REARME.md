@@ -10,7 +10,7 @@ $ ./install.sh
 Затем можно пользоваться программой выполнив следующую команду:
 
 ```
-$ ./client
+$ ./chkit
 ```
 **Важно!** При этом находится в директории, куда производилось разархивирование клиента!
 
@@ -21,11 +21,11 @@ $ echo $PATH
 ```
 Например, прилинкуем клиента к директории `/usr/local/bin`
 ```
-$ sudo ln -sf $HOME/.containerum/src/client.py /usr/local/bin/client
+$ sudo ln -sf /path/to/destination/dir/chkit.py /usr/local/bin/chkit
 ```
 
 Теперь клиента можно вызвать простой командой из любой директории:
 
 ```
-$ client 
+$ chkit
 ```

@@ -4,14 +4,10 @@
     "metadata": {
         "name": "deplo4",
         "labels": {
-            "test": "",
-            "default": "deplo4",
-            "run": "deplo4"
         }
     },
     "spec": {
         "selector": {
-            "app": "deplo4"
         },
         "ports": [
             {
