@@ -41,7 +41,7 @@ $ python3.5 builder.py build_exe -p queue
 $ cd build/exe.*/
 ```
 
-Файл `client` - это bin-файл. Запустить его можно командой:
+Файл `chkit` - это bin-файл. Запустить его можно командой:
 ```
 $ ./chkit
 ```

@@ -21,7 +21,7 @@ def create_parser(version):
 
     config_description = "Show and changing user's config settings"
     config_usg = 'chkit [--debug -d ] config (--set-token -t TOKEN  | --set-default-namespace -n NAMESPACE )[-h | --help]'
-    parser_config = subparsers.add_parser('config', help=config_usg, usage=config_usg, description=config_description,                                          formatter_class=formatter_class)
+    parser_config = subparsers.add_parser('config', help=config_usg, usage=config_usg, description=config_description, formatter_class=formatter_class)
     parser_config.add_argument('--set-token', '-t', help='token', required=False)
     parser_config.add_argument('--set-default-namespace', '-n', help='default namespace', required=False)
 
@@ -104,6 +104,11 @@ def create_parser(version):
     # parser_replace = subparsers.add_parser('replace', help='replace object')
     # parser_replace.add_argument('--file', '-f', help='input file', required=True)
     # parser_replace.add_argument('--namespace', help='namespace, optional', required=False)
+
+    login_usg = 'chkit login'
+    login_description = "Sign in. Sets user's token to config"
+    parser_login = subparsers.add_parser('login', help=login_usg, usage=login_usg, description=login_description,
+                                         formatter_class=formatter_class)
 
     logout_usg = 'chkit logout'
     logout_description = "Clearing user's token from config"

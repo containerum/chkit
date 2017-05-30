@@ -30,6 +30,11 @@ class ApiHandler:
         result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
         return result
 
+    def login(self, json_to_send):
+        url = '{}/session/login'.format(self.server)
+        result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
+        return result
+
     def set(self, json_to_send, container_name, namespace=None):
         if namespace:
             url = '{}/namespaces/{}/container/{}'.format(
@@ -42,7 +47,6 @@ class ApiHandler:
                 self.server,
                 container_name
             )
-        print(url)
         result = make_request(url, self.headers, self.TIMEOUT, "PATCH", json_to_send)
         return result
 
