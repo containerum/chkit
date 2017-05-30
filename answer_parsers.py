@@ -158,46 +158,6 @@ class TcpApiParser:
         else:
             print(NO_NAMESPACES)
 
-    def show_human_readable_deployment(self):
-        all_replicas = self.result.get("results")[0].get("data").get("spec").get("replicas")
-        status = self.result.get("results")[0].get("data").get("status")
-        strategy = self.result.get("results")[0].get("data").get("spec").get("strategy")
-        conditions = self.result.get("results")[0].get("data").get("status").get("conditions")
-        containers = self.result.get("results")[0].get("data").get("spec").get("template")\
-            .get("spec").get("containers")
-        if self.result:
-            print("%-30s %s" % ("Name:", self.result.get("name")))
-            print("%-30s %s" % ("Namespace:", self.result.get("namespace")))
-            print("%-30s %s" % ("CreationTimeStamp:",
-                                parser.parse(self.result.get("results")[0].get("data")
-                                             .get("metadata").get("creationTimestamp"))))
-            print("Labels:")
-            for key,value in self.result.get("results")[0].get("data").get("metadata").get("labels").items():
-                print("\t%s=%s" % (key, value))
-            print("Selectors:")
-            for key,value in self.result.get("results")[0].get("data").get("spec").get("selector").get("matchLabels").items():
-                print("\t%s=%s" % (key, value))
-            if status.get("unavailableReplicas"):
-                status_tuple = ("Replicas:", status.get("updatedReplicas"), "updated", status.get("replicas"), "total",
-                            all_replicas-status.get("unavailableReplicas"), "available", status.get("unavailableReplicas"), "unavailable")
-            else:
-                status_tuple = ("Replicas:", status.get("updatedReplicas"), "updated", status.get("replicas"), "total",
-                            status.get("availableReplicas"), "available", all_replicas-status.get("availableReplicas"), "unavailable")
-            print("%-30s %s %s | %s %s | %s %s | %s %s" % status_tuple)
-            print("%-30s %s " % ("Strategy", strategy.get("type")))
-            strategy_type = strategy.get("type")[0].lower() + strategy.get("type")[1:]
-            print("%-30s %s max unavailable, %s max surge" % (strategy.get("type")+"Strategy",
-                                                              strategy.get(strategy_type).get("maxUnavailable"),
-                                                              strategy.get(strategy_type).get("maxSurge")))
-            print("Conditions:")
-            conditions_table = PrettyTable(["TYPE", "STATUS", "REASON"])
-            for c in conditions:
-                conditions_table.add_row([c.get("type"), c.get("status"), c.get("reason")])
-            print(conditions_table)
-            print("Containers:")
-            for c in containers:
-                print("\t%s" % c.get("name"))
-
     def show_human_readable_service_list(self):
         if self.result:
             items = self.result.get("results")[0].get("data").get("items")

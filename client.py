@@ -378,7 +378,6 @@ class Client:
                 result = result["results"][0].get("data")
                 print(yaml.dump(result, default_flow_style=False))
             elif self.args['output'] == 'json':
-                print(json.dumps(result, indent=4))
                 result = result["results"][0].get("data")
                 print(json.dumps(result, indent=4))
             else:
@@ -538,13 +537,13 @@ class Client:
             for p in ports:
                 p = p.split(":")
                 if len(p) == 3:
-                    if p[2] == "TCP" or p[2] == "UDP":
-                        json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2], "targetPort": int(p[1])})
+                    if p[2].upper() == "TCP" or p[2].upper() == "UDP":
+                        json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2].upper(), "targetPort": int(p[1])})
                     else:
-                        json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "targetPort": int(p[1])})
+                        json_to_send["spec"]["ports"].append({"name": p[0],"protocol": "TCP", "port": int(p[2]), "targetPort": int(p[1])})
                         is_external["external"] = "false"
                 if len(p) == 4:
-                    json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "protocol": p[3],
+                    json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "protocol": p[3].upper(),
                                                          "targetPort": int(p[1])})
                     is_external["external"] = "false"
                 elif len(p) == 2:
@@ -554,14 +553,12 @@ class Client:
             return
         namespace_hash = sha256(namespace.encode('utf-8')).hexdigest()[:32]
         labels.update({namespace_hash: self.args.get("name")})
-        print(labels)
         json_to_send["metadata"]["labels"].update(labels)
 
         json_to_send["metadata"]["labels"].update(is_external)
         json_to_send["metadata"]["name"] = self.args["name"] + "-" + \
                                            md5((self.args.get("name")+str(datetime.now()))
                                                .encode("utf-8")).hexdigest()[:4]
-        print(labels)
         json_to_send["spec"]["selector"].update(labels)
         with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w', encoding='utf-8') as w:
                 json.dump(json_to_send, w, indent=4)
