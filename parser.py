@@ -62,7 +62,8 @@ def create_parser(version):
                                           formatter_class=formatter_class)
     parser_expose.add_argument('kind', help='{deployment} object kind', choices=expose_kinds, metavar="KIND")
     parser_expose.add_argument('name', help='object name to get info', nargs='?', metavar="NAME")
-    parser_expose.add_argument('--ports', '-p', help='target port, PORTS = PORTNAME:TARGETPORT[:PROTOCOL]|'
+    parser_expose.add_argument('--ports', '-p', help='target port, for external services PORTS = PORTNAME:TARGETPORT[:PROTOCOL],'
+                                                     ' for internal services '
                                                      'PORTS = PORTNAME:TARGETPORT:PORT[:PROTOCOL]'
                                                      ' default: PROTOCOL = TCP', nargs='*', required=True)
     parser_expose.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)

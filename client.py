@@ -495,7 +495,8 @@ class Client:
             self.parser.error(NAME_OR_FILE_BOTH_ERROR)
 
     def construct_expose(self, namespace):
-        labels = {"external": "true"}
+        labels = {}
+        is_external = {"external": "true"}
         json_to_send = service_json
         ports = self.args.get("ports")
         self.args["kind"] = "deployments"
@@ -507,11 +508,11 @@ class Client:
                         json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2], "targetPort": int(p[1])})
                     else:
                         json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "targetPort": int(p[1])})
-                        labels["external"] = "false"
+                        is_external["external"] = "false"
                 if len(p) == 4:
                     json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "protocol": p[3],
                                                          "targetPort": int(p[1])})
-                    labels["external"] = "false"
+                    is_external["external"] = "false"
                 elif len(p) == 2:
                     json_to_send["spec"]["ports"].append({"name": p[0], "protocol": "TCP", "targetPort": int(p[1])})
         result = self.go_get()
@@ -519,11 +520,15 @@ class Client:
             return
         namespace_hash = sha256(namespace.encode('utf-8')).hexdigest()[:32]
         labels.update({namespace_hash: self.args.get("name")})
-        json_to_send["metadata"]["labels"] = labels
+        print(labels)
+        json_to_send["metadata"]["labels"].update(labels)
+
+        json_to_send["metadata"]["labels"].update(is_external)
         json_to_send["metadata"]["name"] = self.args["name"] + "-" + \
                                            md5((self.args.get("name")+str(datetime.now()))
                                                .encode("utf-8")).hexdigest()[:4]
-        json_to_send["spec"]["selector"] = labels
+        print(labels)
+        json_to_send["spec"]["selector"].update(labels)
         with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w', encoding='utf-8') as w:
                 json.dump(json_to_send, w, indent=4)
         return json_to_send

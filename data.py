@@ -83,6 +83,7 @@ service_json = {
     "kind": "Service",
     "metadata": {
         "name": "",
+        "labels": {}
     },
     "spec": {
         "ports": [

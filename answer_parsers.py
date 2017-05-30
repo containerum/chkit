@@ -98,6 +98,7 @@ class TcpApiParser:
             items = self.result.get("results")[0].get("data").get("items")
             table = PrettyTable(["NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP"])
             table.align = "l"
+            items = sorted(items, key=lambda x: parser.parse(x.get("metadata")["creationTimestamp"]))
             for i in items:
                 restarts = i.get("status").get("containerStatuses")
                 restarts_sum = 0
@@ -121,6 +122,7 @@ class TcpApiParser:
             items = self.result.get("results")[0].get("data").get("items")
             table = PrettyTable(["NAME",  "PODS", "PODS ACTIVE",  "CPU",  "RAM", "AGE"])
             table.align = "l"
+            items = sorted(items, key=lambda x: parser.parse(x.get("metadata")["creationTimestamp"]))
             for i in items:
                 containers = i.get("spec").get("template").get("spec").get("containers")
                 name = i.get("metadata").get("name")
@@ -199,15 +201,17 @@ class TcpApiParser:
     def show_human_readable_service_list(self):
         if self.result:
             items = self.result.get("results")[0].get("data").get("items")
-            table = PrettyTable(["NAME",  "CLUSTER-IP",  "EXTERNAL-IP",  "PORT(S)", "AGE"])
+            table = PrettyTable(["NAME",  "CLUSTER-IP",  "EXTERNAL", "HOST", "PORT(S)", "AGE"])
             table.align = "l"
+            items = sorted(items, key=lambda x: parser.parse(x.get("metadata")["creationTimestamp"]))
             for i in items:
                 name = i.get("metadata").get("name")
+                is_external = i.get("metadata").get("labels").get("external")
                 cluster_ip = i.get("spec").get("clusterIP")
-                if i.get("spec").get("externalIPs"):
-                    external_ip = " ,\n".join(i.get("spec").get("externalIPs"))
+                if i.get("spec").get("domainHosts") and is_external == "true":
+                    external_host = " ,\n".join(i.get("spec").get("domainHosts"))
                 else:
-                    external_ip = "<none>"
+                    external_host = "--"
                 ports = i.get("spec").get("ports")
                 for p in range(len(ports)):
                     if ports[p].get("port") == ports[p].get("targetPort"):
@@ -216,7 +220,8 @@ class TcpApiParser:
                         ports[p] = ("%s:%s/%s" % (ports[p].get("port"), ports[p].get("targetPort"), ports[p].get("protocol")))
                 sum_ports = " ,\n".join(ports)
                 time = get_datetime_diff(i.get("metadata").get("creationTimestamp"))
-                table.add_row([name,  cluster_ip,  external_ip, sum_ports, time])
+                table.add_row([name,  cluster_ip, is_external, external_host, sum_ports, time])
+            #print(table.get_string(sort_key=lambda key: int(key[:-1]), sortby="AGE"))
             print(table)
 
     def show_human_readable_service(self):
@@ -268,6 +273,7 @@ class TcpApiParser:
         if items:
             table = PrettyTable(["NAME", "HARD CPU", "HARD MEMORY", "USED CPU", "USED MEMORY", "AGE" ])
             table.align = "l"
+            items = sorted(items, key=lambda x: parser.parse(x.get("data").get("metadata")["creationTimestamp"]))
             for i in items:
                 name = i.get("data").get("metadata").get("namespace")
                 hard = i.get("data").get("status").get("hard")
@@ -289,6 +295,5 @@ def get_datetime_diff(timestamp):
     diff = ((t_delta.year - 1, "Y"), (t_delta.month - 1, "M"),
             (t_delta.day - 1, "d"), (t_delta.hour, "h"),
             (t_delta.minute, "m"), (t_delta.second, "s"))
-    print(diff)
     diff = tuple(filter(lambda x: x[0] > 0, diff))[0]
     return str(diff[0]) + diff[1]
