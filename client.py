@@ -1,11 +1,13 @@
 import os
 import json
 import yaml
+import re
 from data import deployment_json, service_json
 from parser import *
 from tcp_handler import TcpHandler, check_http_status
 from api_handler import ApiHandler
 from bcolors import BColors
+from getpass import getpass
 from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config,\
     show_namespace_token_from_config
 from answer_parsers import TcpApiParser
@@ -45,6 +47,35 @@ class Client:
         set_token_to_json_config("")
         print("Bye!")
 
+    def login(self):
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        is_valid = re.compile(email_regex)
+        try:
+            email = input('Enter your email: ')
+        except KeyboardInterrupt:
+            return
+        if not is_valid.findall(email):
+            print("Email is not valid")
+            return
+        try:
+            pwd = getpass()
+        except KeyboardInterrupt:
+            return
+        json_to_send = {"username": email, "password": md5((email+pwd).encode()).hexdigest()}
+        if self.args.get("debug"):
+            self.log_time()
+        self.tcp_connect()
+        api_result = self.api_handler.login(json_to_send)
+        if 'ok' in api_result:
+            set_token_to_json_config(api_result['token'])
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('post')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
+
     def go(self):
         self.check_file_existence()
         self.check_arguments()
@@ -78,6 +109,9 @@ class Client:
 
         elif self.args['command'] == 'expose':
             self.go_expose()
+
+        elif self.args['command'] == 'login':
+            self.login()
 
         elif self.args['command'] == 'logout':
             self.logout()
