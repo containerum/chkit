@@ -80,7 +80,8 @@ def create_parser(version):
     #parser_set.add_argument('--file', '-f', help='input file')
     parser_set.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
-    get_usg = 'chkit [--debug -d ] get (KIND [NAME] | --file -f FILE) [-o OUTPUT] [--namespace NAMESPACE][-h | --help]'
+    get_usg = 'chkit [--debug -d ] get (KIND [NAME] | --file -f FILE) ' \
+              '[--output -o OUTPUT] [--namespace -n NAMESPACE][--deploy -d DEPLOY][-h | --help]'
     get_description = "Show info about pod(s), service(s), namespace(s), deployment(s)"
     parser_get = subparsers.add_parser('get', help=get_usg, usage=get_usg, description=get_description,
                                        formatter_class=formatter_class)
@@ -90,6 +91,7 @@ def create_parser(version):
     parser_get.add_argument('--file', '-f', help='input file')
     parser_get.add_argument('--output', '-o', help='{yaml,json} output format, default: json', choices=output_formats, metavar="OUTPUT")
     parser_get.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
+    parser_get.add_argument('--deploy', '-d', help='filtering by deploy(only for pods ans services!)', required=False)
 
     delete_usg = 'chkit [--debug -d ] delete (KIND NAME | --file -f FILE) [--namespace NAMESPACE][-h | --help]'
     delete_description = "Deleting pods,service,deployments by name"
