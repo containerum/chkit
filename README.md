@@ -85,7 +85,7 @@ namespace: myns
 
 Сontainerum CLI предоставляет доступ к четырем типам объектов: *Namespace*, *Deployment*, *Pod*, *Service*.
 
-С помощью Containerum CLI доступно управление тремя типами объектов: *Deployment*, *Pod*, *Service*, переключаясь между *Namespace</em.
+С помощью Containerum CLI доступно управление тремя типами объектов: *Deployment*, *Pod*, *Service*, переключаясь между *Namespace*.
 
 *Namespace* - выделенный ресурс, объединяющий объекты пользователя или группы пользователей в единое пространство, на которое выделяется объем памяти и ресурс CPU.
 
