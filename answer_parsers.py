@@ -5,7 +5,8 @@ from keywords import EMPTY_NAMESPACE, NO_NAMESPACES
 
 
 class TcpApiParser:
-    def __init__(self, row_answer):
+    def __init__(self, row_answer, **kwargs):
+        self.kwargs = kwargs
         self.result = row_answer
 
         if row_answer.get("results")[0].get("data").get("kind") == "PodList":
@@ -112,7 +113,8 @@ class TcpApiParser:
                 name = i.get("metadata").get("name")
                 ready = "-/-"
                 time = get_datetime_diff(i.get("metadata").get("creationTimestamp"))
-                table.add_row([name, ready, status, restarts_sum, time, ip])
+                if not self.kwargs.get("deploy") or self.kwargs.get("deploy") in i.get("metadata").get("labels").values():
+                    table.add_row([name, ready, status, restarts_sum, time, ip])
             print(table)
         else:
             print(EMPTY_NAMESPACE)
@@ -239,8 +241,8 @@ class TcpApiParser:
                         ports[p] = ("%s:%s/%s" % (ports[p].get("port"), ports[p].get("targetPort"), ports[p].get("protocol")))
                 sum_ports = " ,\n".join(ports)
                 time = get_datetime_diff(i.get("metadata").get("creationTimestamp"))
-                table.add_row([name,  cluster_ip, is_external, external_host, sum_ports, time])
-            #print(table.get_string(sort_key=lambda key: int(key[:-1]), sortby="AGE"))
+                if not self.kwargs.get("deploy") or self.kwargs.get("deploy") in i.get("metadata").get("labels").values():
+                    table.add_row([name,  cluster_ip, is_external, external_host, sum_ports, time])
             print(table)
 
     def show_human_readable_service(self):
@@ -258,16 +260,18 @@ class TcpApiParser:
             print("%-30s %s " % ("Type:", self.result.get("results")[0].get("data").get("spec").get("type")))
             print("%-30s %s " % ("IP:", self.result.get("results")[0].get("data").get("spec").get("clusterIP")))
             ports = self.result.get("results")[0].get("data").get("spec").get("ports")
+            is_external = self.result.get("results")[0].get("data").get("metadata").get("labels").get("external")
             for p in ports:
                 if p.get("port") == p.get("targetPort"):
                     print("%-30s %s/%s" % ("Port:", p.get("port"), p.get("protocol")))
                 else:
                     print("%-30s %s:%s/%s" % ("Port:", p.get("port"), p.get("targetPort"), p.get("protocol")))
-            if self.result.get("results")[0].get("data").get("spec").get("externalIPs"):
-                print("%-30s %s " % ("External IPs:", " ,".join(self.result.get("results")[0].get("data")
-                                                                .get("spec").get("externalIPs"))))
+            print("%-30s %s" % ("External:", is_external))
+            if self.result.get("results")[0].get("data").get("spec").get("domainHosts") and is_external == "true":
+                print("%-30s %s " % ("External Hosts:", " ,".join(self.result.get("results")[0].get("data")
+                                                                .get("spec").get("domainHosts"))))
             else:
-                print("%-30s %s " % ("External IPs:", "----"))
+                print("%-30s %s " % ("External Hosts:", "--"))
 
     def show_human_readable_namespace(self):
         name = self.result.get("results")[0].get("data").get("metadata").get("name")

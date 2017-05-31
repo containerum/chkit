@@ -381,7 +381,8 @@ class Client:
                 result = result["results"]
                 print(json.dumps(result, indent=4))
             else:
-                TcpApiParser(result)
+                deploy = self.args.get("deploy")
+                TcpApiParser(result, deploy=deploy)
 
     def log_time(self):
         if self.args["debug"]:
