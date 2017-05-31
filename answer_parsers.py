@@ -197,6 +197,25 @@ class TcpApiParser:
             print("Containers:")
             for c in containers:
                 print("\t%s" % c.get("name"))
+                if c.get("command"):
+                    print("\t\t%-20s %s" % ("Command:", "".join(c.get("command"))))
+                print("\t\tPorts:")
+                if c.get("ports"):
+                    ports = PrettyTable(["Name", "Protocol", "ContPort"])
+                    for p in c.get("ports"):
+                        ports.add_row([p.get("name"), p.get("protocol"), p.get("containerPort")])
+                    print(ports)
+                if c.get("env"):
+                    env = PrettyTable(["Name", "Value"])
+                    print("\t\tEnvironment:")
+                    for e in c.get("env"):
+                        env.add_row([e.get("name"), e.get("value")])
+                    print(env)
+                print("\t\tResourceLimit:")
+                print("\t\t\t%-10s %s" % ("CPU:", c.get("resources").get("limits").get("cpu")))
+                print("\t\t\t%-10s %s" % ("Memory:", c.get("resources").get("limits").get("memory")))
+                print("\t\t%-20s %s" % ("Image:", c.get("image")))
+                print("\t\t%-20s %s" % ("ImagePullPolicy:", c.get("imagePullPolicy")))
 
     def show_human_readable_service_list(self):
         if self.result:
@@ -271,9 +290,9 @@ class TcpApiParser:
     def show_human_readable_namespace_list(self):
         items = self.result.get("results")
         if items:
-            table = PrettyTable(["NAME", "HARD CPU", "HARD MEMORY", "USED CPU", "USED MEMORY", "AGE" ])
+            table = PrettyTable(["NAME", "HARD CPU", "HARD MEMORY", "USED CPU", "USED MEMORY", "AGE"])
             table.align = "l"
-            items = sorted(items, key=lambda x: parser.parse(x.get("data").get("metadata")["creationTimestamp"]))
+            items = sorted(items, key=lambda x: parser.parse(x.get("data").get("metadata").get("creationTimestamp")))
             for i in items:
                 name = i.get("data").get("metadata").get("namespace")
                 hard = i.get("data").get("status").get("hard")

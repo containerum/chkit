@@ -91,3 +91,22 @@ service_json = {
         "selector": {}
     }
 }
+
+config_json = {
+    "api_handler": {
+        "headers": {
+            "Authorization": ""
+        },
+        "TIMEOUT": 10,
+        "server": "http://146.185.135.181:3333"
+    },
+    "tcp_handler": {
+        "TCP_IP": "146.185.135.181",
+        "AUTH_FORM": {
+            "token": ""
+        },
+        "BUFFER_SIZE": 1024,
+        "TCP_PORT": 3000
+    },
+    "default_namespace": "default"
+}
