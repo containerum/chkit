@@ -26,11 +26,6 @@ $ sudo pip3 install -r requirements.txt
 $ sudo pip3 install cx_freeze
 ```
 
-Затем нужно вызвать файл установщик `install.sh`:
-```
-$ ./install/install.sh
-```
-
 Теперь необходимо сделать сборку выполнив команду:
 ```
 $ python3.5 builder.py build_exe -p queue

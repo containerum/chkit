@@ -375,10 +375,10 @@ class Client:
     def print_result(self, result):
         if self.args.get("command") != "expose":
             if self.args.get('output') == 'yaml':
-                result = result["results"][0].get("data")
+                result = result["results"]
                 print(yaml.dump(result, default_flow_style=False))
             elif self.args['output'] == 'json':
-                result = result["results"][0].get("data")
+                result = result["results"]
                 print(json.dumps(result, indent=4))
             else:
                 TcpApiParser(result)

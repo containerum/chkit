@@ -3,14 +3,24 @@ from bcolors import BColors
 from keywords import SUCCESS_CHANGED
 import os
 import os.path
+from data import config_json
 FILE_CONFIG = os.path.join(os.getenv("HOME"), ".containerum/CONFIG.json")
 FILE_CONFIG_FROM_SRC = os.path.join(os.getenv("HOME"), ".containerum/src/CONFIG.json")
 
 
 def get_json_from_config():
-    json_data = open(FILE_CONFIG).read()
-    data = json.loads(json_data)
-    return data
+    try:
+        json_data = open(FILE_CONFIG).read()
+        data = json.loads(json_data)
+        return data
+    except FileNotFoundError:
+        data = config_json
+        os.system("mkdir -p $HOME/.containerum/src/json_templates")
+        os.system("chmod 777 -R $HOME/.containerum/")
+        with open(FILE_CONFIG, "w") as file:
+            file.write(json.dumps(data,  indent=4))
+        file.close()
+        return data
 
 
 def show_namespace_token_from_config():
