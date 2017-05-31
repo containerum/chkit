@@ -1,7 +1,7 @@
 
 # Установка Containerum CLI с помощью бинарных сборок
 
-Для скачивания бинарных сборок под MacOs, Ubuntu x32 или Ubuntu x64, перейдите по [ссылке](http://p13000.x1.containerum.io/download/packages/).
+Скачать бинарные сборки под [MacOs](http://p13000.x1.containerum.io/download/packages/beta/v1.0/mac/), [Ubuntu x32](http://p13000.x1.containerum.io/download/packages/beta/v1.0/ubuntu_x32/) или Ubuntu x64.
 
 Распакуйте скаченный файл в удобное для вас место:
 
