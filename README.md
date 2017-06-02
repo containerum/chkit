@@ -4,9 +4,9 @@
 
 * [Установка Containerum CLI с помощью бинарных сборок](https://bitbucket.org/exonch/ch-sdk/#markdown-header-containerum-cli)
 * [Аутентификация](https://bitbucket.org/exonch/ch-sdk/#markdown-header-)
-* [Настройка Containerum CLI](https://bitbucket.org/exonch/ch-sdk/#markdown-header-cli-containerum)
+* [Настройка Containerum CLI](https://bitbucket.org/exonch/ch-sdk/#markdown-header-containerum-cli_2)
 * [О типах объектов](https://bitbucket.org/exonch/ch-sdk/#markdown-header-_1)
-* [Команды Containerum CLI](https://bitbucket.org/exonch/ch-sdk/#markdown-header-cli)
+* [Команды Containerum CLI](https://bitbucket.org/exonch/ch-sdk/#header-containerum-cli_3)
     * [login](https://bitbucket.org/exonch/ch-sdk/#markdown-header-login)
     * [help](https://bitbucket.org/exonch/ch-sdk/#markdown-header-help)
     * [config](https://bitbucket.org/exonch/ch-sdk/#markdown-header-config)
