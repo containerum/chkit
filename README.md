@@ -1,6 +1,5 @@
 
 # Установка Containerum CLI с помощью бинарных сборок
-
 Скачать бинарные сборки под [MacOs](http://p13000.x1.containerum.io/download/packages/beta/v1.0/mac/), [Ubuntu x32](http://p13000.x1.containerum.io/download/packages/beta/v1.0/ubuntu_x32/) или Ubuntu x64.
 
 Распакуйте скаченный файл в удобное для вас место:
@@ -51,7 +50,6 @@ token: QA0u64rOkTtCxxxxxxxxxxliUAnBnPlCbGQfpCQpzqM=
 ```
 
 # Настройка CLI Containerum
-
 Настройка CLI Containerum выполняется с помощью команды `config`.
 
 На данный момент пользователь может выбрать *Namespace*, в котором будет работать.
@@ -82,7 +80,6 @@ namespace: myns
 ```
 
 # О типах объектов
-
 Сontainerum CLI предоставляет доступ к четырем типам объектов: *Namespace*, *Deployment*, *Pod*, *Service*.
 
 С помощью Containerum CLI доступно управление тремя типами объектов: *Deployment*, *Pod*, *Service*, переключаясь между *Namespace*.
@@ -125,6 +122,7 @@ Password:
 Success changed!
 token: QA0u64rOkTtCxxxxxxxxxxliUAnBnPlCbGQfpCQpzqM=
 ```
+
 ## -h, --help
 
 Команда `chkit --help` или `chkit -h` показывает список всех команд и их краткое описание.
@@ -153,6 +151,7 @@ get arguments:
   --output OUTPUT, -o OUTPUT           {yaml,json} output format, default: json
   --namespace NAMESPACE, -n NAMESPACE  namespace, default: "default"
 ```
+
 ## config
 
 Команда `chkit config` позволяет пользователю задать конфигурацию CLI, используемую другими командами по умолчанию.
@@ -183,12 +182,12 @@ $ chkit config
 namespace: default
 token: QA0u64rOkTtCxxxxxxxxxxliUAnBnPlCbGQfpCQpzqM=
 ```
+
 ## run
 
 Команда `chkit run` создает *Deployment* и автоматически JSON файл, который содержит параметры *Deployment*. Файл run.json сохраняется в директорию $HOME/.containerum/src/json_templates.
 
 ### Синтаксис команды
-
 Для вызова команды `chkit run`  требуется указать:
 
 | Ключ                  | Параметр | Описание                                                               |
@@ -212,9 +211,6 @@ token: QA0u64rOkTtCxxxxxxxxxxliUAnBnPlCbGQfpCQpzqM=
 | `--labels` или `-ls`    | LABELS         | теги для *Deployment*. У всех *Pod* в *Deployment* одни и те же теги   |
 | `--namespace` или `-n`  | NAMESPACE      | название *Namespace*. _Примечание:_ по умолчанию NAMESPACE = default |
 | `--debug` или `-d`          |                | вывод системной информации о выполнении команды                  |
-
-
-
 
 ```
 $ chkit [--debug -d ] run NAME\
@@ -262,50 +258,13 @@ Enter  replicas count:2
 
 run... OK
 ```
-## create
 
-Команда `chkit create` создает один из 3-х типов объектов:
-
-+ *Deployment*
-+ *Pod*
-+ *Service*
-
-из JSON файла.
-
-Создать JSON файл возможно с помощью [шаблонов](www.google.com).
-
-### Синтаксис команды
-
-Команда `chkit create` вызывается c одним обязательным параметром:
-
-| Ключ          | Параметр | Описание       |
-|---------------|----------|----------------|
-| `--file` или `-f` | FILE     | имя JSON файла |
-
-
-Необязательные параметры:
-
-| Ключ          | Параметр | Описание                                        |
-|---------------|----------|-------------------------------------------------|
-| `--help` или `-h` |          | вывод справки о команде                         |
-| `--debug` или `-d`    |          | вывод системной информации о выполнении команды |
-
-```
-$ chkit [--debug -d ] create (-f FILE | --file FILE)[--help | -h]
-```
-**Пример**
-```
-$ chkit create -f MyDeploy.json
-
-create... OK
-```
 ## expose
 
 Команда `chkit expose` создает *Service*, в котором устанавливается протокол и список выходных портов. Также создает автоматически JSON файл, который содержит параметры *Service*. Файл expose.json сохраняется в директорию $HOME/.containerum/src/json_templates.
 
 
 ### Синтаксис команды
-
 Для вызова команды `chkit expose`  требуется указать:
 
 | Ключ           | Параметр | Описание                                                                                                                                                                                                                                                                                                                                                                |
@@ -332,14 +291,51 @@ $ chkit expose deploy myapp -p portname:2321:TCP
 
 expose... OK
 ```
+
+## create
+
+Команда `chkit create` создает один из 3-х типов объектов:
+
++ *Deployment*
++ *Pod*
++ *Service*
+
+из JSON файла.
+
+Создать JSON файл возможно с помощью [шаблонов](www.google.com).
+
+### Синтаксис команды
+Команда `chkit create` вызывается c одним обязательным параметром:
+
+| Ключ          | Параметр | Описание       |
+|---------------|----------|----------------|
+| `--file` или `-f` | FILE     | имя JSON файла |
+
+
+Необязательные параметры:
+
+| Ключ          | Параметр | Описание                                        |
+|---------------|----------|-------------------------------------------------|
+| `--help` или `-h` |          | вывод справки о команде                         |
+| `--debug` или `-d`    |          | вывод системной информации о выполнении команды |
+
+```
+$ chkit [--debug -d ] create (-f FILE | --file FILE)[--help | -h]
+```
+**Пример**
+```
+$ chkit create -f MyDeploy.json
+
+create... OK
+```
+
 ## set
 
 Команда `chkit set` меняет один из параметров в *Deployment*.
 
-_Примечание:_ на данным момент доступно изменение параметра image (образа приложения).
+_Примечание:_ на данным момент доступно изменение параметра image (образ приложения).
 
 ### Синтаксис команды
-
 Для вызова команды `chkit set` требуется указать:
 
 | Ключ | Параметр        | Описание                                                                        |
@@ -369,6 +365,7 @@ $ chkit set image deploy myapp myapp=nginx
 http://146.185.135.181:3333/namespaces/default/container/myapp
 set... OK
 ```
+
 ## get
 
 Команда `chkit get` выводит список всех имеющихся у пользователя объектов одного из 3-х типов:
@@ -381,7 +378,6 @@ set... OK
 При указании имени объекта `chkit get` выводит информацию по нему.
 
 ### Синтаксис команды
-
 Для вызова команды chkit get требуется указать:
 
 | Ключ | Параметр | Описание                              |
@@ -417,6 +413,7 @@ $ chkit get deploy
 | myapp      | 2    | 2           | 200m | 256Mi | 18s |
 +------------+------+-------------+------+-------+-----+
 ```
+
 ## delete
 
 Команда `chkit delete` используется для удаления объекта из *Namespace*. Доступные для удаления типы объектов:
@@ -426,7 +423,6 @@ $ chkit get deploy
 + *Service*
 
 ### Синтаксис команды
-
 Для вызова команды `chkit delete` требуется указать:
 
 | Ключ | Параметр | Описание                              |
@@ -457,6 +453,7 @@ $ chkit delete deploy myapp
 
 delete... OK
 ```
+
 ## logout
 
 Команда `chkit logout` завершает сессию и сбрасывает токен в `config`.
