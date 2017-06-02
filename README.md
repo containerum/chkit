@@ -19,7 +19,7 @@
     * [logout](https://bitbucket.org/exonch/ch-sdk/#markdown-header-logout)
 
 # Установка Containerum CLI с помощью бинарных сборок
-Скачать бинарные сборки под [MacOs](http://p13000.x1.containerum.io/download/packages/beta/v1.0/mac/), [Ubuntu x32](http://p13000.x1.containerum.io/download/packages/beta/v1.0/ubuntu_x32/) или Ubuntu x64.
+Скачать бинарные сборки под [MacOs](http://x1.containerum.io:13000/download/packages/release/v1.2.6/mac/), [Ubuntu x32](http://p13000.x1.containerum.io/download/packages/beta/v1.0/ubuntu_x32/) или Ubuntu x64.
 
 Распакуйте скаченный файл в удобное для Вас место:
 
