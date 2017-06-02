@@ -3,13 +3,13 @@
 На этой странице:
 
 * [Установка Containerum CLI с помощью бинарных сборок](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Установка_Containerum_CLI_с_помощью_бинарных_сборок)
-* [Аутентификация](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Аутентификация)
+* [Аутентификация](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Autentifikaciya)
 * [Настройка CLI Containerum](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Настройка_CLI_Containerum)
 * [О типах объектов](https://bitbucket.org/exonch/ch-sdk/#markdown-header-О_типах_объектов)
 + [Команды CLI](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Команды_CLI)
     * [login](https://bitbucket.org/exonch/ch-sdk/#markdown-header-login)
-    * [help](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Аутентификация)
-    * [config](https://bitbucket.org/exonch/ch-sdk/#markdown-header-help)
+    * [help](https://bitbucket.org/exonch/ch-sdk/#markdown-header-help)
+    * [config](https://bitbucket.org/exonch/ch-sdk/#markdown-header-config)
     * [run](https://bitbucket.org/exonch/ch-sdk/#markdown-header-run)
     * [expose](https://bitbucket.org/exonch/ch-sdk/#markdown-header-expose)
     * [create](https://bitbucket.org/exonch/ch-sdk/#markdown-header-create)
@@ -21,7 +21,7 @@
 # Установка Containerum CLI с помощью бинарных сборок
 Скачать бинарные сборки под [MacOs](http://p13000.x1.containerum.io/download/packages/beta/v1.0/mac/), [Ubuntu x32](http://p13000.x1.containerum.io/download/packages/beta/v1.0/ubuntu_x32/) или Ubuntu x64.
 
-Распакуйте скаченный файл в удобное для вас место:
+Распакуйте скаченный файл в удобное для Вас место:
 
 ```
 $ unzip your_archive.zip -d /path/to/destination/dir/
@@ -142,7 +142,7 @@ Success changed!
 token: QA0u64rOkTtCxxxxxxxxxxliUAnBnPlCbGQfpCQpzqM=
 ```
 
-## -h, --help
+## help
 
 Команда `chkit --help` или `chkit -h` показывает список всех команд и их краткое описание.
 
