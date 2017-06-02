@@ -2,11 +2,11 @@
 
 На этой странице:
 
-* [Установка Containerum CLI с помощью бинарных сборок](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Установка_Containerum_CLI_с_помощью_бинарных_сборок)
-* [Аутентификация](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Autentifikaciya)
-* [Настройка CLI Containerum](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Настройка_CLI_Containerum)
-* [О типах объектов](https://bitbucket.org/exonch/ch-sdk/#markdown-header-О_типах_объектов)
-+ [Команды CLI](https://bitbucket.org/exonch/ch-sdk/#markdown-header-Команды_CLI)
+* [Установка Containerum CLI с помощью бинарных сборок](https://bitbucket.org/exonch/ch-sdk/#markdown-header-containerum-cli)
+* [Аутентификация](https://bitbucket.org/exonch/ch-sdk/#markdown-header-)
+* [Настройка CLI Containerum](https://bitbucket.org/exonch/ch-sdk/#markdown-header-cli-containerum)
+* [О типах объектов](https://bitbucket.org/exonch/ch-sdk/#markdown-header-_1)
+* [Команды CLI](https://bitbucket.org/exonch/ch-sdk/#markdown-header-cli)
     * [login](https://bitbucket.org/exonch/ch-sdk/#markdown-header-login)
     * [help](https://bitbucket.org/exonch/ch-sdk/#markdown-header-help)
     * [config](https://bitbucket.org/exonch/ch-sdk/#markdown-header-config)
@@ -68,7 +68,7 @@ Success changed!
 token: QA0u64rOkTtCxxxxxxxxxxliUAnBnPlCbGQfpCQpzqM=
 ```
 
-# Настройка Containerum CLI 
+# Настройка Containerum CLI
 Настройка Containerum CLI  выполняется с помощью команды `config`.
 
 На данный момент пользователь может выбрать *Namespace*, в котором будет работать.
@@ -118,7 +118,7 @@ namespace: myns
 * Service: svc, service, services           
 ```
 
-# Команды Containerum CLI 
+# Команды Containerum CLI
 Список команд Containerum CLI и примеры их использования.
 
 ## login
