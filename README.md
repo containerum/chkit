@@ -68,8 +68,8 @@ Success changed!
 token: QA0u64rOkTtCxxxxxxxxxxliUAnBnPlCbGQfpCQpzqM=
 ```
 
-# Настройка CLI Containerum
-Настройка CLI Containerum выполняется с помощью команды `config`.
+# Настройка Containerum CLI 
+Настройка Containerum CLI  выполняется с помощью команды `config`.
 
 На данный момент пользователь может выбрать *Namespace*, в котором будет работать.
 
