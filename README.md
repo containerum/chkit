@@ -118,7 +118,7 @@ namespace: myns
 * Service: svc, service, services           
 ```
 
-# Команды CLI
+# Команды CLI Containerum
 Список команд Containerum CLI и примеры их использования.
 
 ## login
