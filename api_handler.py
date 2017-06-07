@@ -113,17 +113,23 @@ class ApiHandler:
 
         return result
 
-    def delete(self, kind, name, namespace):
+    def delete(self, kind, name, namespace, all_pods):
         if not namespace:
             namespace = 'default'
-
-        url = '{}/namespaces/{}/{}/{}'.format(
-            self.server,
-            namespace,
-            kind,
-            name
-        )
-
+        if kind == "deployments" and all_pods:
+            url = '{}/namespaces/{}/{}/{}/pods'.format(
+                self.server,
+                namespace,
+                kind,
+                name
+            )
+        else:
+            url = '{}/namespaces/{}/{}/{}'.format(
+                self.server,
+                namespace,
+                kind,
+                name
+            )
         result = make_request(url, self.headers, self.TIMEOUT, "DELETE")
 
         return result

@@ -280,7 +280,7 @@ class Client:
         if not namespace:
             namespace = config_json_data.get("default_namespace")
         if kind != 'namespaces':
-            api_result = self.api_handler.delete(kind, name, namespace)
+            api_result = self.api_handler.delete(kind, name, namespace, self.args.get("pods"))
         else:
             api_result = self.api_handler.delete_namespaces(name)
         if not self.handle_api_result(api_result):

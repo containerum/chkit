@@ -93,7 +93,7 @@ def create_parser(version):
     parser_get.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
     parser_get.add_argument('--deploy', '-d', help='filtering by deploy(only for pods ans services!)', required=False)
 
-    delete_usg = 'chkit [--debug -d ] delete (KIND NAME | --file -f FILE) [--namespace NAMESPACE][-h | --help]'
+    delete_usg = 'chkit [--debug -d ] delete (KIND NAME | --file -f FILE) [--pods][--namespace NAMESPACE][-h | --help]'
     delete_description = "Deleting pods,service,deployments by name"
     parser_delete = subparsers.add_parser('delete', help=delete_usg, usage=delete_usg, description=delete_description,
                                           formatter_class=formatter_class)
@@ -101,6 +101,7 @@ def create_parser(version):
     parser_delete.add_argument('kind', help='{deployment,service,pod} object kind', nargs="?", choices=delete_kinds, metavar="KIND")
     parser_delete.add_argument('name', help='object name to delete', metavar="NAME", nargs="?")
     parser_delete.add_argument('--file', '-f', help='input file')
+    parser_delete.add_argument('--pods', action='store_true', default=False, help='delete all pods in deploy')
     parser_delete.add_argument('--namespace', '-n', help='namespace, optional', required=False)
 
     # parser_replace = subparsers.add_parser('replace', help='replace object')
