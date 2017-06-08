@@ -109,7 +109,7 @@ def create_parser(version):
     parser_restart = subparsers.add_parser('restart', help=restart_usg, usage=restart_description, description=restart_description,
                                           formatter_class=formatter_class)
     parser_restart._optionals.title = 'restart arguments'
-    parser_restart.add_argument('name', help='deploy name to restart', metavar="NAME", nargs="?")
+    parser_restart.add_argument('name', help='deploy name to restart', metavar="NAME")
     parser_restart.add_argument('--namespace', '-n', help='namespace, optional', required=False)
 
     # parser_replace = subparsers.add_parser('replace', help='replace object')
