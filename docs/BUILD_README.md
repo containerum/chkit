@@ -21,11 +21,6 @@ $ sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
 $ sudo pip3 install -r requirements.txt
 ```
 
-И также пакет для сборки bin-файла из python-файла:
-```
-$ sudo pip3 install cx_freeze
-```
-
 Теперь необходимо сделать сборку выполнив команду:
 ```
 $ python3.5 builder.py build_exe -p queue

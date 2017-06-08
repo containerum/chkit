@@ -1,8 +1,11 @@
+altgraph==0.14
 argcomplete==1.8.2
+cx-Freeze==5.0.2
+macholib==1.8
+modulegraph==0.15
 prettytable==0.7.2
+py2app==0.14
 python-dateutil==2.5.3
 PyYAML==3.12
 requests==2.13.0
 six==1.10.0
-py2app==0.14
-

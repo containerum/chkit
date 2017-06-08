@@ -119,6 +119,25 @@ class Client:
         elif self.args['command'] == 'set':
             self.go_set()
 
+        elif self.args['command'] == 'restart':
+            self.go_restart()
+
+    def go_restart(self):
+        self.log_time()
+        self.tcp_connect()
+
+        namespace = self.args['namespace']
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+        api_result = self.api_handler.delete("deployments", self.args["name"], namespace, True)
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('restart')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
+
     def go_set(self):
         if self.args.get("debug"):
             self.log_time()
