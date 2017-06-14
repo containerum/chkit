@@ -26,7 +26,8 @@ run_kinds = [
 ]
 
 fields = [
-    "image"
+    "image",
+    "replicas"
 ]
 
 delete_kinds = [

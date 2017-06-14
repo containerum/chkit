@@ -68,15 +68,15 @@ def create_parser(version):
                                                      ' default: PROTOCOL = TCP', nargs='*', required=True)
     parser_expose.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
-    set_usg = 'chkit [--debug -d] set FIELD TYPE NAME CONTAINER_NAME=CONTAINER_IMAGE [-n --namespace NAMESPACE][--help | -h]'
-    set_description = 'Change image in containers'
+    set_usg = 'chkit [--debug -d] set FIELD TYPE NAME CONTAINER_NAME=CONTAINER_IMAGE|COUNT [-n --namespace NAMESPACE][--help | -h]'
+    set_description = 'Change image in containers | set replicas count'
     parser_set = subparsers.add_parser('set', help=set_usg, usage=set_usg, description=set_description,
                                        formatter_class=formatter_class)
     parser_set._optionals.title = 'set arguments'
     parser_set.add_argument('field', help='{image} spec field', choices=fields, metavar="FIELD")
     parser_set.add_argument('kind', help='{deployment} object kind', choices=run_kinds, metavar="KIND")
     parser_set.add_argument('name', help='object name to get info', metavar="NAME", nargs='?')
-    parser_set.add_argument('container', help='pair of container and image', metavar="CONTAINER", nargs='?')
+    parser_set.add_argument('args', help='pair of container and image|count of replicas', metavar="ARGS", nargs='?')
     #parser_set.add_argument('--file', '-f', help='input file')
     parser_set.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 

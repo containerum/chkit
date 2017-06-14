@@ -147,16 +147,40 @@ class Client:
         if not namespace:
             namespace = config_json_data.get("default_namespace")
 
-        container_name, image = self.args.get("container").split("=")
-        json_to_send = {"name": self.args.get("name"), "image": image}
-        api_result = self.api_handler.set(json_to_send, container_name, namespace)
+        args = self.args.get("args")
+        if args:
+            if '=' in args:
+                container_name, image = args.split('=')
+                json_to_send = {"name": self.args.get("name"), "image": image}
+                api_result = self.api_handler.set(json_to_send, container_name, namespace)
+            else:
+                try:
+                    replicas_count = int(args)
+                    json_to_send = {"replicas": replicas_count}
+                    api_result = self.api_handler.set(json_to_send, self.args.get("name"), namespace)
+                except ValueError:
+                    print('{}{}{} {}'.format(
+                        BColors.FAIL,
+                        "Error: ",
+                        "Count is not integer",
+                        BColors.ENDC,
+                    ))
+                    return
 
-        if not self.handle_api_result(api_result):
-            return
+            if not self.handle_api_result(api_result):
+                return
 
-        json_result = self.get_and_handle_tcp_result('set')
-        self.tcp_handler.close()
-        if not check_http_status(json_result, self.args.get("command")):
+            json_result = self.get_and_handle_tcp_result('set')
+            self.tcp_handler.close()
+            if not check_http_status(json_result, self.args.get("command")):
+                return
+        else:
+            print('{}{}{} {}'.format(
+                BColors.FAIL,
+                "Error: ",
+                "Empty args",
+                BColors.ENDC,
+            ))
             return
 
     def go_run(self):
