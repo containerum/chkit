@@ -75,8 +75,8 @@ def create_parser(version):
     parser_set._optionals.title = 'set arguments'
     parser_set.add_argument('field', help='{image} spec field', choices=fields, metavar="FIELD")
     parser_set.add_argument('kind', help='{deployment} object kind', choices=run_kinds, metavar="KIND")
-    parser_set.add_argument('name', help='object name to get info', metavar="NAME", nargs='?')
-    parser_set.add_argument('args', help='pair of container and image|count of replicas', metavar="ARGS", nargs='?')
+    parser_set.add_argument('name', help='object name to get info', metavar="NAME", nargs='+')
+    parser_set.add_argument('args', help='pair of container and image|count of replicas', metavar="ARGS", nargs='+')
     #parser_set.add_argument('--file', '-f', help='input file')
     parser_set.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
@@ -126,7 +126,15 @@ def create_parser(version):
     parser_logout = subparsers.add_parser('logout', help=logout_usg, usage=logout_usg, description=logout_description,
                                           formatter_class=formatter_class)
 
-
+    scale_usg = 'chkit [--debug -d] scale KIND NAME COUNT [-n --namespace NAMESPACE][--help | -h]'
+    scale_description = "Change replicas count"
+    parser_scale = subparsers.add_parser('scale', help=scale_usg, usage=scale_usg, description=scale_description,
+                                         formatter_class=formatter_class)
+    parser_scale._optionals.title = 'scale arguments'
+    parser_scale.add_argument('kind', help='{deployment} object kind', choices=run_kinds, metavar="KIND")
+    parser_scale.add_argument('name', help='object name to get info', metavar="NAME", type=str)
+    parser_scale.add_argument('count', help='count of replicas', metavar="COUNT", type=int, choices=range(1, 10))
+    parser_scale.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
     argcomplete.autocomplete(parser)
 

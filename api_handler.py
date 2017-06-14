@@ -63,6 +63,21 @@ class ApiHandler:
         result = make_request(url, self.headers, self.TIMEOUT, "PATCH", json_to_send)
         return result
 
+    def scale(self, json_to_send, name, namespace=None):
+        if namespace:
+            url = '{}/namespaces/{}/deployments/{}/spec'.format(
+                self.server,
+                namespace,
+                name
+            )
+        else:
+            url = '{}/namespaces/default/deployments/{}/spec'.format(
+                self.server,
+                name
+            )
+        result = make_request(url, self.headers, self.TIMEOUT, "PATCH", json_to_send)
+        return result
+
     def replace(self, json_to_send, namespace):
         kind = '{}s'.format(json_to_send['kind'].lower())
         name = json_to_send['metadata']['name']

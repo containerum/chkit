@@ -79,6 +79,7 @@ class Client:
     def go(self):
         self.check_file_existence()
         self.check_arguments()
+        print(self.args)
 
         if self.args.get("kind") in ("deployments", "deploy", "deployment"):
             self.args["kind"] = "deployments"
@@ -122,6 +123,9 @@ class Client:
         elif self.args['command'] == 'restart':
             self.go_restart()
 
+        elif self.args['command'] == 'scale':
+            self.go_scale()
+
     def go_restart(self):
         self.log_time()
         self.tcp_connect()
@@ -134,6 +138,36 @@ class Client:
             return
 
         json_result = self.get_and_handle_tcp_result('restart')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
+
+    def go_scale(self):
+        if self.args.get("debug"):
+            self.log_time()
+        self.tcp_connect()
+
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+
+        count = self.args.get("count")
+        try:
+            replicas_count = int(count)
+            json_to_send = {"replicas": replicas_count}
+            api_result = self.api_handler.scale(json_to_send, self.args.get("name"), namespace)
+        except (ValueError, TypeError):
+            print('{}{}{} {}'.format(
+                BColors.FAIL,
+                "Error: ",
+                "Count is not integer",
+                BColors.ENDC,
+            ))
+            return
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('scale')
         self.tcp_handler.close()
         if not check_http_status(json_result, self.args.get("command")):
             return
@@ -158,7 +192,7 @@ class Client:
                     replicas_count = int(args)
                     json_to_send = {"replicas": replicas_count}
                     api_result = self.api_handler.set(json_to_send, self.args.get("name"), namespace)
-                except ValueError:
+                except (ValueError, TypeError):
                     print('{}{}{} {}'.format(
                         BColors.FAIL,
                         "Error: ",
