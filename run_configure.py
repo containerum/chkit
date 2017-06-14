@@ -68,8 +68,8 @@ class RunConfigure:
                             raise ValueError("CPU must contain m")
                         cpu_check = cpu[:-1]
                         cpu_check = int(cpu_check)
-                        if cpu_check < 1:
-                            raise ValueError("CPU must contain positive integer + m, for example 100m")
+                        if cpu_check < 100 or cpu_check > 10000:
+                            raise ValueError("CPU must be in range [100m, 10000m], for example 1000m")
                         self.cpu = cpu
                     param_dict.update({"cpu": self.cpu})
                     self.cpu = True
@@ -83,8 +83,8 @@ class RunConfigure:
                             raise ValueError("Memory must contain Gi or Mi")
                         mem_check = memory[:-2]
                         mem_check = int(mem_check)
-                        if mem_check < 1:
-                            raise ValueError("Memory must contain positive integer + Mi|Gi, for example 100Mi")
+                        if (mem_check < 128 and "Mi" in memory) or (mem_check > 128 and "Gi" in memory):
+                            raise ValueError("Memory must be in range [128Mi, 128Gi], for example 500Mi")
                     param_dict.update({"memory": self.memory})
                     self.memory = True
                 if not param_dict.get("replicas") and self.replicas == 1:
