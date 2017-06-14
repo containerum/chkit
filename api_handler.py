@@ -121,7 +121,6 @@ class ApiHandler:
             url = '{}/namespaces/default/deployments'.format(
                 self.server
             )
-
         result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
 
         return result

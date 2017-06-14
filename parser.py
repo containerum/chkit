@@ -44,7 +44,8 @@ def create_parser(version):
     parser_run.add_argument('--ports', '-p', type=int, nargs='*', help='ports', required=False)
     parser_run.add_argument('--commands', '-cmd', nargs='*', help='commands', required=False)
     parser_run.add_argument('--labels', '-ls', nargs='*', help='labels', required=False)
-    parser_run.add_argument('--replicas', '-r', type=int, help='replicas, default: 1', default=1, required=False)
+    parser_run.add_argument('--replicas', '-r', type=int, help='replicas, default: 1', default=1,
+                            required=False)
     parser_run.add_argument('--memory', '-m', help='memory, default: 128Mi', default="128Mi", required=False)
     parser_run.add_argument('--cpu', '-c', help='CPU share, default: 100m, ', default="100m", required=False)
     parser_run.add_argument('--namespace', '-n', help='namespace, default \"default\"', required=False)

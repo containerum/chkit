@@ -485,6 +485,8 @@ class Client:
         if self.args["configure"] and not self.args.get("image"):
             runconfigure = RunConfigure()
             param_dict = runconfigure.get_data_from_console()
+            if not param_dict:
+                return
             image = param_dict["image"]
             ports = param_dict["ports"]
             labels = param_dict["labels"]
