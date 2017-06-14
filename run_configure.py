@@ -57,12 +57,21 @@ class RunConfigure:
                     self.commands = True
                 if not param_dict.get("env") and not self.env:
                     try:
-                        env = input("Enter environ variables (key=value ... key3=value3): ")
+                        envs = input("Enter environ variables (key=value ... key3=value3): ")
                     except KeyboardInterrupt:
                         return False
-                    if env:
-                        env = env.split(" ")
-                    param_dict.update({"env": env})
+                    if envs:
+                        envs = envs.split(" ")
+                    envs_dict = {}
+                    envs_check = r"^[[a-zA-Z]+[0-9]*=[a-zA-Z0-9]* *]*$"
+                    is_valid = re.compile(envs_check)
+                    for env in envs:
+                        if not is_valid.findall(env):
+                            raise ValueError("Environ variables must contain only latin characters and numbers and "
+                                             "have format key=value")
+                        env = env.split("=")
+                        envs_dict[env[0]] = env[1]
+                    param_dict.update({"env": envs_dict})
                     self.env = True
                 if not param_dict.get("cpu"):
                     try:
