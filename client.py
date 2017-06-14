@@ -520,19 +520,17 @@ class Client:
                 json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
                     'containerPort': port
                 })
-
         if labels:
-            for label in labels:
-                key, value = label.split("=")
+            for key, value in labels.items():
                 json_to_send['metadata']['labels'].update({key: value})
                 json_to_send['spec']['template']['metadata']['labels'].update({key: value})
         if env:
             json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
                 {
-                    "name": key_value.split('=')[0],
-                    "value": key_value.split('=')[1]
+                    "name": key,
+                    "value": value
                 }
-                for key_value in env]
+                for key, value in env.items()]
         json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
         json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
         with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:

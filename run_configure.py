@@ -22,10 +22,11 @@ class RunConfigure:
                         return False
                     if not image:
                         raise ValueError("Image is required field")
-                    image_check = r"^[a-zA-Z0-9_.-]*$"
+                    image_check = r"^[a-zA-Z]+[0-9_.-]*$"
                     is_valid = re.compile(image_check)
                     if not is_valid.findall(image):
-                        raise ValueError("Image must contain only latin characters, numbers and hyphen")
+                        raise ValueError("Image must start with latin character and contain only latin "
+                                         "characters, numbers and hyphen")
                     param_dict.update({"image": image})
                 if not param_dict.get("ports") and not self.ports:
                     try:
@@ -44,7 +45,16 @@ class RunConfigure:
                         return False
                     if labels:
                         labels = labels.split(" ")
-                    param_dict.update({"labels": labels})
+                    labels_dict = {}
+                    labels_check = r"^[[a-zA-Z]+[0-9]*=[a-zA-Z0-9]+ *]*$"
+                    is_valid = re.compile(labels_check)
+                    for label in labels:
+                        if not is_valid.findall(label):
+                            raise ValueError("Environ variables must contain only latin characters and numbers and "
+                                             "have format key=value")
+                        label = label.split("=")
+                        labels_dict[label[0]] = label[1]
+                    param_dict.update({"labels": labels_dict})
                     self.labels = True
                 if not param_dict.get("commands") and not self.commands:
                     try:
@@ -63,7 +73,7 @@ class RunConfigure:
                     if envs:
                         envs = envs.split(" ")
                     envs_dict = {}
-                    envs_check = r"^[[a-zA-Z]+[0-9]*=[a-zA-Z0-9]* *]*$"
+                    envs_check = r"^[[a-zA-Z]+[0-9]*=[a-zA-Z0-9]+ *]*$"
                     is_valid = re.compile(envs_check)
                     for env in envs:
                         if not is_valid.findall(env):
