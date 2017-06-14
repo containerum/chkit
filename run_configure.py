@@ -1,3 +1,5 @@
+import re
+
 class RunConfigure:
     def __init__(self):
         self.cpu = "100m"
@@ -20,6 +22,10 @@ class RunConfigure:
                         return False
                     if not image:
                         raise ValueError("Image is required field")
+                    image_check = r"^[a-zA-Z0-9_.-]*$"
+                    is_valid = re.compile(image_check)
+                    if not is_valid.findall(image):
+                        raise ValueError("Image must contain only latin characters, numbers and hyphen")
                     param_dict.update({"image": image})
                 if not param_dict.get("ports") and not self.ports:
                     try:

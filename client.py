@@ -79,7 +79,6 @@ class Client:
     def go(self):
         self.check_file_existence()
         self.check_arguments()
-        print(self.args)
 
         if self.args.get("kind") in ("deployments", "deploy", "deployment"):
             self.args["kind"] = "deployments"
