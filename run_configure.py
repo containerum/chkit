@@ -34,6 +34,11 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if ports:
+                        ports_check = r"^([1-9][0-9]{0,3}|[1-5][0-9]{4,5}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|" \
+                                      r"655[0-2][0-9]|6553[0-6])$"
+                        is_valid = re.compile(ports_check)
+                        if not is_valid.findall(ports):
+                            raise ValueError("Port's range between [1, 65536]")
                         ports = ports.split(" ")
                         ports = list(map(int, ports))
                     param_dict.update({"ports": ports})
@@ -89,11 +94,9 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if cpu:
-                        if not "m" in cpu:
-                            raise ValueError("CPU must contain m")
-                        cpu_check = cpu[:-1]
-                        cpu_check = int(cpu_check)
-                        if cpu_check < 100 or cpu_check > 10000:
+                        cpu_check = r"^[1-9][0-9]{2,3}m$"
+                        is_valid = re.compile(cpu_check)
+                        if not is_valid.findall(cpu):
                             raise ValueError("CPU must be in range [100m, 10000m], for example 1000m")
                         self.cpu = cpu
                     param_dict.update({"cpu": self.cpu})
@@ -104,11 +107,10 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if memory:
-                        if not "Mi" in memory and not "Gi" in memory:
-                            raise ValueError("Memory must contain Gi or Mi")
-                        mem_check = memory[:-2]
-                        mem_check = int(mem_check)
-                        if (mem_check < 128 and "Mi" in memory) or (mem_check > 128 and "Gi" in memory):
+                        mem_check = r"^(((12[8-9]|1[3-9][0-9]|[2-9][0-9]{2}|1[0-1][0-9]{2}|12[0-7][0-9]|1280)Mi)" \
+                                    r"|(([1-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8])Gi))$"
+                        is_valid = re.compile(mem_check)
+                        if not is_valid.findall(memory):
                             raise ValueError("Memory must be in range [128Mi, 128Gi], for example 500Mi")
                     param_dict.update({"memory": self.memory})
                     self.memory = True
@@ -118,8 +120,9 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if replicas:
-                        replicas = int(replicas)
-                        if replicas < 1:
+                        repl_check = r"^[1-9]\d*$"
+                        is_valid = re.compile(repl_check)
+                        if not is_valid.findall(replicas):
                             raise ValueError("Replicas must be positive integer")
                         self.replicas = replicas
                     param_dict.update({"replicas": self.replicas})
