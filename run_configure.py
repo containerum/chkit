@@ -94,7 +94,7 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if cpu:
-                        cpu_check = r"^[1-9][0-9]{2,3}m$"
+                        cpu_check = r"^(([1-9][0-9]{2,3}|10000)m)$"
                         is_valid = re.compile(cpu_check)
                         if not is_valid.findall(cpu):
                             raise ValueError("CPU must be in range [100m, 10000m], for example 1000m")
