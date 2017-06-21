@@ -1,4 +1,4 @@
-#Установка containerum-клиента на компьютер с помощью бинарников(Ubuntu x32, Ubuntu x64)
+#Установка containerum-клиента на компьютер с помощью бинарников(MacOs)
 Для начала необходимо разархивировать файл в удобное для вас место
 ```
 $ unzip your_archive.zip -d /path/to/destination/dir/
@@ -6,7 +6,7 @@ $ unzip your_archive.zip -d /path/to/destination/dir/
 Затем можно пользоваться программой выполнив следующую команду:
 
 ```
-$ ./chkit
+$ ./dist/chkit.app/Contents/MacOS/chkit
 ```
 **Важно!** При этом находится в директории, куда производилось разархивирование клиента!
 
@@ -17,7 +17,7 @@ $ echo $PATH
 ```
 Например, прилинкуем клиента к директории `/usr/local/bin`
 ```
-$ sudo ln -sf /path/to/destination/dir/chkit.py /usr/local/bin/chkit
+$ sudo ln -sf /path/to/destination/dir/dist/chkit.app/Contents/MacOS/chkit /usr/local/bin/chkit
 ```
 
 Теперь клиента можно вызвать простой командой из любой директории:

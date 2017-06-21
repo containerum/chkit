@@ -119,6 +119,58 @@ class Client:
         elif self.args['command'] == 'set':
             self.go_set()
 
+        elif self.args['command'] == 'restart':
+            self.go_restart()
+
+        elif self.args['command'] == 'scale':
+            self.go_scale()
+
+    def go_restart(self):
+        self.log_time()
+        self.tcp_connect()
+
+        namespace = self.args['namespace']
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+        api_result = self.api_handler.delete("deployments", self.args["name"], namespace, True)
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('restart')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
+
+    def go_scale(self):
+        if self.args.get("debug"):
+            self.log_time()
+        self.tcp_connect()
+
+        namespace = self.args.get('namespace')
+        if not namespace:
+            namespace = config_json_data.get("default_namespace")
+
+        count = self.args.get("count")
+        try:
+            replicas_count = int(count)
+            json_to_send = {"replicas": replicas_count}
+            api_result = self.api_handler.scale(json_to_send, self.args.get("name"), namespace)
+        except (ValueError, TypeError):
+            print('{}{}{} {}'.format(
+                BColors.FAIL,
+                "Error: ",
+                "Count is not integer",
+                BColors.ENDC,
+            ))
+            return
+        if not self.handle_api_result(api_result):
+            return
+
+        json_result = self.get_and_handle_tcp_result('scale')
+        self.tcp_handler.close()
+        if not check_http_status(json_result, self.args.get("command")):
+            return
+
     def go_set(self):
         if self.args.get("debug"):
             self.log_time()
@@ -128,16 +180,40 @@ class Client:
         if not namespace:
             namespace = config_json_data.get("default_namespace")
 
-        container_name, image = self.args.get("container").split("=")
-        json_to_send = {"name": self.args.get("name"), "image": image}
-        api_result = self.api_handler.set(json_to_send, container_name, namespace)
+        args = self.args.get("args")
+        if args:
+            if '=' in args:
+                container_name, image = args.split('=')
+                json_to_send = {"name": self.args.get("name"), "image": image}
+                api_result = self.api_handler.set(json_to_send, container_name, namespace)
+            else:
+                try:
+                    replicas_count = int(args)
+                    json_to_send = {"replicas": replicas_count}
+                    api_result = self.api_handler.set(json_to_send, self.args.get("name"), namespace)
+                except (ValueError, TypeError):
+                    print('{}{}{} {}'.format(
+                        BColors.FAIL,
+                        "Error: ",
+                        "Count is not integer",
+                        BColors.ENDC,
+                    ))
+                    return
 
-        if not self.handle_api_result(api_result):
-            return
+            if not self.handle_api_result(api_result):
+                return
 
-        json_result = self.get_and_handle_tcp_result('set')
-        self.tcp_handler.close()
-        if not check_http_status(json_result, self.args.get("command")):
+            json_result = self.get_and_handle_tcp_result('set')
+            self.tcp_handler.close()
+            if not check_http_status(json_result, self.args.get("command")):
+                return
+        else:
+            print('{}{}{} {}'.format(
+                BColors.FAIL,
+                "Error: ",
+                "Empty args",
+                BColors.ENDC,
+            ))
             return
 
     def go_run(self):
@@ -280,7 +356,7 @@ class Client:
         if not namespace:
             namespace = config_json_data.get("default_namespace")
         if kind != 'namespaces':
-            api_result = self.api_handler.delete(kind, name, namespace)
+            api_result = self.api_handler.delete(kind, name, namespace, self.args.get("pods"))
         else:
             api_result = self.api_handler.delete_namespaces(name)
         if not self.handle_api_result(api_result):
@@ -408,6 +484,8 @@ class Client:
         if self.args["configure"] and not self.args.get("image"):
             runconfigure = RunConfigure()
             param_dict = runconfigure.get_data_from_console()
+            if not param_dict:
+                return
             image = param_dict["image"]
             ports = param_dict["ports"]
             labels = param_dict["labels"]
@@ -442,19 +520,17 @@ class Client:
                 json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
                     'containerPort': port
                 })
-
         if labels:
-            for label in labels:
-                key, value = label.split("=")
+            for key, value in labels.items():
                 json_to_send['metadata']['labels'].update({key: value})
                 json_to_send['spec']['template']['metadata']['labels'].update({key: value})
         if env:
             json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
                 {
-                    "name": key_value.split('=')[0],
-                    "value": key_value.split('=')[1]
+                    "name": key,
+                    "value": value
                 }
-                for key_value in env]
+                for key, value in env.items()]
         json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
         json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
         with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:

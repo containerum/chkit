@@ -35,17 +35,45 @@ class ApiHandler:
         result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
         return result
 
-    def set(self, json_to_send, container_name, namespace=None):
+    def set(self, json_to_send, name, namespace=None):
+        if 'replicas' in json_to_send:
+            if namespace:
+                url = '{}/namespaces/{}/deployments/{}/spec'.format(
+                    self.server,
+                    namespace,
+                    name
+                )
+            else:
+                url = '{}/namespaces/default/deployments/{}/spec'.format(
+                    self.server,
+                    name
+                )
+        else:
+            if namespace:
+                url = '{}/namespaces/{}/container/{}'.format(
+                    self.server,
+                    namespace,
+                    name
+                )
+            else:
+                url = '{}/namespaces/default/container/{}'.format(
+                    self.server,
+                    name
+                )
+        result = make_request(url, self.headers, self.TIMEOUT, "PATCH", json_to_send)
+        return result
+
+    def scale(self, json_to_send, name, namespace=None):
         if namespace:
-            url = '{}/namespaces/{}/container/{}'.format(
+            url = '{}/namespaces/{}/deployments/{}/spec'.format(
                 self.server,
                 namespace,
-                container_name
+                name
             )
         else:
-            url = '{}/namespaces/default/container/{}'.format(
+            url = '{}/namespaces/default/deployments/{}/spec'.format(
                 self.server,
-                container_name
+                name
             )
         result = make_request(url, self.headers, self.TIMEOUT, "PATCH", json_to_send)
         return result
@@ -93,7 +121,6 @@ class ApiHandler:
             url = '{}/namespaces/default/deployments'.format(
                 self.server
             )
-
         result = make_request(url, self.headers, self.TIMEOUT, "POST", json_to_send)
 
         return result
@@ -113,17 +140,23 @@ class ApiHandler:
 
         return result
 
-    def delete(self, kind, name, namespace):
+    def delete(self, kind, name, namespace, all_pods):
         if not namespace:
             namespace = 'default'
-
-        url = '{}/namespaces/{}/{}/{}'.format(
-            self.server,
-            namespace,
-            kind,
-            name
-        )
-
+        if kind == "deployments" and all_pods:
+            url = '{}/namespaces/{}/{}/{}/pods'.format(
+                self.server,
+                namespace,
+                kind,
+                name
+            )
+        else:
+            url = '{}/namespaces/{}/{}/{}'.format(
+                self.server,
+                namespace,
+                kind,
+                name
+            )
         result = make_request(url, self.headers, self.TIMEOUT, "DELETE")
 
         return result
