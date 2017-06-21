@@ -117,7 +117,7 @@ class RunConfigure:
                     self.memory = True
                 if not param_dict.get("replicas") and self.replicas == 1:
                     try:
-                        replicas = int(input("Enter  replicas count: "))
+                        replicas = input("Enter  replicas count: ")
                     except KeyboardInterrupt:
                         return False
                     if replicas:
@@ -126,7 +126,7 @@ class RunConfigure:
                         if not is_valid.findall(replicas):
                             raise ValueError("Replicas must be positive integer")
                         self.replicas = replicas
-                    param_dict.update({"replicas": self.replicas})
+                    param_dict.update({"replicas": int(self.replicas)})
                     self.replicas = True
                 break
             except Exception as e:
