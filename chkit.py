@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from client import Client
 
-VERSION = "1.2.6"
+VERSION = "1.3.3"
 
 
 def main():

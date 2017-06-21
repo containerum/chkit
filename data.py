@@ -26,7 +26,8 @@ run_kinds = [
 ]
 
 fields = [
-    "image"
+    "image",
+    "replicas"
 ]
 
 delete_kinds = [
@@ -98,10 +99,10 @@ config_json = {
             "Authorization": ""
         },
         "TIMEOUT": 10,
-        "server": "http://146.185.135.181:3333"
+        "server": "http://sdk.containerum.io:3333"
     },
     "tcp_handler": {
-        "TCP_IP": "146.185.135.181",
+        "TCP_IP": "sdk.containerum.io",
         "AUTH_FORM": {
             "token": ""
         },

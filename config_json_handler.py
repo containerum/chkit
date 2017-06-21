@@ -3,6 +3,7 @@ from bcolors import BColors
 from keywords import SUCCESS_CHANGED
 import os
 import os.path
+import re
 from data import config_json
 FILE_CONFIG = os.path.join(os.getenv("HOME"), ".containerum/CONFIG.json")
 FILE_CONFIG_FROM_SRC = os.path.join(os.getenv("HOME"), ".containerum/src/CONFIG.json")
@@ -51,6 +52,8 @@ def show_namespace_token_from_config():
 
 def set_token_to_json_config(token):
     try:
+        if not re.match("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$", token):
+            raise ValueError("token is invalid")
         json_data = open(FILE_CONFIG).read()
         data = json.loads(json_data)
         data.get("tcp_handler").get("AUTH_FORM")["token"] = token

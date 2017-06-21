@@ -44,7 +44,8 @@ def create_parser(version):
     parser_run.add_argument('--ports', '-p', type=int, nargs='*', help='ports', required=False)
     parser_run.add_argument('--commands', '-cmd', nargs='*', help='commands', required=False)
     parser_run.add_argument('--labels', '-ls', nargs='*', help='labels', required=False)
-    parser_run.add_argument('--replicas', '-r', type=int, help='replicas, default: 1', default=1, required=False)
+    parser_run.add_argument('--replicas', '-r', type=int, help='replicas, default: 1', default=1,
+                            required=False)
     parser_run.add_argument('--memory', '-m', help='memory, default: 128Mi', default="128Mi", required=False)
     parser_run.add_argument('--cpu', '-c', help='CPU share, default: 100m, ', default="100m", required=False)
     parser_run.add_argument('--namespace', '-n', help='namespace, default \"default\"', required=False)
@@ -68,15 +69,15 @@ def create_parser(version):
                                                      ' default: PROTOCOL = TCP', nargs='*', required=True)
     parser_expose.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
-    set_usg = 'chkit [--debug -d] set FIELD TYPE NAME CONTAINER_NAME=CONTAINER_IMAGE [-n --namespace NAMESPACE][--help | -h]'
-    set_description = 'Change image in containers'
+    set_usg = 'chkit [--debug -d] set FIELD TYPE NAME CONTAINER_NAME=CONTAINER_IMAGE|COUNT [-n --namespace NAMESPACE][--help | -h]'
+    set_description = 'Change image in containers | set replicas count'
     parser_set = subparsers.add_parser('set', help=set_usg, usage=set_usg, description=set_description,
                                        formatter_class=formatter_class)
     parser_set._optionals.title = 'set arguments'
     parser_set.add_argument('field', help='{image} spec field', choices=fields, metavar="FIELD")
     parser_set.add_argument('kind', help='{deployment} object kind', choices=run_kinds, metavar="KIND")
-    parser_set.add_argument('name', help='object name to get info', metavar="NAME", nargs='?')
-    parser_set.add_argument('container', help='pair of container and image', metavar="CONTAINER", nargs='?')
+    parser_set.add_argument('name', help='object name to get info', metavar="NAME", nargs='+')
+    parser_set.add_argument('args', help='pair of container and image|count of replicas', metavar="ARGS", nargs='+')
     #parser_set.add_argument('--file', '-f', help='input file')
     parser_set.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
@@ -93,7 +94,16 @@ def create_parser(version):
     parser_get.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
     parser_get.add_argument('--deploy', '-d', help='filtering by deploy(only for pods ans services!)', required=False)
 
-    delete_usg = 'chkit [--debug -d ] delete (KIND NAME | --file -f FILE) [--namespace NAMESPACE][-h | --help]'
+    restart_usg = 'chkit [--debug -d ] restart NAME [--namespace NAMESPACE][-h | --help]'
+    restart_description = "Restarting pods by deploy name"
+    parser_restart = subparsers.add_parser('restart', help=restart_usg, usage=restart_usg,
+                                           description=restart_description,
+                                           formatter_class=formatter_class)
+    parser_restart._optionals.title = 'restart arguments'
+    parser_restart.add_argument('name', help='deploy name to restart', metavar="NAME")
+    parser_restart.add_argument('--namespace', '-n', help='namespace, optional', required=False)
+
+    delete_usg = 'chkit [--debug -d ] delete (KIND NAME | --file -f FILE) [--pods][--namespace NAMESPACE][-h | --help]'
     delete_description = "Deleting pods,service,deployments by name"
     parser_delete = subparsers.add_parser('delete', help=delete_usg, usage=delete_usg, description=delete_description,
                                           formatter_class=formatter_class)
@@ -101,6 +111,7 @@ def create_parser(version):
     parser_delete.add_argument('kind', help='{deployment,service,pod} object kind', nargs="?", choices=delete_kinds, metavar="KIND")
     parser_delete.add_argument('name', help='object name to delete', metavar="NAME", nargs="?")
     parser_delete.add_argument('--file', '-f', help='input file')
+    parser_delete.add_argument('--pods', action='store_true', default=False, help='delete all pods in deploy')
     parser_delete.add_argument('--namespace', '-n', help='namespace, optional', required=False)
 
     # parser_replace = subparsers.add_parser('replace', help='replace object')
@@ -117,7 +128,15 @@ def create_parser(version):
     parser_logout = subparsers.add_parser('logout', help=logout_usg, usage=logout_usg, description=logout_description,
                                           formatter_class=formatter_class)
 
-
+    scale_usg = 'chkit [--debug -d] scale KIND NAME COUNT [-n --namespace NAMESPACE][--help | -h]'
+    scale_description = "Change replicas count"
+    parser_scale = subparsers.add_parser('scale', help=scale_usg, usage=scale_usg, description=scale_description,
+                                         formatter_class=formatter_class)
+    parser_scale._optionals.title = 'scale arguments'
+    parser_scale.add_argument('kind', help='{deployment} object kind', choices=run_kinds, metavar="KIND")
+    parser_scale.add_argument('name', help='object name to get info', metavar="NAME", type=str)
+    parser_scale.add_argument('count', help='count of replicas', metavar="COUNT", type=int, choices=range(1, 10))
+    parser_scale.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
 
     argcomplete.autocomplete(parser)
 
