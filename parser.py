@@ -94,6 +94,15 @@ def create_parser(version):
     parser_get.add_argument('--namespace', '-n', help='namespace, default: \"default\"', required=False)
     parser_get.add_argument('--deploy', '-d', help='filtering by deploy(only for pods ans services!)', required=False)
 
+    restart_usg = 'chkit [--debug -d ] restart NAME [--namespace NAMESPACE][-h | --help]'
+    restart_description = "Restarting pods by deploy name"
+    parser_restart = subparsers.add_parser('restart', help=restart_usg, usage=restart_usg,
+                                           description=restart_description,
+                                           formatter_class=formatter_class)
+    parser_restart._optionals.title = 'restart arguments'
+    parser_restart.add_argument('name', help='deploy name to restart', metavar="NAME")
+    parser_restart.add_argument('--namespace', '-n', help='namespace, optional', required=False)
+
     delete_usg = 'chkit [--debug -d ] delete (KIND NAME | --file -f FILE) [--pods][--namespace NAMESPACE][-h | --help]'
     delete_description = "Deleting pods,service,deployments by name"
     parser_delete = subparsers.add_parser('delete', help=delete_usg, usage=delete_usg, description=delete_description,
@@ -104,14 +113,6 @@ def create_parser(version):
     parser_delete.add_argument('--file', '-f', help='input file')
     parser_delete.add_argument('--pods', action='store_true', default=False, help='delete all pods in deploy')
     parser_delete.add_argument('--namespace', '-n', help='namespace, optional', required=False)
-
-    restart_usg = 'chkit [--debug -d ] restart NAME [--namespace NAMESPACE][-h | --help]'
-    restart_description = "Restarting pods by deploy name"
-    parser_restart = subparsers.add_parser('restart', help=restart_usg, usage=restart_description, description=restart_description,
-                                          formatter_class=formatter_class)
-    parser_restart._optionals.title = 'restart arguments'
-    parser_restart.add_argument('name', help='deploy name to restart', metavar="NAME")
-    parser_restart.add_argument('--namespace', '-n', help='namespace, optional', required=False)
 
     # parser_replace = subparsers.add_parser('replace', help='replace object')
     # parser_replace.add_argument('--file', '-f', help='input file', required=True)
