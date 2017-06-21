@@ -117,7 +117,7 @@ class RunConfigure:
                     self.memory = True
                 if not param_dict.get("replicas") and self.replicas == 1:
                     try:
-                        replicas = input("Enter  replicas count: ")
+                        replicas = int(input("Enter  replicas count: "))
                     except KeyboardInterrupt:
                         return False
                     if replicas:
