@@ -99,10 +99,10 @@ config_json = {
             "Authorization": ""
         },
         "TIMEOUT": 10,
-        "server": "http://213.239.208.25:3333"
+        "server": "http://sdk.containerum.io:3333"
     },
     "tcp_handler": {
-        "TCP_IP": "213.239.208.25",
+        "TCP_IP": "sdk.containerum.io",
         "AUTH_FORM": {
             "token": ""
         },
