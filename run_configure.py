@@ -95,10 +95,10 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if cpu:
-                        cpu_check = r"^(([1-9][0-9]{2,3}|10000)m)$"
+                        cpu_check = r"^(([1-9][0-9]{1,2}|[1-2][0-9]{3}|3000)m)$"
                         is_valid = re.compile(cpu_check)
                         if not is_valid.findall(cpu):
-                            raise ValueError("CPU must be in range [100m, 10000m], for example 1000m")
+                            raise ValueError("CPU must be in range [10m, 3000m], for example 1000m")
                         self.cpu = cpu
                     param_dict.update({"cpu": self.cpu})
                     self.cpu = True
@@ -108,11 +108,10 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if memory:
-                        mem_check = r"^(((12[8-9]|1[3-9][0-9]|[2-9][0-9]{2}|1[0-1][0-9]{2}|12[0-7][0-9]|1280)Mi)" \
-                                    r"|(([1-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8])Gi))$"
+                        mem_check = r"^((([5-9]|[1-7][0-9]{1,3}|8000)Mi)|([1-8]Gi))$"
                         is_valid = re.compile(mem_check)
                         if not is_valid.findall(memory):
-                            raise ValueError("Memory must be in range [128Mi, 128Gi], for example 500Mi")
+                            raise ValueError("Memory must be in range [5Mi, 8Gi], for example 500Mi")
                     param_dict.update({"memory": self.memory})
                     self.memory = True
                 if not param_dict.get("replicas") and self.replicas == 1:

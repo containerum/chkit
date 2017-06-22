@@ -26,7 +26,7 @@ def create_parser(version):
     parser_config.add_argument('--set-default-namespace', '-n', help='default namespace', required=False)
 
     run_description = "Running deployement genereting json file"
-    run_usg = 'chkit [--debug -d ] run  NAME --configure | —image -i IMAGE '\
+    run_usg = 'chkit [--debug -d ] run  NAME --configure | --image -i IMAGE '\
                                                    '[--env -e "KEY=VALUE"]'\
                                                    '[--port -p PORT]'\
                                                    '[--replicas -r REPLICAS_COUNT]'\
