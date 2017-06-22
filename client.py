@@ -499,7 +499,19 @@ class Client:
             image = self.args["image"]
             ports = self.args["ports"]
             labels = self.args["labels"]
+            if labels:
+                labels_dict = {}
+                for label in labels:
+                    label = label.split("=")
+                    labels_dict[label[0]] = label[1]
+                labels = labels_dict
             env = self.args["env"]
+            if env:
+                envs = {}
+                for ienv in env:
+                    ienv = ienv.split("=")
+                    envs[ienv[0]] = ienv[1]
+                env = envs
             cpu = self.args["cpu"]
             memory = self.args["memory"]
             replicas = self.args["replicas"]
