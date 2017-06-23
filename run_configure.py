@@ -56,7 +56,7 @@ class RunConfigure:
                     is_valid = re.compile(labels_check)
                     for label in labels:
                         if not is_valid.findall(label):
-                            raise ValueError("Environ variables must contain only latin characters and numbers and "
+                            raise ValueError("Labels must contain only latin characters, numbers and  _-  and "
                                              "have format key=value")
                         label = label.split("=")
                         labels_dict[label[0]] = label[1]
@@ -83,7 +83,7 @@ class RunConfigure:
                     is_valid = re.compile(envs_check)
                     for env in envs:
                         if not is_valid.findall(env):
-                            raise ValueError("Environ variables must contain only latin characters and numbers and "
+                            raise ValueError("Environ variables must contain only latin characters, numbers and _- and "
                                              "have format key=value")
                         env = env.split("=")
                         envs_dict[env[0]] = env[1]
