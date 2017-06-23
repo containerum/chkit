@@ -52,7 +52,7 @@ class RunConfigure:
                     if labels:
                         labels = labels.split(" ")
                     labels_dict = {}
-                    labels_check = r"^[[a-zA-Z_]+[0-9]*=[a-zA-Z0-9_]+ *]*$"
+                    labels_check = r"^[[a-zA-Z_]+[0-9]*=[a-zA-Z0-9_-]+ *]*$"
                     is_valid = re.compile(labels_check)
                     for label in labels:
                         if not is_valid.findall(label):
@@ -79,7 +79,7 @@ class RunConfigure:
                     if envs:
                         envs = envs.split(" ")
                     envs_dict = {}
-                    envs_check = r"^[[a-zA-Z_]+[0-9]*=[a-zA-Z0-9_]+ *]*$"
+                    envs_check = r"^[[a-zA-Z_]+[0-9]*=[a-zA-Z0-9_-]+ *]*$"
                     is_valid = re.compile(envs_check)
                     for env in envs:
                         if not is_valid.findall(env):
