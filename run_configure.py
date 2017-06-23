@@ -23,11 +23,11 @@ class RunConfigure:
                         return False
                     if not image:
                         raise ValueError("Image is required field")
-                    image_check = r"^[a-zA-Z]+[a-zA-Z0-9\/:_.-]*$"
+                    image_check = r"^[a-zA-Z]+([a-zA-Z0-9\/:_.-]*[a-z0-9])?$"
                     is_valid = re.compile(image_check)
                     if not is_valid.findall(image):
-                        raise ValueError("Image must start with latin character and contain only latin "
-                                         "characters, numbers and -/:._")
+                        raise ValueError("Image must consist of alphanumeric characters or -/:._ and must start and end"
+                                         " with an alphanumeric character")
                     param_dict.update({"image": image})
                 if not param_dict.get("ports") and not self.ports:
                     try:
@@ -52,12 +52,13 @@ class RunConfigure:
                     if labels:
                         labels = labels.split(" ")
                     labels_dict = {}
-                    labels_check = r"^[[a-zA-Z]+[a-zA-Z0-9_-]*=[a-zA-Z0-9_-]+ *]*$"
+                    labels_check = r"^[[a-zA-Z]+([a-zA-Z0-9_-]*[a-zA-Z0-9])?=[a-zA-Z0-9]+([a-zA-Z0-9_.-:]*" \
+                                   r"[a-zA-Z0-9])? *]*$"
                     is_valid = re.compile(labels_check)
                     for label in labels:
                         if not is_valid.findall(label):
-                            raise ValueError("Labels must contain only latin characters, numbers and  _-  and "
-                                             "have format key=value")
+                            raise ValueError("Labels must have format key=value, consist of alphanumeric characters "
+                                             "or _- and must start and end with an alphanumeric character")
                         label = label.split("=")
                         labels_dict[label[0]] = label[1]
                     param_dict.update({"labels": labels_dict})
@@ -79,12 +80,13 @@ class RunConfigure:
                     if envs:
                         envs = envs.split(" ")
                     envs_dict = {}
-                    envs_check = r"^[[a-zA-Z]+[a-zA-Z0-9_-]*=[a-zA-Z0-9_-]+ *]*$"
+                    envs_check = r"^[[a-zA-Z]+([a-zA-Z0-9_-]*[a-zA-Z0-9])?=[a-zA-Z0-9]+([a-zA-Z0-9_.-:]*" \
+                                 r"[a-zA-Z0-9])? *]*$"
                     is_valid = re.compile(envs_check)
                     for env in envs:
                         if not is_valid.findall(env):
-                            raise ValueError("Environ variables must contain only latin characters, numbers and _- and "
-                                             "have format key=value")
+                            raise ValueError("Environ variables must have format key=value, consist of alphanumeric "
+                                             "characters or _- and must start and end with an alphanumeric character")
                         env = env.split("=")
                         envs_dict[env[0]] = env[1]
                     param_dict.update({"env": envs_dict})
@@ -108,7 +110,7 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if memory:
-                        mem_check = r"^((([5-9]|[1-7][0-9]{1,3}|8000)Mi)|([1-8]Gi))$"
+                        mem_check = r"^((([5-9]|[1-7][0-9]{1,3}|8000)Mi)|(([1-7]*\.?[0-9]+|8)Gi))$"
                         is_valid = re.compile(mem_check)
                         if not is_valid.findall(memory):
                             raise ValueError("Memory must be in range [5Mi, 8Gi], for example 500Mi")

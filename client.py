@@ -479,6 +479,17 @@ class Client:
             BColors.ENDC,
             ))
             return
+        name_check = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+        is_valid = re.compile(name_check)
+        if not is_valid.findall(self.args['name']):
+            print('{}{}{} {}'.format(
+                BColors.FAIL,
+                "Error: ",
+                ValueError("Deploy name must consist of lower case alphanumeric characters or '-', and must start and"
+                           " end with an alphanumeric character"),
+                BColors.ENDC,
+            ))
+            return
         json_to_send['metadata']['name'] = self.args['name']
 
         if self.args["configure"] and not self.args.get("image"):
