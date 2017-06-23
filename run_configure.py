@@ -23,7 +23,7 @@ class RunConfigure:
                         return False
                     if not image:
                         raise ValueError("Image is required field")
-                    image_check = r"^[a-zA-Z]+([a-zA-Z0-9\/:_.-]*[a-z0-9])?$"
+                    image_check = r"^[a-zA-Z]+([a-zA-Z0-9\/\:\_\.\-]*[a-z0-9])?$"
                     is_valid = re.compile(image_check)
                     if not is_valid.findall(image):
                         raise ValueError("Image must consist of alphanumeric characters or -/:._ and must start and end"
@@ -52,7 +52,7 @@ class RunConfigure:
                     if labels:
                         labels = labels.split(" ")
                     labels_dict = {}
-                    labels_check = r"^[[a-zA-Z]+([a-zA-Z0-9_-]*[a-zA-Z0-9])?=[a-zA-Z0-9]+([a-zA-Z0-9_.-:]*" \
+                    labels_check = r"^[[a-zA-Z]([a-zA-Z0-9\_\-]*[a-zA-Z0-9])?=[a-zA-Z0-9]([a-zA-Z0-9\_\.\-\:]*" \
                                    r"[a-zA-Z0-9])? *]*$"
                     is_valid = re.compile(labels_check)
                     for label in labels:
@@ -80,7 +80,7 @@ class RunConfigure:
                     if envs:
                         envs = envs.split(" ")
                     envs_dict = {}
-                    envs_check = r"^[[a-zA-Z]+([a-zA-Z0-9_-]*[a-zA-Z0-9])?=[a-zA-Z0-9]+([a-zA-Z0-9_.-:]*" \
+                    envs_check = r"^[[a-zA-Z]+([a-zA-Z0-9\_\-]*[a-zA-Z0-9])?=[a-zA-Z0-9]+([a-zA-Z0-9\_\.\-\:]*" \
                                  r"[a-zA-Z0-9])? *]*$"
                     is_valid = re.compile(envs_check)
                     for env in envs:
