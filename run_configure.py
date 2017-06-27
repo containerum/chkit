@@ -35,12 +35,13 @@ class RunConfigure:
                     except KeyboardInterrupt:
                         return False
                     if ports:
+                        ports = ports.split(" ")
                         ports_check = r"^([1-9][0-9]{0,3}|[1-5][0-9]{4,5}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|" \
                                       r"655[0-2][0-9]|6553[0-6])$"
                         is_valid = re.compile(ports_check)
-                        if not is_valid.findall(ports):
-                            raise ValueError("Port's range between [1, 65536]")
-                        ports = ports.split(" ")
+                        for port in ports:
+                            if not is_valid.findall(port):
+                                raise ValueError("Port's range between [1, 65536]")
                         ports = list(map(int, ports))
                     param_dict.update({"ports": ports})
                     self.ports = True
@@ -114,6 +115,7 @@ class RunConfigure:
                         is_valid = re.compile(mem_check)
                         if not is_valid.findall(memory):
                             raise ValueError("Memory must be in range [5Mi, 8Gi], for example 500Mi")
+                        self.memory = memory
                     param_dict.update({"memory": self.memory})
                     self.memory = True
                 if not param_dict.get("replicas") and self.replicas == 1:

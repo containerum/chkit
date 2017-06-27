@@ -14,6 +14,7 @@ from answer_parsers import TcpApiParser
 import uuid
 from keywords import JSON_TEMPLATES_RUN_FILE, LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE
 from run_configure import RunConfigure
+from run_image import RunImage
 from datetime import datetime
 from hashlib import sha256, md5
 
@@ -470,6 +471,7 @@ class Client:
 
     def construct_run(self):
         json_to_send = deployment_json
+
         if not self.args["name"].islower():
             e = LOWER_CASE_ERROR
             print('{}{}{} {}'.format(
@@ -492,41 +494,24 @@ class Client:
             return
         json_to_send['metadata']['name'] = self.args['name']
 
-        if self.args["configure"] and not self.args.get("image"):
+        if self.args["configure"] and not self.args["image"]:
             runconfigure = RunConfigure()
             param_dict = runconfigure.get_data_from_console()
-            if not param_dict:
-                return
-            image = param_dict["image"]
-            ports = param_dict["ports"]
-            labels = param_dict["labels"]
-            env = param_dict["env"]
-            cpu = param_dict["cpu"]
-            memory = param_dict["memory"]
-            replicas = param_dict["replicas"]
-            commands = param_dict["commands"]
 
-        elif self.args.get("image") and not self.args["configure"]:
-            image = self.args["image"]
-            ports = self.args["ports"]
-            labels = self.args["labels"]
-            if labels:
-                labels_dict = {}
-                for label in labels:
-                    label = label.split("=")
-                    labels_dict[label[0]] = label[1]
-                labels = labels_dict
-            env = self.args["env"]
-            if env:
-                envs = {}
-                for ienv in env:
-                    ienv = ienv.split("=")
-                    envs[ienv[0]] = ienv[1]
-                env = envs
-            cpu = self.args["cpu"]
-            memory = self.args["memory"]
-            replicas = self.args["replicas"]
-            commands = self.args["commands"]
+        elif self.args["image"] and not self.args["configure"]:
+            runimage = RunImage()
+            param_dict = runimage.parse_data(self.args)
+
+        if not param_dict:
+            return
+        image = param_dict["image"]
+        ports = param_dict["ports"]
+        labels = param_dict["labels"]
+        env = param_dict["env"]
+        cpu = param_dict["cpu"]
+        memory = param_dict["memory"]
+        replicas = param_dict["replicas"]
+        commands = param_dict["commands"]
 
         if not self.args["configure"] and not self.args["image"]:
             self.parser.error(NO_IMAGE_AND_CONFIGURE_ERROR)
