@@ -72,14 +72,20 @@ class TcpHandler:
 
 def check_http_status(result, command):
     try:
-        error = result.get("error")
-        if error:
-
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
-                "Error: ",
-                error,
-                BColors.ENDC,
+        if result["results"][0]["HttpStatusCode"] != 200:
+            if type(result["results"][0]["data"]) is dict:
+                print('{}{}{} {}'.format(
+                    BColors.FAIL,
+                    "Error: ",
+                    result["results"][0]["data"]["message"],
+                    BColors.ENDC,
+                    ))
+            else:
+                print('{}{}{} {}'.format(
+                    BColors.FAIL,
+                    "Error: ",
+                    result["results"][0]["data"],
+                    BColors.ENDC,
                 ))
             return False
         else:

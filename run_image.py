@@ -84,7 +84,7 @@ class RunImage:
                 replicas = args.get("replicas")
                 repl_check = r"^[1-9]\d*$"
                 is_valid = re.compile(repl_check)
-                if not is_valid.findall(replicas):
+                if not is_valid.findall(str(replicas)):
                     raise ValueError("Replicas must be positive integer")
                 self.replicas = replicas
             param_dict.update({"replicas": int(self.replicas)})
