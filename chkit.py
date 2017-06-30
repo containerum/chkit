@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 from client import Client
-
-VERSION = "1.3.4"
+from version import Version
+VERSION = "1.4.0"
 
 
 def main():
-    client = Client(VERSION)
-    client.go()
+    v = Version()
+    is_ckecked = v.compare_current_version(VERSION)
+    if is_ckecked:
+        client = Client(VERSION)
+        client.go()
 
 
 if __name__ == '__main__':

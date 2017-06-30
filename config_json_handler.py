@@ -5,6 +5,7 @@ import os
 import os.path
 import re
 from data import config_json
+from datetime import datetime
 FILE_CONFIG = os.path.join(os.getenv("HOME"), ".containerum/CONFIG.json")
 FILE_CONFIG_FROM_SRC = os.path.join(os.getenv("HOME"), ".containerum/src/CONFIG.json")
 
@@ -13,6 +14,14 @@ def get_json_from_config():
     try:
         json_data = open(FILE_CONFIG).read()
         data = json.loads(json_data)
+        return data
+    except json.decoder.JSONDecodeError:
+        data = config_json
+        os.system("mkdir -p $HOME/.containerum/src/json_templates")
+        os.system("chmod 777 -R $HOME/.containerum/")
+        with open(FILE_CONFIG, "w") as file:
+            file.write(json.dumps(data,  indent=4))
+        file.close()
         return data
     except FileNotFoundError:
         data = config_json
@@ -163,3 +172,45 @@ def set_password_username_to_json_config(username,password):
                 BColors.ENDC
             ))
         return False
+
+
+def update_chicking_time(time):
+    if get_json_from_config():
+        try:
+            json_data = open(FILE_CONFIG).read()
+            data = json.loads(json_data)
+            data["checked_version_at"] = str(time)
+            with open(FILE_CONFIG, "w") as file:
+                file.write(json.dumps(data, file, indent=4))
+            file.close()
+            return data.get("checked_version_at")
+
+        except Exception as e:
+            print('{}{}{} {}'.format(
+                    BColors.FAIL,
+                    "Error: ",
+                    e,
+                    BColors.ENDC,
+                ))
+
+
+def check_last_update():
+    if get_json_from_config():
+        try:
+            json_data = open(FILE_CONFIG).read()
+            data = json.loads(json_data)
+            checked_last_version = data.get("checked_version_at")
+            if not checked_last_version:
+                data["checked_version_at"] = str(datetime.now())
+            with open(FILE_CONFIG, "w") as file:
+                file.write(json.dumps(data, file, indent=4))
+            file.close()
+            return data.get("checked_version_at")
+
+        except Exception as e:
+            print('{}{}{} {}'.format(
+                    BColors.FAIL,
+                    "Error: ",
+                    e,
+                    BColors.ENDC,
+                ))

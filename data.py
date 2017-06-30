@@ -109,5 +109,6 @@ config_json = {
         "BUFFER_SIZE": 1024,
         "TCP_PORT": 3000
     },
-    "default_namespace": "default"
+    "default_namespace": "default",
+    "checked_version_at": ""
 }
