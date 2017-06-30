@@ -7,7 +7,7 @@ from run_image import RunImage
 from run_configure import RunConfigure
 import json
 import yaml
-from parser import ONE_REQUIRED_ARGUMENT_ERROR, KIND_OR_FILE_BOTH_ERROR, NAME_OR_FILE_BOTH_ERROR, NAME_WITH_KIND_ERROR
+from cmd_arg_parser import ONE_REQUIRED_ARGUMENT_ERROR, KIND_OR_FILE_BOTH_ERROR, NAME_OR_FILE_BOTH_ERROR, NAME_WITH_KIND_ERROR
 from hashlib import sha256, md5
 from datetime import datetime
 from os_checker import get_templates_path

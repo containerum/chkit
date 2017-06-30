@@ -128,7 +128,7 @@ def set_web_token_to_json_config(web_token):
         data = json.loads(json_data)
         data.get("webclient_api_handler")["headers"]["Authorization"] = web_token
         with open(FILE_CONFIG, "w") as file:
-            file.write(json.dumps(data, file, indent=4))
+            file.write(json.dumps(data, indent=4))
         file.close()
         print('{}{} {}'.format(
                 BColors.OKBLUE,
@@ -145,52 +145,6 @@ def set_web_token_to_json_config(web_token):
                 BColors.ENDC
             ))
         return False
-
-
-def set_password_username_to_json_config(username, password):
-    try:
-        json_data = open(FILE_CONFIG).read()
-        data = json.loads(json_data)
-        data.get("webclient_api_handler")["username"] = username
-        data.get("webclient_api_handler")["password"] = password
-        with open(FILE_CONFIG, "w") as file:
-            file.write(json.dumps(data, file, indent=4))
-        file.close()
-        print('{}{} {}'.format(
-                BColors.OKBLUE,
-                SUCCESS_CHANGED,
-                BColors.ENDC
-            ))
-        return True
-
-    except Exception as e:
-        print('{}{}{}{} '.format(
-                BColors.FAIL,
-                "Error: ",
-                e,
-                BColors.ENDC
-            ))
-        return False
-
-
-def update_chicking_time(time):
-    if get_json_from_config():
-        try:
-            json_data = open(FILE_CONFIG).read()
-            data = json.loads(json_data)
-            data["checked_version_at"] = str(time)
-            with open(FILE_CONFIG, "w") as file:
-                file.write(json.dumps(data, file, indent=4))
-            file.close()
-            return data.get("checked_version_at")
-
-        except Exception as e:
-            print('{}{}{} {}'.format(
-                    BColors.FAIL,
-                    "Error: ",
-                    e,
-                    BColors.ENDC,
-                ))
 
 
 def check_last_update():
@@ -202,7 +156,7 @@ def check_last_update():
             if not checked_last_version:
                 data["checked_version_at"] = str(datetime.now())
             with open(FILE_CONFIG, "w") as file:
-                file.write(json.dumps(data, file, indent=4))
+                file.write(json.dumps(data, indent=4))
             file.close()
             return data.get("checked_version_at")
 

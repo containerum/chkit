@@ -2,7 +2,7 @@ import os
 import json
 import yaml
 import re
-from parser import create_parser
+from cmd_arg_parser import create_parser
 from tcp_handler import TcpHandler, check_http_status
 from api_handler import ApiHandler
 from bcolors import BColors
