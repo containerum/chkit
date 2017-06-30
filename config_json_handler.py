@@ -6,8 +6,9 @@ import os.path
 import re
 from data import config_json
 from datetime import datetime
-FILE_CONFIG = os.path.join(os.getenv("HOME"), ".containerum/CONFIG.json")
-FILE_CONFIG_FROM_SRC = os.path.join(os.getenv("HOME"), ".containerum/src/CONFIG.json")
+from os_checker import get_file_config_path, create_folders
+
+FILE_CONFIG = get_file_config_path()
 
 
 def get_json_from_config():
@@ -17,16 +18,14 @@ def get_json_from_config():
         return data
     except json.decoder.JSONDecodeError:
         data = config_json
-        os.system("mkdir -p $HOME/.containerum/src/json_templates")
-        os.system("chmod 777 -R $HOME/.containerum/")
+        create_folders()
         with open(FILE_CONFIG, "w") as file:
             file.write(json.dumps(data,  indent=4))
         file.close()
         return data
     except FileNotFoundError:
         data = config_json
-        os.system("mkdir -p $HOME/.containerum/src/json_templates")
-        os.system("chmod 777 -R $HOME/.containerum/")
+        create_folders()
         with open(FILE_CONFIG, "w") as file:
             file.write(json.dumps(data,  indent=4))
         file.close()
@@ -148,7 +147,7 @@ def set_web_token_to_json_config(web_token):
         return False
 
 
-def set_password_username_to_json_config(username,password):
+def set_password_username_to_json_config(username, password):
     try:
         json_data = open(FILE_CONFIG).read()
         data = json.loads(json_data)

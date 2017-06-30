@@ -2,7 +2,7 @@ import re
 import os
 from bcolors import BColors
 from data import deployment_json, service_json
-from keywords import LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE, JSON_TEMPLATES_RUN_FILE
+from keywords import LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR
 from run_image import RunImage
 from run_configure import RunConfigure
 import json
@@ -10,7 +10,9 @@ import yaml
 from parser import ONE_REQUIRED_ARGUMENT_ERROR, KIND_OR_FILE_BOTH_ERROR, NAME_OR_FILE_BOTH_ERROR, NAME_WITH_KIND_ERROR
 from hashlib import sha256, md5
 from datetime import datetime
+from os_checker import get_templates_path
 
+JSON_TEMPLATE_PATH = get_templates_path()
 
 class Constructor:
 
@@ -86,7 +88,7 @@ class Constructor:
                 for key, value in env.items()]
         json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
         json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
-        with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w',
+        with open(os.path.join(JSON_TEMPLATE_PATH, "run.json"), 'w',
                   encoding='utf-8') as w:
             json.dump(json_to_send, w, indent=4)
 
@@ -193,7 +195,6 @@ class Constructor:
                                            md5((self.args.get("name") + str(datetime.now()))
                                                .encode("utf-8")).hexdigest()[:4]
         json_to_send["spec"]["selector"].update(labels)
-        with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w',
-                  encoding='utf-8') as w:
+        with open(os.path.join(JSON_TEMPLATE_PATH, "expose.json"), 'w', encoding='utf-8') as w:
             json.dump(json_to_send, w, indent=4)
         return json_to_send
