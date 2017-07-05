@@ -1,8 +1,9 @@
-from requests import get
-from config_json_handler import check_last_update
-from datetime import datetime, timedelta
-import json
+from datetime import datetime
+
 from colorama import Fore
+from requests import get
+
+from handlers.config_json_handler import check_last_update
 
 GITHUB_ADDR = "https://api.github.com/repos/containerum/chkit/releases/latest"
 MAX_DIFF_TIME = 2

@@ -1,8 +1,10 @@
-import socket
 import json
-from config_json_handler import get_json_from_config
-from keywords import *
-from colorama import init, Fore
+import socket
+
+from colorama import Fore
+
+from handlers.config_json_handler import get_json_from_config
+from variables.keywords import *
 
 config_json_data = get_json_from_config()
 

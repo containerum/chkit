@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 import json
+
 from bcolors import BColors
-from keywords import SUCCESS_CHANGED
+
+from variables.keywords import SUCCESS_CHANGED
 
 FILE_CONFIG = "/var/lib/containerium/CONFIG.json"
 FILE_CONFIG_FROM_SRC = "/var/lib/containerium/src/CONFIG.json"

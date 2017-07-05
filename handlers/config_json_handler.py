@@ -1,12 +1,12 @@
 import json
-from keywords import SUCCESS_CHANGED
-import os
-import os.path
 import re
-from data import config_json
 from datetime import datetime
-from os_checker import get_file_config_path, create_folders
-from colorama import init, Fore
+
+from colorama import Fore
+
+from handlers.os_handler import get_file_config_path, create_folders
+from variables.data import config_json
+from variables.keywords import SUCCESS_CHANGED
 
 FILE_CONFIG = get_file_config_path()
 

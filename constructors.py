@@ -1,16 +1,19 @@
-import re
-import os
-from colorama import init, Fore
-from data import deployment_json, service_json
-from keywords import LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR
-from run_image import RunImage
-from run_configure import RunConfigure
 import json
-import yaml
-from cmd_arg_parser import ONE_REQUIRED_ARGUMENT_ERROR, KIND_OR_FILE_BOTH_ERROR, NAME_OR_FILE_BOTH_ERROR, NAME_WITH_KIND_ERROR
-from hashlib import sha256, md5
+import os
+import re
 from datetime import datetime
-from os_checker import get_templates_path
+from hashlib import sha256, md5
+
+import yaml
+from colorama import Fore
+
+from handlers.os_handler import get_templates_path
+from parsers.cmd_arg_parser import ONE_REQUIRED_ARGUMENT_ERROR, KIND_OR_FILE_BOTH_ERROR, NAME_OR_FILE_BOTH_ERROR, \
+    NAME_WITH_KIND_ERROR
+from run.run_configure import RunConfigure
+from run.run_image import RunImage
+from variables.data import deployment_json, service_json
+from variables.keywords import LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR
 
 JSON_TEMPLATE_PATH = get_templates_path()
 

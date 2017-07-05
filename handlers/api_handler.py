@@ -1,6 +1,8 @@
 import json
+
 import requests
-from config_json_handler import get_json_from_config
+
+from handlers.config_json_handler import get_json_from_config
 
 config_json_data = get_json_from_config()
 

@@ -1,5 +1,6 @@
 altgraph==0.14
 argcomplete==1.8.2
+colorama==0.3.9
 cx-Freeze==5.0.2
 macholib==1.8
 modulegraph==0.15

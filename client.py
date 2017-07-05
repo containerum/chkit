@@ -1,20 +1,22 @@
-import os
 import json
-import yaml
+import os
 import re
-from cmd_arg_parser import create_parser
-from tcp_handler import TcpHandler, check_http_status
-from api_handler import ApiHandler
-from getpass import getpass
-from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config,\
-    show_namespace_token_from_config
-from answer_parsers import TcpApiParser
-from constructors import Constructor
 import uuid
-from colorama import init, Fore
 from datetime import datetime
-from hashlib import sha256, md5
+from getpass import getpass
+from hashlib import md5
 
+import yaml
+from colorama import init, Fore
+
+from constructors import Constructor
+from handlers.api_handler import ApiHandler
+from handlers.config_json_handler import get_json_from_config, set_token_to_json_config, \
+    set_default_namespace_to_json_config, \
+    show_namespace_token_from_config
+from handlers.tcp_handler import TcpHandler, check_http_status
+from parsers.answer_parsers import TcpApiParser
+from parsers.cmd_arg_parser import create_parser
 
 config_json_data = get_json_from_config()
 

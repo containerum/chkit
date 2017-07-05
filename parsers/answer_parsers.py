@@ -1,7 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+
 from dateutil import parser
 from prettytable import PrettyTable
-from keywords import EMPTY_NAMESPACE, NO_NAMESPACES
+
+from variables.keywords import EMPTY_NAMESPACE, NO_NAMESPACES
 
 
 class TcpApiParser:
