@@ -2,19 +2,16 @@ import os
 import json
 import yaml
 import re
-from data import deployment_json, service_json
-from parser import *
+from cmd_arg_parser import create_parser
 from tcp_handler import TcpHandler, check_http_status
 from api_handler import ApiHandler
-from bcolors import BColors
 from getpass import getpass
 from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config,\
     show_namespace_token_from_config
 from answer_parsers import TcpApiParser
+from constructors import Constructor
 import uuid
-from keywords import JSON_TEMPLATES_RUN_FILE, LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR, JSON_TEMPLATES_EXPOSE_FILE
-from run_configure import RunConfigure
-from run_image import RunImage
+from colorama import init, Fore
 from datetime import datetime
 from hashlib import sha256, md5
 
@@ -22,8 +19,9 @@ from hashlib import sha256, md5
 config_json_data = get_json_from_config()
 
 
-class Client:
+class Client(Constructor):
     def __init__(self, version):
+        init(autoreset=True)
         self.path = os.getcwd()
         self.version = version
         self.parser = create_parser(self.version)
@@ -32,6 +30,7 @@ class Client:
         self.debug = self.args.get("debug")
         self.tcp_handler = TcpHandler(uuid_v4, self.args.get("debug"))
         self.api_handler = ApiHandler(uuid_v4)
+        Constructor.__init__(self)
 
     def go_config(self):
             if self.args.get("set_token"):
@@ -157,11 +156,10 @@ class Client:
             json_to_send = {"replicas": replicas_count}
             api_result = self.api_handler.scale(json_to_send, self.args.get("name"), namespace)
         except (ValueError, TypeError):
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
+            print('{}{}{}'.format(
+                Fore.RED,
                 "Error: ",
                 "Count is not integer",
-                BColors.ENDC,
             ))
             return
         if not self.handle_api_result(api_result):
@@ -193,11 +191,10 @@ class Client:
                     json_to_send = {"replicas": replicas_count}
                     api_result = self.api_handler.set(json_to_send, self.args.get("name"), namespace)
                 except (ValueError, TypeError):
-                    print('{}{}{} {}'.format(
-                        BColors.FAIL,
+                    print('{}{}{}'.format(
+                        Fore.RED,
                         "Error: ",
-                        "Count is not integer",
-                        BColors.ENDC,
+                        "Count is not integer"
                     ))
                     return
 
@@ -209,11 +206,10 @@ class Client:
             if not check_http_status(json_result, self.args.get("command")):
                 return
         else:
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
+            print('{}{}{}'.format(
+                Fore.RED,
                 "Error: ",
-                "Empty args",
-                BColors.ENDC,
+                "Empty args"
             ))
             return
 
@@ -329,20 +325,18 @@ class Client:
                 if not tcp_result.get('error'):
                     if self.args.get("debug"):
 
-                        print('{}{}{}'.format(
-                            BColors.OKBLUE,
-                            'get result:\n',
-                            BColors.ENDC
+                        print('{}{}'.format(
+                            Fore.BLUE,
+                            'get result:\n'
                         ))
                     self.print_result(tcp_result)
 
             return tcp_result
 
         except RuntimeError as e:
-            print('{}{}{}'.format(
-                BColors.FAIL,
+            print('{}{}'.format(
+                Fore.RED,
                 e,
-                BColors.ENDC
             ))
             return None
 
@@ -406,26 +400,20 @@ class Client:
     def handle_api_result(self, api_result):
         if api_result.get('id'):
             if self.debug:
-                print('{}{}...{} {}OK{}'.format(
-                    BColors.OKBLUE,
+                print('{}{}... OK'.format(
+                    Fore.BLUE,
                     'api connection',
-                    BColors.ENDC,
-                    BColors.BOLD,
-                    BColors.ENDC
                 ))
-                print('{}{}{}{}'.format(
-                    BColors.OKGREEN,
+                print('{}{}{}'.format(
+                    Fore.GREEN,
                     'Command Id: ',
-                    api_result.get('id'),
-                    BColors.ENDC,
-
+                    api_result.get('id')
                 ))
             return True
         elif 'error' in api_result:
-            print('{}api error: {}{}'.format(
-                BColors.FAIL,
-                api_result.get('error'),
-                BColors.ENDC
+            print('{}api error: {}'.format(
+                Fore.RED,
+                api_result.get('error')
             ))
             self.tcp_handler.close()
             return
@@ -435,18 +423,14 @@ class Client:
             tcp_auth_result = self.tcp_handler.connect()
             if tcp_auth_result.get('ok') and self.debug:
                 # print(tcp_auth_result)
-                print('{}{}...{} {}OK{}'.format(
-                    BColors.OKBLUE,
-                    'tcp authorization',
-                    BColors.ENDC,
-                    BColors.BOLD,
-                    BColors.ENDC
+                print('{}{}... OK'.format(
+                    Fore.BLUE,
+                    'tcp authorization'
                 ))
         except RuntimeError as e:
-            print('{}{}{}'.format(
-                BColors.FAIL,
+            print('{}{}'.format(
+                Fore.RED,
                 e,
-                BColors.ENDC
             ))
 
     def print_result(self, result):
@@ -463,190 +447,11 @@ class Client:
 
     def log_time(self):
         if self.args["debug"]:
-            print('{}{}{}'.format(
-                BColors.WARNING,
+            print('{}{}'.format(
+                Fore.YELLOW,
                 str(datetime.now())[11:19:],
-                BColors.ENDC
             ))
 
-    def construct_run(self):
-        json_to_send = deployment_json
 
-        if not self.args["name"].islower():
-            e = LOWER_CASE_ERROR
-            print('{}{}{} {}'.format(
-            BColors.FAIL,
-            "Error: ",
-            e,
-            BColors.ENDC,
-            ))
-            return
-        name_check = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
-        is_valid = re.compile(name_check)
-        if not is_valid.findall(self.args['name']):
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
-                "Error: ",
-                ValueError("Deploy name must consist of lower case alphanumeric characters or '-', and must start and"
-                           " end with an alphanumeric character"),
-                BColors.ENDC,
-            ))
-            return
-        json_to_send['metadata']['name'] = self.args['name']
-
-        if self.args["configure"] and not self.args["image"]:
-            runconfigure = RunConfigure()
-            param_dict = runconfigure.get_data_from_console()
-
-        elif self.args["image"] and not self.args["configure"]:
-            runimage = RunImage()
-            param_dict = runimage.parse_data(self.args)
-
-        if not param_dict:
-            return
-        image = param_dict["image"]
-        ports = param_dict["ports"]
-        labels = param_dict["labels"]
-        env = param_dict["env"]
-        cpu = param_dict["cpu"]
-        memory = param_dict["memory"]
-        replicas = param_dict["replicas"]
-        commands = param_dict["commands"]
-
-        if not self.args["configure"] and not self.args["image"]:
-            self.parser.error(NO_IMAGE_AND_CONFIGURE_ERROR)
-            return
-
-        json_to_send['spec']['replicas'] = replicas
-        json_to_send['spec']['template']['spec']['containers'][0]['name'] = self.args['name']
-        json_to_send['spec']['template']['spec']['containers'][0]['image'] = image
-        if commands:
-            json_to_send['spec']['template']['spec']['containers'][0]['command'] = commands
-        if ports:
-            json_to_send['spec']['template']['spec']['containers'][0]['ports'] = []
-            for port in ports:
-                json_to_send['spec']['template']['spec']['containers'][0]['ports'].append({
-                    'containerPort': port
-                })
-        if labels:
-            for key, value in labels.items():
-                json_to_send['metadata']['labels'].update({key: value})
-                json_to_send['spec']['template']['metadata']['labels'].update({key: value})
-        if env:
-            json_to_send['spec']['template']['spec']['containers'][0]['env'] = [
-                {
-                    "name": key,
-                    "value": value
-                }
-                for key, value in env.items()]
-        json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['cpu'] = cpu
-        json_to_send['spec']['template']['spec']['containers'][0]['resources']["requests"]['memory'] = memory
-        with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_RUN_FILE), 'w', encoding='utf-8') as w:
-            json.dump(json_to_send, w, indent=4)
-
-        return json_to_send
-
-    def get_json_from_file(self):
-        file_name = os.path.join(self.path, self.args['file'])
-        try:
-            with open(file_name, 'r', encoding='utf-8') as f:
-                body = json.load(f)
-                return body
-        except FileNotFoundError:
-            self.parser.error('no such file: {}'.format(
-                file_name
-            ))
-        except json.decoder.JSONDecodeError as e:
-            pass
-
-        try:
-            with open(file_name, 'r', encoding='utf-8') as f:
-                body = yaml.load(f)
-                return body
-        except FileNotFoundError:
-            self.parser.error('no such file: {}'.format(
-                file_name
-            ))
-        except yaml.YAMLError as e:
-            self.parser.error('bad json or yaml: {}'.format(
-                e
-            ))
-
-    def construct_delete(self):
-        if self.args['file'] and self.args['kind'] == "namespaces" and not self.args['name']:
-            body = self.get_json_from_file()
-            name = body['metadata']['name']
-            kind = '{}s'.format(body['kind'].lower())
-            return kind, name
-
-        elif not self.args['file'] and self.args['kind'] != "namespaces" and self.args['name']:
-            kind = self.args['kind']
-            name = self.args['name']
-            return kind, name
-
-        elif not self.args['file'] and self.args['kind'] == "namespaces":
-            self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
-        elif self.args['file'] and self.args['kind'] == "namespaces":
-            self.parser.error(KIND_OR_FILE_BOTH_ERROR)
-        elif self.args['file'] and self.args['name']:
-            self.parser.error(NAME_OR_FILE_BOTH_ERROR)
-        elif self.args['kind'] != "namespaces" and not self.args['name']:
-            self.parser.error(NAME_WITH_KIND_ERROR)
-
-    def construct_get(self):
-        if self.args.get('file') and not self.args.get('kind') and not self.args.get('name'):
-            body = self.get_json_from_file()
-            name = body['metadata']['name']
-            kind = '{}s'.format(body['kind'].lower())
-            return kind, name
-
-        elif not self.args.get('file') and self.args.get('kind'):
-            kind = self.args['kind']
-            name = self.args.get('name')
-            return kind, name
-
-        elif not self.args['file'] and not self.args['kind']:
-            self.parser.error(ONE_REQUIRED_ARGUMENT_ERROR)
-        elif self.args['file'] and self.args['kind']:
-            self.parser.error(KIND_OR_FILE_BOTH_ERROR)
-        elif self.args['file'] and self.args['name']:
-            self.parser.error(NAME_OR_FILE_BOTH_ERROR)
-
-    def construct_expose(self, namespace):
-        labels = {}
-        is_external = {"external": "true"}
-        json_to_send = service_json
-        ports = self.args.get("ports")
-        self.args["kind"] = "deployments"
-        if ports:
-            for p in ports:
-                p = p.split(":")
-                if len(p) == 3:
-                    if p[2].upper() == "TCP" or p[2].upper() == "UDP":
-                        json_to_send["spec"]["ports"].append({"name": p[0], "protocol": p[2].upper(), "targetPort": int(p[1])})
-                    else:
-                        json_to_send["spec"]["ports"].append({"name": p[0],"protocol": "TCP", "port": int(p[2]), "targetPort": int(p[1])})
-                        is_external["external"] = "false"
-                if len(p) == 4:
-                    json_to_send["spec"]["ports"].append({"name": p[0], "port": int(p[2]), "protocol": p[3].upper(),
-                                                         "targetPort": int(p[1])})
-                    is_external["external"] = "false"
-                elif len(p) == 2:
-                    json_to_send["spec"]["ports"].append({"name": p[0], "protocol": "TCP", "targetPort": int(p[1])})
-        result = self.go_get()
-        if not result:
-            return
-        namespace_hash = sha256(namespace.encode('utf-8')).hexdigest()[:32]
-        labels.update({namespace_hash: self.args.get("name")})
-        json_to_send["metadata"]["labels"].update(labels)
-
-        json_to_send["metadata"]["labels"].update(is_external)
-        json_to_send["metadata"]["name"] = self.args["name"] + "-" + \
-                                           md5((self.args.get("name")+str(datetime.now()))
-                                               .encode("utf-8")).hexdigest()[:4]
-        json_to_send["spec"]["selector"].update(labels)
-        with open(os.path.join(os.getenv("HOME") + "/.containerum/src/", JSON_TEMPLATES_EXPOSE_FILE), 'w', encoding='utf-8') as w:
-                json.dump(json_to_send, w, indent=4)
-        return json_to_send
 
 
