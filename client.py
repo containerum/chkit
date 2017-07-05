@@ -324,7 +324,7 @@ class Client(Constructor):
         try:
             tcp_result = self.tcp_handler.receive()
             if command_name == 'get':
-                if not tcp_result.get('status') == 'Failure':
+                if not tcp_result.get('error'):
                     if self.args.get("debug"):
 
                         print('{}{}{}'.format(
