@@ -1,8 +1,8 @@
 import socket
 import json
-from bcolors import BColors
 from config_json_handler import get_json_from_config
 from keywords import *
+from colorama import init, Fore
 
 config_json_data = get_json_from_config()
 
@@ -37,10 +37,9 @@ class TcpHandler:
             if not received:
                 raise RuntimeError(TCP_RUNTIME_ERROR)
             if self.debug:
-                print('{}tcp received {} bytes...{}'.format(
-                    BColors.OKBLUE,
-                    len(received),
-                    BColors.ENDC
+                print('{}tcp received {} bytes...'.format(
+                    Fore.BLUE,
+                    len(received)
                 ))
             data += received
             # print(len(data))
@@ -50,12 +49,10 @@ class TcpHandler:
         try:
             result = json.loads(data)
             if self.debug:
-                print('{}{}...{} {}OK{}'.format(
-                    BColors.OKBLUE,
+                print('{}{}... OK'.format(
+                    Fore.BLUE,
                     TCP_COMPLETE,
-                    BColors.ENDC,
-                    BColors.BOLD,
-                    BColors.ENDC
+
                 ))
         except Exception:
             with open('received_str', 'w', encoding='utf-8') as w:
@@ -75,28 +72,23 @@ def check_http_status(result, command):
         error = result.get("error")
         if error:
 
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
+            print('{}{}{} '.format(
+                Fore.BLUE,
                 "Error: ",
-                error,
-                BColors.ENDC,
+                error
             ))
             return False
         else:
             if command != "get":
-                print('{}{}...{} {}OK{}'.format(
-                    BColors.WARNING,
-                    command,
-                    BColors.ENDC,
-                    BColors.BOLD,
-                    BColors.ENDC
+                print('{}{}... OK'.format(
+                    Fore.YELLOW,
+                    command
                 ))
         return True
     except AttributeError:
-        print('{}{}{} {}'.format(
-            BColors.FAIL,
+        print('{}{}{} '.format(
+            Fore.RED,
             "Error: ",
             "TCP result is empty",
-            BColors.ENDC,
         ))
         return False

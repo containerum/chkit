@@ -1,6 +1,6 @@
 import re
 import os
-from bcolors import BColors
+from colorama import init, Fore
 from data import deployment_json, service_json
 from keywords import LOWER_CASE_ERROR, NO_IMAGE_AND_CONFIGURE_ERROR
 from run_image import RunImage
@@ -21,22 +21,21 @@ class Constructor:
 
         if not self.args["name"].islower():
             e = LOWER_CASE_ERROR
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
+            print('{}{}{} '.format(
+                Fore.RED,
                 "Error: ",
                 e,
-                BColors.ENDC,
             ))
             return
         name_check = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
         is_valid = re.compile(name_check)
         if not is_valid.findall(self.args['name']):
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
+            print('{}{}{} '.format(
+                Fore.RED,
                 "Error: ",
                 ValueError("Deploy name must consist of lower case alphanumeric characters or '-', and must start and"
                            " end with an alphanumeric character"),
-                BColors.ENDC,
+
             ))
             return
         json_to_send['metadata']['name'] = self.args['name']

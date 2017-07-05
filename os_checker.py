@@ -14,6 +14,7 @@ def get_templates_path():
     else:
         return os.path.join(os.getenv("HOME"), ".containerum", "src", "json_templates")
 
+
 def create_folders():
     if os.name == 'nt':
         os.system("mkdir  %s" % os.path.join(os.getenv("HomePath"), "containerum", "src", "json_templates"))

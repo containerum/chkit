@@ -5,13 +5,13 @@ import re
 from cmd_arg_parser import create_parser
 from tcp_handler import TcpHandler, check_http_status
 from api_handler import ApiHandler
-from bcolors import BColors
 from getpass import getpass
 from config_json_handler import get_json_from_config, set_token_to_json_config,set_default_namespace_to_json_config,\
     show_namespace_token_from_config
 from answer_parsers import TcpApiParser
 from constructors import Constructor
 import uuid
+from colorama import init, Fore
 from datetime import datetime
 from hashlib import sha256, md5
 
@@ -21,6 +21,7 @@ config_json_data = get_json_from_config()
 
 class Client(Constructor):
     def __init__(self, version):
+        init(autoreset=True)
         self.path = os.getcwd()
         self.version = version
         self.parser = create_parser(self.version)
@@ -155,11 +156,10 @@ class Client(Constructor):
             json_to_send = {"replicas": replicas_count}
             api_result = self.api_handler.scale(json_to_send, self.args.get("name"), namespace)
         except (ValueError, TypeError):
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
+            print('{}{}{}'.format(
+                Fore.RED,
                 "Error: ",
                 "Count is not integer",
-                BColors.ENDC,
             ))
             return
         if not self.handle_api_result(api_result):
@@ -191,11 +191,10 @@ class Client(Constructor):
                     json_to_send = {"replicas": replicas_count}
                     api_result = self.api_handler.set(json_to_send, self.args.get("name"), namespace)
                 except (ValueError, TypeError):
-                    print('{}{}{} {}'.format(
-                        BColors.FAIL,
+                    print('{}{}{}'.format(
+                        Fore.RED,
                         "Error: ",
-                        "Count is not integer",
-                        BColors.ENDC,
+                        "Count is not integer"
                     ))
                     return
 
@@ -207,11 +206,10 @@ class Client(Constructor):
             if not check_http_status(json_result, self.args.get("command")):
                 return
         else:
-            print('{}{}{} {}'.format(
-                BColors.FAIL,
+            print('{}{}{}'.format(
+                Fore.RED,
                 "Error: ",
-                "Empty args",
-                BColors.ENDC,
+                "Empty args"
             ))
             return
 
@@ -327,20 +325,18 @@ class Client(Constructor):
                 if not tcp_result.get('error'):
                     if self.args.get("debug"):
 
-                        print('{}{}{}'.format(
-                            BColors.OKBLUE,
-                            'get result:\n',
-                            BColors.ENDC
+                        print('{}{}'.format(
+                            Fore.BLUE,
+                            'get result:\n'
                         ))
                     self.print_result(tcp_result)
 
             return tcp_result
 
         except RuntimeError as e:
-            print('{}{}{}'.format(
-                BColors.FAIL,
+            print('{}{}'.format(
+                Fore.RED,
                 e,
-                BColors.ENDC
             ))
             return None
 
@@ -404,26 +400,20 @@ class Client(Constructor):
     def handle_api_result(self, api_result):
         if api_result.get('id'):
             if self.debug:
-                print('{}{}...{} {}OK{}'.format(
-                    BColors.OKBLUE,
+                print('{}{}... OK'.format(
+                    Fore.BLUE,
                     'api connection',
-                    BColors.ENDC,
-                    BColors.BOLD,
-                    BColors.ENDC
                 ))
-                print('{}{}{}{}'.format(
-                    BColors.OKGREEN,
+                print('{}{}{}'.format(
+                    Fore.GREEN,
                     'Command Id: ',
-                    api_result.get('id'),
-                    BColors.ENDC,
-
+                    api_result.get('id')
                 ))
             return True
         elif 'error' in api_result:
-            print('{}api error: {}{}'.format(
-                BColors.FAIL,
-                api_result.get('error'),
-                BColors.ENDC
+            print('{}api error: {}'.format(
+                Fore.RED,
+                api_result.get('error')
             ))
             self.tcp_handler.close()
             return
@@ -433,18 +423,14 @@ class Client(Constructor):
             tcp_auth_result = self.tcp_handler.connect()
             if tcp_auth_result.get('ok') and self.debug:
                 # print(tcp_auth_result)
-                print('{}{}...{} {}OK{}'.format(
-                    BColors.OKBLUE,
-                    'tcp authorization',
-                    BColors.ENDC,
-                    BColors.BOLD,
-                    BColors.ENDC
+                print('{}{}... OK'.format(
+                    Fore.BLUE,
+                    'tcp authorization'
                 ))
         except RuntimeError as e:
-            print('{}{}{}'.format(
-                BColors.FAIL,
+            print('{}{}'.format(
+                Fore.RED,
                 e,
-                BColors.ENDC
             ))
 
     def print_result(self, result):
@@ -461,10 +447,9 @@ class Client(Constructor):
 
     def log_time(self):
         if self.args["debug"]:
-            print('{}{}{}'.format(
-                BColors.WARNING,
+            print('{}{}'.format(
+                Fore.YELLOW,
                 str(datetime.now())[11:19:],
-                BColors.ENDC
             ))
 
 

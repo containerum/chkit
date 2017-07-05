@@ -2,7 +2,7 @@ from requests import get
 from config_json_handler import check_last_update
 from datetime import datetime, timedelta
 import json
-from bcolors import BColors
+from colorama import Fore
 
 GITHUB_ADDR = "https://api.github.com/repos/containerum/chkit/releases/latest"
 MAX_DIFF_TIME = 2
@@ -31,17 +31,15 @@ class Version:
         return True
 
     def print_error(self):
-        print('{}{}{}{}{}'.format(
-            BColors.FAIL,
+        print('{}{}{}{}'.format(
+            Fore.RED,
             "Your Version ",
             self.current_version,
             "is too old! Please update itself!",
-            BColors.ENDC
         ))
 
     def print_warning(self):
-        print('{}{}{}'.format(
-            BColors.WARNING,
+        print('{}{}'.format(
+            Fore.YELLOW,
             "We recommend you update your ChKit",
-            BColors.ENDC
         ))

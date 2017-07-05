@@ -1,5 +1,4 @@
 import json
-from bcolors import BColors
 from keywords import SUCCESS_CHANGED
 import os
 import os.path
@@ -7,6 +6,7 @@ import re
 from data import config_json
 from datetime import datetime
 from os_checker import get_file_config_path, create_folders
+from colorama import init, Fore
 
 FILE_CONFIG = get_file_config_path()
 
@@ -36,24 +36,21 @@ def show_namespace_token_from_config():
     try:
         json_data = open(FILE_CONFIG).read()
         data = json.loads(json_data)
-        print('{}namespace: {} {}'.format(
-                BColors.OKGREEN,
+        print('{}namespace: {} '.format(
+                Fore.GREEN,
                 data.get("default_namespace"),
-                BColors.ENDC
             ))
-        print('{}token: {} {}'.format(
-                BColors.OKGREEN,
+        print('{}token: {} '.format(
+                Fore.GREEN,
                 data.get("tcp_handler").get("AUTH_FORM")["token"],
-                BColors.ENDC
             ))
         return True
 
     except Exception as e:
-        print('{}{}{} {}'.format(
-                BColors.FAIL,
+        print('{}{}{} '.format(
+                Fore.RED,
                 "Error: ",
                 e,
-                BColors.ENDC,
             ))
         return False
 
@@ -69,25 +66,22 @@ def set_token_to_json_config(token):
         with open(FILE_CONFIG, "w") as file:
             file.write(json.dumps(data,  indent=4))
         file.close()
-        print('{}{}{} '.format(
-                BColors.OKBLUE,
+        print('{}{} '.format(
+                Fore.BLUE,
                 SUCCESS_CHANGED,
-                BColors.ENDC,
             ))
 
-        print('{}token: {} {}'.format(
-                BColors.OKGREEN,
+        print('{}token: {} '.format(
+                Fore.GREEN,
                 token,
-                BColors.ENDC
             ))
         return True
 
     except Exception as e:
-        print('{}{}{} {}'.format(
-                BColors.FAIL,
+        print('{}{}{} '.format(
+                Fore.RED,
                 "Error: ",
                 e,
-                BColors.ENDC,
             ))
         return False
 
@@ -100,24 +94,21 @@ def set_default_namespace_to_json_config(namespace):
         with open(FILE_CONFIG, "w") as file:
             file.write(json.dumps(data,  indent=4))
         file.close()
-        print('{}{} {}'.format(
-                BColors.OKBLUE,
+        print('{}{} '.format(
+                Fore.BLUE,
                 SUCCESS_CHANGED,
-                BColors.ENDC
             ))
-        print('{}namespace: {} {}'.format(
-                BColors.OKGREEN,
+        print('{}namespace: {} '.format(
+                Fore.GREEN,
                 namespace,
-                BColors.ENDC
             ))
         return True
 
     except Exception as e:
-        print('{}{}{}{} '.format(
-                BColors.FAIL,
+        print('{}{}{} '.format(
+                Fore.RED,
                 "Error: ",
                 e,
-                BColors.ENDC
             ))
         return False
 
@@ -130,19 +121,17 @@ def set_web_token_to_json_config(web_token):
         with open(FILE_CONFIG, "w") as file:
             file.write(json.dumps(data, indent=4))
         file.close()
-        print('{}{} {}'.format(
-                BColors.OKBLUE,
+        print('{}{} '.format(
+                Fore.BLUE,
                 SUCCESS_CHANGED,
-                BColors.ENDC
             ))
         return True
 
     except Exception as e:
-        print('{}{}{}{} '.format(
-                BColors.FAIL,
+        print('{}{}{} '.format(
+                Fore.RED,
                 "Error: ",
-                e,
-                BColors.ENDC
+                e
             ))
         return False
 
@@ -161,9 +150,8 @@ def check_last_update():
             return data.get("checked_version_at")
 
         except Exception as e:
-            print('{}{}{} {}'.format(
-                    BColors.FAIL,
+            print('{}{}{} '.format(
+                    Fore.RED,
                     "Error: ",
                     e,
-                    BColors.ENDC,
                 ))
