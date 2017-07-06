@@ -119,6 +119,11 @@ def create_parser(version):
     # parser_replace.add_argument('--file', '-f', help='input file', required=True)
     # parser_replace.add_argument('--namespace', help='namespace, optional', required=False)
 
+    update_usg = 'chkit update'
+    update_description = "update app through GitHub Releases"
+    parser_update = subparsers.add_parser('update', help=update_usg, usage=update_usg, description=update_description,
+                                         formatter_class=formatter_class)
+
     login_usg = 'chkit login'
     login_description = "Sign in. Sets user's token to config"
     parser_login = subparsers.add_parser('login', help=login_usg, usage=login_usg, description=login_description,

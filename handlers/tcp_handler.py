@@ -75,7 +75,7 @@ def check_http_status(result, command):
         if error:
 
             print('{}{}{} '.format(
-                Fore.BLUE,
+                Fore.RED,
                 "Error: ",
                 error
             ))

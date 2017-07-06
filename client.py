@@ -17,6 +17,7 @@ from handlers.config_json_handler import get_json_from_config, set_token_to_json
 from handlers.tcp_handler import TcpHandler, check_http_status
 from parsers.answer_parsers import TcpApiParser
 from parsers.cmd_arg_parser import create_parser
+from version import Version
 
 config_json_data = get_json_from_config()
 
@@ -81,6 +82,10 @@ class Client(Constructor):
     def go(self):
         self.check_file_existence()
         self.check_arguments()
+        v = Version(self.version)
+        is_ckecked = v.compare_current_version()
+        if self.args["command"] != "update" and not is_ckecked:
+            return
 
         if self.args.get("kind") in ("deployments", "deploy", "deployment"):
             self.args["kind"] = "deployments"
@@ -126,6 +131,18 @@ class Client(Constructor):
 
         elif self.args['command'] == 'scale':
             self.go_scale()
+
+        elif self.args['command'] == 'update':
+            self.go_update()
+
+    def go_update(self):
+        v = Version(self.version)
+        url = v.check_last_version()
+        if url:
+            try:
+                os.execvp("./updater", ["./updater", url])
+            except:
+                print("{}{}".format(Fore.RED, "Your build has no updater"))
 
     def go_restart(self):
         self.log_time()

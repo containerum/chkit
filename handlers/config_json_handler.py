@@ -155,3 +155,22 @@ def check_last_update():
                     "Error: ",
                     e,
                 ))
+
+
+def save_checking_time():
+    if get_json_from_config():
+        try:
+            json_data = open(FILE_CONFIG).read()
+            data = json.loads(json_data)
+            data["checked_version_at"] = str(datetime.now())
+            with open(FILE_CONFIG, "w") as file:
+                file.write(json.dumps(data, indent=4))
+            file.close()
+            return data.get("checked_version_at")
+
+        except Exception as e:
+            print('{}{}{} '.format(
+                    Fore.RED,
+                    "Error: ",
+                    e,
+                ))
