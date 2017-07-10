@@ -1,12 +1,14 @@
 BINARY=chkit
+PACKAGE = github.com/kfeofantov/chkit-v2
+COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
+BUILD_DATE = `date +%FT%T%Z`
+LDFLAGS = -ldflags "-X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} -X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE}"
+
 
 all: build
 
 build:
-	go build -o ${BINARY}
-
-install:
-	go install -o ${BINARY}
+	go build ${LDFLAGS} -o ${BINARY}
 
 clean:
 	if [ -f ${BINARY} ]; then rm ${BINARY}; fi
@@ -30,4 +32,4 @@ build-all: clean-build
 clean-build:
 	rm -rf build
 
-.PHONY: all build install clean
+.PHONY: all build clean
