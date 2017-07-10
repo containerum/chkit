@@ -25,7 +25,6 @@ from version import Version
 config_json_data = get_json_from_config()
 
 
-
 class Client(Constructor):
     def __init__(self, version):
         init(autoreset=True)
@@ -161,10 +160,11 @@ class Client(Constructor):
                     bar.update(len(data))
             f.write(data)
             f.close()
-            os.chmod(file, 777)
+            if system() != WINDOWS:
+                os.system("chmod +x %s" % file)
             try:
-                os.execvp("./updater", ["./updater", url])
-            except:
+                os.execvp(file, [file])
+            except Exception as e:
                 print("{}{}".format(Fore.RED, "Your build has no updater"))
 
     def go_restart(self):

@@ -5,8 +5,10 @@ cx-Freeze==5.0.2
 macholib==1.8
 modulegraph==0.15
 prettytable==0.7.2
+progressbar2==3.30.2
 py2app==0.14
 python-dateutil==2.5.3
+python-utils==2.1.0
 PyYAML==3.12
 requests==2.13.0
 six==1.10.0
