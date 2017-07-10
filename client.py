@@ -5,7 +5,10 @@ import uuid
 from datetime import datetime
 from getpass import getpass
 from hashlib import md5
-
+from requests import get
+from progressbar import ProgressBar
+from platform import system
+from variables.os import *
 import yaml
 from colorama import init, Fore
 
@@ -20,6 +23,7 @@ from parsers.cmd_arg_parser import create_parser
 from version import Version
 
 config_json_data = get_json_from_config()
+
 
 
 class Client(Constructor):
@@ -139,6 +143,25 @@ class Client(Constructor):
         v = Version(self.version)
         url = v.check_last_version()
         if url:
+            response = get(url, stream=True)
+            if system() == MAC:
+                file = "../updater"
+            else:
+                file = "updater"
+
+            data = b""
+            total_length = response.headers.get('content-length')
+            total_length = int(total_length)
+            if os.path.exists(file):
+                os.remove(file)
+            f = open(file, "wb+")
+            with ProgressBar(max_value=total_length) as bar:
+                for byte in response.iter_content(chunk_size=1024):
+                    data += byte
+                    bar.update(len(data))
+            f.write(data)
+            f.close()
+            os.chmod(file, 777)
             try:
                 os.execvp("./updater", ["./updater", url])
             except:

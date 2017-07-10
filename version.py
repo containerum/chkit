@@ -1,11 +1,13 @@
 from datetime import datetime
-
+from platform import system
 from colorama import Fore
 from requests import get
 import os
 from handlers.config_json_handler import check_last_update, save_checking_time
+from variables.os import *
 
-GITHUB_ADDR = "https://api.github.com/repos/containerum/chkit/releases/latest"
+ADDR = "https://api.github.com/repos/containerum/chkit/releases/latest"
+UPDATER_ADDR = "https://api.github.com/repos/kfeofantov/chkit_updater/releases/latest"
 MAX_DIFF_TIME = 0.001
 
 
@@ -21,7 +23,7 @@ class Version:
             diff = now - datetime.strptime(last_checked, "%Y-%m-%d %H:%M:%S.%f")
             human_diff = (diff.seconds / 60)
             if human_diff > MAX_DIFF_TIME:
-                result = get(url=GITHUB_ADDR)
+                result = get(url=ADDR)
                 if result.status_code == 200:
                     latest_version = result.json().get("tag_name")
                     latest_version = latest_version.split(".")
@@ -57,8 +59,14 @@ class Version:
 
         ))
 
+    def print_undefined_version(self):
+        print('{}{}'.format(
+            Fore.RED,
+            "Operation system is not detected",
+        ))
+
     def check_last_version(self):
-        result = get(url=GITHUB_ADDR)
+        result = get(url=ADDR)
         if result.status_code == 200:
             latest_version = result.json().get("tag_name")
             latest_version = latest_version.split(".")
@@ -66,12 +74,24 @@ class Version:
             current_version = self.current_version.split(".")
             self.current_version = [int(i) for i in current_version]
             if latest_version[2] >= current_version[2] and latest_version[1] >= current_version[1] and latest_version[0] >= current_version[0]:
-                assets = result.json().get("assets")
-                arch_urls = [i.get("browser_download_url") for i in assets]
-                if os.name == 'posix':
-                    for i in arch_urls:
-                        if "linux" in i:
-                            return i
+                result = get(UPDATER_ADDR)
+                if result.status_code == 200:
+                    assets = result.json().get("assets")
+                    arch_urls = [i.get("browser_download_url") for i in assets]
+                    if system() == LINUX:
+                        for i in arch_urls:
+                            if "linux" in i:
+                                return i
+
+                    if system() == WINDOWS:
+                        for i in arch_urls:
+                            if "win" in i:
+                                return i
+
+                    if system() == MAC:
+                        for i in arch_urls:
+                            if "mac" in i:
+                                return i
 
             else:
                 self.print_latest_version()
