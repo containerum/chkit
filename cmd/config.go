@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"encoding/base64"
-	"fmt"
+	"net/url"
+	"time"
 
 	"github.com/kfeofantov/chkit-v2/chlib"
 	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 var configCmd = &cobra.Command{
@@ -14,30 +16,60 @@ var configCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		info, err := chlib.GetUserInfo()
 		if err != nil {
-			fmt.Println(err)
+			jww.ERROR.Println(err)
 			return
 		}
+		httpApi, err := chlib.GetHttpApiCfg()
+		if err != nil {
+			jww.ERROR.Println(err)
+		}
+
 		if cmd.Flags().NFlag() == 0 {
-			fmt.Printf("Token: %s\nNamespace: %s\n", info.Token, info.Namespace)
+			jww.FEEDBACK.Println("Token: ", info.Token)
+			jww.FEEDBACK.Println("Namespace: ", info.Namespace)
+			jww.FEEDBACK.Println("HTTP API")
+			jww.FEEDBACK.Println("\tServer: ", httpApi.Server)
+			jww.FEEDBACK.Println("\tTimeout: ", httpApi.Timeout)
 			return
 		}
+
 		if cmd.Flag("set-default-namespace").Changed {
 			info.Namespace = cmd.Flag("set-default-namespace").Value.String()
-			fmt.Printf("Namespace changed to: %s\n", info.Namespace)
+			jww.FEEDBACK.Printf("Namespace changed to: %s\n", info.Namespace)
 		}
 		if cmd.Flag("set-token").Changed {
 			enteredToken := cmd.Flag("set-token").Value.String()
-			_, err := base64.StdEncoding.DecodeString(enteredToken)
-			if err != nil {
-				fmt.Println("Invalid token given")
+			if _, err := base64.StdEncoding.DecodeString(enteredToken); err != nil {
+				jww.ERROR.Println("Invalid token given")
 				return
 			}
 			info.Token = enteredToken
-			fmt.Printf("Token changed to: %s\n", info.Token)
+			jww.FEEDBACK.Printf("Token changed to: %s\n", info.Token)
 		}
+		if cmd.Flag("set-http-server-address").Changed {
+			address := cmd.Flag("set-http-server-address").Value.String()
+			if _, err := url.ParseRequestURI(address); err != nil {
+				jww.ERROR.Printf("Invalid http api server address given")
+				return
+			}
+			httpApi.Server = address
+		}
+		if cmd.Flag("set-http-server-timeout").Changed {
+			tm, err := cmd.Flags().GetDuration("set-http-server-timeout")
+			if err != nil {
+				jww.ERROR.Printf("Invalid http api timeout given")
+				return
+			}
+			httpApi.Timeout = tm
+		}
+
 		err = chlib.UpdateUserInfo(info)
 		if err != nil {
-			fmt.Println(err)
+			jww.ERROR.Println(err)
+		}
+		err = chlib.UpdateHttpApiCfg(httpApi)
+		if err != nil {
+			jww.ERROR.Println(err)
 		}
 	},
 }
@@ -45,5 +77,7 @@ var configCmd = &cobra.Command{
 func init() {
 	configCmd.PersistentFlags().StringP("set-token", "t", "", "Set user token")
 	configCmd.PersistentFlags().StringP("set-default-namespace", "n", "default", "Default namespace")
+	configCmd.PersistentFlags().String("set-http-server-address", "http://146.185.135.181:3333", "HTTP API server address")
+	configCmd.PersistentFlags().Duration("set-http-server-timeout", 10*time.Second, "HTTP API calls timeout")
 	RootCmd.AddCommand(configCmd)
 }

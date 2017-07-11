@@ -33,3 +33,34 @@ func GetUserInfo() (info UserInfo, err error) {
 func UpdateUserInfo(info UserInfo) error {
 	return pushToBucket(userBucket, helpers.StructToMap(info))
 }
+
+func UserLogin(login, password string) error {
+	info, err := GetUserInfo()
+	if err != nil {
+		return err
+	}
+	client, err := NewClient(helpers.CurrentClientVersion, helpers.UuidV4())
+	if err != nil {
+		return err
+	}
+	token, err := client.Login(login, password)
+	if err != nil {
+		return err
+	}
+	info.Token = token
+	err = UpdateUserInfo(info)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UserLogout() error {
+	info, err := GetUserInfo()
+	if err != nil {
+		return err
+	}
+	info.Token = ""
+	err = UpdateUserInfo(info)
+	return err
+}
