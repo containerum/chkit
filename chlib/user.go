@@ -21,11 +21,11 @@ func init() {
 func GetUserInfo() (info UserInfo, err error) {
 	m, err := readFromBucket(userBucket)
 	if err != nil {
-		return info, fmt.Errorf("user bucket get: ", err)
+		return info, fmt.Errorf("user bucket get: %s", err)
 	}
 	err = helpers.FillStruct(&info, m)
 	if err != nil {
-		return info, fmt.Errorf("user data fill: ", err)
+		return info, fmt.Errorf("user data fill: %s", err)
 	}
 	return info, nil
 }
