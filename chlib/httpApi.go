@@ -14,6 +14,7 @@ type HttpApiConfig struct {
 	Server  string            `mapconv:"server"`
 	Headers map[string]string `mapconv:"headers"`
 	Timeout time.Duration     `mapconv:"timeout"`
+	Uuid    string            `mapconv:"-"`
 }
 
 type HttpApiHandler struct {
@@ -45,9 +46,9 @@ func UpdateHttpApiCfg(cfg HttpApiConfig) error {
 	return pushToBucket(httpApiBucket, helpers.StructToMap(cfg))
 }
 
-func NewHttpApiHandler(cfg HttpApiConfig, uuid string) *HttpApiHandler {
+func NewHttpApiHandler(cfg HttpApiConfig) *HttpApiHandler {
 	handler := HttpApiHandler{cfg: cfg}
-	handler.cfg.Headers["Channel"] = uuid
+	handler.cfg.Headers["Channel"] = cfg.Uuid
 	return &handler
 }
 
