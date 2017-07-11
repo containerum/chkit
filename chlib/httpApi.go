@@ -26,7 +26,11 @@ type HttpApiResult map[string]interface{}
 const httpApiBucket = "httpApi"
 
 func init() {
-	cfg := HttpApiConfig{Headers: map[string]string{"Authorization": ""}}
+	cfg := HttpApiConfig{
+		Headers: map[string]string{"Authorization": ""},
+		Server:  "http://0.0.0.0",
+		Timeout: 10 * time.Second,
+	}
 	initializers[httpApiBucket] = helpers.StructToMap(cfg)
 }
 

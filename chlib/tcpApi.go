@@ -22,8 +22,9 @@ const tcpApiBucket = "tcpApi"
 
 func init() {
 	cfg := TcpApiConfig{
-		Address: net.IPv4zero,
-		Port:    0,
+		Address:    net.IPv4zero,
+		Port:       0,
+		BufferSize: 1024,
 	}
 	initializers[tcpApiBucket] = helpers.StructToMap(cfg)
 }
