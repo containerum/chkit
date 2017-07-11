@@ -110,6 +110,10 @@ var configCmd = &cobra.Command{
 		if err != nil {
 			jww.ERROR.Println(err)
 		}
+		err = chlib.UpdateTcpApiConfig(tcpApi)
+		if err != nil {
+			jww.ERROR.Println(err)
+		}
 	},
 }
 
