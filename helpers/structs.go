@@ -8,6 +8,17 @@ import (
 
 type MappedStruct map[string]interface{}
 
+func tagForField(fieldType reflect.StructField) string {
+	tag, ok := fieldType.Tag.Lookup("mapconv")
+	if tag == "-" {
+		return ""
+	}
+	if !ok {
+		tag = fieldType.Name
+	}
+	return tag
+}
+
 func StructToMap(s interface{}) (ret MappedStruct) {
 	ret = make(MappedStruct)
 	structRefl := reflect.Indirect(reflect.ValueOf(s))
@@ -15,12 +26,9 @@ func StructToMap(s interface{}) (ret MappedStruct) {
 	for i := 0; i < structReflType.NumField(); i++ {
 		field := structRefl.Field(i)
 		fieldType := structReflType.Field(i)
-		tag, ok := fieldType.Tag.Lookup("mapconv")
-		if tag == "-" {
+		tag := tagForField(fieldType)
+		if tag == "" {
 			continue
-		}
-		if !ok {
-			tag = fieldType.Name
 		}
 		if fieldType.Type.Kind() == reflect.Struct {
 			ret[tag] = StructToMap(field.Interface())
@@ -40,12 +48,9 @@ func FillStruct(s interface{}, data MappedStruct) error {
 	for i := 0; i < structReflType.NumField(); i++ {
 		field := structRefl.Field(i)
 		fieldType := structReflType.Field(i)
-		tag, ok := fieldType.Tag.Lookup("mapconv")
-		if tag == "-" {
+		tag := tagForField(fieldType)
+		if tag == "" {
 			continue
-		}
-		if !ok {
-			tag = fieldType.Name
 		}
 		if fieldType.Type.Kind() == reflect.Struct {
 			err := FillStruct(field.Interface(), data[tag].(MappedStruct))
