@@ -10,14 +10,14 @@ import (
 	"github.com/kfeofantov/chkit-v2/helpers"
 )
 
-type HttpApiCfg struct {
+type HttpApiConfig struct {
 	Server  string            `mapconv:"server"`
 	Headers map[string]string `mapconv:"headers"`
 	Timeout time.Duration     `mapconv:"timeout"`
 }
 
 type HttpApiHandler struct {
-	cfg HttpApiCfg
+	cfg HttpApiConfig
 }
 
 type HttpApiResult map[string]interface{}
@@ -25,11 +25,11 @@ type HttpApiResult map[string]interface{}
 const httpApiBucket = "httpApi"
 
 func init() {
-	cfg := HttpApiCfg{Headers: map[string]string{"Authorization": ""}}
+	cfg := HttpApiConfig{Headers: map[string]string{"Authorization": ""}}
 	initializers[httpApiBucket] = helpers.StructToMap(cfg)
 }
 
-func GetHttpApiCfg() (cfg HttpApiCfg, err error) {
+func GetHttpApiCfg() (cfg HttpApiConfig, err error) {
 	m, err := readFromBucket(httpApiBucket)
 	if err != nil {
 		return cfg, fmt.Errorf("load http api config: %s", err)
@@ -41,11 +41,11 @@ func GetHttpApiCfg() (cfg HttpApiCfg, err error) {
 	return cfg, nil
 }
 
-func UpdateHttpApiCfg(cfg HttpApiCfg) error {
+func UpdateHttpApiCfg(cfg HttpApiConfig) error {
 	return pushToBucket(httpApiBucket, helpers.StructToMap(cfg))
 }
 
-func NewHttpApiHandler(cfg HttpApiCfg, uuid string) *HttpApiHandler {
+func NewHttpApiHandler(cfg HttpApiConfig, uuid string) *HttpApiHandler {
 	handler := HttpApiHandler{cfg: cfg}
 	handler.cfg.Headers["Channel"] = uuid
 	return &handler
