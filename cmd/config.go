@@ -8,8 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const tokenLength = 32
-
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configure chkit default values",
@@ -29,8 +27,8 @@ var configCmd = &cobra.Command{
 		}
 		if cmd.Flag("set-token").Changed {
 			enteredToken := cmd.Flag("set-token").Value.String()
-			decodedToken, err := base64.StdEncoding.DecodeString(enteredToken)
-			if err != nil || len(decodedToken) != tokenLength {
+			_, err := base64.StdEncoding.DecodeString(enteredToken)
+			if err != nil {
 				fmt.Println("Invalid token given")
 				return
 			}
