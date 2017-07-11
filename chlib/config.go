@@ -27,7 +27,6 @@ func OpenOrCreateConfig() error {
 	if err != nil {
 		return fmt.Errorf("config db open: %s", err)
 	}
-
 	return runInitializers()
 }
 
@@ -64,7 +63,6 @@ func runInitializers() error {
 				}
 				recursiveInitialize(bucket, initializer)
 			}
-			return nil
 		}
 		return nil
 	})
