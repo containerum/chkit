@@ -3,7 +3,6 @@ package chlib
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"os"
 )
@@ -14,6 +13,8 @@ type Client struct {
 	apiHandler    *HttpApiHandler
 	tcpApiHandler *TcpApiHandler
 }
+
+type GenericJson map[string]interface{}
 
 func NewClient(version, uuid string) (*Client, error) {
 	cwd, err := os.Getwd()
@@ -41,12 +42,9 @@ func NewClient(version, uuid string) (*Client, error) {
 
 func (c *Client) Login(login, password string) (token string, err error) {
 	passwordHash := md5.Sum([]byte(login + password))
-	jsonToSend, err := json.Marshal(map[string]string{
+	jsonToSend := GenericJson{
 		"username": login,
 		"password": hex.EncodeToString(passwordHash[:]),
-	})
-	if err != nil {
-		return "", err
 	}
 	apiResult, err := c.apiHandler.Login(jsonToSend)
 	if err != nil {
