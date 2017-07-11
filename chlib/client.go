@@ -11,7 +11,6 @@ import (
 type Client struct {
 	path       string
 	version    string
-	uuid       string
 	apiHandler *HttpApiHandler
 }
 
@@ -24,12 +23,12 @@ func NewClient(version, uuid string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	cfg.Uuid = uuid
 	client := &Client{
 		path:    cwd,
 		version: version,
-		uuid:    uuid,
 	}
-	client.apiHandler = NewHttpApiHandler(cfg, client.uuid)
+	client.apiHandler = NewHttpApiHandler(cfg)
 	return client, nil
 }
 
