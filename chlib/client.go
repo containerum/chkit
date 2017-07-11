@@ -9,9 +9,10 @@ import (
 )
 
 type Client struct {
-	path       string
-	version    string
-	apiHandler *HttpApiHandler
+	path          string
+	version       string
+	apiHandler    *HttpApiHandler
+	tcpApiHandler *TcpApiHandler
 }
 
 func NewClient(version, uuid string) (*Client, error) {
@@ -24,11 +25,17 @@ func NewClient(version, uuid string) (*Client, error) {
 		return nil, err
 	}
 	cfg.Uuid = uuid
+	tcpApiCfg, err := GetTcpApiConfig()
+	if err != nil {
+		return nil, err
+	}
+	tcpApiCfg.Uuid = uuid
 	client := &Client{
 		path:    cwd,
 		version: version,
 	}
 	client.apiHandler = NewHttpApiHandler(cfg)
+	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg)
 	return client, nil
 }
 
