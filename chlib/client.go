@@ -12,6 +12,7 @@ type Client struct {
 	version       string
 	apiHandler    *HttpApiHandler
 	tcpApiHandler *TcpApiHandler
+	userConfig    *UserInfo
 }
 
 type GenericJson map[string]interface{}
@@ -35,8 +36,15 @@ func NewClient(version, uuid string) (*Client, error) {
 		path:    cwd,
 		version: version,
 	}
+	userCfg, err := GetUserInfo()
+	if err != nil {
+		return nil, err
+	}
+	tcpApiCfg.Token = userCfg.Token
+	cfg.Token = userCfg.Token
 	client.apiHandler = NewHttpApiHandler(cfg)
 	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg)
+	client.userConfig = &userCfg
 	return client, nil
 }
 
@@ -63,6 +71,27 @@ func (c *Client) Login(login, password string) (token string, err error) {
 		return "", fmt.Errorf("received non-string token")
 	}
 	return token, nil
+}
+
+func (c *Client) GetNameSpaces(name string) (apiResult TcpApiResult, err error) {
+	_, err = c.tcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	defer c.tcpApiHandler.Close()
+	if name == "" {
+		name = c.userConfig.Namespace
+	}
+	httpResult, err := c.apiHandler.GetNameSpaces(name)
+	if err != nil {
+		return
+	}
+	err = c.handleApiResult(httpResult)
+	if err != nil {
+		return
+	}
+	apiResult, err = c.tcpApiHandler.Receive()
+	return apiResult, err
 }
 
 func (c *Client) handleApiResult(apiResult HttpApiResult) error {

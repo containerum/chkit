@@ -12,9 +12,10 @@ import (
 
 type HttpApiConfig struct {
 	Server  string            `mapconv:"server"`
-	Headers map[string]string `mapconv:"headers"`
+	headers map[string]string `mapconv:"-"`
 	Timeout time.Duration     `mapconv:"timeout"`
 	Uuid    string            `mapconv:"-"`
+	Token   string            `mapconv:"-"`
 }
 
 type HttpApiHandler struct {
@@ -24,11 +25,9 @@ type HttpApiHandler struct {
 type HttpApiResult map[string]interface{}
 
 const httpApiBucket = "httpApi"
-const defaultNameSpace = "default"
 
 func init() {
 	cfg := HttpApiConfig{
-		Headers: map[string]string{"Authorization": ""},
 		Server:  "http://0.0.0.0",
 		Timeout: 10 * time.Second,
 	}
@@ -53,7 +52,9 @@ func UpdateHttpApiCfg(cfg HttpApiConfig) error {
 
 func NewHttpApiHandler(cfg HttpApiConfig) *HttpApiHandler {
 	handler := HttpApiHandler{cfg: cfg}
-	handler.cfg.Headers["Channel"] = cfg.Uuid
+	handler.cfg.headers = make(map[string]string)
+	handler.cfg.headers["Channel"] = cfg.Uuid
+	handler.cfg.headers["Authorization"] = cfg.Token
 	return &handler
 }
 
@@ -61,7 +62,7 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 	client := http.Client{Timeout: h.cfg.Timeout}
 	marshalled, _ := json.Marshal(jsonToSend)
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(marshalled))
-	for k, v := range h.cfg.Headers {
+	for k, v := range h.cfg.headers {
 		request.Header.Add(k, v)
 	}
 	if err != nil {
@@ -85,7 +86,7 @@ func (h *HttpApiHandler) Login(jsonToSend GenericJson) (result HttpApiResult, er
 func (h *HttpApiHandler) Set(jsonToSend GenericJson, name, nameSpace string) (result HttpApiResult, err error) {
 	var url string
 	if nameSpace == "" {
-		nameSpace = defaultNameSpace
+		nameSpace = DefaultNameSpace
 	}
 	if _, hasReplicas := jsonToSend["replicas"]; hasReplicas {
 		url = fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, name)
@@ -98,7 +99,7 @@ func (h *HttpApiHandler) Set(jsonToSend GenericJson, name, nameSpace string) (re
 
 func (h *HttpApiHandler) Scale(jsonToSend GenericJson, name, nameSpace string) (result HttpApiResult, err error) {
 	if nameSpace == "" {
-		nameSpace = defaultNameSpace
+		nameSpace = DefaultNameSpace
 	}
 	url := fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, name)
 	result, err = h.makeRequest(url, http.MethodPatch, jsonToSend)
@@ -139,7 +140,7 @@ func (h *HttpApiHandler) Replace(jsonToSend GenericJson, nameSpace, kind string)
 				return result, fmt.Errorf("replace: namespace is not a string")
 			}
 		} else {
-			nameSpace = defaultNameSpace
+			nameSpace = DefaultNameSpace
 		}
 	}
 
@@ -173,7 +174,7 @@ func (h *HttpApiHandler) ReplaceNameSpaces(jsonToSend GenericJson) (result HttpA
 
 func (h *HttpApiHandler) Run(jsonToSend GenericJson, nameSpace string) (result HttpApiResult, err error) {
 	if nameSpace == "" {
-		nameSpace = defaultNameSpace
+		nameSpace = DefaultNameSpace
 	}
 	url := fmt.Sprintf("%s/namespaces/%s/deployment", h.cfg.Server, nameSpace)
 	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
@@ -182,7 +183,7 @@ func (h *HttpApiHandler) Run(jsonToSend GenericJson, nameSpace string) (result H
 
 func (h *HttpApiHandler) Delete(kind, name, nameSpace string, allPods bool) (result HttpApiResult, err error) {
 	if nameSpace == "" {
-		nameSpace = defaultNameSpace
+		nameSpace = DefaultNameSpace
 	}
 	var url string
 	if kind == KindDeployments && allPods {

@@ -1,7 +1,7 @@
 package chlib
 
 import (
-	"bytes"
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -68,40 +68,36 @@ func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {
 	if err != nil {
 		return result, fmt.Errorf("tcp connect: %s", err)
 	}
-	var hello bytes.Buffer
-	err = json.NewEncoder(&hello).Encode(t.authForm)
+	hello, err := json.Marshal(t.authForm)
 	if err != nil {
 		return result, fmt.Errorf("authForm encode: %s", err)
 	}
-	hello.WriteRune('\n')
-	_, err = hello.WriteTo(t.socket)
+	hello = append(hello, '\n')
+	_, err = t.socket.Write(hello)
 	if err != nil {
 		return result, fmt.Errorf("hello send: %s", err)
 	}
-	recvBuf := bytes.NewBuffer(make([]byte, t.cfg.BufferSize))
-	_, err = recvBuf.ReadFrom(t.socket)
+	str, err := bufio.NewReader(t.socket).ReadSlice('\n')
 	if err != nil {
 		return result, fmt.Errorf("hello receive: %s", err)
 	}
-	err = json.NewDecoder(recvBuf).Decode(&result)
+	err = json.Unmarshal(str, &result)
 	if err != nil {
 		return result, fmt.Errorf("hello decode: %s", err)
 	}
-	return result, nil
+	return result, result.CheckHttpStatus()
 }
 
 func (t *TcpApiHandler) Receive() (result TcpApiResult, err error) {
-	var data bytes.Buffer
-	for data.Bytes()[data.Cap()-1] != '\n' {
-		received := bytes.NewBuffer(make([]byte, t.cfg.BufferSize))
-		_, err := received.ReadFrom(t.socket)
-		if err != nil {
-			return result, fmt.Errorf("tcp receive: %s", err)
-		}
-		data.Write(received.Bytes())
+	data, err := bufio.NewReader(t.socket).ReadSlice('\n')
+	if err != nil {
+		return result, fmt.Errorf("tcp receive: %s", err)
 	}
-	err = json.NewDecoder(&data).Decode(&result)
-	return result, err
+	err = json.Unmarshal(data, &result)
+	if err != nil {
+		return result, err
+	}
+	return result, result.CheckHttpStatus()
 }
 
 func (t *TcpApiHandler) Close() {
