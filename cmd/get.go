@@ -8,6 +8,7 @@ import (
 	"github.com/kfeofantov/chkit-v2/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
+	"gopkg.in/yaml.v2"
 )
 
 var getCmdFile, getCmdKind, getCmdName string
@@ -79,7 +80,8 @@ var getCmd = &cobra.Command{
 			b, _ := json.MarshalIndent(jsonContent, "", "    ")
 			jww.FEEDBACK.Printf("%s\n", b)
 		case "yaml":
-
+			b, _ := yaml.Marshal(jsonContent)
+			jww.FEEDBACK.Printf("%s\n", b)
 		}
 	},
 }
