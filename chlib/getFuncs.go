@@ -10,7 +10,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func LoadGenericJsonFromFile(path string) (b GenericJson, err error) {
+func LoadGenericJsonFromFile(path string) (b []GenericJson, err error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return
@@ -19,14 +19,26 @@ func LoadGenericJsonFromFile(path string) (b GenericJson, err error) {
 	return
 }
 
-func GetCmdRequestJson(client *Client, kind, name string) (ret GenericJson, err error) {
+func GetCmdRequestJson(client *Client, kind, name string) (ret []GenericJson, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("can`t extract field: %s", r)
+		}
+	}()
 	switch kind {
-	case "ns", "namespaces", "namespace":
+	case KindNamespace:
 		apiResult, err := client.GetNameSpaces(name)
 		if err != nil {
 			return ret, err
 		}
-		ret = GenericJson(apiResult)
+		items := apiResult["results"].([]interface{})
+		for _, itemI := range items {
+			item := itemI.(map[string]interface{})
+			_, hasNs := item["data"].(map[string]interface{})["metadata"].(map[string]interface{})["namespace"]
+			if hasNs {
+				ret = append(ret, GenericJson(item))
+			}
+		}
 	}
 	return
 }
@@ -55,22 +67,12 @@ type NsResult struct {
 	} `json:"data"`
 }
 
-type nsResponse struct {
-	Results []NsResult `json:"results"`
-}
-
-func ExtractNsResults(data GenericJson) (res []NsResult, err error) {
+func ExtractNsResults(data []GenericJson) (res []NsResult, err error) {
 	b, _ := json.Marshal(data)
-	var resp nsResponse
-	if err := json.Unmarshal(b, &resp); err != nil {
+	if err := json.Unmarshal(b, &res); err != nil {
 		return res, fmt.Errorf("invalid namespace response: %s", err)
 	}
-	for _, v := range resp.Results {
-		if v.Data.Metadata.Namespace != "" {
-			res = append(res, v)
-		}
-	}
-	return res, nil
+	return
 }
 
 func FormatNamespacePrettyPrint(data []NsResult) (ppc PrettyPrintConfig, err error) {

@@ -32,16 +32,22 @@ var getCmd = &cobra.Command{
 		switch args[0] {
 		case "--file", "-f":
 			getCmdFile = args[1]
-		case "po", "pods", "pod", "deployments", "deployment", "deploy", "service", "services", "svc", "ns", "namespaces", "namespace":
-			getCmdKind = args[0]
-			if len(args) >= 2 && args[2][0] != '-' {
-				getCmdName = args[2]
-			}
+			return
+		case "po", "pods", "pod":
+			getCmdKind = chlib.KindPods
+		case "deployments", "deployment", "deploy":
+			getCmdKind = chlib.KindDeployments
+		case "service", "services", "svc":
+			getCmdKind = chlib.KindService
+		case "ns", "namespaces", "namespace":
+			getCmdKind = chlib.KindNamespace
 		default:
 			jww.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace') or file")
 			os.Exit(1)
 		}
-
+		if len(args) >= 2 && args[2][0] != '-' {
+			getCmdName = args[2]
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		client, err := chlib.NewClient(helpers.CurrentClientVersion, helpers.UuidV4())
@@ -49,7 +55,7 @@ var getCmd = &cobra.Command{
 			jww.ERROR.Println(err)
 			return
 		}
-		var jsonContent chlib.GenericJson
+		var jsonContent []chlib.GenericJson
 		if getCmdFile != "" {
 			jsonContent, err = chlib.LoadGenericJsonFromFile(getCmdFile)
 		} else {
@@ -64,12 +70,14 @@ var getCmd = &cobra.Command{
 		case "pretty":
 			var ppc chlib.PrettyPrintConfig
 			switch getCmdKind {
-			case "ns", "namespaces", "namespace":
+			case chlib.KindNamespace:
 				nsResults, err := chlib.ExtractNsResults(jsonContent)
 				if err != nil {
 					jww.ERROR.Println(err)
 				}
 				ppc, err = chlib.FormatNamespacePrettyPrint(nsResults)
+			default:
+				jww.FEEDBACK.Println(jsonContent)
 			}
 			if err != nil {
 				jww.ERROR.Println(err)
