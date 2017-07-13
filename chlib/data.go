@@ -4,7 +4,7 @@ const DefaultNameSpace = "default"
 
 const (
 	KindDeployments = "deployments"
-	KindNamespace   = "namespace"
-	KindPods        = "pod"
-	KindService     = "service"
+	KindNamespaces  = "namespaces"
+	KindPods        = "pods"
+	KindService     = "services"
 )

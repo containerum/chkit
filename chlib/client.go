@@ -83,7 +83,7 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 		nameSpace = c.userConfig.Namespace
 	}
 	var httpResult HttpApiResult
-	if kind != KindNamespace {
+	if kind != KindNamespaces {
 		httpResult, err = c.apiHandler.Get(kind, name, nameSpace)
 	} else {
 		httpResult, err = c.apiHandler.GetNameSpaces(name)

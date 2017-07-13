@@ -26,8 +26,8 @@ func GetCmdRequestJson(client *Client, kind, name string) (ret []GenericJson, er
 		}
 	}()
 	switch kind {
-	case KindNamespace:
-		apiResult, err := client.Get(KindNamespace, name, "")
+	case KindNamespaces:
+		apiResult, err := client.Get(KindNamespaces, name, "")
 		if err != nil {
 			return ret, err
 		}

@@ -40,7 +40,7 @@ var getCmd = &cobra.Command{
 		case "service", "services", "svc":
 			getCmdKind = chlib.KindService
 		case "ns", "namespaces", "namespace":
-			getCmdKind = chlib.KindNamespace
+			getCmdKind = chlib.KindNamespaces
 		default:
 			jww.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace') or file")
 			os.Exit(1)
@@ -70,7 +70,7 @@ var getCmd = &cobra.Command{
 		case "pretty":
 			var ppc chlib.PrettyPrintConfig
 			switch getCmdKind {
-			case chlib.KindNamespace:
+			case chlib.KindNamespaces:
 				nsResults, err := chlib.ExtractNsResults(jsonContent)
 				if err != nil {
 					jww.ERROR.Println(err)
