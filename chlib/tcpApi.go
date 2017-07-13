@@ -2,6 +2,7 @@ package chlib
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -89,9 +90,13 @@ func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {
 }
 
 func (t *TcpApiHandler) Receive() (result TcpApiResult, err error) {
-	data, err := bufio.NewReader(t.socket).ReadSlice('\n')
-	if err != nil {
-		return result, fmt.Errorf("tcp receive: %s", err)
+	var data []byte
+	for buf := make([]byte, t.cfg.BufferSize); !bytes.ContainsRune(buf, '\n'); {
+		n, err := t.socket.Read(buf)
+		if err != nil {
+			return result, err
+		}
+		data = append(data, buf[:n]...)
 	}
 	err = json.Unmarshal(data, &result)
 	if err != nil {
