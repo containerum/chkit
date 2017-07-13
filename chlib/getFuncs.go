@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"time"
 
@@ -25,9 +26,10 @@ func GetCmdRequestJson(client *Client, kind, name string) (ret []GenericJson, er
 			err = fmt.Errorf("can`t extract field: %s", r)
 		}
 	}()
+	var apiResult TcpApiResult
 	switch kind {
 	case KindNamespaces:
-		apiResult, err := client.Get(KindNamespaces, name, "")
+		apiResult, err = client.Get(KindNamespaces, name, "")
 		if err != nil {
 			return ret, err
 		}
@@ -44,7 +46,10 @@ func GetCmdRequestJson(client *Client, kind, name string) (ret []GenericJson, er
 		if err != nil {
 			return ret, err
 		}
-		fmt.Println(apiResult)
+		items := apiResult["results"].([]interface{})
+		for _, itemI := range items {
+			ret = append(ret, itemI.(map[string]interface{}))
+		}
 	}
 	return
 }
@@ -81,7 +86,7 @@ func ExtractNsResults(data []GenericJson) (res []NsResult, err error) {
 	return
 }
 
-func FormatNamespacePrettyPrint(data []NsResult) (ppc PrettyPrintConfig, err error) {
+func FormatNamespacePrettyPrint(data []NsResult) (ppc PrettyPrintConfig) {
 	ppc.Columns = []string{"NAME", "HARD CPU", "HARD MEMORY", "USED CPU", "USED MEMORY", "AGE"}
 	for _, v := range data {
 		row := []string{
@@ -93,6 +98,58 @@ func FormatNamespacePrettyPrint(data []NsResult) (ppc PrettyPrintConfig, err err
 			fmt.Sprintf("%dd", int(time.Now().Sub(v.Data.Metadata.CreatedAt).Hours()/24)),
 		}
 		ppc.Data = append(ppc.Data, row)
+	}
+	return
+}
+
+type PodResult struct {
+	Data struct {
+		Items []struct {
+			Metadata struct {
+				Name string `json:"name"`
+			} `json:"metadata"`
+			Status struct {
+				Phase             string    `json:"phase"`
+				IP                net.IP    `json:"podIP"`
+				StartTime         time.Time `json:"startTime"`
+				ContainerStatuses []struct {
+					RestartCount int `json:"restartCount"`
+				} `json:"containerStatuses"`
+			}
+		} `json:"items"`
+	} `json:"data"`
+}
+
+func ExtractPodResults(data []GenericJson) (res []PodResult, err error) {
+	b, _ := json.Marshal(data)
+	if err := json.Unmarshal(b, &res); err != nil {
+		return res, fmt.Errorf("invalid pod result: %s", err)
+	}
+	return
+}
+
+func FormatPodPrettyPrint(data []PodResult) (ppc PrettyPrintConfig) {
+	ppc.Columns = []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP"}
+	for _, v := range data {
+		for _, item := range v.Data.Items {
+			restarts := 0
+			for _, containerStatus := range item.Status.ContainerStatuses {
+				restarts += containerStatus.RestartCount
+			}
+			ipStr := item.Status.IP.String()
+			if item.Status.IP == nil {
+				ipStr = "None"
+			}
+			row := []string{
+				item.Metadata.Name,
+				"-/-",
+				item.Status.Phase,
+				fmt.Sprintf("%d", restarts),
+				fmt.Sprintf("%dd", int(time.Now().Sub(item.Status.StartTime).Hours()/24)),
+				ipStr,
+			}
+			ppc.Data = append(ppc.Data, row)
+		}
 	}
 	return
 }

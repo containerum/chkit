@@ -71,25 +71,37 @@ var getCmd = &cobra.Command{
 			var ppc chlib.PrettyPrintConfig
 			switch getCmdKind {
 			case chlib.KindNamespaces:
-				nsResults, err := chlib.ExtractNsResults(jsonContent)
+				var nsResults []chlib.NsResult
+				nsResults, err = chlib.ExtractNsResults(jsonContent)
 				if err != nil {
-					jww.ERROR.Println(err)
+					break
 				}
-				ppc, err = chlib.FormatNamespacePrettyPrint(nsResults)
+				ppc = chlib.FormatNamespacePrettyPrint(nsResults)
+			case chlib.KindPods:
+				var podResults []chlib.PodResult
+				podResults, err = chlib.ExtractPodResults(jsonContent)
+				if err != nil {
+					break
+				}
+				ppc = chlib.FormatPodPrettyPrint(podResults)
 			default:
 				jww.FEEDBACK.Println(jsonContent)
 			}
 			if err != nil {
-				jww.ERROR.Println(err)
-				return
+				break
 			}
 			chlib.PrettyPrint(ppc, os.Stdout)
 		case "json":
-			b, _ := json.MarshalIndent(jsonContent, "", "    ")
+			var b []byte
+			b, err = json.MarshalIndent(jsonContent, "", "    ")
 			jww.FEEDBACK.Printf("%s\n", b)
 		case "yaml":
-			b, _ := yaml.Marshal(jsonContent)
+			var b []byte
+			b, err = yaml.Marshal(jsonContent)
 			jww.FEEDBACK.Printf("%s\n", b)
+		}
+		if err != nil {
+			jww.ERROR.Println(err)
 		}
 	},
 }
