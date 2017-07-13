@@ -22,11 +22,13 @@ var getCmd = &cobra.Command{
 			case "json", "yaml", "pretty":
 			default:
 				jww.FEEDBACK.Println("output must be json, yaml or pretty")
+				cmd.Usage()
 				os.Exit(1)
 			}
 		}
 		if len(args) == 0 {
 			jww.FEEDBACK.Println("KIND or file not specified")
+			cmd.Usage()
 			os.Exit(1)
 		}
 		switch args[0] {
