@@ -14,7 +14,7 @@ import (
 var getCmdFile, getCmdKind, getCmdName string
 
 var getCmd = &cobra.Command{
-	Use:   "get (KIND | --file -f FILE)",
+	Use:   "get (KIND [NAME]| --file -f FILE)",
 	Short: "Show info about pod(s), service(s), namespace(s), deployment(s)",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if cmd.Flag("output").Changed {
@@ -45,10 +45,11 @@ var getCmd = &cobra.Command{
 			getCmdKind = chlib.KindNamespaces
 		default:
 			jww.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace') or file")
+			cmd.Usage()
 			os.Exit(1)
 		}
-		if len(args) >= 2 && args[2][0] != '-' {
-			getCmdName = args[2]
+		if len(args) >= 2 && args[1][0] != '-' {
+			getCmdName = args[1]
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -59,7 +60,7 @@ var getCmd = &cobra.Command{
 		}
 		var jsonContent []chlib.GenericJson
 		if getCmdFile != "" {
-			jsonContent, err = chlib.LoadGenericJsonFromFile(getCmdFile)
+			err = chlib.LoadJsonFromFile(getCmdFile, &jsonContent)
 		} else {
 			jsonContent, err = chlib.GetCmdRequestJson(client, getCmdKind, getCmdName)
 		}

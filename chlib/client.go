@@ -145,20 +145,24 @@ func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err err
 	if !valid {
 		return apiResult, fmt.Errorf("kind must be string")
 	}
-	_, err = c.tcpApiHandler.Connect()
-	if err != nil {
-		return
-	}
 	httpResult, err := c.apiHandler.Create(jsonToSend, kind, nameSpace)
 	if err != nil {
 		return
 	}
 	err = httpResult.HandleApiResult()
+	return
+}
 
-	apiResult, err = c.tcpApiHandler.Receive()
+func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (err error) {
+	var httpResult HttpApiResult
+	if kind != KindNamespaces {
+		httpResult, err = c.apiHandler.Delete(kind, name, nameSpace, allPods)
+	} else {
+		httpResult, err = c.apiHandler.DeleteNameSpaces(name)
+	}
 	if err != nil {
 		return
 	}
-	err = apiResult.CheckHttpStatus()
+	err = httpResult.HandleApiResult()
 	return
 }

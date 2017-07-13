@@ -266,8 +266,8 @@ func (h *HttpApiHandler) GetNameSpaces(name string) (result HttpApiResult, err e
 }
 
 func (apiResult *HttpApiResult) HandleApiResult() error {
-	if apiResult != nil {
-		return fmt.Errorf("api result is nil")
+	if apiResult == nil {
+		return nil
 	}
 	errCont, hasErr := (*apiResult)["error"]
 	if hasErr {

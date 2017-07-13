@@ -113,7 +113,7 @@ func (t *TcpApiHandler) Close() {
 
 func (t *TcpApiResult) CheckHttpStatus() error {
 	if t == nil {
-		return fmt.Errorf("TCP API result is nil")
+		return nil
 	}
 	errContent, hasError := (*t)["error"]
 	if !hasError {

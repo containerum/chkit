@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"os"
 
 	"github.com/kfeofantov/chkit-v2/chlib"
@@ -23,20 +21,10 @@ var createCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		filePath, _ := cmd.Flags().GetString("file")
-		file, err := os.Open(filePath)
-		if err != nil {
-			jww.ERROR.Printf("file open: %s", err)
-			return
-		}
-		content, err := ioutil.ReadAll(file)
-		if err != nil {
-			jww.ERROR.Printf("file read: %s", err)
-			return
-		}
 		var jsonContent chlib.GenericJson
-		err = json.Unmarshal(content, &jsonContent)
+		err := chlib.LoadJsonFromFile(filePath, &jsonContent)
 		if err != nil {
-			jww.ERROR.Println("JSON parse: %s", err)
+			jww.ERROR.Println(err)
 			return
 		}
 		client, err := chlib.NewClient(helpers.CurrentClientVersion, helpers.UuidV4())

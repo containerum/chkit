@@ -9,7 +9,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func LoadGenericJsonFromFile(path string) (b []GenericJson, err error) {
+func LoadJsonFromFile(path string, b interface{}) (err error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return
