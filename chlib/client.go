@@ -73,25 +73,27 @@ func (c *Client) Login(login, password string) (token string, err error) {
 	return token, nil
 }
 
-func (c *Client) GetNameSpaces(name string) (apiResult TcpApiResult, err error) {
+func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err error) {
 	_, err = c.tcpApiHandler.Connect()
 	if err != nil {
 		return
 	}
 	defer c.tcpApiHandler.Close()
-	if name == "" {
-		name = c.userConfig.Namespace
+	if nameSpace == "" {
+		nameSpace = c.userConfig.Namespace
 	}
-	httpResult, err := c.apiHandler.GetNameSpaces(name)
+	var httpResult HttpApiResult
+	if kind != KindNamespace {
+		httpResult, err = c.apiHandler.Get(kind, name, nameSpace)
+	} else {
+		httpResult, err = c.apiHandler.GetNameSpaces(name)
+	}
 	if err != nil {
 		return
 	}
 	err = c.handleApiResult(httpResult)
-	if err != nil {
-		return
-	}
 	apiResult, err = c.tcpApiHandler.Receive()
-	return apiResult, err
+	return
 }
 
 func (c *Client) handleApiResult(apiResult HttpApiResult) error {
