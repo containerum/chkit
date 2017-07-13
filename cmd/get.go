@@ -84,6 +84,13 @@ var getCmd = &cobra.Command{
 					break
 				}
 				ppc = chlib.FormatPodPrettyPrint(podResults)
+			case chlib.KindDeployments:
+				var deployResults []chlib.DeployResult
+				deployResults, err = chlib.ExtractDeployResult(jsonContent)
+				if err != nil {
+					break
+				}
+				ppc, err = chlib.FormatDeployPrettyPrint(deployResults)
 			default:
 				jww.FEEDBACK.Println(jsonContent)
 			}
