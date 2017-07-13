@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -74,6 +75,14 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 		return result, fmt.Errorf("http request execute error: %s", err)
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return result, err
+		} else {
+			return result, fmt.Errorf("%s", data)
+		}
+	}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	return result, err
 }
@@ -254,4 +263,15 @@ func (h *HttpApiHandler) GetNameSpaces(name string) (result HttpApiResult, err e
 	}
 	result, err = h.makeRequest(url, http.MethodGet, nil)
 	return
+}
+
+func (apiResult *HttpApiResult) HandleApiResult() error {
+	if apiResult != nil {
+		return fmt.Errorf("api result is nil")
+	}
+	errCont, hasErr := (*apiResult)["error"]
+	if hasErr {
+		return fmt.Errorf("api error: %v", errCont)
+	}
+	return nil
 }
