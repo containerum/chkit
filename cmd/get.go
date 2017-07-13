@@ -92,8 +92,12 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
+	cfg, err := chlib.GetUserInfo()
+	if err != nil {
+		panic(err)
+	}
 	getCmd.PersistentFlags().StringP("output", "o", "pretty", "Output format: json, yaml, pretty")
-	getCmd.PersistentFlags().StringP("namespace", "n", chlib.DefaultNameSpace, "Namespace")
+	getCmd.PersistentFlags().StringP("namespace", "n", cfg.Namespace, "Namespace")
 	getCmd.PersistentFlags().StringP("file", "f", "", "JSON file generated on object creation")
 	RootCmd.AddCommand(getCmd)
 }

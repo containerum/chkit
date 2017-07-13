@@ -86,7 +86,12 @@ func (h *HttpApiHandler) Login(jsonToSend GenericJson) (result HttpApiResult, er
 func (h *HttpApiHandler) Set(jsonToSend GenericJson, name, nameSpace string) (result HttpApiResult, err error) {
 	var url string
 	if nameSpace == "" {
-		nameSpace = DefaultNameSpace
+		var cfg UserInfo
+		cfg, err = GetUserInfo()
+		if err != nil {
+			return
+		}
+		nameSpace = cfg.Namespace
 	}
 	if _, hasReplicas := jsonToSend["replicas"]; hasReplicas {
 		url = fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, name)
@@ -99,7 +104,12 @@ func (h *HttpApiHandler) Set(jsonToSend GenericJson, name, nameSpace string) (re
 
 func (h *HttpApiHandler) Scale(jsonToSend GenericJson, name, nameSpace string) (result HttpApiResult, err error) {
 	if nameSpace == "" {
-		nameSpace = DefaultNameSpace
+		var cfg UserInfo
+		cfg, err = GetUserInfo()
+		if err != nil {
+			return
+		}
+		nameSpace = cfg.Namespace
 	}
 	url := fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, name)
 	result, err = h.makeRequest(url, http.MethodPatch, jsonToSend)
@@ -140,7 +150,12 @@ func (h *HttpApiHandler) Replace(jsonToSend GenericJson, nameSpace, kind string)
 				return result, fmt.Errorf("replace: namespace is not a string")
 			}
 		} else {
-			nameSpace = DefaultNameSpace
+			var cfg UserInfo
+			cfg, err = GetUserInfo()
+			if err != nil {
+				return
+			}
+			nameSpace = cfg.Namespace
 		}
 	}
 
@@ -174,7 +189,12 @@ func (h *HttpApiHandler) ReplaceNameSpaces(jsonToSend GenericJson) (result HttpA
 
 func (h *HttpApiHandler) Run(jsonToSend GenericJson, nameSpace string) (result HttpApiResult, err error) {
 	if nameSpace == "" {
-		nameSpace = DefaultNameSpace
+		var cfg UserInfo
+		cfg, err = GetUserInfo()
+		if err != nil {
+			return
+		}
+		nameSpace = cfg.Namespace
 	}
 	url := fmt.Sprintf("%s/namespaces/%s/deployment", h.cfg.Server, nameSpace)
 	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
@@ -183,7 +203,12 @@ func (h *HttpApiHandler) Run(jsonToSend GenericJson, nameSpace string) (result H
 
 func (h *HttpApiHandler) Delete(kind, name, nameSpace string, allPods bool) (result HttpApiResult, err error) {
 	if nameSpace == "" {
-		nameSpace = DefaultNameSpace
+		var cfg UserInfo
+		cfg, err = GetUserInfo()
+		if err != nil {
+			return
+		}
+		nameSpace = cfg.Namespace
 	}
 	var url string
 	if kind == KindDeployments && allPods {

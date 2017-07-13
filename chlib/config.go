@@ -16,18 +16,20 @@ var configDb *bolt.DB
 
 var initializers map[string]helpers.MappedStruct = make(map[string]helpers.MappedStruct)
 
-func OpenOrCreateConfig() error {
+func init() {
 	currentUser, err := user.Current()
 	if err != nil {
-		return fmt.Errorf("get current user: %s", err)
+		panic(fmt.Errorf("get current user: %s", err))
 	}
 
 	configPath := path.Join(currentUser.HomeDir, configDir, configFile)
 	configDb, err = bolt.Open(configPath, 0600, nil)
 	if err != nil {
-		return fmt.Errorf("config db open: %s", err)
+		panic(fmt.Errorf("config db open: %s", err))
 	}
-	return runInitializers()
+	if err := runInitializers(); err != nil {
+		panic(err)
+	}
 }
 
 func recursiveInitialize(startBucket *bolt.Bucket, initializer helpers.MappedStruct) error {

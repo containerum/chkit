@@ -96,6 +96,33 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 	return
 }
 
+func (c *Client) Set(field, container, value, nameSpace string) (res TcpApiResult, err error) {
+	_, err = c.tcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	defer c.tcpApiHandler.Close()
+	if nameSpace == "" {
+		nameSpace = c.userConfig.Namespace
+	}
+	reqData := GenericJson{"name": container}
+	reqData[field] = value
+	httpResult, err := c.apiHandler.Set(reqData, container, nameSpace)
+	if err != nil {
+		return
+	}
+	err = c.handleApiResult(httpResult)
+	if err != nil {
+		return
+	}
+	res, err = c.tcpApiHandler.Receive()
+	if err != nil {
+		return
+	}
+	err = res.CheckHttpStatus()
+	return
+}
+
 func (c *Client) handleApiResult(apiResult HttpApiResult) error {
 	errCont, hasErr := apiResult["error"]
 	if hasErr {
