@@ -15,7 +15,7 @@ var getCmdFile, getCmdKind, getCmdName string
 
 var getCmd = &cobra.Command{
 	Use:   "get (KIND | --file -f FILE)",
-	Short: "Show user`s objects",
+	Short: "Show info about pod(s), service(s), namespace(s), deployment(s)",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if cmd.Flag("output").Changed {
 			switch val, _ := cmd.Flags().GetString("output"); val {
