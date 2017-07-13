@@ -91,8 +91,13 @@ var getCmd = &cobra.Command{
 					break
 				}
 				ppc, err = chlib.FormatDeployPrettyPrint(deployResults)
-			default:
-				jww.FEEDBACK.Println(jsonContent)
+			case chlib.KindService:
+				var serviceResults []chlib.SerivceResult
+				serviceResults, err = chlib.ExtractServiceResult(jsonContent)
+				if err != nil {
+					break
+				}
+				ppc = chlib.FormatServicePrettyPrint(serviceResults)
 			}
 			if err != nil {
 				break
