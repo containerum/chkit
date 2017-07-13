@@ -69,36 +69,7 @@ var getCmd = &cobra.Command{
 		switch format, _ := cmd.Flags().GetString("output"); format {
 		case "pretty":
 			var ppc chlib.PrettyPrintConfig
-			switch getCmdKind {
-			case chlib.KindNamespaces:
-				var nsResults []chlib.NsResult
-				nsResults, err = chlib.ExtractNsResults(jsonContent)
-				if err != nil {
-					break
-				}
-				ppc = chlib.FormatNamespacePrettyPrint(nsResults)
-			case chlib.KindPods:
-				var podResults []chlib.PodResult
-				podResults, err = chlib.ExtractPodResults(jsonContent)
-				if err != nil {
-					break
-				}
-				ppc = chlib.FormatPodPrettyPrint(podResults)
-			case chlib.KindDeployments:
-				var deployResults []chlib.DeployResult
-				deployResults, err = chlib.ExtractDeployResult(jsonContent)
-				if err != nil {
-					break
-				}
-				ppc, err = chlib.FormatDeployPrettyPrint(deployResults)
-			case chlib.KindService:
-				var serviceResults []chlib.SerivceResult
-				serviceResults, err = chlib.ExtractServiceResult(jsonContent)
-				if err != nil {
-					break
-				}
-				ppc = chlib.FormatServicePrettyPrint(serviceResults)
-			}
+			ppc, err = chlib.CreatePrettyPrintConfig(getCmdKind, jsonContent)
 			if err != nil {
 				break
 			}
