@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/kfeofantov/chkit-v2/helpers"
@@ -75,6 +76,13 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	return result, err
+}
+
+func (h *HttpApiHandler) Create(jsonToSend GenericJson, kind, nameSpace string) (result HttpApiResult, err error) {
+	kind = fmt.Sprintf("%ss", strings.ToLower(kind))
+	url := fmt.Sprintf("%s/namespaces/%s/%s", h.cfg.Server, kind, nameSpace)
+	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
+	return
 }
 
 func (h *HttpApiHandler) Login(jsonToSend GenericJson) (result HttpApiResult, err error) {

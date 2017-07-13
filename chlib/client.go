@@ -58,7 +58,7 @@ func (c *Client) Login(login, password string) (token string, err error) {
 	if err != nil {
 		return "", err
 	}
-	err = c.handleApiResult(apiResult)
+	err = apiResult.handleApiResult()
 	if err != nil {
 		return "", err
 	}
@@ -79,9 +79,6 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 		return
 	}
 	defer c.tcpApiHandler.Close()
-	if nameSpace == "" {
-		nameSpace = c.userConfig.Namespace
-	}
 	var httpResult HttpApiResult
 	if kind != KindNamespaces {
 		httpResult, err = c.apiHandler.Get(kind, name, nameSpace)
@@ -91,7 +88,7 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 	if err != nil {
 		return
 	}
-	err = c.handleApiResult(httpResult)
+	err = httpResult.handleApiResult()
 	apiResult, err = c.tcpApiHandler.Receive()
 	return
 }
@@ -102,16 +99,13 @@ func (c *Client) Set(field, container, value, nameSpace string) (res TcpApiResul
 		return
 	}
 	defer c.tcpApiHandler.Close()
-	if nameSpace == "" {
-		nameSpace = c.userConfig.Namespace
-	}
 	reqData := GenericJson{"name": container}
 	reqData[field] = value
 	httpResult, err := c.apiHandler.Set(reqData, container, nameSpace)
 	if err != nil {
 		return
 	}
-	err = c.handleApiResult(httpResult)
+	err = httpResult.handleApiResult()
 	if err != nil {
 		return
 	}
@@ -123,7 +117,53 @@ func (c *Client) Set(field, container, value, nameSpace string) (res TcpApiResul
 	return
 }
 
-func (c *Client) handleApiResult(apiResult HttpApiResult) error {
+func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err error) {
+	metaDataI, hasMd := jsonToSend["metadata"]
+	if !hasMd {
+		return apiResult, fmt.Errorf("JSON must have \"metadata\" parameter")
+	}
+	metaData, validMd := metaDataI.(map[string]interface{})
+	if !validMd {
+		return apiResult, fmt.Errorf("Metadata must be object")
+	}
+	nameSpaceI, hasNs := metaData["namespace"]
+	var nameSpace string
+	if hasNs {
+		var valid bool
+		nameSpace, valid = nameSpaceI.(string)
+		if !valid {
+			return apiResult, fmt.Errorf("Namespace must be string")
+		}
+	} else {
+		nameSpace = c.userConfig.Namespace
+	}
+	kindI, hasKind := jsonToSend["kind"]
+	if !hasKind {
+		return apiResult, fmt.Errorf("JSON must have kind field")
+	}
+	kind, valid := kindI.(string)
+	if !valid {
+		return apiResult, fmt.Errorf("Kind must be string")
+	}
+	_, err = c.tcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	httpResult, err := c.apiHandler.Create(jsonToSend, kind, nameSpace)
+	if err != nil {
+		return
+	}
+	err = httpResult.handleApiResult()
+
+	apiResult, err = c.tcpApiHandler.Receive()
+	if err != nil {
+		return
+	}
+	err = apiResult.CheckHttpStatus()
+	return
+}
+
+func (apiResult HttpApiResult) handleApiResult() error {
 	errCont, hasErr := apiResult["error"]
 	if hasErr {
 		return fmt.Errorf("api error: %v", errCont)
