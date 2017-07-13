@@ -89,7 +89,7 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 
 func (h *HttpApiHandler) Create(jsonToSend GenericJson, kind, nameSpace string) (result HttpApiResult, err error) {
 	kind = fmt.Sprintf("%ss", strings.ToLower(kind))
-	url := fmt.Sprintf("%s/namespaces/%s/%s", h.cfg.Server, kind, nameSpace)
+	url := fmt.Sprintf("%s/namespaces/%s/%s", h.cfg.Server, nameSpace, kind)
 	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
 	return
 }

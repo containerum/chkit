@@ -58,7 +58,7 @@ func (c *Client) Login(login, password string) (token string, err error) {
 	if err != nil {
 		return "", err
 	}
-	err = apiResult.handleApiResult()
+	err = apiResult.HandleApiResult()
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +88,7 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 	if err != nil {
 		return
 	}
-	err = httpResult.handleApiResult()
+	err = httpResult.HandleApiResult()
 	apiResult, err = c.tcpApiHandler.Receive()
 	return
 }
@@ -105,7 +105,7 @@ func (c *Client) Set(field, container, value, nameSpace string) (res TcpApiResul
 	if err != nil {
 		return
 	}
-	err = httpResult.handleApiResult()
+	err = httpResult.HandleApiResult()
 	if err != nil {
 		return
 	}
@@ -124,7 +124,7 @@ func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err err
 	}
 	metaData, validMd := metaDataI.(map[string]interface{})
 	if !validMd {
-		return apiResult, fmt.Errorf("Metadata must be object")
+		return apiResult, fmt.Errorf("metadata must be object")
 	}
 	nameSpaceI, hasNs := metaData["namespace"]
 	var nameSpace string
@@ -132,7 +132,7 @@ func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err err
 		var valid bool
 		nameSpace, valid = nameSpaceI.(string)
 		if !valid {
-			return apiResult, fmt.Errorf("Namespace must be string")
+			return apiResult, fmt.Errorf("namespace must be string")
 		}
 	} else {
 		nameSpace = c.userConfig.Namespace
@@ -143,7 +143,7 @@ func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err err
 	}
 	kind, valid := kindI.(string)
 	if !valid {
-		return apiResult, fmt.Errorf("Kind must be string")
+		return apiResult, fmt.Errorf("kind must be string")
 	}
 	_, err = c.tcpApiHandler.Connect()
 	if err != nil {
@@ -153,7 +153,7 @@ func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err err
 	if err != nil {
 		return
 	}
-	err = httpResult.handleApiResult()
+	err = httpResult.HandleApiResult()
 
 	apiResult, err = c.tcpApiHandler.Receive()
 	if err != nil {
@@ -161,12 +161,4 @@ func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err err
 	}
 	err = apiResult.CheckHttpStatus()
 	return
-}
-
-func (apiResult HttpApiResult) handleApiResult() error {
-	errCont, hasErr := apiResult["error"]
-	if hasErr {
-		return fmt.Errorf("api error: %v", errCont)
-	}
-	return nil
 }
