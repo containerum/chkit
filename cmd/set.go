@@ -52,7 +52,8 @@ var setCmd = &cobra.Command{
 		if err != nil {
 			jww.FEEDBACK.Println("OK")
 		} else {
-			jww.FEEDBACK.Printf("ERROR\n%s\n", err)
+			jww.FEEDBACK.Println("ERROR")
+			jww.ERROR.Println(err)
 		}
 	},
 }
