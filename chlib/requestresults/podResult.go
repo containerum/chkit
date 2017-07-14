@@ -133,8 +133,8 @@ func (p singlePodResult) Print() (err error) {
 					fmt.Sprint(cs.RestartCount),
 				}
 				ppc.Data = append(ppc.Data, row)
-
 			}
+			ppc.Print()
 		}
 		fmt.Println("Status:")
 		ppc := prettyPrintConfig{
