@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/kfeofantov/chkit-v2/chlib"
+	"github.com/kfeofantov/chkit-v2/chlib/requestresults"
 	"github.com/kfeofantov/chkit-v2/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
@@ -68,15 +69,13 @@ var getCmd = &cobra.Command{
 			jww.ERROR.Printf("json receive error: %s\n", err)
 			return
 		}
-
 		switch format, _ := cmd.Flags().GetString("output"); format {
 		case "pretty":
-			var ppc chlib.PrettyPrintConfig
-			ppc, err = chlib.CreatePrettyPrintConfig(getCmdKind, jsonContent)
+			p, err := requestresults.ProcessResponse(jsonContent)
 			if err != nil {
 				break
 			}
-			chlib.PrettyPrint(ppc, os.Stdout)
+			err = p.Print()
 		case "json":
 			var b []byte
 			b, err = json.MarshalIndent(jsonContent, "", "    ")

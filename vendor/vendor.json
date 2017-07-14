@@ -11,6 +11,10 @@
 			"revision": ""
 		},
 		{
+			"path" : "github.com/kfeofantov/chkit-v2/cmd/requestresults",
+			"revision": ""
+		}
+		{
 			"checksumSHA1": "JCTGEgZstzmSj//kDP9ZI/LoHZ4=",
 			"path": "github.com/spf13/cobra",
 			"revision": "8c6fa02d2225de0f9bdcb7ca912556f68d172d8c",

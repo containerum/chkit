@@ -3,10 +3,7 @@ package chlib
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
-
-	"github.com/olekukonko/tablewriter"
 )
 
 func LoadJsonFromFile(path string, b interface{}) (err error) {
@@ -50,50 +47,4 @@ func GetCmdRequestJson(client *Client, kind, name string) (ret []GenericJson, er
 		}
 	}
 	return
-}
-
-type PrettyPrintConfig struct {
-	Columns []string
-	Data    [][]string
-}
-
-func CreatePrettyPrintConfig(kind string, jsonContent []GenericJson) (ppc PrettyPrintConfig, err error) {
-	switch kind {
-	case KindNamespaces:
-		var nsResults []nsResult
-		nsResults, err = extractNsResults(jsonContent)
-		if err != nil {
-			break
-		}
-		ppc = formatNamespacePrettyPrint(nsResults)
-	case KindPods:
-		var podResults []podResult
-		podResults, err = extractPodResults(jsonContent)
-		if err != nil {
-			break
-		}
-		ppc = formatPodPrettyPrint(podResults)
-	case KindDeployments:
-		var deployResults []deployResult
-		deployResults, err = extractDeployResult(jsonContent)
-		if err != nil {
-			break
-		}
-		ppc, err = formatDeployPrettyPrint(deployResults)
-	case KindService:
-		var serviceResults []serivceResult
-		serviceResults, err = extractServiceResult(jsonContent)
-		if err != nil {
-			break
-		}
-		ppc = formatServicePrettyPrint(serviceResults)
-	}
-	return
-}
-
-func PrettyPrint(ppc PrettyPrintConfig, writer io.Writer) {
-	table := tablewriter.NewWriter(writer)
-	table.SetHeader(ppc.Columns)
-	table.AppendBulk(ppc.Data)
-	table.Render()
 }
