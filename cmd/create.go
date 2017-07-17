@@ -33,7 +33,7 @@ var createCmd = &cobra.Command{
 			return
 		}
 		jww.FEEDBACK.Print("create... ")
-		_, err = client.Create(jsonContent)
+		err = client.Create(jsonContent)
 		if err != nil {
 			jww.FEEDBACK.Println("ERROR")
 			jww.ERROR.Println(err)

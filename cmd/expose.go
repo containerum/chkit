@@ -27,6 +27,7 @@ var exposeCmd = &cobra.Command{
 			cmd.Usage()
 			os.Exit(1)
 		}
+
 		switch args[0] {
 		case "deployments", "deployment", "deploy":
 			break

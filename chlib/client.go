@@ -97,6 +97,9 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 		return
 	}
 	err = httpResult.HandleApiResult()
+	if err != nil {
+		return
+	}
 	apiResult, err = c.tcpApiHandler.Receive()
 	return
 }
@@ -124,18 +127,17 @@ func (c *Client) Set(field, container, value, nameSpace string) (res TcpApiResul
 	if err != nil {
 		return
 	}
-	err = res.CheckHttpStatus()
 	return
 }
 
-func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err error) {
+func (c *Client) Create(jsonToSend GenericJson) (err error) {
 	metaDataI, hasMd := jsonToSend["metadata"]
 	if !hasMd {
-		return apiResult, fmt.Errorf("JSON must have \"metadata\" parameter")
+		return fmt.Errorf("JSON must have \"metadata\" parameter")
 	}
 	metaData, validMd := metaDataI.(map[string]interface{})
 	if !validMd {
-		return apiResult, fmt.Errorf("metadata must be object")
+		return fmt.Errorf("metadata must be object")
 	}
 	nameSpaceI, hasNs := metaData["namespace"]
 	var nameSpace string
@@ -143,18 +145,18 @@ func (c *Client) Create(jsonToSend GenericJson) (apiResult TcpApiResult, err err
 		var valid bool
 		nameSpace, valid = nameSpaceI.(string)
 		if !valid {
-			return apiResult, fmt.Errorf("namespace must be string")
+			return fmt.Errorf("namespace must be string")
 		}
 	} else {
 		nameSpace = c.userConfig.Namespace
 	}
 	kindI, hasKind := jsonToSend["kind"]
 	if !hasKind {
-		return apiResult, fmt.Errorf("JSON must have kind field")
+		return fmt.Errorf("JSON must have kind field")
 	}
 	kind, valid := kindI.(string)
 	if !valid {
-		return apiResult, fmt.Errorf("kind must be string")
+		return fmt.Errorf("kind must be string")
 	}
 	httpResult, err := c.apiHandler.Create(jsonToSend, kind, nameSpace)
 	if err != nil {
@@ -228,5 +230,18 @@ func (c *Client) Expose(name string, ports []Port, nameSpace string) (apiResult 
 		return
 	}
 	apiResult, err = c.tcpApiHandler.Receive()
+	return
+}
+
+func (c *Client) Scale(name string, replicas int, nameSpace string) (err error) {
+	if nameSpace == "" {
+		nameSpace = c.userConfig.Namespace
+	}
+	var httpResult HttpApiResult
+	httpResult, err = c.apiHandler.Scale(GenericJson{"replicas": replicas}, name, nameSpace)
+	if err != nil {
+		return
+	}
+	err = httpResult.HandleApiResult()
 	return
 }
