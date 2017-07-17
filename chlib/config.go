@@ -12,6 +12,8 @@ import (
 const configDir = ".containerum"
 const configFile = "config.db"
 
+var configPath string
+
 var configDb *bolt.DB
 
 var initializers map[string]helpers.MappedStruct = make(map[string]helpers.MappedStruct)
@@ -22,8 +24,8 @@ func init() {
 		panic(fmt.Errorf("get current user: %s", err))
 	}
 
-	configPath := path.Join(currentUser.HomeDir, configDir, configFile)
-	configDb, err = bolt.Open(configPath, 0600, nil)
+	configPath = path.Join(currentUser.HomeDir, configDir)
+	configDb, err = bolt.Open(path.Join(configPath, configFile), 0600, nil)
 	if err != nil {
 		panic(fmt.Errorf("config db open: %s", err))
 	}
