@@ -43,7 +43,7 @@ func (n namespaceResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 			v.Data.Status.Hard.LimitsMemory,
 			v.Data.Status.Used.LimitsCPU,
 			v.Data.Status.Used.LimitsMemory,
-			fmt.Sprintf("%dd", int(time.Now().Sub(*v.Data.Metadata.CreationTimestamp).Hours()/24)),
+			ageFormat(time.Now().Sub(*v.Data.Metadata.CreationTimestamp)),
 		}
 		ppc.Data = append(ppc.Data, row)
 	}

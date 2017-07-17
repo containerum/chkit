@@ -44,7 +44,7 @@ func (s serviceListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 			item.Metadata.Labels["isExternal"],
 			externalHost,
 			strings.Join(ports, " ,\n"),
-			fmt.Sprintf("%d", int(time.Now().Sub(*item.Metadata.CreationTimestamp).Hours()/24)),
+			ageFormat(time.Now().Sub(*item.Metadata.CreationTimestamp)),
 		}
 		ppc.Data = append(ppc.Data, row)
 	}

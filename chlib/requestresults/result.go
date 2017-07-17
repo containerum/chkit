@@ -3,6 +3,7 @@ package requestresults
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/kfeofantov/chkit-v2/chlib"
 	"github.com/olekukonko/tablewriter"
@@ -29,6 +30,26 @@ func (p prettyPrintConfig) Print() error {
 	table.SetAlignment(p.Align)
 	table.Render()
 	return nil
+}
+
+func ageFormat(d time.Duration) string {
+	durations := []struct {
+		num float64
+		pf  string
+	}{
+		{d.Hours() / 24 / 365, "Y"},
+		{d.Hours() / 24 / 30, "M"},
+		{d.Hours() / 24, "d"},
+		{d.Hours(), "d"},
+		{d.Minutes(), "m"},
+		{d.Seconds(), "s"},
+	}
+	for _, v := range durations {
+		if v.num > 1 {
+			return fmt.Sprintf("%d%s", int(v.num), v.pf)
+		}
+	}
+	return ""
 }
 
 func ProcessResponse(resp []chlib.GenericJson) (res ResultPrinter, err error) {

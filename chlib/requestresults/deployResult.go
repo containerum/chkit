@@ -80,7 +80,7 @@ func (l deployListResult) formatPrettyPrint() (ppc prettyPrintConfig, err error)
 			fmt.Sprintf("%d", item.Status.AvailableReplicas),
 			fmt.Sprintf("%dm", cpuTotal),
 			fmt.Sprintf("%dMi", memTotal),
-			fmt.Sprintf("%dd", int(time.Now().Sub(*item.Metadata.CreationTimestamp).Hours()/24)),
+			ageFormat(time.Now().Sub(*item.Metadata.CreationTimestamp)),
 		}
 		ppc.Data = append(ppc.Data, row)
 	}
