@@ -90,8 +90,12 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 func (h *HttpApiHandler) Create(jsonToSend GenericJson, kind, nameSpace string) (result HttpApiResult, err error) {
 	kind = fmt.Sprintf("%ss", strings.ToLower(kind))
 	url := fmt.Sprintf("%s/namespaces/%s/%s", h.cfg.Server, nameSpace, kind)
-	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
-	return
+	return h.makeRequest(url, http.MethodPost, jsonToSend)
+}
+
+func (h *HttpApiHandler) Expose(jsonToSend GenericJson, nameSpace string) (result HttpApiResult, err error) {
+	url := fmt.Sprintf("%s/namespaces/%s/services", h.cfg.Server, nameSpace)
+	return h.makeRequest(url, http.MethodPost, jsonToSend)
 }
 
 func (h *HttpApiHandler) Login(jsonToSend GenericJson) (result HttpApiResult, err error) {
@@ -102,14 +106,6 @@ func (h *HttpApiHandler) Login(jsonToSend GenericJson) (result HttpApiResult, er
 
 func (h *HttpApiHandler) Set(jsonToSend GenericJson, name, nameSpace string) (result HttpApiResult, err error) {
 	var url string
-	if nameSpace == "" {
-		var cfg UserInfo
-		cfg, err = GetUserInfo()
-		if err != nil {
-			return
-		}
-		nameSpace = cfg.Namespace
-	}
 	if _, hasReplicas := jsonToSend["replicas"]; hasReplicas {
 		url = fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, name)
 	} else {
@@ -120,14 +116,6 @@ func (h *HttpApiHandler) Set(jsonToSend GenericJson, name, nameSpace string) (re
 }
 
 func (h *HttpApiHandler) Scale(jsonToSend GenericJson, name, nameSpace string) (result HttpApiResult, err error) {
-	if nameSpace == "" {
-		var cfg UserInfo
-		cfg, err = GetUserInfo()
-		if err != nil {
-			return
-		}
-		nameSpace = cfg.Namespace
-	}
 	url := fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, name)
 	result, err = h.makeRequest(url, http.MethodPatch, jsonToSend)
 	return
@@ -158,24 +146,6 @@ func (h *HttpApiHandler) Replace(jsonToSend GenericJson, nameSpace, kind string)
 	if !ok {
 		return result, fmt.Errorf("repace: name is not a string")
 	}
-
-	if nameSpace == "" {
-		if nameSpaceI, hasNameSpace := jsonToSend["namespace"]; hasNameSpace {
-			if ns, ok := nameSpaceI.(string); ok {
-				nameSpace = ns
-			} else {
-				return result, fmt.Errorf("replace: namespace is not a string")
-			}
-		} else {
-			var cfg UserInfo
-			cfg, err = GetUserInfo()
-			if err != nil {
-				return
-			}
-			nameSpace = cfg.Namespace
-		}
-	}
-
 	url := fmt.Sprintf("%s/namespaces/%s/%s/%s", h.cfg.Server, nameSpace, kind, name)
 	result, err = h.makeRequest(url, http.MethodPut, jsonToSend)
 	return
@@ -205,28 +175,12 @@ func (h *HttpApiHandler) ReplaceNameSpaces(jsonToSend GenericJson) (result HttpA
 }
 
 func (h *HttpApiHandler) Run(jsonToSend GenericJson, nameSpace string) (result HttpApiResult, err error) {
-	if nameSpace == "" {
-		var cfg UserInfo
-		cfg, err = GetUserInfo()
-		if err != nil {
-			return
-		}
-		nameSpace = cfg.Namespace
-	}
 	url := fmt.Sprintf("%s/namespaces/%s/deployment", h.cfg.Server, nameSpace)
 	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
 	return
 }
 
 func (h *HttpApiHandler) Delete(kind, name, nameSpace string, allPods bool) (result HttpApiResult, err error) {
-	if nameSpace == "" {
-		var cfg UserInfo
-		cfg, err = GetUserInfo()
-		if err != nil {
-			return
-		}
-		nameSpace = cfg.Namespace
-	}
 	var url string
 	if kind == KindDeployments && allPods {
 		url = fmt.Sprintf("%s/namespaces/%s/%s/%s/pods", h.cfg.Server, nameSpace, kind, name)

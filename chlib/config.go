@@ -9,9 +9,6 @@ import (
 	"github.com/kfeofantov/chkit-v2/helpers"
 )
 
-const configDir = ".containerum"
-const configFile = "config.db"
-
 var configPath string
 
 var configDb *bolt.DB

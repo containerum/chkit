@@ -6,187 +6,185 @@ import (
 )
 
 type Metadata struct {
-	Annotations       map[string]string `json:"annotations"`
-	CreationTimestamp *time.Time        `json:"creationTimestamp"`
-	GenerateName      string            `json:"generateName"`
-	Labels            map[string]string `json:"labels"`
-	Name              string            `json:"name"`
-	Namespace         string            `json:"namespace"`
+	Annotations       map[string]string `json:"annotations,omitempty"`
+	CreationTimestamp *time.Time        `json:"creationTimestamp,omitempty"`
+	GenerateName      string            `json:"generateName,omitempty"`
+	Labels            map[string]string `json:"labels,omitempty"`
+	Name              string            `json:"name,omitempty"`
+	Namespace         string            `json:"namespace,omitempty"`
 	OwnerReferences   []struct {
-		APIVersion         string `json:"apiVersion"`
-		BlockOwnerDeletion bool   `json:"blockOwnerDeletion"`
-		Controller         bool   `json:"controller"`
-		Kind               string `json:"kind"`
-		Name               string `json:"name"`
-		UID                string `json:"uid"`
-	} `json:"ownerReferences"`
-	ResourceVersion string `json:"resourceVersion"`
-	SelfLink        string `json:"selfLink"`
-	UID             string `json:"uid"`
+		APIVersion         string `json:"apiVersion,omitempty"`
+		BlockOwnerDeletion bool   `json:"blockOwnerDeletion,omitempty"`
+		Controller         bool   `json:"controller,omitempty"`
+		Kind               string `json:"kind,omitempty"`
+		Name               string `json:"name,omitempty"`
+		UID                string `json:"uid,omitempty"`
+	} `json:"ownerReferences,omitempty"`
+	ResourceVersion string `json:"resourceVersion,omitempty"`
+	SelfLink        string `json:"selfLink,omitempty"`
+	UID             string `json:"uid,omitempty"`
 }
 
 type HwSpecs struct {
-	LimitsCPU      string `json:"limits.cpu"`
-	LimitsMemory   string `json:"limits.memory"`
-	RequestsCPU    string `json:"requests.cpu"`
-	RequestsMemory string `json:"requests.memory"`
+	LimitsCPU      string `json:"limits.cpu,omitempty"`
+	LimitsMemory   string `json:"limits.memory,omitempty"`
+	RequestsCPU    string `json:"requests.cpu,omitempty"`
+	RequestsMemory string `json:"requests.memory,omitempty"`
 }
 
 type Specs struct {
-	Hard HwSpecs `json:"hard"`
+	Hard HwSpecs `json:"hard,omitempty"`
 }
 
 type Resources struct {
 	Limits struct {
-		CPU    string `json:"cpu"`
-		Memory string `json:"memory"`
-	} `json:"limits"`
+		CPU    string `json:"cpu,omitempty"`
+		Memory string `json:"memory,omitempty"`
+	} `json:"limits,omitempty"`
 	Requests struct {
-		CPU    string `json:"cpu"`
-		Memory string `json:"memory"`
-	} `json:"requests"`
+		CPU    string `json:"cpu,omitempty"`
+		Memory string `json:"memory,omitempty"`
+	} `json:"requests,omitempty"`
 }
 
 type EnvVar struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name  string `json:"name,omitempty"`
+	Value string `json:"value,omitempty"`
 }
 
 type Port struct {
-	ContainerPort int    `json:"containerPort"`
-	Port          int    `json:"port"`
-	TargetPort    int    `json:"targetPort"`
-	Name          string `json:"name"`
-	Protocol      string `json:"protocol"`
+	ContainerPort int    `json:"containerPort,omitempty"`
+	Port          int    `json:"port,omitempty"`
+	TargetPort    int    `json:"targetPort,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Protocol      string `json:"protocol,omitempty"`
 }
 
 type Container struct {
-	Command                  []string  `json:"command"`
-	Env                      []EnvVar  `json:"env"`
-	Image                    string    `json:"image"`
-	ImagePullPolicy          string    `json:"imagePullPolicy"`
-	Name                     string    `json:"name"`
-	Ports                    []Port    `json:"ports"`
-	Resources                Resources `json:"resources"`
-	TerminationMessagePath   string    `json:"terminationMessagePath"`
-	TerminationMessagePolicy string    `json:"terminationMessagePolicy"`
+	Command                  []string  `json:"command,omitempty"`
+	Env                      []EnvVar  `json:"env,omitempty"`
+	Image                    string    `json:"image,omitempty"`
+	ImagePullPolicy          string    `json:"imagePullPolicy,omitempty"`
+	Name                     string    `json:"name,omitempty"`
+	Ports                    []Port    `json:"ports,omitempty"`
+	Resources                Resources `json:"resources,omitempty"`
+	TerminationMessagePath   string    `json:"terminationMessagePath,omitempty"`
+	TerminationMessagePolicy string    `json:"terminationMessagePolicy,omitempty"`
 }
 
 type Condiniton struct {
-	LastTransitionTime time.Time `json:"lastTransitionTime"`
-	LastUpdateTime     time.Time `json:"lastUpdateTime"`
-	Message            string    `json:"message"`
-	Reason             string    `json:"reason"`
-	Status             string    `json:"status"`
-	Type               string    `json:"type"`
+	LastTransitionTime time.Time `json:"lastTransitionTime,omitempty"`
+	LastUpdateTime     time.Time `json:"lastUpdateTime,omitempty"`
+	Message            string    `json:"message,omitempty"`
+	Reason             string    `json:"reason,omitempty"`
+	Status             string    `json:"status,omitempty"`
+	Type               string    `json:"type,omitempty"`
 }
 
 type ContainerStatus struct {
-	ContainerID  string `json:"containerID"`
-	Image        string `json:"image"`
-	ImageID      string `json:"imageID"`
-	Name         string `json:"name"`
-	Ready        bool   `json:"ready"`
-	RestartCount int    `json:"restartCount"`
+	ContainerID  string `json:"containerID,omitempty"`
+	Image        string `json:"image,omitempty"`
+	ImageID      string `json:"imageID,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Ready        bool   `json:"ready,omitempty"`
+	RestartCount int    `json:"restartCount,omitempty"`
 	State        struct {
 		Running struct {
-			StartedAt time.Time `json:"startedAt"`
-		} `json:"running"`
-	} `json:"state"`
+			StartedAt time.Time `json:"startedAt,omitempty"`
+		} `json:"running,omitempty"`
+	} `json:"state,omitempty"`
 }
 
 type NodeSelector struct {
-	Role string `json:"role"`
+	Role string `json:"role,omitempty"`
 }
 
 type Spec struct {
-	AutomountServiceAccountToken  bool         `json:"automountServiceAccountToken"`
-	Containers                    []Container  `json:"containers"`
-	DNSPolicy                     string       `json:"dnsPolicy"`
-	NodeName                      string       `json:"nodeName"`
-	NodeSelector                  NodeSelector `json:"nodeSelector"`
-	RestartPolicy                 string       `json:"restartPolicy"`
-	SchedulerName                 string       `json:"schedulerName"`
-	ServiceAccount                string       `json:"serviceAccount"`
-	ServiceAccountName            string       `json:"serviceAccountName"`
-	TerminationGracePeriodSeconds int          `json:"terminationGracePeriodSeconds"`
+	AutomountServiceAccountToken  bool         `json:"automountServiceAccountToken,omitempty"`
+	Containers                    []Container  `json:"containers,omitempty"`
+	DNSPolicy                     string       `json:"dnsPolicy,omitempty"`
+	NodeName                      string       `json:"nodeName,omitempty"`
+	NodeSelector                  NodeSelector `json:"nodeSelector,omitempty"`
+	RestartPolicy                 string       `json:"restartPolicy,omitempty"`
+	SchedulerName                 string       `json:"schedulerName,omitempty"`
+	ServiceAccount                string       `json:"serviceAccount,omitempty"`
+	ServiceAccountName            string       `json:"serviceAccountName,omitempty"`
+	TerminationGracePeriodSeconds int          `json:"terminationGracePeriodSeconds,omitempty"`
 	Tolerations                   []struct {
-		Effect            string `json:"effect"`
-		Key               string `json:"key"`
-		Operator          string `json:"operator"`
-		TolerationSeconds int    `json:"tolerationSeconds"`
-	} `json:"tolerations"`
+		Effect            string `json:"effect,omitempty"`
+		Key               string `json:"key,omitempty"`
+		Operator          string `json:"operator,omitempty"`
+		TolerationSeconds int    `json:"tolerationSeconds,omitempty"`
+	} `json:"tolerations,omitempty"`
 }
 
 type Service struct {
-	Metadata Metadata `json:"metadata"`
+	Metadata Metadata `json:"metadata,omitempty"`
 	Spec     struct {
-		ClusterIP           net.IP            `json:"clusterIP"`
-		DeprecatedPublicIPs []net.IP          `json:"deprecatedPublicIPs"`
-		ExternalHosts       []string          `json:"externalHosts"`
-		DomainHosts         []string          `json:"externalHosts"`
-		Ports               []Port            `json:"ports"`
-		Selector            map[string]string `json:"selector"`
-		SessionAffinity     string            `json:"sessionAffinity"`
-		Type                string            `json:"type"`
-	} `json:"spec"`
-	Status struct {
-		LoadBalancer map[string]interface{} `json:"loadBalancer"`
-	} `json:"status"`
+		ClusterIP           net.IP            `json:"clusterIP,omitempty"`
+		DeprecatedPublicIPs []net.IP          `json:"deprecatedPublicIPs,omitempty"`
+		ExternalHosts       []string          `json:"externalHosts,omitempty"`
+		DomainHosts         []string          `json:"externalHosts,omitempty"`
+		Ports               []Port            `json:"ports,omitempty"`
+		Selector            map[string]string `json:"selector,omitempty"`
+		SessionAffinity     string            `json:"sessionAffinity,omitempty"`
+		Type                string            `json:"type,omitempty"`
+	} `json:"spec,omitempty"`
+	Status map[string]interface{} `json:"status,omitempty"`
 }
 
 type Deploy struct {
-	Metadata Metadata `json:"metadata"`
+	Metadata Metadata `json:"metadata,omitempty"`
 	Spec     struct {
-		ProgressDeadlineSeconds int `json:"progressDeadlineSeconds"`
-		Replicas                int `json:"replicas"`
-		RevisionHistoryLimit    int `json:"revisionHistoryLimit"`
+		ProgressDeadlineSeconds int `json:"progressDeadlineSeconds,omitempty"`
+		Replicas                int `json:"replicas,omitempty"`
+		RevisionHistoryLimit    int `json:"revisionHistoryLimit,omitempty"`
 		Selector                struct {
-			MatchLabels map[string]string `json:"matchLabels"`
-		} `json:"selector"`
-		Strategy map[string]interface{} `json:"strategy"`
+			MatchLabels map[string]string `json:"matchLabels,omitempty"`
+		} `json:"selector,omitempty"`
+		Strategy map[string]interface{} `json:"strategy,omitempty"`
 		Template struct {
-			Metadata Metadata `json:"metadata"`
-			Spec     Spec     `json:"spec"`
-		} `json:"template"`
-	} `json:"spec"`
+			Metadata Metadata `json:"metadata,omitempty"`
+			Spec     Spec     `json:"spec,omitempty"`
+		} `json:"template,omitempty"`
+	} `json:"spec,omitempty"`
 	Status struct {
-		AvailableReplicas   int          `json:"availableReplicas"`
-		Conditions          []Condiniton `json:"conditions"`
-		ObservedGeneration  int          `json:"observedGeneration"`
-		ReadyReplicas       int          `json:"readyReplicas"`
-		Replicas            int          `json:"replicas"`
-		UpdatedReplicas     int          `json:"updatedReplicas"`
-		UnavaliableReplicas int          `json:"unavaliableReplicas"`
-	} `json:"status"`
+		AvailableReplicas   int          `json:"availableReplicas,omitempty"`
+		Conditions          []Condiniton `json:"conditions,omitempty"`
+		ObservedGeneration  int          `json:"observedGeneration,omitempty"`
+		ReadyReplicas       int          `json:"readyReplicas,omitempty"`
+		Replicas            int          `json:"replicas,omitempty"`
+		UpdatedReplicas     int          `json:"updatedReplicas,omitempty"`
+		UnavaliableReplicas int          `json:"unavaliableReplicas,omitempty"`
+	} `json:"status,omitempty"`
 }
 
 type Namespace struct {
-	Metadata Metadata `json:"metadata"`
-	DataType string   `json:"DataType"`
+	Metadata Metadata `json:"metadata,omitempty"`
+	DataType string   `json:"DataType,omitempty"`
 	Data     struct {
-		APIVersion string   `json:"apiVersion"`
-		Kind       string   `json:"kind"`
-		Metadata   Metadata `json:"metadata"`
-		Spec       Specs    `json:"spec"`
+		APIVersion string   `json:"apiVersion,omitempty"`
+		Kind       string   `json:"kind,omitempty"`
+		Metadata   Metadata `json:"metadata,omitempty"`
+		Spec       Specs    `json:"spec,omitempty"`
 		Status     struct {
-			Hard  HwSpecs `json:"hard"`
-			Used  HwSpecs `json:"used"`
-			Phase string  `json:"phase"`
-		} `json:"status"`
-	} `json:"data"`
+			Hard  HwSpecs `json:"hard,omitempty"`
+			Used  HwSpecs `json:"used,omitempty"`
+			Phase string  `json:"phase,omitempty"`
+		} `json:"status,omitempty"`
+	} `json:"data,omitempty"`
 }
 
 type Pod struct {
-	Metadata Metadata `json:"metadata"`
-	Spec     Spec     `json:"spec"`
+	Metadata Metadata `json:"metadata,omitempty"`
+	Spec     Spec     `json:"spec,omitempty"`
 	Status   struct {
-		Conditions        []Condiniton      `json:"conditions"`
-		ContainerStatuses []ContainerStatus `json:"containerStatuses"`
-		HostIP            net.IP            `json:"hostIP"`
-		Phase             string            `json:"phase"`
-		PodIP             net.IP            `json:"podIP"`
-		QosClass          string            `json:"qosClass"`
-		StartTime         time.Time         `json:"startTime"`
-	} `json:"status"`
+		Conditions        []Condiniton      `json:"conditions,omitempty"`
+		ContainerStatuses []ContainerStatus `json:"containerStatuses,omitempty"`
+		HostIP            net.IP            `json:"hostIP,omitempty"`
+		Phase             string            `json:"phase,omitempty"`
+		PodIP             net.IP            `json:"podIP,omitempty"`
+		QosClass          string            `json:"qosClass,omitempty"`
+		StartTime         time.Time         `json:"startTime,omitempty"`
+	} `json:"status,omitempty"`
 }

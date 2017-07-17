@@ -2,9 +2,14 @@ package chlib
 
 import (
 	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
+	"time"
 )
 
 type Client struct {
@@ -80,6 +85,9 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 	}
 	defer c.tcpApiHandler.Close()
 	var httpResult HttpApiResult
+	if nameSpace == "" {
+		nameSpace = c.userConfig.Namespace
+	}
 	if kind != KindNamespaces {
 		httpResult, err = c.apiHandler.Get(kind, name, nameSpace)
 	} else {
@@ -97,6 +105,9 @@ func (c *Client) Set(field, container, value, nameSpace string) (res TcpApiResul
 	_, err = c.tcpApiHandler.Connect()
 	if err != nil {
 		return
+	}
+	if nameSpace == "" {
+		nameSpace = c.userConfig.Namespace
 	}
 	defer c.tcpApiHandler.Close()
 	reqData := GenericJson{"name": container}
@@ -164,5 +175,58 @@ func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (err error) 
 		return
 	}
 	err = httpResult.HandleApiResult()
+	return
+}
+
+func (c *Client) constructExpose(name string, ports []Port, nameSpace string) (ret GenericJson, err error) {
+	labels := make(map[string]string)
+	labels["external"] = "true"
+	nsHash := sha256.Sum256([]byte(nameSpace))
+	labels[hex.EncodeToString(nsHash[:])[:32]] = nameSpace
+	nameHash := md5.Sum([]byte(name + time.Now().Format("2006-01-02 15:04:05.000000")))
+	_, err = c.Get(KindDeployments, name, nameSpace)
+	if err != nil {
+		return nil, fmt.Errorf("expose construct: %s", err)
+	}
+	req := new(Service)
+	req.Spec.Ports = ports
+	req.Metadata.Labels = labels
+	req.Metadata.Name = fmt.Sprintf("%s-%s", name, hex.EncodeToString(nameHash[:])[:4])
+	req.Spec.Selector = labels
+	exposeJsonPath := path.Join(configPath, srcFolder, templatesFolder, exposeFile)
+	b, _ := json.MarshalIndent(req, "", "    ")
+	err = ioutil.WriteFile(exposeJsonPath, b, 0600)
+	if err != nil {
+		return nil, fmt.Errorf("expose write file: %s", err)
+	}
+	err = json.Unmarshal(b, &ret)
+	ret["kind"] = "Service"
+	return
+}
+
+func (c *Client) Expose(name string, ports []Port, nameSpace string) (apiResult TcpApiResult, err error) {
+	if nameSpace == "" {
+		nameSpace = c.userConfig.Namespace
+	}
+	var req GenericJson
+	req, err = c.constructExpose(name, ports, nameSpace)
+	if err != nil {
+		return
+	}
+	_, err = c.tcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	defer c.tcpApiHandler.Close()
+	var httpResult HttpApiResult
+	httpResult, err = c.apiHandler.Expose(req, nameSpace)
+	if err != nil {
+		return
+	}
+	err = httpResult.HandleApiResult()
+	if err != nil {
+		return
+	}
+	apiResult, err = c.tcpApiHandler.Receive()
 	return
 }
