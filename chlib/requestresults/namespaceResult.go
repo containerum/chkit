@@ -10,18 +10,7 @@ import (
 )
 
 type namespaceResult []struct {
-	DataType string `json:"DataType"`
-	Data     struct {
-		APIVersion string   `json:"apiVersion"`
-		Kind       string   `json:"kind"`
-		Metadata   metadata `json:"metadata"`
-		Spec       specs    `json:"spec"`
-		Status     struct {
-			Hard  hwSpecs `json:"hard"`
-			Used  hwSpecs `json:"used"`
-			Phase string  `json:"phase"`
-		} `json:"status"`
-	} `json:"data"`
+	chlib.Namespace
 }
 
 func (n namespaceResult) Print() error {

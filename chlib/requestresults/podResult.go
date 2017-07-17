@@ -3,7 +3,6 @@ package requestresults
 import (
 	"encoding/json"
 	"fmt"
-	"net"
 	"strconv"
 	"strings"
 	"time"
@@ -12,29 +11,15 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-type pod struct {
-	Metadata metadata `json:"metadata"`
-	Spec     spec     `json:"spec"`
-	Status   struct {
-		Conditions        []condiniton      `json:"conditions"`
-		ContainerStatuses []containerStatus `json:"containerStatuses"`
-		HostIP            net.IP            `json:"hostIP"`
-		Phase             string            `json:"phase"`
-		PodIP             net.IP            `json:"podIP"`
-		QosClass          string            `json:"qosClass"`
-		StartTime         time.Time         `json:"startTime"`
-	} `json:"status"`
-}
-
 type singlePodResult []struct {
 	Data struct {
-		pod
+		chlib.Pod
 	} `json:"data"`
 }
 
 type podListResult []struct {
 	Data struct {
-		Items []pod `json:"items"`
+		Items []chlib.Pod `json:"items"`
 	} `json:"data"`
 }
 

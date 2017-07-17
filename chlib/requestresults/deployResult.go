@@ -10,42 +10,16 @@ import (
 	"github.com/kfeofantov/chkit-v2/chlib"
 )
 
-type deploy struct {
-	Metadata metadata `json:"metadata"`
-	Spec     struct {
-		ProgressDeadlineSeconds int `json:"progressDeadlineSeconds"`
-		Replicas                int `json:"replicas"`
-		RevisionHistoryLimit    int `json:"revisionHistoryLimit"`
-		Selector                struct {
-			MatchLabels map[string]string `json:"matchLabels"`
-		} `json:"selector"`
-		Strategy map[string]interface{} `json:"strategy"`
-		Template struct {
-			Metadata metadata `json:"metadata"`
-			Spec     spec     `json:"spec"`
-		} `json:"template"`
-	} `json:"spec"`
-	Status struct {
-		AvailableReplicas   int          `json:"availableReplicas"`
-		Conditions          []condiniton `json:"conditions"`
-		ObservedGeneration  int          `json:"observedGeneration"`
-		ReadyReplicas       int          `json:"readyReplicas"`
-		Replicas            int          `json:"replicas"`
-		UpdatedReplicas     int          `json:"updatedReplicas"`
-		UnavaliableReplicas int          `json:"unavaliableReplicas"`
-	} `json:"status"`
-}
-
 type singleDeployResult []struct {
 	DataType string `json:"DataType"`
 	Data     struct {
-		deploy
+		chlib.Deploy
 	} `json:"data"`
 }
 
 type deployListResult []struct {
 	Data struct {
-		Items []deploy `json:"items"`
+		Items []chlib.Deploy `json:"items"`
 	} `json:"data"`
 }
 

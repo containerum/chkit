@@ -1,8 +1,11 @@
-package requestresults
+package chlib
 
-import "time"
+import (
+	"net"
+	"time"
+)
 
-type metadata struct {
+type Metadata struct {
 	Annotations       map[string]string `json:"annotations"`
 	CreationTimestamp *time.Time        `json:"creationTimestamp"`
 	GenerateName      string            `json:"generateName"`
@@ -22,18 +25,18 @@ type metadata struct {
 	UID             string `json:"uid"`
 }
 
-type hwSpecs struct {
+type HwSpecs struct {
 	LimitsCPU      string `json:"limits.cpu"`
 	LimitsMemory   string `json:"limits.memory"`
 	RequestsCPU    string `json:"requests.cpu"`
 	RequestsMemory string `json:"requests.memory"`
 }
 
-type specs struct {
-	Hard hwSpecs `json:"hard"`
+type Specs struct {
+	Hard HwSpecs `json:"hard"`
 }
 
-type resources struct {
+type Resources struct {
 	Limits struct {
 		CPU    string `json:"cpu"`
 		Memory string `json:"memory"`
@@ -44,12 +47,12 @@ type resources struct {
 	} `json:"requests"`
 }
 
-type envVar struct {
+type EnvVar struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-type port struct {
+type Port struct {
 	ContainerPort int    `json:"containerPort"`
 	Port          int    `json:"port"`
 	TargetPort    int    `json:"targetPort"`
@@ -57,19 +60,19 @@ type port struct {
 	Protocol      string `json:"protocol"`
 }
 
-type container struct {
+type Container struct {
 	Command                  []string  `json:"command"`
-	Env                      []envVar  `json:"env"`
+	Env                      []EnvVar  `json:"env"`
 	Image                    string    `json:"image"`
 	ImagePullPolicy          string    `json:"imagePullPolicy"`
 	Name                     string    `json:"name"`
-	Ports                    []port    `json:"ports"`
-	Resources                resources `json:"resources"`
+	Ports                    []Port    `json:"ports"`
+	Resources                Resources `json:"resources"`
 	TerminationMessagePath   string    `json:"terminationMessagePath"`
 	TerminationMessagePolicy string    `json:"terminationMessagePolicy"`
 }
 
-type condiniton struct {
+type Condiniton struct {
 	LastTransitionTime time.Time `json:"lastTransitionTime"`
 	LastUpdateTime     time.Time `json:"lastUpdateTime"`
 	Message            string    `json:"message"`
@@ -78,7 +81,7 @@ type condiniton struct {
 	Type               string    `json:"type"`
 }
 
-type containerStatus struct {
+type ContainerStatus struct {
 	ContainerID  string `json:"containerID"`
 	Image        string `json:"image"`
 	ImageID      string `json:"imageID"`
@@ -92,16 +95,16 @@ type containerStatus struct {
 	} `json:"state"`
 }
 
-type nodeSelector struct {
+type NodeSelector struct {
 	Role string `json:"role"`
 }
 
-type spec struct {
+type Spec struct {
 	AutomountServiceAccountToken  bool         `json:"automountServiceAccountToken"`
-	Containers                    []container  `json:"containers"`
+	Containers                    []Container  `json:"containers"`
 	DNSPolicy                     string       `json:"dnsPolicy"`
 	NodeName                      string       `json:"nodeName"`
-	NodeSelector                  nodeSelector `json:"nodeSelector"`
+	NodeSelector                  NodeSelector `json:"nodeSelector"`
 	RestartPolicy                 string       `json:"restartPolicy"`
 	SchedulerName                 string       `json:"schedulerName"`
 	ServiceAccount                string       `json:"serviceAccount"`
@@ -113,4 +116,77 @@ type spec struct {
 		Operator          string `json:"operator"`
 		TolerationSeconds int    `json:"tolerationSeconds"`
 	} `json:"tolerations"`
+}
+
+type Service struct {
+	Metadata Metadata `json:"metadata"`
+	Spec     struct {
+		ClusterIP           net.IP            `json:"clusterIP"`
+		DeprecatedPublicIPs []net.IP          `json:"deprecatedPublicIPs"`
+		ExternalHosts       []string          `json:"externalHosts"`
+		DomainHosts         []string          `json:"externalHosts"`
+		Ports               []Port            `json:"ports"`
+		Selector            map[string]string `json:"selector"`
+		SessionAffinity     string            `json:"sessionAffinity"`
+		Type                string            `json:"type"`
+	} `json:"spec"`
+	Status struct {
+		LoadBalancer map[string]interface{} `json:"loadBalancer"`
+	} `json:"status"`
+}
+
+type Deploy struct {
+	Metadata Metadata `json:"metadata"`
+	Spec     struct {
+		ProgressDeadlineSeconds int `json:"progressDeadlineSeconds"`
+		Replicas                int `json:"replicas"`
+		RevisionHistoryLimit    int `json:"revisionHistoryLimit"`
+		Selector                struct {
+			MatchLabels map[string]string `json:"matchLabels"`
+		} `json:"selector"`
+		Strategy map[string]interface{} `json:"strategy"`
+		Template struct {
+			Metadata Metadata `json:"metadata"`
+			Spec     Spec     `json:"spec"`
+		} `json:"template"`
+	} `json:"spec"`
+	Status struct {
+		AvailableReplicas   int          `json:"availableReplicas"`
+		Conditions          []Condiniton `json:"conditions"`
+		ObservedGeneration  int          `json:"observedGeneration"`
+		ReadyReplicas       int          `json:"readyReplicas"`
+		Replicas            int          `json:"replicas"`
+		UpdatedReplicas     int          `json:"updatedReplicas"`
+		UnavaliableReplicas int          `json:"unavaliableReplicas"`
+	} `json:"status"`
+}
+
+type Namespace struct {
+	Metadata Metadata `json:"metadata"`
+	DataType string   `json:"DataType"`
+	Data     struct {
+		APIVersion string   `json:"apiVersion"`
+		Kind       string   `json:"kind"`
+		Metadata   Metadata `json:"metadata"`
+		Spec       Specs    `json:"spec"`
+		Status     struct {
+			Hard  HwSpecs `json:"hard"`
+			Used  HwSpecs `json:"used"`
+			Phase string  `json:"phase"`
+		} `json:"status"`
+	} `json:"data"`
+}
+
+type Pod struct {
+	Metadata Metadata `json:"metadata"`
+	Spec     Spec     `json:"spec"`
+	Status   struct {
+		Conditions        []Condiniton      `json:"conditions"`
+		ContainerStatuses []ContainerStatus `json:"containerStatuses"`
+		HostIP            net.IP            `json:"hostIP"`
+		Phase             string            `json:"phase"`
+		PodIP             net.IP            `json:"podIP"`
+		QosClass          string            `json:"qosClass"`
+		StartTime         time.Time         `json:"startTime"`
+	} `json:"status"`
 }

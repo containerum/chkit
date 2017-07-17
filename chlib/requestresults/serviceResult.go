@@ -3,39 +3,21 @@ package requestresults
 import (
 	"encoding/json"
 	"fmt"
-	"net"
 	"strings"
 	"time"
 
 	"github.com/kfeofantov/chkit-v2/chlib"
 )
 
-type service struct {
-	Metadata metadata `json:"metadata"`
-	Spec     struct {
-		ClusterIP           net.IP            `json:"clusterIP"`
-		DeprecatedPublicIPs []net.IP          `json:"deprecatedPublicIPs"`
-		ExternalHosts       []string          `json:"externalHosts"`
-		DomainHosts         []string          `json:"externalHosts"`
-		Ports               []port            `json:"ports"`
-		Selector            map[string]string `json:"selector"`
-		SessionAffinity     string            `json:"sessionAffinity"`
-		Type                string            `json:"type"`
-	} `json:"spec"`
-	Status struct {
-		LoadBalancer map[string]interface{} `json:"loadBalancer"`
-	} `json:"status"`
-}
-
 type singleServiceResult []struct {
 	Data struct {
-		service
+		chlib.Service
 	} `json:"data"`
 }
 
 type serviceListResult []struct {
 	Data struct {
-		Items []service `json:"items"`
+		Items []chlib.Service `json:"items"`
 	} `json:"data"`
 }
 
