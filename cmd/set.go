@@ -27,8 +27,11 @@ var setCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		setCmdField = args[0]
-		if args[1] != "deployment" {
-			jww.FEEDBACK.Println("Object type must be \"deployment\"")
+		switch args[1] {
+		case "deployments", "deployment", "deploy":
+			break
+		default:
+			jww.FEEDBACK.Println("Invalid KIND. Choose from ('deployments', 'deployment', 'deploy')")
 			os.Exit(1)
 		}
 		setCmdContainer = args[2]
