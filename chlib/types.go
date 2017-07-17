@@ -36,15 +36,14 @@ type Specs struct {
 	Hard HwSpecs `json:"hard,omitempty"`
 }
 
+type HwResources struct {
+	CPU    string `json:"cpu,omitempty"`
+	Memory string `json:"memory,omitempty"`
+}
+
 type Resources struct {
-	Limits struct {
-		CPU    string `json:"cpu,omitempty"`
-		Memory string `json:"memory,omitempty"`
-	} `json:"limits,omitempty"`
-	Requests struct {
-		CPU    string `json:"cpu,omitempty"`
-		Memory string `json:"memory,omitempty"`
-	} `json:"requests,omitempty"`
+	Limits   *HwResources `json:"limits,omitempty"`
+	Requests *HwResources `json:"requests,omitempty"`
 }
 
 type EnvVar struct {
@@ -100,16 +99,15 @@ type NodeSelector struct {
 }
 
 type Spec struct {
-	AutomountServiceAccountToken  bool         `json:"automountServiceAccountToken,omitempty"`
-	Containers                    []Container  `json:"containers,omitempty"`
-	DNSPolicy                     string       `json:"dnsPolicy,omitempty"`
-	NodeName                      string       `json:"nodeName,omitempty"`
-	NodeSelector                  NodeSelector `json:"nodeSelector,omitempty"`
-	RestartPolicy                 string       `json:"restartPolicy,omitempty"`
-	SchedulerName                 string       `json:"schedulerName,omitempty"`
-	ServiceAccount                string       `json:"serviceAccount,omitempty"`
-	ServiceAccountName            string       `json:"serviceAccountName,omitempty"`
-	TerminationGracePeriodSeconds int          `json:"terminationGracePeriodSeconds,omitempty"`
+	AutomountServiceAccountToken  bool        `json:"automountServiceAccountToken,omitempty"`
+	Containers                    []Container `json:"containers,omitempty"`
+	DNSPolicy                     string      `json:"dnsPolicy,omitempty"`
+	NodeName                      string      `json:"nodeName,omitempty"`
+	RestartPolicy                 string      `json:"restartPolicy,omitempty"`
+	SchedulerName                 string      `json:"schedulerName,omitempty"`
+	ServiceAccount                string      `json:"serviceAccount,omitempty"`
+	ServiceAccountName            string      `json:"serviceAccountName,omitempty"`
+	TerminationGracePeriodSeconds int         `json:"terminationGracePeriodSeconds,omitempty"`
 	Tolerations                   []struct {
 		Effect            string `json:"effect,omitempty"`
 		Key               string `json:"key,omitempty"`
@@ -139,7 +137,7 @@ type Deploy struct {
 		ProgressDeadlineSeconds int `json:"progressDeadlineSeconds,omitempty"`
 		Replicas                int `json:"replicas,omitempty"`
 		RevisionHistoryLimit    int `json:"revisionHistoryLimit,omitempty"`
-		Selector                struct {
+		Selector                *struct {
 			MatchLabels map[string]string `json:"matchLabels,omitempty"`
 		} `json:"selector,omitempty"`
 		Strategy map[string]interface{} `json:"strategy,omitempty"`
@@ -148,7 +146,7 @@ type Deploy struct {
 			Spec     Spec     `json:"spec,omitempty"`
 		} `json:"template,omitempty"`
 	} `json:"spec,omitempty"`
-	Status struct {
+	Status *struct {
 		AvailableReplicas   int          `json:"availableReplicas,omitempty"`
 		Conditions          []Condiniton `json:"conditions,omitempty"`
 		ObservedGeneration  int          `json:"observedGeneration,omitempty"`

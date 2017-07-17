@@ -175,7 +175,7 @@ func (h *HttpApiHandler) ReplaceNameSpaces(jsonToSend GenericJson) (result HttpA
 }
 
 func (h *HttpApiHandler) Run(jsonToSend GenericJson, nameSpace string) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/namespaces/%s/deployment", h.cfg.Server, nameSpace)
+	url := fmt.Sprintf("%s/namespaces/%s/deployments", h.cfg.Server, nameSpace)
 	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
 	return
 }

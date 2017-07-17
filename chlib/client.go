@@ -220,8 +220,7 @@ func (c *Client) Expose(name string, ports []Port, nameSpace string) (apiResult 
 		return
 	}
 	defer c.tcpApiHandler.Close()
-	var httpResult HttpApiResult
-	httpResult, err = c.apiHandler.Expose(req, nameSpace)
+	httpResult, err := c.apiHandler.Expose(req, nameSpace)
 	if err != nil {
 		return
 	}
@@ -237,8 +236,65 @@ func (c *Client) Scale(name string, replicas int, nameSpace string) (err error) 
 	if nameSpace == "" {
 		nameSpace = c.userConfig.Namespace
 	}
-	var httpResult HttpApiResult
-	httpResult, err = c.apiHandler.Scale(GenericJson{"replicas": replicas}, name, nameSpace)
+	httpResult, err := c.apiHandler.Scale(GenericJson{"replicas": replicas}, name, nameSpace)
+	if err != nil {
+		return
+	}
+	err = httpResult.HandleApiResult()
+	return
+}
+
+type ConfigureParams struct {
+	Image    string
+	Ports    []int
+	Labels   map[string]string
+	Env      []EnvVar
+	CPU      string
+	Memory   string
+	Replicas int
+	Command  []string
+}
+
+func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJson, err error) {
+	req := new(Deploy)
+	req.Metadata.Name = name
+	req.Metadata.Labels = params.Labels
+	req.Spec.Replicas = params.Replicas
+	req.Metadata.Labels = params.Labels
+	req.Spec.Template.Metadata = req.Metadata
+	containers := make([]Container, 1)
+	containers[0].Name = name
+	containers[0].Image = params.Image
+	if len(params.Ports) != 0 {
+		for _, p := range params.Ports {
+			containers[0].Ports = append(containers[0].Ports, Port{ContainerPort: p})
+		}
+	}
+	containers[0].Command = params.Command
+	containers[0].Env = params.Env
+	containers[0].Resources.Requests = &HwResources{CPU: params.CPU, Memory: params.Memory}
+	req.Spec.Template.Spec.Containers = containers
+	runJsonPath := path.Join(configPath, srcFolder, templatesFolder, runFile)
+	b, _ := json.MarshalIndent(req, "", "    ")
+	err = ioutil.WriteFile(runJsonPath, b, 0600)
+	if err != nil {
+		return nil, fmt.Errorf("run write file: %s", err)
+	}
+	err = json.Unmarshal(b, &ret)
+	ret["kind"] = "Deployment"
+	return
+}
+
+func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (result TcpApiResult, err error) {
+	req, err := c.constructRun(name, params)
+	if err != nil {
+		return
+	}
+	if nameSpace == "" {
+		nameSpace = c.userConfig.Namespace
+	}
+	fmt.Println(req)
+	httpResult, err := c.apiHandler.Run(req, nameSpace)
 	if err != nil {
 		return
 	}

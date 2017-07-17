@@ -1,9 +1,6 @@
 package cmd
 
-import (
-	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
-)
+import "github.com/spf13/cobra"
 
 //RootCmd main cmd entrypoint
 var RootCmd = &cobra.Command{
@@ -12,12 +9,7 @@ var RootCmd = &cobra.Command{
 		if cmd.Flags().NFlag() == 0 {
 			cmd.Usage()
 		}
-		var err error
-		debug, err = cmd.Flags().GetBool("debug")
-		if err != nil {
-			jww.ERROR.Println(err)
-			return
-		}
+		debug, _ = cmd.Flags().GetBool("debug")
 	},
 }
 
