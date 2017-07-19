@@ -123,7 +123,7 @@ type Service struct {
 		ClusterIP           net.IP            `json:"clusterIP,omitempty"`
 		DeprecatedPublicIPs []net.IP          `json:"deprecatedPublicIPs,omitempty"`
 		ExternalHosts       []string          `json:"externalHosts,omitempty"`
-		DomainHosts         []string          `json:"externalHosts,omitempty"`
+		DomainHosts         []string          `json:"domainHosts,omitempty"`
 		Ports               []Port            `json:"ports,omitempty"`
 		Selector            map[string]string `json:"selector,omitempty"`
 		SessionAffinity     string            `json:"sessionAffinity,omitempty"`

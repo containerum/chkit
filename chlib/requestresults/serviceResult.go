@@ -25,7 +25,8 @@ func (s serviceListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 	ppc.Columns = []string{"NAME", "CLUSTER-IP", "EXTERNAL", "HOST", "PORT(S)", "AGE"}
 	for _, item := range s[0].Data.Items {
 		var externalHost string
-		if len(item.Spec.DomainHosts) != 0 && item.Metadata.Labels["external"] == "true" {
+		external := item.Metadata.Labels["external"]
+		if len(item.Spec.DomainHosts) != 0 && external == "true" {
 			externalHost = strings.Join(item.Spec.DomainHosts, " ,\n")
 		} else {
 			externalHost = "--"
@@ -41,7 +42,7 @@ func (s serviceListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 		row := []string{
 			item.Metadata.Name,
 			item.Spec.ClusterIP.String(),
-			item.Metadata.Labels["isExternal"],
+			external,
 			externalHost,
 			strings.Join(ports, " ,\n"),
 			ageFormat(time.Now().Sub(*item.Metadata.CreationTimestamp)),
