@@ -111,9 +111,9 @@ var configCmd = &cobra.Command{
 func init() {
 	configCmd.PersistentFlags().StringP("set-token", "t", "", "Set user token")
 	configCmd.PersistentFlags().StringP("set-default-namespace", "n", "", "Default namespace")
-	configCmd.PersistentFlags().String("set-http-server-address", dbconfig.DefaultHTTPServer, "HTTP API server address")
+	configCmd.PersistentFlags().StringP("set-http-server-address", "H", dbconfig.DefaultHTTPServer, "HTTP API server address")
 	configCmd.PersistentFlags().Duration("set-http-server-timeout", dbconfig.DefaultHTTPTimeout, "HTTP API calls timeout")
-	configCmd.PersistentFlags().String("set-tcp-server-address", dbconfig.DefaultTCPServer, "TCP API server address")
+	configCmd.PersistentFlags().StringP("set-tcp-server-address", "T", dbconfig.DefaultTCPServer, "TCP API server address")
 	configCmd.PersistentFlags().Int("set-tcp-buffer-size", dbconfig.DefaultBufferSize, "TCP API buffer size")
 	RootCmd.AddCommand(configCmd)
 }
