@@ -293,9 +293,6 @@ func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res
 	if nameSpace == "" {
 		nameSpace = c.userConfig.Namespace
 	}
-	fmt.Println(req)
-	reqStr, _ := json.MarshalIndent(req, "", "    ")
-	fmt.Printf("%s\n", reqStr)
 	httpResult, err := c.apiHandler.Run(req, nameSpace)
 	if err != nil {
 		return
