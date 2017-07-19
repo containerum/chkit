@@ -72,7 +72,8 @@ var getCmd = &cobra.Command{
 		}
 		switch format, _ := cmd.Flags().GetString("output"); format {
 		case "pretty":
-			p, err := requestresults.ProcessResponse(jsonContent)
+			fieldToSort, _ := cmd.Flags().GetString("sort-by")
+			p, err := requestresults.ProcessResponse(jsonContent, fieldToSort)
 			if err != nil {
 				break
 			}
@@ -94,6 +95,7 @@ var getCmd = &cobra.Command{
 
 func init() {
 	getCmd.PersistentFlags().StringP("output", "o", "pretty", "Output format: json, yaml, pretty")
+	getCmd.PersistentFlags().StringP("sort-by", "s", "NAME", "Sort by field. Used only if list printed")
 	getCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	getCmd.PersistentFlags().StringP("file", "f", "", "JSON file generated on object creation")
 	RootCmd.AddCommand(getCmd)
