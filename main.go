@@ -10,11 +10,9 @@ import (
 
 func main() {
 	if _, err := os.Stat(chlib.ConfigDir); os.IsNotExist(err) {
-		err = os.MkdirAll(chlib.ConfigDir, os.ModePerm)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		os.MkdirAll(chlib.ConfigDir, os.ModePerm)
+		os.MkdirAll(chlib.TemplatesFolder, os.ModePerm)
+		os.MkdirAll(chlib.SrcFolder, os.ModePerm)
 	}
 	if err := cmd.RootCmd.Execute(); err != nil {
 		fmt.Println(err)
