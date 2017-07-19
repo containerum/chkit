@@ -33,7 +33,7 @@ func (d *ConfigDB) initialize(bucket *bolt.Bucket, initializer helpers.MappedStr
 }
 
 func OpenOrCreate(filePath string) (db *ConfigDB, err error) {
-	db=new(ConfigDB)
+	db = new(ConfigDB)
 	db.db, err = bolt.Open(filePath, os.ModePerm, nil)
 	if err != nil {
 		return

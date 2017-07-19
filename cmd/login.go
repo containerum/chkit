@@ -5,8 +5,8 @@ import (
 	"regexp"
 
 	"chkit-v2/chlib"
-	"github.com/spf13/cobra"
 	"github.com/howeyc/gopass"
+	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -46,7 +46,7 @@ var loginCmd = &cobra.Command{
 }
 
 func init() {
-	loginCmd.PersistentFlags().StringP("login","l","","User login (email)")
-	loginCmd.PersistentFlags().StringP("password","p","", "User password")
+	loginCmd.PersistentFlags().StringP("login", "l", "", "User login (email)")
+	loginCmd.PersistentFlags().StringP("password", "p", "", "User password")
 	RootCmd.AddCommand(loginCmd)
 }

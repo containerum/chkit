@@ -117,6 +117,7 @@ type Spec struct {
 }
 
 type Service struct {
+	Kind     string   `json:"kind"`
 	Metadata Metadata `json:"metadata,omitempty"`
 	Spec     struct {
 		ClusterIP           net.IP            `json:"clusterIP,omitempty"`
@@ -132,6 +133,7 @@ type Service struct {
 }
 
 type Deploy struct {
+	Kind     string   `json:"kind"`
 	Metadata Metadata `json:"metadata,omitempty"`
 	Spec     struct {
 		ProgressDeadlineSeconds int `json:"progressDeadlineSeconds,omitempty"`
@@ -158,6 +160,7 @@ type Deploy struct {
 }
 
 type Namespace struct {
+	Kind     string   `json:"kind"`
 	Metadata Metadata `json:"metadata,omitempty"`
 	DataType string   `json:"DataType,omitempty"`
 	Data     struct {
@@ -174,6 +177,7 @@ type Namespace struct {
 }
 
 type Pod struct {
+	Kind     string   `json:"kind"`
 	Metadata Metadata `json:"metadata,omitempty"`
 	Spec     Spec     `json:"spec,omitempty"`
 	Status   struct {

@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"chkit-v2/chlib/dbconfig"
-	"os"
 	"chkit-v2/chlib"
+	"chkit-v2/chlib/dbconfig"
+	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
+	"os"
 )
 
 var db *dbconfig.ConfigDB

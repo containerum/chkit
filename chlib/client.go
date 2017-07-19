@@ -1,6 +1,7 @@
 package chlib
 
 import (
+	"chkit-v2/chlib/dbconfig"
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
@@ -9,7 +10,6 @@ import (
 	"io/ioutil"
 	"os"
 	"time"
-	"chkit-v2/chlib/dbconfig"
 )
 
 type Client struct {
@@ -43,8 +43,8 @@ func NewClient(db *dbconfig.ConfigDB, version, uuid string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	client.apiHandler = NewHttpApiHandler(cfg,uuid,userCfg.Token)
-	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg,uuid,userCfg.Token)
+	client.apiHandler = NewHttpApiHandler(cfg, uuid, userCfg.Token)
+	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg, uuid, userCfg.Token)
 	client.userConfig = &userCfg
 	return client, nil
 }
@@ -267,6 +267,12 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	}
 	containers[0].Command = params.Command
 	containers[0].Env = params.Env
+	if params.CPU == "" {
+		params.CPU = DefaultCPURequest
+	}
+	if params.Memory == "" {
+		params.Memory = DefaultMemoryRequest
+	}
 	containers[0].Resources.Requests = &HwResources{CPU: params.CPU, Memory: params.Memory}
 	req.Spec.Template.Spec.Containers = containers
 	b, _ := json.MarshalIndent(req, "", "    ")
@@ -288,6 +294,8 @@ func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res
 		nameSpace = c.userConfig.Namespace
 	}
 	fmt.Println(req)
+	reqStr, _ := json.MarshalIndent(req, "", "    ")
+	fmt.Printf("%s\n", reqStr)
 	httpResult, err := c.apiHandler.Run(req, nameSpace)
 	if err != nil {
 		return

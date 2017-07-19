@@ -5,7 +5,7 @@ import (
 	"chkit-v2/helpers"
 )
 
-func UserLogin(db *dbconfig.ConfigDB, login, password string) (token string,err error) {
+func UserLogin(db *dbconfig.ConfigDB, login, password string) (token string, err error) {
 	info, err := db.GetUserInfo()
 	if err != nil {
 		return

@@ -63,6 +63,6 @@ var deleteCmd = &cobra.Command{
 }
 
 func init() {
-	deleteCmd.PersistentFlags().StringP("namespace", "n", "","Namespace")
+	deleteCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	RootCmd.AddCommand(deleteCmd)
 }

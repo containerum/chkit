@@ -20,27 +20,32 @@ const (
 	KeyReplicas = "replicas"
 )
 
+const (
+	DefaultCPURequest    = "100m"
+	DefaultMemoryRequest = "128Mi"
+)
+
 func init() {
 	currentUser, err := user.Current()
 	if err != nil {
 		panic(fmt.Errorf("get current user: %s", err))
 	}
 	homeDir = currentUser.HomeDir
-	ConfigDir       = path.Join(homeDir, ".containerum")
-	ConfigFile      = path.Join(ConfigDir, "config.db")
-	SrcFolder       = path.Join(ConfigDir, "src")
+	ConfigDir = path.Join(homeDir, ".containerum")
+	ConfigFile = path.Join(ConfigDir, "config.db")
+	SrcFolder = path.Join(ConfigDir, "src")
 	TemplatesFolder = path.Join(SrcFolder, "json_templates")
-	RunFile         = path.Join(TemplatesFolder, "run.json")
-	ExposeFile      = path.Join(TemplatesFolder, "expose.json")
+	RunFile = path.Join(TemplatesFolder, "run.json")
+	ExposeFile = path.Join(TemplatesFolder, "expose.json")
 }
 
-var	(
-	ConfigDir string
-	ConfigFile string
-	SrcFolder string
+var (
+	ConfigDir       string
+	ConfigFile      string
+	SrcFolder       string
 	TemplatesFolder string
-	RunFile string
-	ExposeFile string
+	RunFile         string
+	ExposeFile      string
 )
 
 const DefaultProto = "TCP"
