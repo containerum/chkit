@@ -81,17 +81,13 @@ type Condiniton struct {
 }
 
 type ContainerStatus struct {
-	ContainerID  string `json:"containerID,omitempty"`
-	Image        string `json:"image,omitempty"`
-	ImageID      string `json:"imageID,omitempty"`
-	Name         string `json:"name,omitempty"`
-	Ready        bool   `json:"ready,omitempty"`
-	RestartCount int    `json:"restartCount,omitempty"`
-	State        struct {
-		Running struct {
-			StartedAt time.Time `json:"startedAt,omitempty"`
-		} `json:"running,omitempty"`
-	} `json:"state,omitempty"`
+	ContainerID  string                 `json:"containerID,omitempty"`
+	Image        string                 `json:"image,omitempty"`
+	ImageID      string                 `json:"imageID,omitempty"`
+	Name         string                 `json:"name,omitempty"`
+	Ready        bool                   `json:"ready,omitempty"`
+	RestartCount int                    `json:"restartCount,omitempty"`
+	State        map[string]interface{} `json:"state,omitempty"`
 }
 
 type NodeSelector struct {

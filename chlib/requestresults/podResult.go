@@ -27,16 +27,29 @@ func (p podListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 	ppc.Columns = []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP"}
 	for _, item := range p[0].Data.Items {
 		restarts := 0
+		var podStatus string
 		for _, containerStatus := range item.Status.ContainerStatuses {
 			restarts += containerStatus.RestartCount
+			var status string
+			for k := range containerStatus.State {
+				status = k
+				break
+			}
+			if podStatus == "" || podStatus == "running" {
+				podStatus = status
+			}
+			if podStatus == "waiting" && status == "terminated" {
+				podStatus = status
+			}
 		}
+		podStatus = strings.Title(podStatus)
 		ipStr := item.Status.PodIP.String()
 		if item.Status.PodIP == nil {
 			ipStr = "None"
 		}
 		row := []string{
 			item.Metadata.Name,
-			"-/-",
+			podStatus,
 			item.Status.Phase,
 			fmt.Sprintf("%d", restarts),
 			ageFormat(time.Now().Sub(item.Status.StartTime)),

@@ -252,6 +252,7 @@ type ConfigureParams struct {
 
 func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJson, err error) {
 	req := new(Deploy)
+	req.Kind = "Deployment"
 	req.Metadata.Name = name
 	req.Metadata.Labels = params.Labels
 	req.Spec.Replicas = params.Replicas
@@ -281,7 +282,6 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 		return nil, fmt.Errorf("run write file: %s", err)
 	}
 	err = json.Unmarshal(b, &ret)
-	ret["kind"] = "Deployment"
 	return
 }
 
