@@ -51,9 +51,8 @@ var deleteCmd = &cobra.Command{
 			return
 		}
 		nameSpace, _ := cmd.Flags().GetString("namespace")
-		allPods, _ := cmd.Flags().GetBool("allpods")
 		jww.FEEDBACK.Print("delete...")
-		err = client.Delete(deleteCmdKind, deleteCmdName, nameSpace, allPods)
+		err = client.Delete(deleteCmdKind, deleteCmdName, nameSpace, false)
 		if err != nil {
 			jww.FEEDBACK.Println("ERROR")
 			jww.ERROR.Println(err)
@@ -65,6 +64,5 @@ var deleteCmd = &cobra.Command{
 
 func init() {
 	deleteCmd.PersistentFlags().StringP("namespace", "n", "","Namespace")
-	deleteCmd.PersistentFlags().BoolP("allpods", "a", false, "Delete all pods (used only if KIND = "+chlib.KindDeployments+")")
 	RootCmd.AddCommand(deleteCmd)
 }
