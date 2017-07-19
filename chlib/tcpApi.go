@@ -3,65 +3,27 @@ package chlib
 import (
 	"bufio"
 	"bytes"
+	"chkit-v2/chlib/dbconfig"
 	"encoding/json"
 	"fmt"
 	"net"
 	"strconv"
-
-	"github.com/kfeofantov/chkit-v2/helpers"
 )
 
-type TcpApiConfig struct {
-	Address    net.IP `mapconv:"address"`
-	Port       int    `mapconv:"port"`
-	BufferSize int    `mapconv:"buffersize"`
-	Uuid       string `mapconv:"-"`
-	Token      string `mapconv:"-"`
-}
-
-const tcpApiBucket = "tcpApi"
-
-func init() {
-	cfg := TcpApiConfig{
-		Address:    net.IPv4zero,
-		Port:       0,
-		BufferSize: 1024,
-	}
-	initializers[tcpApiBucket] = helpers.StructToMap(cfg)
-}
-
 type TcpApiHandler struct {
-	cfg      TcpApiConfig
+	cfg      dbconfig.TcpApiConfig
 	authForm map[string]string
 	socket   net.Conn
 }
 
 type TcpApiResult map[string]interface{}
 
-func GetTcpApiConfig() (cfg TcpApiConfig, err error) {
-	m, err := readFromBucket(tcpApiBucket)
-	if err != nil {
-		return cfg, fmt.Errorf("load tcp api config: %s", err)
-	}
-	err = helpers.FillStruct(&cfg, m)
-	if err != nil {
-		return cfg, fmt.Errorf("fill tcp api config: %s", err)
-	}
-	return cfg, nil
-}
-
-func UpdateTcpApiConfig(cfg TcpApiConfig) error {
-	return pushToBucket(tcpApiBucket, helpers.StructToMap(cfg))
-}
-
-func NewTcpApiHandler(cfg TcpApiConfig) *TcpApiHandler {
-	return &TcpApiHandler{
-		cfg: cfg,
-		authForm: map[string]string{
-			"channel": cfg.Uuid,
-			"token":   cfg.Token,
-		},
-	}
+func NewTcpApiHandler(cfg dbconfig.TcpApiConfig, uuid, token string) *TcpApiHandler {
+	handler := &TcpApiHandler{cfg: cfg}
+	handler.authForm = make(map[string]string)
+	handler.authForm["channel"] = uuid
+	handler.authForm["token"] = token
+	return handler
 }
 
 func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {

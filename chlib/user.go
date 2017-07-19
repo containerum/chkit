@@ -1,66 +1,34 @@
 package chlib
 
 import (
-	"fmt"
-
-	"github.com/kfeofantov/chkit-v2/helpers"
+	"chkit-v2/chlib/dbconfig"
+	"chkit-v2/helpers"
 )
 
-type UserInfo struct {
-	Token     string `mapconv:"token"`
-	Namespace string `mapconv:"namespace"`
-}
-
-const userBucket = "user"
-
-func init() {
-	defaultInfo := UserInfo{Token: "", Namespace: "default"}
-	initializers[userBucket] = helpers.StructToMap(defaultInfo)
-}
-
-func GetUserInfo() (info UserInfo, err error) {
-	m, err := readFromBucket(userBucket)
+func UserLogin(db *dbconfig.ConfigDB, login, password string) (token string,err error) {
+	info, err := db.GetUserInfo()
 	if err != nil {
-		return info, fmt.Errorf("user bucket get: %s", err)
+		return
 	}
-	err = helpers.FillStruct(&info, m)
+	client, err := NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
 	if err != nil {
-		return info, fmt.Errorf("user data fill: %s", err)
+		return
 	}
-	return info, nil
-}
-
-func UpdateUserInfo(info UserInfo) error {
-	return pushToBucket(userBucket, helpers.StructToMap(info))
-}
-
-func UserLogin(login, password string) error {
-	info, err := GetUserInfo()
+	token, err = client.Login(login, password)
 	if err != nil {
-		return err
-	}
-	client, err := NewClient(helpers.CurrentClientVersion, helpers.UuidV4())
-	if err != nil {
-		return err
-	}
-	token, err := client.Login(login, password)
-	if err != nil {
-		return err
+		return
 	}
 	info.Token = token
-	err = UpdateUserInfo(info)
-	if err != nil {
-		return err
-	}
-	return nil
+	err = db.UpdateUserInfo(info)
+	return
 }
 
-func UserLogout() error {
-	info, err := GetUserInfo()
+func UserLogout(db *dbconfig.ConfigDB) error {
+	info, err := db.GetUserInfo()
 	if err != nil {
 		return err
 	}
 	info.Token = ""
-	err = UpdateUserInfo(info)
+	err = db.UpdateUserInfo(info)
 	return err
 }

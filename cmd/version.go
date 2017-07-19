@@ -4,8 +4,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
-	helper "github.com/kfeofantov/chkit-v2/helpers"
+	"chkit-v2/chlib"
+	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -15,7 +15,7 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version number of chkit",
 	Run: func(cmd *cobra.Command, args []string) {
 		jww.FEEDBACK.Printf("CH Client\n Version: %s\n Built: %s\n OS: %s\n Platform: %s\n Git commit: %s\n",
-			helper.CurrentClientVersion, chlib.BuildDate, runtime.GOOS, runtime.GOARCH, chlib.CommitHash)
+			helpers.CurrentClientVersion, chlib.BuildDate, runtime.GOOS, runtime.GOARCH, chlib.CommitHash)
 	},
 }
 
@@ -26,7 +26,7 @@ func init() {
 
 func checkBuildDate() {
 	if chlib.BuildDate == "" {
-		t := helper.GetProgramBuildTime()
+		t := helpers.GetProgramBuildTime()
 		chlib.BuildDate = t.Format(time.RFC822)
 		return
 	}

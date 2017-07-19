@@ -1,5 +1,13 @@
 package chlib
 
+import (
+	"fmt"
+	"os/user"
+	"path"
+)
+
+var homeDir string
+
 const (
 	KindDeployments = "deployments"
 	KindNamespaces  = "namespaces"
@@ -12,13 +20,27 @@ const (
 	KeyReplicas = "replicas"
 )
 
-const (
-	configDir       = ".containerum"
-	configFile      = "config.db"
-	srcFolder       = "src"
-	templatesFolder = "json_templates"
-	runFile         = "run.json"
-	exposeFile      = "expose.json"
+func init() {
+	currentUser, err := user.Current()
+	if err != nil {
+		panic(fmt.Errorf("get current user: %s", err))
+	}
+	homeDir = currentUser.HomeDir
+	ConfigDir       = path.Join(homeDir, ".containerum")
+	ConfigFile      = path.Join(ConfigDir, "config.db")
+	SrcFolder       = path.Join(ConfigDir, "src")
+	TemplatesFolder = path.Join(SrcFolder, "json_templates")
+	RunFile         = path.Join(TemplatesFolder, "run.json")
+	ExposeFile      = path.Join(TemplatesFolder, "expose.json")
+}
+
+var	(
+	ConfigDir string
+	ConfigFile string
+	SrcFolder string
+	TemplatesFolder string
+	RunFile string
+	ExposeFile string
 )
 
 const DefaultProto = "TCP"

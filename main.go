@@ -4,12 +4,18 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
-	"github.com/kfeofantov/chkit-v2/cmd"
+	"chkit-v2/chlib"
+	"chkit-v2/cmd"
 )
 
 func main() {
-	defer chlib.Close()
+	if _, err := os.Stat(chlib.ConfigDir); os.IsNotExist(err) {
+		err = os.MkdirAll(chlib.ConfigDir, os.ModePerm)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
 	if err := cmd.RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

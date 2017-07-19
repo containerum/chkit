@@ -15,13 +15,13 @@ func LoadJsonFromFile(path string, b interface{}) (err error) {
 	return
 }
 
-func GetCmdRequestJson(client *Client, kind, name string) (ret []GenericJson, err error) {
+func GetCmdRequestJson(client *Client, kind, name, nameSpace string) (ret []GenericJson, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("can`t extract field: %s", r)
 		}
 	}()
-	apiResult, err := client.Get(kind, name, client.userConfig.Namespace)
+	apiResult, err := client.Get(kind, name, nameSpace)
 	if err != nil {
 		return ret, err
 	}

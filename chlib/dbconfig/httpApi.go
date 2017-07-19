@@ -1,0 +1,38 @@
+package dbconfig
+
+import (
+	"chkit-v2/helpers"
+	"fmt"
+	"time"
+)
+
+type HttpApiConfig struct {
+	Server  string        `mapconv:"server"`
+	Timeout time.Duration `mapconv:"timeout"`
+}
+
+const httpApiBucket = "httpApi"
+
+func init() {
+	cfg := HttpApiConfig{
+		Server:  "http://0.0.0.0",
+		Timeout: 10 * time.Second,
+	}
+	initializers[httpApiBucket] = helpers.StructToMap(cfg)
+}
+
+func (d *ConfigDB) GetHttpApiConfig() (cfg HttpApiConfig, err error) {
+	m, err := d.readTransactional(httpApiBucket)
+	if err != nil {
+		return cfg, fmt.Errorf("http api bucket get: %s", err)
+	}
+	err = helpers.FillStruct(&cfg, m)
+	if err != nil {
+		return cfg, fmt.Errorf("http api fill: %s", err)
+	}
+	return
+}
+
+func (d *ConfigDB) UpdateHttpApiConfig(cfg HttpApiConfig) error {
+	return d.writeTransactional(helpers.StructToMap(cfg), httpApiBucket)
+}

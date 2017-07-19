@@ -4,8 +4,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
-	"github.com/kfeofantov/chkit-v2/helpers"
+	"chkit-v2/chlib"
+	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -40,7 +40,7 @@ var scaleCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
 		if err != nil {
 			jww.ERROR.Println(err)
 			return
@@ -59,10 +59,6 @@ var scaleCmd = &cobra.Command{
 }
 
 func init() {
-	cfg, err := chlib.GetUserInfo()
-	if err != nil {
-		panic(err)
-	}
-	scaleCmd.PersistentFlags().StringP("namespace", "n", cfg.Namespace, "Namespace")
+	scaleCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	RootCmd.AddCommand(scaleCmd)
 }

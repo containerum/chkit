@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"time"
+	"chkit-v2/chlib/dbconfig"
 )
 
 type Client struct {
@@ -17,38 +17,34 @@ type Client struct {
 	version       string
 	apiHandler    *HttpApiHandler
 	tcpApiHandler *TcpApiHandler
-	userConfig    *UserInfo
+	userConfig    *dbconfig.UserInfo
 }
 
 type GenericJson map[string]interface{}
 
-func NewClient(version, uuid string) (*Client, error) {
+func NewClient(db *dbconfig.ConfigDB, version, uuid string) (*Client, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
-	cfg, err := GetHttpApiCfg()
+	cfg, err := db.GetHttpApiConfig()
 	if err != nil {
 		return nil, err
 	}
-	cfg.Uuid = uuid
-	tcpApiCfg, err := GetTcpApiConfig()
+	tcpApiCfg, err := db.GetTcpApiConfig()
 	if err != nil {
 		return nil, err
 	}
-	tcpApiCfg.Uuid = uuid
 	client := &Client{
 		path:    cwd,
 		version: version,
 	}
-	userCfg, err := GetUserInfo()
+	userCfg, err := db.GetUserInfo()
 	if err != nil {
 		return nil, err
 	}
-	tcpApiCfg.Token = userCfg.Token
-	cfg.Token = userCfg.Token
-	client.apiHandler = NewHttpApiHandler(cfg)
-	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg)
+	client.apiHandler = NewHttpApiHandler(cfg,uuid,userCfg.Token)
+	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg,uuid,userCfg.Token)
 	client.userConfig = &userCfg
 	return client, nil
 }
@@ -195,9 +191,8 @@ func (c *Client) constructExpose(name string, ports []Port, nameSpace string) (r
 	req.Metadata.Labels = labels
 	req.Metadata.Name = fmt.Sprintf("%s-%s", name, hex.EncodeToString(nameHash[:])[:4])
 	req.Spec.Selector = labels
-	exposeJsonPath := path.Join(configPath, srcFolder, templatesFolder, exposeFile)
 	b, _ := json.MarshalIndent(req, "", "    ")
-	err = ioutil.WriteFile(exposeJsonPath, b, 0600)
+	err = ioutil.WriteFile(ExposeFile, b, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("expose write file: %s", err)
 	}
@@ -274,9 +269,8 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	containers[0].Env = params.Env
 	containers[0].Resources.Requests = &HwResources{CPU: params.CPU, Memory: params.Memory}
 	req.Spec.Template.Spec.Containers = containers
-	runJsonPath := path.Join(configPath, srcFolder, templatesFolder, runFile)
 	b, _ := json.MarshalIndent(req, "", "    ")
-	err = ioutil.WriteFile(runJsonPath, b, 0600)
+	err = ioutil.WriteFile(RunFile, b, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("run write file: %s", err)
 	}

@@ -2,61 +2,26 @@ package chlib
 
 import (
 	"bytes"
+	"chkit-v2/chlib/dbconfig"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
-
-	"github.com/kfeofantov/chkit-v2/helpers"
 )
 
-type HttpApiConfig struct {
-	Server  string            `mapconv:"server"`
-	headers map[string]string `mapconv:"-"`
-	Timeout time.Duration     `mapconv:"timeout"`
-	Uuid    string            `mapconv:"-"`
-	Token   string            `mapconv:"-"`
-}
-
 type HttpApiHandler struct {
-	cfg HttpApiConfig
+	cfg     dbconfig.HttpApiConfig
+	headers map[string]string
 }
 
 type HttpApiResult map[string]interface{}
 
-const httpApiBucket = "httpApi"
-
-func init() {
-	cfg := HttpApiConfig{
-		Server:  "http://0.0.0.0",
-		Timeout: 10 * time.Second,
-	}
-	initializers[httpApiBucket] = helpers.StructToMap(cfg)
-}
-
-func GetHttpApiCfg() (cfg HttpApiConfig, err error) {
-	m, err := readFromBucket(httpApiBucket)
-	if err != nil {
-		return cfg, fmt.Errorf("load http api config: %s", err)
-	}
-	err = helpers.FillStruct(&cfg, m)
-	if err != nil {
-		return cfg, fmt.Errorf("http api config fill: %s", err)
-	}
-	return cfg, nil
-}
-
-func UpdateHttpApiCfg(cfg HttpApiConfig) error {
-	return pushToBucket(httpApiBucket, helpers.StructToMap(cfg))
-}
-
-func NewHttpApiHandler(cfg HttpApiConfig) *HttpApiHandler {
+func NewHttpApiHandler(cfg dbconfig.HttpApiConfig, uuid, token string) *HttpApiHandler {
 	handler := HttpApiHandler{cfg: cfg}
-	handler.cfg.headers = make(map[string]string)
-	handler.cfg.headers["Channel"] = cfg.Uuid
-	handler.cfg.headers["Authorization"] = cfg.Token
+	handler.headers = make(map[string]string)
+	handler.headers["Channel"] = uuid
+	handler.headers["Authorization"] = token
 	return &handler
 }
 
@@ -64,7 +29,7 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 	client := http.Client{Timeout: h.cfg.Timeout}
 	marshalled, _ := json.Marshal(jsonToSend)
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(marshalled))
-	for k, v := range h.cfg.headers {
+	for k, v := range h.headers {
 		request.Header.Add(k, v)
 	}
 	if err != nil {

@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
-	"github.com/kfeofantov/chkit-v2/helpers"
+	"chkit-v2/chlib"
+	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -39,7 +39,7 @@ var runCmd = &cobra.Command{
 		} else {
 			params = chlib.ParamsFromArgs(jww.FEEDBACK, cmd.Flags())
 		}
-		client, err := chlib.NewClient(helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
 		if err != nil {
 			jww.ERROR.Println(err)
 			return
@@ -57,10 +57,6 @@ var runCmd = &cobra.Command{
 }
 
 func init() {
-	cfg, err := chlib.GetUserInfo()
-	if err != nil {
-		panic(err)
-	}
 	runCmd.PersistentFlags().Bool("configure", false, "Run interactive configurator")
 	runCmd.PersistentFlags().StringP("image", "i", "", "Image name")
 	runCmd.PersistentFlags().IntSliceP("port", "p", []int{}, "Ports which will be opened.Format: 8080 ... 4556")
@@ -70,6 +66,6 @@ func init() {
 	runCmd.PersistentFlags().StringP("cpu", "c", "", "CPU cores. Format: (number)[m]")
 	runCmd.PersistentFlags().StringP("memory", "m", "", "Memory size. Format: (number)[Mi|Gi]")
 	runCmd.PersistentFlags().IntP("replicas", "r", 0, "Replicas count")
-	runCmd.PersistentFlags().StringP("namespace", "n", cfg.Namespace, "Namespace")
+	runCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	RootCmd.AddCommand(runCmd)
 }

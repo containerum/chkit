@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -15,17 +14,17 @@ var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configure chkit default values",
 	Run: func(cmd *cobra.Command, args []string) {
-		info, err := chlib.GetUserInfo()
+		info, err := db.GetUserInfo()
 		if err != nil {
 			jww.ERROR.Println(err)
 			return
 		}
-		httpApi, err := chlib.GetHttpApiCfg()
+		httpApi, err := db.GetHttpApiConfig()
 		if err != nil {
 			jww.ERROR.Println(err)
 			return
 		}
-		tcpApi, err := chlib.GetTcpApiConfig()
+		tcpApi, err := db.GetTcpApiConfig()
 		if err != nil {
 			jww.ERROR.Println(err)
 			return
@@ -102,15 +101,15 @@ var configCmd = &cobra.Command{
 			jww.FEEDBACK.Println("TCP API buffer size changed to: %d", bufsz)
 		}
 
-		err = chlib.UpdateUserInfo(info)
+		err = db.UpdateUserInfo(info)
 		if err != nil {
 			jww.ERROR.Println(err)
 		}
-		err = chlib.UpdateHttpApiCfg(httpApi)
+		err = db.UpdateHttpApiConfig(httpApi)
 		if err != nil {
 			jww.ERROR.Println(err)
 		}
-		err = chlib.UpdateTcpApiConfig(tcpApi)
+		err = db.UpdateTcpApiConfig(tcpApi)
 		if err != nil {
 			jww.ERROR.Println(err)
 		}
@@ -118,12 +117,8 @@ var configCmd = &cobra.Command{
 }
 
 func init() {
-	cfg, err := chlib.GetUserInfo()
-	if err != nil {
-		panic(err)
-	}
 	configCmd.PersistentFlags().StringP("set-token", "t", "", "Set user token")
-	configCmd.PersistentFlags().StringP("set-default-namespace", "n", cfg.Namespace, "Default namespace")
+	configCmd.PersistentFlags().StringP("set-default-namespace", "n", "", "Default namespace")
 	configCmd.PersistentFlags().String("set-http-server-address", "http://0.0.0.0:3333", "HTTP API server address")
 	configCmd.PersistentFlags().Duration("set-http-server-timeout", 10*time.Second, "HTTP API calls timeout")
 	configCmd.PersistentFlags().IP("set-tcp-server-address", net.IPv6zero, "TCP API server address")

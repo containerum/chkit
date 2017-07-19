@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
-	"github.com/kfeofantov/chkit-v2/chlib/requestresults"
-	"github.com/kfeofantov/chkit-v2/helpers"
+	"chkit-v2/chlib"
+	"chkit-v2/chlib/requestresults"
+	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"gopkg.in/yaml.v2"
@@ -54,7 +54,7 @@ var getCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
 		if err != nil {
 			jww.ERROR.Println(err)
 			return
@@ -63,7 +63,8 @@ var getCmd = &cobra.Command{
 		if getCmdFile != "" {
 			err = chlib.LoadJsonFromFile(getCmdFile, &jsonContent)
 		} else {
-			jsonContent, err = chlib.GetCmdRequestJson(client, getCmdKind, getCmdName)
+			nameSpace, _ := cmd.Flags().GetString("namespace")
+			jsonContent, err = chlib.GetCmdRequestJson(client, getCmdKind, getCmdName, nameSpace)
 		}
 		if err != nil {
 			jww.ERROR.Printf("json receive error: %s\n", err)
@@ -92,12 +93,8 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
-	cfg, err := chlib.GetUserInfo()
-	if err != nil {
-		panic(err)
-	}
 	getCmd.PersistentFlags().StringP("output", "o", "pretty", "Output format: json, yaml, pretty")
-	getCmd.PersistentFlags().StringP("namespace", "n", cfg.Namespace, "Namespace")
+	getCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	getCmd.PersistentFlags().StringP("file", "f", "", "JSON file generated on object creation")
 	RootCmd.AddCommand(getCmd)
 }

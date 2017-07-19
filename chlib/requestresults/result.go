@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
+	"chkit-v2/chlib"
 	"github.com/olekukonko/tablewriter"
 )
 

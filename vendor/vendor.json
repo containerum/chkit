@@ -3,17 +3,9 @@
 	"ignore": "test",
 	"package": [
 		{
-			"path": "github.com/kfeofantov/chkit-v2",
+			"path": "github.com/kfeofantov/chkit-v2/cmd/requestresults",
 			"revision": ""
 		},
-		{
-			"path": "github.com/kfeofantov/chkit-v2/cmd",
-			"revision": ""
-		},
-		{
-			"path" : "github.com/kfeofantov/chkit-v2/cmd/requestresults",
-			"revision": ""
-		}
 		{
 			"checksumSHA1": "JCTGEgZstzmSj//kDP9ZI/LoHZ4=",
 			"path": "github.com/spf13/cobra",
@@ -27,5 +19,5 @@
 			"revisionTime": "2017-05-08T18:43:26Z"
 		}
 	],
-	"rootPath": "github.com/kfeofantov/chkit-v2"
+	"rootPath": "chkit-v2"
 }

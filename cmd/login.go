@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
+	"chkit-v2/chlib"
 	"github.com/spf13/cobra"
+	"github.com/howeyc/gopass"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -16,33 +17,36 @@ var loginCmd = &cobra.Command{
 	Short: "Open session and set up token",
 	Run: func(cmd *cobra.Command, args []string) {
 		isValidMail := regexp.MustCompile(emailRegex)
-		jww.FEEDBACK.Print("Enter your email: ")
 		var email string
-		fmt.Scan(&email)
+		if !cmd.Flag("login").Changed {
+			jww.FEEDBACK.Print("Enter your email: ")
+			fmt.Scan(&email)
+		} else {
+			email = cmd.Flag("login").Value.String()
+		}
 		if !isValidMail.MatchString(email) {
 			jww.FEEDBACK.Println("Email is not valid")
 			return
 		}
 		var password string
-		jww.FEEDBACK.Print("Enter your password: ")
-		fmt.Print("\033[8m") // Hide input
-		fmt.Scan(&password)
-		fmt.Print("\033[28m") // Show input
-
-		err := chlib.UserLogin(email, password)
+		if !cmd.Flag("password").Changed {
+			jww.FEEDBACK.Print("Enter your password: ")
+			passwordB, _ := gopass.GetPasswdMasked()
+			password = string(passwordB)
+		} else {
+			password = cmd.Flag("password").Value.String()
+		}
+		token, err := chlib.UserLogin(db, email, password)
 		if err != nil {
 			jww.ERROR.Println(err)
 			return
 		}
-		info, err := chlib.GetUserInfo()
-		if err != nil {
-			jww.ERROR.Println(err)
-			return
-		}
-		fmt.Println("Successful login\nToken changed to: ", info.Token)
+		fmt.Println("Successful login\nToken changed to: ", token)
 	},
 }
 
 func init() {
+	loginCmd.PersistentFlags().StringP("login","l","","User login (email)")
+	loginCmd.PersistentFlags().StringP("password","p","", "User password")
 	RootCmd.AddCommand(loginCmd)
 }

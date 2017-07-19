@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
+	"chkit-v2/chlib"
 )
 
 type singleDeployResult []struct {

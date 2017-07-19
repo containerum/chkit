@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/kfeofantov/chkit-v2/chlib"
-	"github.com/kfeofantov/chkit-v2/helpers"
+	"chkit-v2/chlib"
+	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -27,7 +27,7 @@ var createCmd = &cobra.Command{
 			jww.ERROR.Println(err)
 			return
 		}
-		client, err := chlib.NewClient(helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
 		if err != nil {
 			jww.ERROR.Println(err)
 			return
