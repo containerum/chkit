@@ -1,14 +1,18 @@
 BINARY=chkit
-PACKAGE = github.com/kfeofantov/chkit-v2
+PACKAGE = chkit-v2
 COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE = `date +%FT%T%Z`
-LDFLAGS = -ldflags "-X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} -X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE}"
-
+DEFAULT_TCP_SERVER = sdk.containerum.io:3000
+DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
+LDFLAGS = "-X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
+	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
+	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
+	-X ${PACKAGE}/chlib/dbconfig.DefaultHTTPServer=${DEFAULT_HTTP_SERVER}"
 
 all: build
 
 build:
-	go build ${LDFLAGS} -o ${BINARY}
+	go build -ldflags ${LDFLAGS} -o ${BINARY}
 
 clean:
 	if [ -f ${BINARY} ]; then rm ${BINARY}; fi

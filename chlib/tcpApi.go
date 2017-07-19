@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"strconv"
 )
 
 type TcpApiHandler struct {
@@ -27,7 +26,7 @@ func NewTcpApiHandler(cfg dbconfig.TcpApiConfig, uuid, token string) *TcpApiHand
 }
 
 func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {
-	t.socket, err = net.Dial("tcp", net.JoinHostPort(t.cfg.Address.String(), strconv.Itoa(t.cfg.Port)))
+	t.socket, err = net.Dial("tcp", t.cfg.Address)
 	if err != nil {
 		return result, fmt.Errorf("tcp connect: %s", err)
 	}

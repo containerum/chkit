@@ -15,8 +15,8 @@ const httpApiBucket = "httpApi"
 
 func init() {
 	cfg := HttpApiConfig{
-		Server:  "http://0.0.0.0",
-		Timeout: 10 * time.Second,
+		Server:  DefaultHTTPServer,
+		Timeout: DefaultHTTPTimeout,
 	}
 	initializers[httpApiBucket] = helpers.StructToMap(cfg)
 }

@@ -3,12 +3,10 @@ package dbconfig
 import (
 	"chkit-v2/helpers"
 	"fmt"
-	"net"
 )
 
 type TcpApiConfig struct {
-	Address    net.IP `mapconv:"address"`
-	Port       int    `mapconv:"port"`
+	Address    string `mapconv:"address"`
 	BufferSize int    `mapconv:"buffersize"`
 }
 
@@ -16,9 +14,8 @@ const tcpApiBucket = "tcpApi"
 
 func init() {
 	cfg := TcpApiConfig{
-		Address:    net.IPv4zero,
-		Port:       0,
-		BufferSize: 1024,
+		Address:    DefaultTCPServer,
+		BufferSize: DefaultBufferSize,
 	}
 	initializers[tcpApiBucket] = helpers.StructToMap(cfg)
 }
