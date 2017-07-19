@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"gopkg.in/yaml.v2"
+	"strings"
 )
 
 var getCmdFile, getCmdKind, getCmdName string
@@ -73,7 +74,7 @@ var getCmd = &cobra.Command{
 		switch format, _ := cmd.Flags().GetString("output"); format {
 		case "pretty":
 			fieldToSort, _ := cmd.Flags().GetString("sort-by")
-			p, err := requestresults.ProcessResponse(jsonContent, fieldToSort)
+			p, err := requestresults.ProcessResponse(jsonContent, strings.ToUpper(fieldToSort))
 			if err != nil {
 				break
 			}
