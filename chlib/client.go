@@ -165,6 +165,9 @@ func (c *Client) Create(jsonToSend GenericJson) (err error) {
 
 func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (err error) {
 	var httpResult HttpApiResult
+	if nameSpace == "" {
+		nameSpace = c.userConfig.Namespace
+	}
 	if kind != KindNamespaces {
 		httpResult, err = c.apiHandler.Delete(kind, name, nameSpace, allPods)
 	} else {
