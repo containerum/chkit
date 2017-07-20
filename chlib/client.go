@@ -11,6 +11,8 @@ import (
 	"os"
 	"time"
 
+	"strconv"
+
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -102,26 +104,30 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 	return
 }
 
-func (c *Client) Set(field, container, value, nameSpace string) (res TcpApiResult, err error) {
-	_, err = c.tcpApiHandler.Connect()
-	if err != nil {
-		return
-	}
+func (c *Client) Set(deploy, parameter, value, nameSpace string) (res TcpApiResult, err error) {
 	if nameSpace == "" {
 		nameSpace = c.userConfig.Namespace
 	}
-	defer c.tcpApiHandler.Close()
-	reqData := GenericJson{"name": container}
-	reqData[field] = value
-	httpResult, err := c.apiHandler.Set(reqData, container, nameSpace)
+	var httpResult HttpApiResult
+	switch parameter {
+	case "replicas":
+		replicas, err := strconv.Atoi(value)
+		if err != nil || replicas <= 0 {
+			return res, fmt.Errorf("invalid replicas count")
+		}
+		req := GenericJson{"replicas": replicas}
+		httpResult, err = c.apiHandler.SetForDeploy(req, deploy, nameSpace)
+	default:
+		req := GenericJson{
+			"name":  deploy,
+			"image": value,
+		}
+		httpResult, err = c.apiHandler.SetForContainer(req, parameter, nameSpace)
+	}
 	if err != nil {
 		return
 	}
 	err = httpResult.HandleApiResult()
-	if err != nil {
-		return
-	}
-	res, err = c.tcpApiHandler.Receive()
 	if err != nil {
 		return
 	}
@@ -229,18 +235,6 @@ func (c *Client) Expose(name string, ports []Port, nameSpace string) (apiResult 
 		return
 	}
 	apiResult, err = c.tcpApiHandler.Receive()
-	return
-}
-
-func (c *Client) Scale(name string, replicas int, nameSpace string) (err error) {
-	if nameSpace == "" {
-		nameSpace = c.userConfig.Namespace
-	}
-	httpResult, err := c.apiHandler.Scale(GenericJson{"replicas": replicas}, name, nameSpace)
-	if err != nil {
-		return
-	}
-	err = httpResult.HandleApiResult()
 	return
 }
 

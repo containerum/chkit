@@ -65,25 +65,17 @@ func (h *HttpApiHandler) Expose(jsonToSend GenericJson, nameSpace string) (resul
 
 func (h *HttpApiHandler) Login(jsonToSend GenericJson) (result HttpApiResult, err error) {
 	url := fmt.Sprintf("%s/session/login", h.cfg.Server)
-	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
-	return
+	return h.makeRequest(url, http.MethodPost, jsonToSend)
 }
 
-func (h *HttpApiHandler) Set(jsonToSend GenericJson, name, nameSpace string) (result HttpApiResult, err error) {
-	var url string
-	if _, hasReplicas := jsonToSend["replicas"]; hasReplicas {
-		url = fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, name)
-	} else {
-		url = fmt.Sprintf("%s/namespaces/%s/container/%s", h.cfg.Server, nameSpace, name)
-	}
-	result, err = h.makeRequest(url, http.MethodPatch, jsonToSend)
-	return
+func (h *HttpApiHandler) SetForContainer(jsonToSend GenericJson, containerName, nameSpace string) (result HttpApiResult, err error) {
+	url := fmt.Sprintf("%s/namespaces/%s/container/%s", h.cfg.Server, nameSpace, containerName)
+	return h.makeRequest(url, http.MethodPatch, jsonToSend)
 }
 
-func (h *HttpApiHandler) Scale(jsonToSend GenericJson, name, nameSpace string) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, name)
-	result, err = h.makeRequest(url, http.MethodPatch, jsonToSend)
-	return
+func (h *HttpApiHandler) SetForDeploy(jsonToSend GenericJson, deploy, nameSpace string) (result HttpApiResult, err error) {
+	url := fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, deploy)
+	return h.makeRequest(url, http.MethodPatch, jsonToSend)
 }
 
 func (h *HttpApiHandler) Replace(jsonToSend GenericJson, nameSpace, kind string) (result HttpApiResult, err error) {

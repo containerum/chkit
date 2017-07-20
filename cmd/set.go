@@ -10,32 +10,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var setCmdField, setCmdParameter, setCmdValue, setCmdContainer string
+var setCmdDeploy, setCmdParameter, setCmdValue string
 
 var setCmd = &cobra.Command{
-	Use:   "set FIELD TYPE CONTAINER PARAMETER=VALUE",
+	Use:   "set KIND DEPLOY PARAMETER=VALUE",
 	Short: "Change one of parameters in Deployment",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		if len(args) < 4 {
+		if len(args) < 3 {
 			cmd.Usage()
 			os.Exit(1)
 		}
 		switch args[0] {
-		case "image":
-		default:
-			np.FEEDBACK.Println("Invalid field name")
-			os.Exit(1)
-		}
-		setCmdField = args[0]
-		switch args[1] {
 		case "deployments", "deployment", "deploy":
 			break
 		default:
 			np.FEEDBACK.Println("Invalid KIND. Choose from ('deployments', 'deployment', 'deploy')")
 			os.Exit(1)
 		}
-		setCmdContainer = args[2]
-		if kv := strings.Split(args[3], "="); len(kv) == 2 {
+		setCmdDeploy = args[1]
+		if kv := strings.Split(args[2], "="); len(kv) == 2 {
 			setCmdParameter = kv[0]
 			setCmdValue = kv[1]
 		} else {
@@ -51,8 +44,8 @@ var setCmd = &cobra.Command{
 		}
 		ns, _ := getCmd.PersistentFlags().GetString("namespace")
 		np.FEEDBACK.Print("set... ")
-		_, err = client.Set(setCmdField, setCmdContainer, setCmdValue, ns)
-		if err != nil {
+		_, err = client.Set(setCmdDeploy, setCmdParameter, setCmdValue, ns)
+		if err == nil {
 			np.FEEDBACK.Println("OK")
 		} else {
 			np.FEEDBACK.Println("ERROR")
