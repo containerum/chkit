@@ -254,10 +254,15 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	req := new(Deploy)
 	req.Kind = "Deployment"
 	req.Metadata.Name = name
-	req.Metadata.Labels = params.Labels
+	if params.Labels == nil {
+		req.Metadata.Labels = make(map[string]string) // encode nil map as empty object
+		req.Spec.Template.Metadata.Labels = make(map[string]string)
+	} else {
+		req.Metadata.Labels = params.Labels
+		req.Spec.Template.Metadata.Labels = params.Labels
+	}
 	req.Spec.Replicas = params.Replicas
-	req.Metadata.Labels = params.Labels
-	req.Spec.Template.Metadata = req.Metadata
+	req.Spec.Template.Metadata.Name = name
 	containers := make([]Container, 1)
 	containers[0].Name = name
 	containers[0].Image = params.Image

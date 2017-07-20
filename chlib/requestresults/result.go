@@ -8,8 +8,8 @@ import (
 	"chkit-v2/chlib"
 	"github.com/olekukonko/tablewriter"
 	"sort"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 type responseProcessor func(resp []chlib.GenericJson) (ResultPrinter, error)
@@ -42,9 +42,9 @@ func (p prettyPrintConfig) getFieldIndex(fieldName string) int {
 
 // compareAges returns -1 if age1 < age2, 0 if age1 == age2, +1 if age1 > age2
 func compareAges(age1, age2 string) int {
-	ageTypes:=map[byte]int{'s':0, 'm':1, 'h':2, 'd':3, 'M':4, 'Y':5}
-	age1Pf:=age1[len(age1)-1]
-	age2Pf:=age2[len(age2)-1]
+	ageTypes := map[byte]int{'s': 0, 'm': 1, 'h': 2, 'd': 3, 'M': 4, 'Y': 5}
+	age1Pf := age1[len(age1)-1]
+	age2Pf := age2[len(age2)-1]
 	if ageTypes[age1Pf] > ageTypes[age2Pf] {
 		return 1
 	} else if ageTypes[age1Pf] < ageTypes[age2Pf] {
@@ -69,11 +69,11 @@ func (p prettyPrintConfig) sortByField(fieldName string) {
 	}
 	if fieldName == "AGE" {
 		sort.Slice(p.Data, func(i, j int) bool {
-			return compareAges(p.Data[i][fieldIndex],p.Data[j][fieldIndex])<=0
+			return compareAges(p.Data[i][fieldIndex], p.Data[j][fieldIndex]) <= 0
 		})
 	} else {
 		sort.Slice(p.Data, func(i, j int) bool {
-			return strings.Compare(p.Data[i][fieldIndex], p.Data[j][fieldIndex])<=0
+			return strings.Compare(p.Data[i][fieldIndex], p.Data[j][fieldIndex]) <= 0
 		})
 	}
 }

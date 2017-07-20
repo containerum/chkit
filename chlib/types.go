@@ -9,7 +9,7 @@ type Metadata struct {
 	Annotations       map[string]string `json:"annotations,omitempty"`
 	CreationTimestamp *time.Time        `json:"creationTimestamp,omitempty"`
 	GenerateName      string            `json:"generateName,omitempty"`
-	Labels            map[string]string `json:"labels,omitempty"`
+	Labels            map[string]string `json:"labels"`
 	Name              string            `json:"name,omitempty"`
 	Namespace         string            `json:"namespace,omitempty"`
 	OwnerReferences   []struct {
