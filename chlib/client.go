@@ -7,10 +7,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	jww "github.com/spf13/jwalterweatherman"
 	"io/ioutil"
 	"os"
 	"time"
+
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 type Client struct {

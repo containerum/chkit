@@ -3,9 +3,10 @@ package dbconfig
 import (
 	"chkit-v2/helpers"
 	"fmt"
+	"os"
+
 	"github.com/boltdb/bolt"
 	jww "github.com/spf13/jwalterweatherman"
-	"os"
 )
 
 var initializers map[string]helpers.MappedStruct = make(map[string]helpers.MappedStruct)

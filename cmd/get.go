@@ -7,9 +7,10 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/chlib/requestresults"
 	"chkit-v2/helpers"
+	"strings"
+
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
-	"strings"
 )
 
 var getCmdFile, getCmdKind, getCmdName string

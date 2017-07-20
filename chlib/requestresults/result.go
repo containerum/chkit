@@ -6,11 +6,12 @@ import (
 	"time"
 
 	"chkit-v2/chlib"
-	"github.com/olekukonko/tablewriter"
-	jww "github.com/spf13/jwalterweatherman"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/olekukonko/tablewriter"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 type responseProcessor func(resp []chlib.GenericJson) (ResultPrinter, error)

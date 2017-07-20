@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"chkit-v2/chlib"
+
 	"github.com/howeyc/gopass"
 	"github.com/spf13/cobra"
 )

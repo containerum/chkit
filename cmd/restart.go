@@ -3,8 +3,9 @@ package cmd
 import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var restartCmdName string
