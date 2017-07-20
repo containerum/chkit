@@ -102,7 +102,7 @@ func ageFormat(d time.Duration) string {
 		{d.Seconds(), 's'},
 	}
 	for _, v := range durations {
-		if v.num > 1 {
+		if v.num >= 1 {
 			return fmt.Sprintf("%d%c", int(v.num), v.pf)
 		}
 	}

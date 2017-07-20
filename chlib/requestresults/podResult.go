@@ -48,7 +48,7 @@ func (p podListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 			fmt.Sprintf("%d/%d", containersRunning, len(item.Status.ContainerStatuses)),
 			item.Status.Phase,
 			fmt.Sprintf("%d", restarts),
-			ageFormat(time.Now().Sub(item.Status.StartTime)),
+			ageFormat(time.Now().Sub(*item.Metadata.CreationTimestamp)),
 			ipStr,
 		}
 		ppc.Data = append(ppc.Data, row)
