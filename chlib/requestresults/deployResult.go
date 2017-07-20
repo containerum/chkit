@@ -136,7 +136,7 @@ func (s singleDeployResult) Print() (err error) {
 	for _, c := range containers {
 		fmt.Printf("\t%s\n", c.Name)
 		if len(c.Command) != 0 {
-			fmt.Printf("\t\t%-20s %s\n", "Command:", strings.Join(c.Command, ""))
+			fmt.Printf("\t\t%-20s %s\n", "Command:", strings.Join(c.Command, " "))
 		}
 		fmt.Println("\t\tPorts:")
 		if len(c.Ports) != 0 {
