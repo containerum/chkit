@@ -6,6 +6,8 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
 
+	"regexp"
+
 	"github.com/spf13/cobra"
 )
 
@@ -21,6 +23,11 @@ var runCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		runCmdName = args[0]
+		if !regexp.MustCompile(chlib.DeployRegex).MatchString(runCmdName) {
+			np.FEEDBACK.Println("Invalid deployment name")
+			cmd.Usage()
+			os.Exit(1)
+		}
 		if !cmd.Flag("image").Changed && !cmd.Flag("configure").Changed {
 			np.FEEDBACK.Println("Image or configure parameter must be specified")
 			cmd.Usage()
@@ -35,9 +42,9 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var params chlib.ConfigureParams
 		if cmd.Flag("configure").Changed {
-			params = chlib.PromptParams(np.FEEDBACK)
+			params = chlib.PromptParams(np)
 		} else {
-			params = chlib.ParamsFromArgs(np.FEEDBACK, cmd.Flags())
+			params = chlib.ParamsFromArgs(np, cmd.Flags())
 		}
 		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
 		if err != nil {
