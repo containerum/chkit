@@ -5,9 +5,12 @@ import (
 	"net"
 	"net/url"
 
+	"chkit-v2/chlib"
 	"chkit-v2/chlib/dbconfig"
+	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
+	"os"
 )
 
 var configCmd = &cobra.Command{
@@ -43,14 +46,23 @@ var configCmd = &cobra.Command{
 		}
 
 		if cmd.Flag("set-default-namespace").Changed {
-			info.Namespace = cmd.Flag("set-default-namespace").Value.String()
+			newNamespace := cmd.Flag("set-default-namespace").Value.String()
+			client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
+			if err != nil {
+				jww.ERROR.Println(err)
+				os.Exit(1)
+			}
+			if _, err := client.Get(chlib.KindNamespaces, newNamespace, ""); err != nil {
+				jww.ERROR.Println(err)
+				os.Exit(1)
+			}
 			jww.FEEDBACK.Printf("Namespace changed to: %s\n", info.Namespace)
 		}
 		if cmd.Flag("set-token").Changed {
 			enteredToken := cmd.Flag("set-token").Value.String()
 			if _, err := base64.StdEncoding.DecodeString(enteredToken); err != nil {
 				jww.FEEDBACK.Println("Invalid token given")
-				return
+				os.Exit(1)
 			}
 			info.Token = enteredToken
 			jww.FEEDBACK.Printf("Token changed to: %s\n", info.Token)
@@ -59,7 +71,7 @@ var configCmd = &cobra.Command{
 			address := cmd.Flag("set-http-server-address").Value.String()
 			if _, err := url.ParseRequestURI(address); err != nil {
 				jww.FEEDBACK.Printf("Invalid HTTP API server address given")
-				return
+				os.Exit(1)
 			}
 			httpApi.Server = address
 			jww.FEEDBACK.Printf("HTTP API server address changed to: %s", address)
@@ -68,7 +80,7 @@ var configCmd = &cobra.Command{
 			tm, err := cmd.Flags().GetDuration("set-http-server-timeout")
 			if err != nil {
 				jww.FEEDBACK.Printf("Invalid HTTP API timeout given")
-				return
+				os.Exit(1)
 			}
 			httpApi.Timeout = tm
 			jww.FEEDBACK.Printf("HTTP API timeout changed to: %s", tm)
@@ -78,7 +90,7 @@ var configCmd = &cobra.Command{
 			_, _, err := net.SplitHostPort(address)
 			if err != nil {
 				jww.FEEDBACK.Println("Invalid TCP API server address given")
-				return
+				os.Exit(1)
 			}
 			tcpApi.Address = address
 			jww.FEEDBACK.Printf("TCP API server address changed to: %s", address)
