@@ -6,6 +6,7 @@ import (
 	"chkit-v2/chlib/dbconfig"
 	"encoding/json"
 	"fmt"
+	jww "github.com/spf13/jwalterweatherman"
 	"net"
 )
 
@@ -13,12 +14,17 @@ type TcpApiHandler struct {
 	cfg      dbconfig.TcpApiConfig
 	authForm map[string]string
 	socket   net.Conn
+	np       *jww.Notepad
 }
 
 type TcpApiResult map[string]interface{}
 
-func NewTcpApiHandler(cfg dbconfig.TcpApiConfig, uuid, token string) *TcpApiHandler {
-	handler := &TcpApiHandler{cfg: cfg}
+func NewTcpApiHandler(cfg dbconfig.TcpApiConfig, uuid, token string, np *jww.Notepad) *TcpApiHandler {
+	handler := &TcpApiHandler{
+		cfg: cfg,
+		np:  np,
+	}
+	handler.np.SetPrefix("TCP")
 	handler.authForm = make(map[string]string)
 	handler.authForm["channel"] = uuid
 	handler.authForm["token"] = token
@@ -26,6 +32,7 @@ func NewTcpApiHandler(cfg dbconfig.TcpApiConfig, uuid, token string) *TcpApiHand
 }
 
 func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {
+	t.np.DEBUG.Println("connect", t.cfg.Address)
 	t.socket, err = net.Dial("tcp", t.cfg.Address)
 	if err != nil {
 		return result, fmt.Errorf("tcp connect: %s", err)
@@ -35,10 +42,13 @@ func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {
 		return result, fmt.Errorf("authForm encode: %s", err)
 	}
 	hello = append(hello, '\n')
-	_, err = t.socket.Write(hello)
+	t.np.DEBUG.Println("TCP Auth")
+	n, err := t.socket.Write(hello)
+	t.np.DEBUG.Printf("Write %d bytes\n", n)
 	if err != nil {
 		return result, fmt.Errorf("hello send: %s", err)
 	}
+	t.np.DEBUG.Println("Auth response read")
 	str, err := bufio.NewReader(t.socket).ReadSlice('\n')
 	if err != nil {
 		return result, fmt.Errorf("hello receive: %s", err)
@@ -59,15 +69,21 @@ func (t *TcpApiHandler) Receive() (result TcpApiResult, err error) {
 		}
 		data = append(data, buf[:n]...)
 	}
+	t.np.DEBUG.Printf("Received %d bytes\n", len(data))
 	err = json.Unmarshal(data, &result)
 	if err != nil {
 		return result, err
+	}
+	cmdId, hasCmdId := result["id"]
+	if hasCmdId {
+		t.np.DEBUG.Printf("Command ID: %v\n", cmdId)
 	}
 	return result, result.CheckHttpStatus()
 }
 
 func (t *TcpApiHandler) Close() {
 	if t.socket != nil {
+		t.np.DEBUG.Println("Close connection")
 		t.socket.Close()
 	}
 }

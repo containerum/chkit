@@ -6,7 +6,6 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var createCmd = &cobra.Command{
@@ -14,7 +13,7 @@ var createCmd = &cobra.Command{
 	Short: "Create object using JSON file",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if !cmd.Flag("file").Changed || cmd.Flag("file").Value.String() == "" {
-			jww.FEEDBACK.Println("File argument must be specified")
+			np.FEEDBACK.Println("File argument must be specified")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -24,21 +23,21 @@ var createCmd = &cobra.Command{
 		var jsonContent chlib.GenericJson
 		err := chlib.LoadJsonFromFile(filePath, &jsonContent)
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 			return
 		}
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 			return
 		}
-		jww.FEEDBACK.Print("create... ")
+		np.FEEDBACK.Print("create... ")
 		err = client.Create(jsonContent)
 		if err != nil {
-			jww.FEEDBACK.Println("ERROR")
-			jww.ERROR.Println(err)
+			np.FEEDBACK.Println("ERROR")
+			np.ERROR.Println(err)
 		} else {
-			jww.FEEDBACK.Println("OK")
+			np.FEEDBACK.Println("OK")
 		}
 	},
 }

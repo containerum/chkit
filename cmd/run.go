@@ -6,7 +6,6 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var runCmdName string
@@ -16,18 +15,18 @@ var runCmd = &cobra.Command{
 	Short: "Run deployment NAME and generate json file",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			jww.FEEDBACK.Println("NAME must be specified")
+			np.FEEDBACK.Println("NAME must be specified")
 			cmd.Usage()
 			os.Exit(1)
 		}
 		runCmdName = args[0]
 		if !cmd.Flag("image").Changed && !cmd.Flag("configure").Changed {
-			jww.FEEDBACK.Println("Image or configure parameter must be specified")
+			np.FEEDBACK.Println("Image or configure parameter must be specified")
 			cmd.Usage()
 			os.Exit(1)
 		}
 		if cmd.Flag("image").Changed && cmd.Flag("configure").Changed {
-			jww.FEEDBACK.Println("Only image or configured must be specified")
+			np.FEEDBACK.Println("Only image or configured must be specified")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -35,23 +34,23 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var params chlib.ConfigureParams
 		if cmd.Flag("configure").Changed {
-			params = chlib.PromptParams(jww.FEEDBACK)
+			params = chlib.PromptParams(np.FEEDBACK)
 		} else {
-			params = chlib.ParamsFromArgs(jww.FEEDBACK, cmd.Flags())
+			params = chlib.ParamsFromArgs(np.FEEDBACK, cmd.Flags())
 		}
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 			return
 		}
 		ns, _ := cmd.Flags().GetString("namespace")
-		jww.FEEDBACK.Print("run...")
+		np.FEEDBACK.Print("run...")
 		_, err = client.Run(runCmdName, params, ns)
 		if err != nil {
-			jww.FEEDBACK.Println("ERROR")
-			jww.ERROR.Println(err)
+			np.FEEDBACK.Println("ERROR")
+			np.ERROR.Println(err)
 		} else {
-			jww.FEEDBACK.Println("OK")
+			np.FEEDBACK.Println("OK")
 		}
 	},
 }

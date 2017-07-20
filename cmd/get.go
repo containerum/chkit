@@ -8,7 +8,6 @@ import (
 	"chkit-v2/chlib/requestresults"
 	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 	"gopkg.in/yaml.v2"
 	"strings"
 )
@@ -23,13 +22,13 @@ var getCmd = &cobra.Command{
 			switch val, _ := cmd.Flags().GetString("output"); val {
 			case "json", "yaml", "pretty":
 			default:
-				jww.FEEDBACK.Println("output must be json, yaml or pretty")
+				np.FEEDBACK.Println("output must be json, yaml or pretty")
 				cmd.Usage()
 				os.Exit(1)
 			}
 		}
 		if len(args) == 0 {
-			jww.FEEDBACK.Println("KIND or file not specified")
+			np.FEEDBACK.Println("KIND or file not specified")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -46,7 +45,7 @@ var getCmd = &cobra.Command{
 		case "ns", "namespaces", "namespace":
 			getCmdKind = chlib.KindNamespaces
 		default:
-			jww.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace') or file")
+			np.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace') or file")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -55,9 +54,9 @@ var getCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 			return
 		}
 		var jsonContent []chlib.GenericJson
@@ -68,13 +67,13 @@ var getCmd = &cobra.Command{
 			jsonContent, err = chlib.GetCmdRequestJson(client, getCmdKind, getCmdName, nameSpace)
 		}
 		if err != nil {
-			jww.ERROR.Printf("json receive error: %s\n", err)
+			np.ERROR.Printf("json receive error: %s\n", err)
 			return
 		}
 		switch format, _ := cmd.Flags().GetString("output"); format {
 		case "pretty":
 			fieldToSort, _ := cmd.Flags().GetString("sort-by")
-			p, err := requestresults.ProcessResponse(jsonContent, strings.ToUpper(fieldToSort))
+			p, err := requestresults.ProcessResponse(jsonContent, strings.ToUpper(fieldToSort), np)
 			if err != nil {
 				break
 			}
@@ -82,14 +81,14 @@ var getCmd = &cobra.Command{
 		case "json":
 			var b []byte
 			b, err = json.MarshalIndent(jsonContent, "", "    ")
-			jww.FEEDBACK.Printf("%s\n", b)
+			np.FEEDBACK.Printf("%s\n", b)
 		case "yaml":
 			var b []byte
 			b, err = yaml.Marshal(jsonContent)
-			jww.FEEDBACK.Printf("%s\n", b)
+			np.FEEDBACK.Printf("%s\n", b)
 		}
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 		}
 	},
 }

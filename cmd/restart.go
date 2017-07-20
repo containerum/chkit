@@ -4,7 +4,6 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 	"os"
 )
 
@@ -15,27 +14,27 @@ var restartCmd = &cobra.Command{
 	Short: "Restart pods by deploy name",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			jww.FEEDBACK.Println("Deployment name must be specified")
+			np.FEEDBACK.Println("Deployment name must be specified")
 			cmd.Usage()
 			os.Exit(1)
 		}
 		restartCmdName = args[0]
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 			return
 		}
 		nameSpace, _ := cmd.Flags().GetString("namespace")
-		jww.FEEDBACK.Print("restart...")
+		np.FEEDBACK.Print("restart...")
 		err = client.Delete(chlib.KindDeployments, restartCmdName, nameSpace, true)
 		if err != nil {
-			jww.FEEDBACK.Println("ERROR")
-			jww.ERROR.Println(err)
+			np.FEEDBACK.Println("ERROR")
+			np.ERROR.Println(err)
 			os.Exit(1)
 		} else {
-			jww.FEEDBACK.Println("OK")
+			np.FEEDBACK.Println("OK")
 		}
 	},
 }

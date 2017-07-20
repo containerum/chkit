@@ -7,6 +7,7 @@ import (
 
 	"chkit-v2/chlib"
 	"github.com/olekukonko/tablewriter"
+	jww "github.com/spf13/jwalterweatherman"
 	"sort"
 	"strconv"
 	"strings"
@@ -108,14 +109,16 @@ func ageFormat(d time.Duration) string {
 	return ""
 }
 
-func ProcessResponse(resp []chlib.GenericJson, sortField string) (res ResultPrinter, err error) {
+func ProcessResponse(resp []chlib.GenericJson, sortField string, np *jww.Notepad) (res ResultPrinter, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("Can`t find kind in response")
 		}
 	}()
+	np.SetPrefix("ResponseProcessor")
 	fieldToSort = sortField
 	kind := resp[0]["data"].(map[string]interface{})["kind"].(string)
+	np.DEBUG.Println("Response kind", kind)
 	prc, ok := resultKinds[kind]
 	if !ok {
 		return nil, fmt.Errorf("kind %s is not registered", kind)

@@ -7,7 +7,6 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var setCmdField, setCmdParameter, setCmdValue, setCmdContainer string
@@ -23,7 +22,7 @@ var setCmd = &cobra.Command{
 		switch args[0] {
 		case "image":
 		default:
-			jww.FEEDBACK.Println("Invalid field name")
+			np.FEEDBACK.Println("Invalid field name")
 			os.Exit(1)
 		}
 		setCmdField = args[0]
@@ -31,7 +30,7 @@ var setCmd = &cobra.Command{
 		case "deployments", "deployment", "deploy":
 			break
 		default:
-			jww.FEEDBACK.Println("Invalid KIND. Choose from ('deployments', 'deployment', 'deploy')")
+			np.FEEDBACK.Println("Invalid KIND. Choose from ('deployments', 'deployment', 'deploy')")
 			os.Exit(1)
 		}
 		setCmdContainer = args[2]
@@ -39,24 +38,24 @@ var setCmd = &cobra.Command{
 			setCmdParameter = kv[0]
 			setCmdValue = kv[1]
 		} else {
-			jww.FEEDBACK.Println("Invalid parameter syntax")
+			np.FEEDBACK.Println("Invalid parameter syntax")
 			os.Exit(1)
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 			return
 		}
 		ns, _ := getCmd.PersistentFlags().GetString("namespace")
-		jww.FEEDBACK.Print("set... ")
+		np.FEEDBACK.Print("set... ")
 		_, err = client.Set(setCmdField, setCmdContainer, setCmdValue, ns)
 		if err != nil {
-			jww.FEEDBACK.Println("OK")
+			np.FEEDBACK.Println("OK")
 		} else {
-			jww.FEEDBACK.Println("ERROR")
-			jww.ERROR.Println(err)
+			np.FEEDBACK.Println("ERROR")
+			np.ERROR.Println(err)
 		}
 	},
 }

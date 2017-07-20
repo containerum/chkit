@@ -3,14 +3,15 @@ package chlib
 import (
 	"chkit-v2/chlib/dbconfig"
 	"chkit-v2/helpers"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
-func UserLogin(db *dbconfig.ConfigDB, login, password string) (token string, err error) {
+func UserLogin(db *dbconfig.ConfigDB, login, password string, np *jww.Notepad) (token string, err error) {
 	info, err := db.GetUserInfo()
 	if err != nil {
 		return
 	}
-	client, err := NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
+	client, err := NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
 	if err != nil {
 		return
 	}

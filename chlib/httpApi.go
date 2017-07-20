@@ -5,6 +5,7 @@ import (
 	"chkit-v2/chlib/dbconfig"
 	"encoding/json"
 	"fmt"
+	jww "github.com/spf13/jwalterweatherman"
 	"net/http"
 	"strings"
 )
@@ -12,12 +13,17 @@ import (
 type HttpApiHandler struct {
 	cfg     dbconfig.HttpApiConfig
 	headers map[string]string
+	np      *jww.Notepad
 }
 
 type HttpApiResult map[string]interface{}
 
-func NewHttpApiHandler(cfg dbconfig.HttpApiConfig, uuid, token string) *HttpApiHandler {
-	handler := HttpApiHandler{cfg: cfg}
+func NewHttpApiHandler(cfg dbconfig.HttpApiConfig, uuid, token string, np *jww.Notepad) *HttpApiHandler {
+	handler := HttpApiHandler{
+		cfg: cfg,
+		np:  np,
+	}
+	handler.np.SetPrefix("HTTP")
 	handler.headers = make(map[string]string)
 	handler.headers["Channel"] = uuid
 	handler.headers["Authorization"] = token
@@ -27,6 +33,7 @@ func NewHttpApiHandler(cfg dbconfig.HttpApiConfig, uuid, token string) *HttpApiH
 func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson) (result HttpApiResult, err error) {
 	client := http.Client{Timeout: h.cfg.Timeout}
 	marshalled, _ := json.Marshal(jsonToSend)
+	h.np.DEBUG.Printf("%s %s\n", method, url)
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(marshalled))
 	for k, v := range h.headers {
 		request.Header.Add(k, v)
@@ -38,6 +45,7 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 	if err != nil {
 		return result, fmt.Errorf("http request execute error: %s", err)
 	}
+	h.np.DEBUG.Println("Result", resp.Status)
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	return result, err

@@ -4,6 +4,7 @@ import (
 	"chkit-v2/helpers"
 	"fmt"
 	"github.com/boltdb/bolt"
+	jww "github.com/spf13/jwalterweatherman"
 	"os"
 )
 
@@ -11,6 +12,7 @@ var initializers map[string]helpers.MappedStruct = make(map[string]helpers.Mappe
 
 type ConfigDB struct {
 	db *bolt.DB
+	np *jww.Notepad
 }
 
 func (d *ConfigDB) initialize(bucket *bolt.Bucket, initializer helpers.MappedStruct) error {
@@ -32,8 +34,11 @@ func (d *ConfigDB) initialize(bucket *bolt.Bucket, initializer helpers.MappedStr
 	return nil
 }
 
-func OpenOrCreate(filePath string) (db *ConfigDB, err error) {
+func OpenOrCreate(filePath string, np *jww.Notepad) (db *ConfigDB, err error) {
 	db = new(ConfigDB)
+	db.np = np
+	db.np.SetPrefix("ConfigDB")
+	db.np.DEBUG.Println("Open ", filePath)
 	db.db, err = bolt.Open(filePath, os.ModePerm, nil)
 	if err != nil {
 		return
@@ -44,7 +49,8 @@ func OpenOrCreate(filePath string) (db *ConfigDB, err error) {
 		for name, initializer := range initializers {
 			bucket := tx.Bucket([]byte(name))
 			if bucket == nil {
-				bucket, err := tx.CreateBucketIfNotExists([]byte(name))
+				db.np.DEBUG.Println("Create non-existing bucket", name)
+				bucket, err := tx.CreateBucket([]byte(name))
 				if err != nil {
 					return err
 				}
@@ -74,6 +80,7 @@ func (d *ConfigDB) readRecursive(bucket *bolt.Bucket) helpers.MappedStruct {
 }
 
 func (d *ConfigDB) readTransactional(bucketName string) (m helpers.MappedStruct, err error) {
+	d.np.DEBUG.Println("Read from bucket", bucketName)
 	err = d.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 		if bucket == nil {
@@ -105,6 +112,7 @@ func (d *ConfigDB) writeRecursive(m helpers.MappedStruct, bucket *bolt.Bucket) (
 }
 
 func (d *ConfigDB) writeTransactional(m helpers.MappedStruct, bucketName string) (err error) {
+	d.np.DEBUG.Println("Write to bucket ", bucketName)
 	return d.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte(bucketName))
 		if err != nil {

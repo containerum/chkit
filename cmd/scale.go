@@ -7,7 +7,6 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var scaleCmdName string
@@ -18,7 +17,7 @@ var scaleCmd = &cobra.Command{
 	Short: "Change replicas count for object",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) < 3 {
-			jww.FEEDBACK.Println("Invalid argument count")
+			np.FEEDBACK.Println("Invalid argument count")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -26,7 +25,7 @@ var scaleCmd = &cobra.Command{
 		case "deployments", "deployment", "deploy":
 			break
 		default:
-			jww.FEEDBACK.Println("Invalid KIND. Choose from ('deployments', 'deployment', 'deploy')")
+			np.FEEDBACK.Println("Invalid KIND. Choose from ('deployments', 'deployment', 'deploy')")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -34,26 +33,26 @@ var scaleCmd = &cobra.Command{
 		var err error
 		scaleCmdCount, err = strconv.Atoi(args[2])
 		if err != nil || scaleCmdCount <= 0 {
-			jww.FEEDBACK.Println("COUNT must be positive integer")
+			np.FEEDBACK.Println("COUNT must be positive integer")
 			cmd.Usage()
 			os.Exit(1)
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4())
+		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 			return
 		}
 		ns, _ := getCmd.PersistentFlags().GetString("namespace")
-		jww.FEEDBACK.Println("scale...")
+		np.FEEDBACK.Println("scale...")
 		err = client.Scale(scaleCmdName, scaleCmdCount, ns)
 		if err != nil {
-			jww.FEEDBACK.Println("ERROR")
-			jww.ERROR.Println(err)
+			np.FEEDBACK.Println("ERROR")
+			np.ERROR.Println(err)
 			os.Exit(1)
 		} else {
-			jww.FEEDBACK.Println("OK")
+			np.FEEDBACK.Println("OK")
 		}
 	},
 }

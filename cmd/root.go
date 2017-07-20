@@ -5,24 +5,30 @@ import (
 	"chkit-v2/chlib/dbconfig"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
+	"io/ioutil"
+	"log"
 	"os"
 )
 
 var db *dbconfig.ConfigDB
 
-var debug bool
+var np *jww.Notepad
 
 //RootCmd main cmd entrypoint
 var RootCmd = &cobra.Command{
 	Use: "chkit",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if debug, _ := cmd.Flags().GetBool("debug"); debug {
+			np = jww.NewNotepad(jww.LevelDebug, jww.LevelDebug, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+		} else {
+			np = jww.NewNotepad(jww.LevelInfo, jww.LevelInfo, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+		}
 		var err error
-		db, err = dbconfig.OpenOrCreate(chlib.ConfigFile)
+		db, err = dbconfig.OpenOrCreate(chlib.ConfigFile, np)
 		if err != nil {
-			jww.ERROR.Println(err)
+			np.ERROR.Println(err)
 			os.Exit(1)
 		}
-		debug, _ = cmd.Flags().GetBool("debug")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if cmd.Flags().NFlag() == 0 {

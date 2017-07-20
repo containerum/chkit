@@ -7,14 +7,13 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of chkit",
 	Run: func(cmd *cobra.Command, args []string) {
-		jww.FEEDBACK.Printf("CH Client\n Version: %s\n Built: %s\n OS: %s\n Platform: %s\n Git commit: %s\n",
+		np.FEEDBACK.Printf("CH Client\n Version: %s\n Built: %s\n OS: %s\n Platform: %s\n Git commit: %s\n",
 			helpers.CurrentClientVersion, chlib.BuildDate, runtime.GOOS, runtime.GOARCH, chlib.CommitHash)
 	},
 }

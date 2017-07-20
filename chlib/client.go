@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	jww "github.com/spf13/jwalterweatherman"
 	"io/ioutil"
 	"os"
 	"time"
@@ -22,7 +23,7 @@ type Client struct {
 
 type GenericJson map[string]interface{}
 
-func NewClient(db *dbconfig.ConfigDB, version, uuid string) (*Client, error) {
+func NewClient(db *dbconfig.ConfigDB, version, uuid string, np *jww.Notepad) (*Client, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -43,8 +44,8 @@ func NewClient(db *dbconfig.ConfigDB, version, uuid string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	client.apiHandler = NewHttpApiHandler(cfg, uuid, userCfg.Token)
-	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg, uuid, userCfg.Token)
+	client.apiHandler = NewHttpApiHandler(cfg, uuid, userCfg.Token, np)
+	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg, uuid, userCfg.Token, np)
 	client.userConfig = &userCfg
 	return client, nil
 }

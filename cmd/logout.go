@@ -3,7 +3,6 @@ package cmd
 import (
 	"chkit-v2/chlib"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var logouCmd = &cobra.Command{
@@ -11,9 +10,9 @@ var logouCmd = &cobra.Command{
 	Short: "Close session and remove token",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := chlib.UserLogout(db); err != nil {
-			jww.ERROR.Printf("Logout error: %s", err.Error())
+			np.ERROR.Printf("Logout error: %s", err.Error())
 		} else {
-			jww.FEEDBACK.Print("Bye!")
+			np.FEEDBACK.Print("Bye!")
 		}
 	},
 }
