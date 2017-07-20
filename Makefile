@@ -1,4 +1,4 @@
-BINARY=chkit
+BINARY = chkit
 PACKAGE = chkit-v2
 COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE = `date +%FT%T%Z`
@@ -7,7 +7,9 @@ DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
 LDFLAGS = "-X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
-	-X ${PACKAGE}/chlib/dbconfig.DefaultHTTPServer=${DEFAULT_HTTP_SERVER}"
+	-X ${PACKAGE}/chlib/dbconfig.DefaultHTTPServer=${DEFAULT_HTTP_SERVER} \
+	-X ${PACKAGE}/chlib.DevGoPath=${GOPATH} \
+	-X ${PACKAGE}/chlib.DevGoRoot=${GOROOT}"
 
 all: build
 

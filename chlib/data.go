@@ -57,3 +57,8 @@ const (
 	MemRegex    = `^\d+(.\d+)?(Mi|Gi)$`
 	DeployRegex = LabelRegex // deployment name appears in labels
 )
+
+var (
+	DevGoPath string
+	DevGoRoot string
+)
