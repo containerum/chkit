@@ -133,7 +133,7 @@ type Deploy struct {
 	Metadata Metadata `json:"metadata,omitempty"`
 	Spec     struct {
 		ProgressDeadlineSeconds int `json:"progressDeadlineSeconds,omitempty"`
-		Replicas                int `json:"replicas,omitempty"`
+		Replicas                int `json:"replicas"`
 		RevisionHistoryLimit    int `json:"revisionHistoryLimit,omitempty"`
 		Selector                *struct {
 			MatchLabels map[string]string `json:"matchLabels,omitempty"`

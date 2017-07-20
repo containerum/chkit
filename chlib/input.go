@@ -113,6 +113,8 @@ func PromptParams(printer printer) (params ConfigureParams) {
 	}
 	if labelsStr := Prompt(printer, "Enter labels (key1=value1 ... keyN=valueN)"); labelsStr != "" {
 		params.Labels = labelsValidate(printer, strings.Split(labelsStr, " "))
+	} else {
+		params.Labels = make(map[string]string)
 	}
 	if commands := Prompt(printer, "Enter commands (command1 ... commandN)"); commands != "" {
 		params.Command = strings.Split(commands, " ")
@@ -123,13 +125,19 @@ func PromptParams(printer printer) (params ConfigureParams) {
 	if cpu := Prompt(printer, "Enter CPU cores (*m)"); cpu != "" {
 		cpuValidate(printer, cpu)
 		params.CPU = cpu
+	} else {
+		params.CPU = DefaultCPURequest
 	}
 	if memory := Prompt(printer, "Enter memory size (*Mi | *Gi)"); memory != "" {
 		memValidate(printer, memory)
 		params.Memory = memory
+	} else {
+		params.Memory = DefaultMemoryRequest
 	}
 	if replicas := Prompt(printer, "Enter replicas count"); replicas != "" {
 		params.Replicas = replicasValidate(printer, replicas)
+	} else {
+		params.Replicas = DefaultReplicas
 	}
 	return
 }
@@ -155,6 +163,8 @@ func ParamsFromArgs(printer printer, flags *pflag.FlagSet) (params ConfigurePara
 		labelsSlice, err := flags.GetStringSlice("labels")
 		chkErr(err)
 		params.Labels = labelsValidate(printer, labelsSlice)
+	} else {
+		params.Labels = make(map[string]string)
 	}
 	if flags.Changed("command") {
 		params.Command, err = flags.GetStringSlice("command")
@@ -169,15 +179,21 @@ func ParamsFromArgs(printer printer, flags *pflag.FlagSet) (params ConfigurePara
 		params.CPU, err = flags.GetString("cpu")
 		chkErr(err)
 		cpuValidate(printer, params.CPU)
+	} else {
+		params.CPU = DefaultCPURequest
 	}
 	if flags.Changed("memory") {
 		params.Memory, err = flags.GetString("memory")
 		chkErr(err)
 		memValidate(printer, params.Memory)
+	} else {
+		params.Memory = DefaultMemoryRequest
 	}
 	if flags.Changed("replicas") {
 		params.Replicas, err = flags.GetInt("replicas")
 		chkErr(err)
+	} else {
+		params.Replicas = DefaultReplicas
 	}
 	return
 }

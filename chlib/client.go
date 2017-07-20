@@ -259,15 +259,10 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	req := new(Deploy)
 	req.Kind = "Deployment"
 	req.Metadata.Name = name
-	if params.Labels == nil {
-		req.Metadata.Labels = make(map[string]string) // encode nil map as empty object
-		req.Spec.Template.Metadata.Labels = make(map[string]string)
-	} else {
-		req.Metadata.Labels = params.Labels
-		req.Spec.Template.Metadata.Labels = params.Labels
-	}
+	req.Metadata.Labels = params.Labels
 	req.Spec.Replicas = params.Replicas
 	req.Spec.Template.Metadata.Name = name
+	req.Spec.Template.Metadata.Labels = params.Labels
 	containers := make([]Container, 1)
 	containers[0].Name = name
 	containers[0].Image = params.Image
@@ -278,12 +273,6 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	}
 	containers[0].Command = params.Command
 	containers[0].Env = params.Env
-	if params.CPU == "" {
-		params.CPU = DefaultCPURequest
-	}
-	if params.Memory == "" {
-		params.Memory = DefaultMemoryRequest
-	}
 	containers[0].Resources.Requests = &HwResources{CPU: params.CPU, Memory: params.Memory}
 	req.Spec.Template.Spec.Containers = containers
 	b, _ := json.MarshalIndent(req, "", "    ")

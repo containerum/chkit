@@ -21,6 +21,7 @@ const (
 )
 
 const (
+	DefaultReplicas      = 1
 	DefaultCPURequest    = "100m"
 	DefaultMemoryRequest = "128Mi"
 )
