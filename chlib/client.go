@@ -9,9 +9,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"time"
-
 	"strconv"
+	"time"
 
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -104,25 +103,30 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 	return
 }
 
-func (c *Client) Set(deploy, parameter, value, nameSpace string) (res TcpApiResult, err error) {
+func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res TcpApiResult, err error) {
 	if nameSpace == "" {
 		nameSpace = c.userConfig.Namespace
 	}
 	var httpResult HttpApiResult
-	switch parameter {
-	case "replicas":
-		replicas, err := strconv.Atoi(value)
-		if err != nil || replicas <= 0 {
-			return res, fmt.Errorf("invalid replicas count")
-		}
-		req := GenericJson{"replicas": replicas}
-		httpResult, err = c.apiHandler.SetForDeploy(req, deploy, nameSpace)
-	default:
+	if container != "" {
 		req := GenericJson{
-			"name":  deploy,
-			"image": value,
+			"name":    deploy,
+			parameter: value,
 		}
-		httpResult, err = c.apiHandler.SetForContainer(req, parameter, nameSpace)
+		httpResult, err = c.apiHandler.SetForContainer(req, container, nameSpace)
+	} else {
+		req := make(GenericJson)
+		switch parameter {
+		case "replicas":
+			replicas, err := strconv.Atoi(value)
+			if err != nil || replicas <= 0 {
+				return res, fmt.Errorf("invalid replicas count")
+			}
+			req[parameter] = replicas
+		default:
+			req[parameter] = value
+		}
+		httpResult, err = c.apiHandler.SetForDeploy(req, deploy, nameSpace)
 	}
 	if err != nil {
 		return
