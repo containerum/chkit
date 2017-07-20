@@ -52,7 +52,7 @@ var (
 const DefaultProto = "TCP"
 
 const (
-	LabelRegex  = `^[a-z0-9]([-a-z0-9]*[a-z0-9])?')$`
+	LabelRegex  = `^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`
 	CpuRegex    = `^\d+(.\d+)?m?$`
 	MemRegex    = `^\d+(.\d+)?(Mi|Gi)$`
 	DeployRegex = LabelRegex // deployment name appears in labels
