@@ -27,7 +27,6 @@ func (p podListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 	ppc.Columns = []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP"}
 	for _, item := range p[0].Data.Items {
 		restarts := 0
-		var podStatus string
 		var containersRunning int
 		for _, containerStatus := range item.Status.ContainerStatuses {
 			restarts += containerStatus.RestartCount
@@ -39,14 +38,7 @@ func (p podListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 			if status == "running" {
 				containersRunning++
 			}
-			if podStatus == "" || podStatus == "running" {
-				podStatus = status
-			}
-			if podStatus == "waiting" && status == "terminated" {
-				podStatus = status
-			}
 		}
-		podStatus = strings.Title(podStatus)
 		ipStr := item.Status.PodIP.String()
 		if item.Status.PodIP == nil {
 			ipStr = "None"
@@ -54,7 +46,7 @@ func (p podListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
 		row := []string{
 			item.Metadata.Name,
 			fmt.Sprintf("%d/%d", containersRunning, len(item.Status.ContainerStatuses)),
-			podStatus,
+			item.Status.Phase,
 			fmt.Sprintf("%d", restarts),
 			ageFormat(time.Now().Sub(item.Status.StartTime)),
 			ipStr,
