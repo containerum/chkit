@@ -64,7 +64,7 @@ func labelsValidate(printer printer, labelsStr []string) (ret map[string]string)
 	for _, labelStr := range labelsStr {
 		label := strings.Split(labelStr, "=")
 		if len(label) != 2 {
-			ValidationErrorExit(printer, "Invalid environment variable found: %s\n", labelStr)
+			ValidationErrorExit(printer, "Invalid label found: %s\n", labelStr)
 		}
 		ret[label[0]] = label[1]
 	}
@@ -112,7 +112,7 @@ func PromptParams(printer printer) (params ConfigureParams) {
 		params.Ports = portsValidateStr(printer, portsStr)
 	}
 	if labelsStr := Prompt(printer, "Enter labels (key1=value1 ... keyN=valueN)"); labelsStr != "" {
-		params.Labels = labelsValidate(printer, strings.Split(labelsStr, "="))
+		params.Labels = labelsValidate(printer, strings.Split(labelsStr, " "))
 	}
 	if commands := Prompt(printer, "Enter commands (command1 ... commandN)"); commands != "" {
 		params.Command = strings.Split(commands, " ")
