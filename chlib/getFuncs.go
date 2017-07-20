@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	jww "github.com/spf13/jwalterweatherman"
+	"gopkg.in/yaml.v2"
 )
 
 func LoadJsonFromFile(path string, b interface{}) (err error) {
@@ -29,5 +32,23 @@ func GetCmdRequestJson(client *Client, kind, name, nameSpace string) (ret []Gene
 	for _, itemI := range items {
 		ret = append(ret, itemI.(map[string]interface{}))
 	}
+	return
+}
+
+func JsonPrettyPrint(jsonContent []GenericJson, np *jww.Notepad) (err error) {
+	if len(jsonContent) == 0 {
+		return fmt.Errorf("empty content received")
+	}
+	b, err := json.MarshalIndent(jsonContent[0]["data"], "", "    ")
+	np.FEEDBACK.Printf("%s\n", b)
+	return
+}
+
+func YamlPrint(jsonContent []GenericJson, np *jww.Notepad) (err error) {
+	if len(jsonContent) == 0 {
+		return fmt.Errorf("empty content received")
+	}
+	b, err := yaml.Marshal(jsonContent[0]["data"])
+	np.FEEDBACK.Printf("%s\n", b)
 	return
 }

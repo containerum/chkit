@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"os"
 
 	"chkit-v2/chlib"
@@ -10,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 )
 
 var getCmdFile, getCmdKind, getCmdName string
@@ -80,13 +78,9 @@ var getCmd = &cobra.Command{
 			}
 			err = p.Print()
 		case "json":
-			var b []byte
-			b, err = json.MarshalIndent(jsonContent, "", "    ")
-			np.FEEDBACK.Printf("%s\n", b)
+			err = chlib.JsonPrettyPrint(jsonContent, np)
 		case "yaml":
-			var b []byte
-			b, err = yaml.Marshal(jsonContent)
-			np.FEEDBACK.Printf("%s\n", b)
+			err = chlib.YamlPrint(jsonContent, np)
 		}
 		if err != nil {
 			np.ERROR.Println(err)
