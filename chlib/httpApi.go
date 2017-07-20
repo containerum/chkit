@@ -104,8 +104,7 @@ func (h *HttpApiHandler) Replace(jsonToSend GenericJson, nameSpace, kind string)
 		return result, fmt.Errorf("repace: name is not a string")
 	}
 	url := fmt.Sprintf("%s/namespaces/%s/%s/%s", h.cfg.Server, nameSpace, kind, name)
-	result, err = h.makeRequest(url, http.MethodPut, jsonToSend)
-	return
+	return h.makeRequest(url, http.MethodPut, jsonToSend)
 }
 
 func (h *HttpApiHandler) ReplaceNameSpaces(jsonToSend GenericJson) (result HttpApiResult, err error) {
@@ -127,14 +126,12 @@ func (h *HttpApiHandler) ReplaceNameSpaces(jsonToSend GenericJson) (result HttpA
 	}
 
 	url := fmt.Sprintf("%s/namespaces/%s", h.cfg.Server, name)
-	result, err = h.makeRequest(url, http.MethodPut, jsonToSend)
-	return
+	return h.makeRequest(url, http.MethodPut, jsonToSend)
 }
 
 func (h *HttpApiHandler) Run(jsonToSend GenericJson, nameSpace string) (result HttpApiResult, err error) {
 	url := fmt.Sprintf("%s/namespaces/%s/deployments", h.cfg.Server, nameSpace)
-	result, err = h.makeRequest(url, http.MethodPost, jsonToSend)
-	return
+	return h.makeRequest(url, http.MethodPost, jsonToSend)
 }
 
 func (h *HttpApiHandler) Delete(kind, name, nameSpace string, allPods bool) (result HttpApiResult, err error) {
@@ -144,8 +141,7 @@ func (h *HttpApiHandler) Delete(kind, name, nameSpace string, allPods bool) (res
 	} else {
 		url = fmt.Sprintf("%s/namespaces/%s/%s/%s", h.cfg.Server, nameSpace, kind, name)
 	}
-	result, err = h.makeRequest(url, http.MethodDelete, nil)
-	return
+	return h.makeRequest(url, http.MethodDelete, nil)
 }
 
 func (h *HttpApiHandler) DeleteNameSpaces(name string) (result HttpApiResult, err error) {
@@ -161,8 +157,7 @@ func (h *HttpApiHandler) Get(kind, name, nameSpace string) (result HttpApiResult
 	} else {
 		url = fmt.Sprintf("%s/namespaces/%s/%s", h.cfg.Server, nameSpace, kind)
 	}
-	result, err = h.makeRequest(url, http.MethodGet, nil)
-	return
+	return h.makeRequest(url, http.MethodGet, nil)
 }
 
 func (h *HttpApiHandler) GetNameSpaces(name string) (result HttpApiResult, err error) {
@@ -172,8 +167,7 @@ func (h *HttpApiHandler) GetNameSpaces(name string) (result HttpApiResult, err e
 	} else {
 		url = fmt.Sprintf("%s/namespaces", h.cfg.Server)
 	}
-	result, err = h.makeRequest(url, http.MethodGet, nil)
-	return
+	return h.makeRequest(url, http.MethodGet, nil)
 }
 
 func (apiResult *HttpApiResult) HandleApiResult() error {
