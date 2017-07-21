@@ -3,20 +3,76 @@
 	"ignore": "test",
 	"package": [
 		{
-			"path": "github.com/kfeofantov/chkit-v2/cmd/requestresults",
-			"revision": ""
+			"checksumSHA1": "R1Q34Pfnt197F/nCOO9kG8c+Z90=",
+			"path": "github.com/boltdb/bolt",
+			"revision": "2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8",
+			"revisionTime": "2017-07-17T17:11:48Z"
 		},
 		{
-			"checksumSHA1": "JCTGEgZstzmSj//kDP9ZI/LoHZ4=",
+			"checksumSHA1": "K6exl2ouL7d8cR2i378EzZOdRVI=",
+			"path": "github.com/howeyc/gopass",
+			"revision": "bf9dde6d0d2c004a008c27aaee91170c786f6db8",
+			"revisionTime": "2017-01-09T16:22:49Z"
+		},
+		{
+			"checksumSHA1": "40vJyUB4ezQSn/NSadsKEOrudMc=",
+			"path": "github.com/inconshreveable/mousetrap",
+			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",
+			"revisionTime": "2014-10-17T20:07:13Z"
+		},
+		{
+			"checksumSHA1": "gEjGS03N1eysvpQ+FCHTxPcbxXc=",
+			"path": "github.com/kardianos/osext",
+			"revision": "ae77be60afb1dcacde03767a8c37337fad28ac14",
+			"revisionTime": "2017-05-10T13:15:34Z"
+		},
+		{
+			"checksumSHA1": "cJE7dphDlam/i7PhnsyosNWtbd4=",
+			"path": "github.com/mattn/go-runewidth",
+			"revision": "97311d9f7767e3d6f422ea06661bc2c7a19e8a5d",
+			"revisionTime": "2017-05-10T07:48:58Z"
+		},
+		{
+			"checksumSHA1": "DhMV/nOLXvkvo34Sb4DfEo8iTbo=",
+			"path": "github.com/olekukonko/tablewriter",
+			"revision": "be7a31354aeea3f9f5efbc5c74d0a67ce132de6f",
+			"revisionTime": "2017-07-15T18:13:10Z"
+		},
+		{
+			"checksumSHA1": "FBDs3WX3lu+1oYplSDueThIfaro=",
 			"path": "github.com/spf13/cobra",
-			"revision": "8c6fa02d2225de0f9bdcb7ca912556f68d172d8c",
-			"revisionTime": "2017-06-29T10:52:34Z"
+			"revision": "715f41bd7a70b5111f898b71ab484da52ee6266d",
+			"revisionTime": "2017-07-18T16:22:37Z"
+		},
+		{
+			"checksumSHA1": "mZa8ukZwyAZ86E3oVjhnnKSlizs=",
+			"path": "github.com/spf13/jwalterweatherman",
+			"revision": "0efa5202c04663c757d84f90f5219c1250baf94f",
+			"revisionTime": "2017-05-23T09:39:43Z"
 		},
 		{
 			"checksumSHA1": "STxYqRb4gnlSr3mRpT+Igfdz/kM=",
 			"path": "github.com/spf13/pflag",
 			"revision": "e57e3eeb33f795204c1ca35f56c44f83227c6e66",
 			"revisionTime": "2017-05-08T18:43:26Z"
+		},
+		{
+			"checksumSHA1": "ZaU56svwLgiJD0y8JOB3+/mpYBA=",
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": "7f7c0c2d75ebb4e32a21396ce36e87b6dadc91c9",
+			"revisionTime": "2017-07-15T17:57:27Z"
+		},
+		{
+			"checksumSHA1": "lzKN/3F0mwa8tLTOD/9zG5H1rN0=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "cd2c276457edda6df7fb04895d3fd6a6add42926",
+			"revisionTime": "2017-07-17T10:05:24Z"
+		},
+		{
+			"checksumSHA1": "KHOUE9QA14iPCFNIVs5X72MYdkA=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "3b4ad1db5b2a649883ff3782f5f9f6fb52be71af",
+			"revisionTime": "2017-07-13T20:15:20Z"
 		}
 	],
 	"rootPath": "chkit-v2"
