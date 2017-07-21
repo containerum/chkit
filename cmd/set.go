@@ -13,8 +13,10 @@ import (
 var setCmdDeploy, setCmdContainer, setCmdParameter, setCmdValue string
 
 var setCmd = &cobra.Command{
-	Use:   "set KIND DEPLOY [CONTAINER] PARAMETER=VALUE",
-	Short: "Change one of parameters in Deployment",
+	Use:        "set KIND DEPLOY [CONTAINER] PARAMETER=VALUE",
+	Short:      "Change one of parameters in Deployment",
+	ValidArgs:  []string{chlib.KindDeployments},
+	ArgAliases: []string{"deployments", "deployment", "deploy"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) < 3 {
 			cmd.Usage()
@@ -24,7 +26,8 @@ var setCmd = &cobra.Command{
 		case "deployments", "deployment", "deploy":
 			break
 		default:
-			np.FEEDBACK.Println("Invalid KIND. Choose from ('deployments', 'deployment', 'deploy')")
+			np.FEEDBACK.Printf("Invalid KIND. Choose from (%s)\n", strings.Join(cmd.ArgAliases, ", "))
+			cmd.Usage()
 			os.Exit(1)
 		}
 		setCmdDeploy = args[1]

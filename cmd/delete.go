@@ -6,14 +6,18 @@ import (
 	"chkit-v2/chlib"
 	"chkit-v2/helpers"
 
+	"strings"
+
 	"github.com/spf13/cobra"
 )
 
 var deleteCmdKind, deleteCmdFile, deleteCmdName string
 
 var deleteCmd = &cobra.Command{
-	Use:   "delete (KIND NAME| --file -f FILE)",
-	Short: "Remove object from namespace",
+	Use:        "delete (KIND NAME| --file -f FILE)",
+	Short:      "Remove object from namespace",
+	ValidArgs:  []string{chlib.KindPods, chlib.KindDeployments, chlib.KindNamespaces, chlib.KindService, "--file", "-f"},
+	ArgAliases: []string{"po", "pods", "pod", "deployments", "deployment", "deploy", "service", "services", "svc", "ns", "namespaces", "namespace"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			np.FEEDBACK.Println("KIND or file not specified")
@@ -31,14 +35,14 @@ var deleteCmd = &cobra.Command{
 			deleteCmdKind = chlib.KindNamespaces
 		default:
 			if cmd.Flag("file").Changed {
-				getCmdFile, _ = cmd.Flags().GetString("file")
+				deleteCmdFile, _ = cmd.Flags().GetString("file")
 			} else {
-				np.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace')")
+				np.FEEDBACK.Printf("Invalid KIND. Choose from (%s)\n", strings.Join(cmd.ArgAliases, ", "))
 				cmd.Usage()
 				os.Exit(1)
 			}
 		}
-		if len(args) >= 2 && deleteCmdFile != "" {
+		if len(args) >= 2 && deleteCmdFile == "" {
 			deleteCmdName = args[1]
 		} else {
 			np.FEEDBACK.Println("NAME is not specified")
@@ -75,6 +79,8 @@ var deleteCmd = &cobra.Command{
 }
 
 func init() {
+	deleteCmd.PersistentFlags().StringP("file", "f", "", "File generated at object creation")
+	cobra.MarkFlagFilename(deleteCmd.PersistentFlags(), "file")
 	deleteCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	RootCmd.AddCommand(deleteCmd)
 }

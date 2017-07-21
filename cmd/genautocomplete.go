@@ -26,5 +26,6 @@ var genautocompleteCmd = &cobra.Command{
 
 func init() {
 	genautocompleteCmd.PersistentFlags().StringP("file", "f", "-", "File to write generated parameters, \"-\" for stdout")
+	cobra.MarkFlagFilename(genautocompleteCmd.PersistentFlags(), "file")
 	RootCmd.AddCommand(genautocompleteCmd)
 }

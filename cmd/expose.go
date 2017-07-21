@@ -19,8 +19,10 @@ var exposeCmdName string
 var exposeCmdPorts []chlib.Port
 
 var exposeCmd = &cobra.Command{
-	Use:   "expose KIND NAME (-p --ports PORTS)",
-	Short: "Create Service and set output port list",
+	Use:        "expose KIND NAME (-p --ports PORTS)",
+	Short:      "Create Service and set output port list",
+	ValidArgs:  []string{chlib.KindDeployments},
+	ArgAliases: []string{"deployments", "deployment", "deploy"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 {
 			np.FEEDBACK.Println("Invalid argument count")
@@ -32,7 +34,7 @@ var exposeCmd = &cobra.Command{
 		case "deployments", "deployment", "deploy":
 			break
 		default:
-			np.FEEDBACK.Println("Invalid KIND. Choose from ('deployments', 'deployment', 'deploy')")
+			np.FEEDBACK.Printf("Invalid KIND. Choose from (%s)\n", strings.Join(cmd.ArgAliases, ", "))
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -94,6 +96,7 @@ var exposeCmd = &cobra.Command{
 
 func init() {
 	exposeCmd.PersistentFlags().StringP("ports", "p", "", "Port list. Format PORTNAME:TARGETPORT[:PROTOCOL] or PORTNAME:TARGETPORT:PORT[:PROTOCOL], split with \",\"")
+	cobra.MarkFlagRequired(exposeCmd.PersistentFlags(), "ports")
 	exposeCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	RootCmd.AddCommand(exposeCmd)
 }

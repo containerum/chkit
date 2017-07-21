@@ -45,6 +45,7 @@ var createCmd = &cobra.Command{
 
 func init() {
 	createCmd.PersistentFlags().StringP("file", "f", "", "path to JSON file")
-	createCmd.MarkFlagRequired("file")
+	cobra.MarkFlagRequired(createCmd.PersistentFlags(), "file")
+	cobra.MarkFlagFilename(createCmd.PersistentFlags(), "file")
 	RootCmd.AddCommand(createCmd)
 }

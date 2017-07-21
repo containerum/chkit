@@ -14,8 +14,10 @@ import (
 var getCmdFile, getCmdKind, getCmdName string
 
 var getCmd = &cobra.Command{
-	Use:   "get (KIND [NAME]| --file -f FILE)",
-	Short: "Show info about pod(s), service(s), namespace(s), deployment(s)",
+	Use:        "get (KIND [NAME]| --file -f FILE)",
+	Short:      "Show info about pod(s), service(s), namespace(s), deployment(s)",
+	ValidArgs:  []string{chlib.KindPods, chlib.KindDeployments, chlib.KindNamespaces, chlib.KindService, "--file", "-f"},
+	ArgAliases: []string{"po", "pods", "pod", "deployments", "deployment", "deploy", "service", "services", "svc", "ns", "namespaces", "namespace"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if cmd.Flag("output").Changed {
 			switch val, _ := cmd.Flags().GetString("output"); val {
@@ -32,9 +34,6 @@ var getCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		switch args[0] {
-		case "--file", "-f":
-			getCmdFile = args[1]
-			return
 		case "po", "pods", "pod":
 			getCmdKind = chlib.KindPods
 		case "deployments", "deployment", "deploy":
@@ -44,11 +43,15 @@ var getCmd = &cobra.Command{
 		case "ns", "namespaces", "namespace":
 			getCmdKind = chlib.KindNamespaces
 		default:
-			np.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace') or file")
-			cmd.Usage()
-			os.Exit(1)
+			if cmd.Flag("file").Changed {
+				getCmdFile, _ = cmd.Flags().GetString("file")
+			} else {
+				np.FEEDBACK.Printf("Invalid KIND. Choose from (%s)\n", strings.Join(cmd.ArgAliases, ", "))
+				cmd.Usage()
+				os.Exit(1)
+			}
 		}
-		if len(args) >= 2 && args[1][0] != '-' {
+		if len(args) >= 2 && getCmdFile == "" {
 			getCmdName = args[1]
 		}
 	},
