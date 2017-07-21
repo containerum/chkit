@@ -112,10 +112,14 @@ type Spec struct {
 	} `json:"tolerations,omitempty"`
 }
 
-type Service struct {
+type CommonObject struct {
 	Kind     string   `json:"kind"`
-	Metadata Metadata `json:"metadata,omitempty"`
-	Spec     struct {
+	Metadata Metadata `json:"metadata"`
+}
+
+type Service struct {
+	CommonObject
+	Spec struct {
 		ClusterIP           net.IP            `json:"clusterIP,omitempty"`
 		DeprecatedPublicIPs []net.IP          `json:"deprecatedPublicIPs,omitempty"`
 		ExternalHosts       []string          `json:"externalHosts,omitempty"`
@@ -129,9 +133,8 @@ type Service struct {
 }
 
 type Deploy struct {
-	Kind     string   `json:"kind"`
-	Metadata Metadata `json:"metadata,omitempty"`
-	Spec     struct {
+	CommonObject
+	Spec struct {
 		ProgressDeadlineSeconds int `json:"progressDeadlineSeconds,omitempty"`
 		Replicas                int `json:"replicas"`
 		RevisionHistoryLimit    int `json:"revisionHistoryLimit,omitempty"`
@@ -156,10 +159,8 @@ type Deploy struct {
 }
 
 type Namespace struct {
-	Kind     string   `json:"kind"`
-	Metadata Metadata `json:"metadata,omitempty"`
-	DataType string   `json:"DataType,omitempty"`
-	Data     struct {
+	CommonObject
+	Data struct {
 		APIVersion string   `json:"apiVersion,omitempty"`
 		Kind       string   `json:"kind,omitempty"`
 		Metadata   Metadata `json:"metadata,omitempty"`
@@ -173,10 +174,9 @@ type Namespace struct {
 }
 
 type Pod struct {
-	Kind     string   `json:"kind"`
-	Metadata Metadata `json:"metadata,omitempty"`
-	Spec     Spec     `json:"spec,omitempty"`
-	Status   struct {
+	CommonObject
+	Spec Spec `json:"spec,omitempty"`
+	Status struct {
 		Conditions        []Condiniton      `json:"conditions,omitempty"`
 		ContainerStatuses []ContainerStatus `json:"containerStatuses,omitempty"`
 		HostIP            net.IP            `json:"hostIP,omitempty"`

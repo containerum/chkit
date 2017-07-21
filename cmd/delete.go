@@ -21,8 +21,6 @@ var deleteCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		switch args[0] {
-		case "--file", "-f":
-			deleteCmdFile = args[1]
 		case "po", "pods", "pod":
 			deleteCmdKind = chlib.KindPods
 		case "deployments", "deployment", "deploy":
@@ -32,16 +30,30 @@ var deleteCmd = &cobra.Command{
 		case "ns", "namespaces", "namespace":
 			deleteCmdKind = chlib.KindNamespaces
 		default:
-			np.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace') or file")
-			cmd.Usage()
-			os.Exit(1)
+			if cmd.Flag("file").Changed {
+				getCmdFile, _ = cmd.Flags().GetString("file")
+			} else {
+				np.FEEDBACK.Println("Invalid KIND (choose from 'po', 'pods', 'pod', 'deployments', 'deployment', 'deploy', 'service', 'services', 'svc', 'ns', 'namespaces', 'namespace')")
+				cmd.Usage()
+				os.Exit(1)
+			}
 		}
-		if len(args) >= 2 && args[1][0] != '-' {
+		if len(args) >= 2 && deleteCmdFile != "" {
 			deleteCmdName = args[1]
 		} else {
 			np.FEEDBACK.Println("NAME is not specified")
 			cmd.Usage()
 			os.Exit(1)
+		}
+		if deleteCmdFile != "" {
+			var obj chlib.CommonObject
+			err := chlib.LoadJsonFromFile(deleteCmdFile, &obj)
+			if err != nil {
+				np.ERROR.Println(err)
+				os.Exit(1)
+			}
+			deleteCmdKind = obj.Kind
+			deleteCmdName = obj.Metadata.Name
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
