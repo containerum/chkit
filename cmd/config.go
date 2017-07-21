@@ -123,6 +123,7 @@ var configCmd = &cobra.Command{
 func init() {
 	configCmd.PersistentFlags().StringP("set-token", "t", "", "Set user token")
 	configCmd.PersistentFlags().StringP("set-default-namespace", "n", "", "Default namespace")
+	cobra.MarkFlagCustom(configCmd.PersistentFlags(), "set-default-namespace", "__chkit_namespaces_list")
 	configCmd.PersistentFlags().StringP("set-http-server-address", "H", dbconfig.DefaultHTTPServer, "HTTP API server address")
 	configCmd.PersistentFlags().Duration("set-http-server-timeout", dbconfig.DefaultHTTPTimeout, "HTTP API calls timeout")
 	configCmd.PersistentFlags().StringP("set-tcp-server-address", "T", dbconfig.DefaultTCPServer, "TCP API server address")

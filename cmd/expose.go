@@ -98,5 +98,6 @@ func init() {
 	exposeCmd.PersistentFlags().StringP("ports", "p", "", "Port list. Format PORTNAME:TARGETPORT[:PROTOCOL] or PORTNAME:TARGETPORT:PORT[:PROTOCOL], split with \",\"")
 	cobra.MarkFlagRequired(exposeCmd.PersistentFlags(), "ports")
 	exposeCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
+	cobra.MarkFlagCustom(exposeCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
 	RootCmd.AddCommand(exposeCmd)
 }

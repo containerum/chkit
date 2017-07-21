@@ -42,5 +42,6 @@ var restartCmd = &cobra.Command{
 
 func init() {
 	restartCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
+	cobra.MarkFlagCustom(restartCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
 	RootCmd.AddCommand(restartCmd)
 }

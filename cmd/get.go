@@ -8,10 +8,14 @@ import (
 	"chkit-v2/helpers"
 	"strings"
 
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
 var getCmdFile, getCmdKind, getCmdName string
+
+var validOutputFormats = []string{"json", "yaml", "pretty"}
 
 var getCmd = &cobra.Command{
 	Use:        "get (KIND [NAME]| --file -f FILE)",
@@ -21,9 +25,9 @@ var getCmd = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if cmd.Flag("output").Changed {
 			switch val, _ := cmd.Flags().GetString("output"); val {
-			case "json", "yaml", "pretty":
+			case "json", "yaml", "pretty", "list":
 			default:
-				np.FEEDBACK.Println("output must be json, yaml or pretty")
+				np.FEEDBACK.Printf("Invalid output format. Choose from (%s)", strings.Join(validOutputFormats, ", "))
 				cmd.Usage()
 				os.Exit(1)
 			}
@@ -92,9 +96,12 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
-	getCmd.PersistentFlags().StringP("output", "o", "pretty", "Output format: json, yaml, pretty")
+	getCmd.PersistentFlags().StringP("output", "o", "pretty", fmt.Sprintf("Output format: %s", strings.Join(validOutputFormats, ", ")))
+	cobra.MarkFlagCustom(getCmd.PersistentFlags(), "output", "__chkit_get_outformat")
 	getCmd.PersistentFlags().StringP("sort-by", "s", "NAME", "Sort by field. Used only if list printed")
 	getCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
+	cobra.MarkFlagCustom(getCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
 	getCmd.PersistentFlags().StringP("file", "f", "", "JSON file generated on object creation")
+	cobra.MarkFlagFilename(getCmd.PersistentFlags(), "file", "json")
 	RootCmd.AddCommand(getCmd)
 }

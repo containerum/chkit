@@ -51,7 +51,7 @@ var setCmd = &cobra.Command{
 			return
 		}
 		ns, _ := getCmd.PersistentFlags().GetString("namespace")
-		np.FEEDBACK.Print("set... ")
+		np.FEEDBACK.Print("set...")
 		_, err = client.Set(setCmdDeploy, setCmdContainer, setCmdParameter, setCmdValue, ns)
 		if err == nil {
 			np.FEEDBACK.Println("OK")
@@ -64,5 +64,6 @@ var setCmd = &cobra.Command{
 
 func init() {
 	setCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
+	cobra.MarkFlagCustom(setCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
 	RootCmd.AddCommand(setCmd)
 }

@@ -10,9 +10,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-type namespaceResult []struct {
-	chlib.Namespace
-}
+type namespaceResult []chlib.Namespace
 
 func (n namespaceResult) Print() error {
 	if len(n) < 2 {

@@ -74,5 +74,6 @@ func init() {
 	runCmd.PersistentFlags().StringP("memory", "m", chlib.DefaultMemoryRequest, "Memory size. Format: (number)[Mi|Gi]")
 	runCmd.PersistentFlags().IntP("replicas", "r", chlib.DefaultReplicas, "Replicas count")
 	runCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
+	cobra.MarkFlagCustom(runCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
 	RootCmd.AddCommand(runCmd)
 }

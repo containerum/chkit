@@ -80,7 +80,8 @@ var deleteCmd = &cobra.Command{
 
 func init() {
 	deleteCmd.PersistentFlags().StringP("file", "f", "", "File generated at object creation")
-	cobra.MarkFlagFilename(deleteCmd.PersistentFlags(), "file")
+	cobra.MarkFlagFilename(deleteCmd.PersistentFlags(), "file", "json")
 	deleteCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
+	cobra.MarkFlagCustom(deleteCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
 	RootCmd.AddCommand(deleteCmd)
 }
