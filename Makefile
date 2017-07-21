@@ -25,16 +25,17 @@ build-all: clean-build
 	mkdir build
 	#Build for linux_386
 	mkdir build/linux_386
-	GOOS=linux GOARCH=386 go build -o build/linux_386/chkit
+	GOOS=linux GOARCH=386 go build -o build/linux_386/chkit -ldflags ${LDFLAGS}
 	#Build for linux_amd64
 	mkdir build/linux_amd64
-	GOOS=linux GOARCH=amd64 go build -o build/linux_amd64/chkit
+	GOOS=linux GOARCH=amd64 go build -o build/linux_amd64/chkit -ldflags ${LDFLAGS}
 	#Build for darwin_amd64
 	mkdir build/darwin_amd64
-	GOOS=darwin GOARCH=amd64 go build -o build/darwin_amd64/chkit
+	GOOS=darwin GOARCH=amd64 go build -o build/darwin_amd64/chkit -ldflags ${LDFLAGS}
 	#Build for windows_386
+	GOOS=windows GOARCH=386 go build -o build/windows_386/chkit.exe -ldflags ${LDFLAGS}
 	#Build for windows_amd64
-
+	GOOS=windows GOARCH=amd64 go build -o build/windows_amd64/chkit.exe -ldflags ${LDFLAGS}
 clean-build:
 	rm -rf build
 
