@@ -8,7 +8,7 @@ import (
 	"github.com/kardianos/osext"
 )
 
-var CurrentClientVersion = "2.0.0"
+var CurrentClientVersion string
 
 func GetProgramBuildTime() time.Time {
 	fname, _ := osext.Executable()
