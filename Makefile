@@ -26,13 +26,10 @@ test:
 build-all: clean-build
 	mkdir build
 	#Build for linux_386
-	mkdir build/linux_386
 	GOOS=linux GOARCH=386 go build -o build/chkit_linux_x86_v${VERSION} -ldflags ${LDFLAGS}
 	#Build for linux_amd64
-	mkdir build/linux_amd64
 	GOOS=linux GOARCH=amd64 go build -o build/chkit_linux_x64_v${VERSION} -ldflags ${LDFLAGS}
 	#Build for darwin_amd64
-	mkdir build/darwin_amd64
 	GOOS=darwin GOARCH=amd64 go build -o build/chkit_mac_x64_v${VERSION} -ldflags ${LDFLAGS}
 	#Build for windows_386
 	GOOS=windows GOARCH=386 go build -o build/chkit_win_x86_v${VERSION}.exe -ldflags ${LDFLAGS}
