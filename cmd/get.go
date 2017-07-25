@@ -99,6 +99,7 @@ func init() {
 	getCmd.PersistentFlags().StringP("output", "o", "pretty", fmt.Sprintf("Output format: %s", strings.Join(validOutputFormats, ", ")))
 	cobra.MarkFlagCustom(getCmd.PersistentFlags(), "output", "__chkit_get_outformat")
 	getCmd.PersistentFlags().StringP("sort-by", "s", "NAME", "Sort by field. Used only if list printed")
+	cobra.MarkFlagCustom(getCmd.PersistentFlags(), "sort-by", "__chkit_get_sort_columns")
 	getCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	cobra.MarkFlagCustom(getCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
 	getCmd.PersistentFlags().StringP("file", "f", "", "JSON file generated on object creation")

@@ -24,8 +24,10 @@ type podListResult []struct {
 	} `json:"data"`
 }
 
+var PodColumns = []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP"}
+
 func (p podListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
-	ppc.Columns = []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP"}
+	ppc.Columns = PodColumns
 	for _, item := range p[0].Data.Items {
 		restarts := 0
 		var containersRunning int

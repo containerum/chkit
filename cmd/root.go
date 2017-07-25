@@ -7,6 +7,10 @@ import (
 	"log"
 	"os"
 
+	"chkit-v2/chlib/requestresults"
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -15,7 +19,7 @@ var db *dbconfig.ConfigDB
 
 var np *jww.Notepad
 
-const bashCompletionFunc = `__chkit_get_outformat()
+var bashCompletionFunc = fmt.Sprintf(`__chkit_get_outformat()
 {
 	COMPREPLY=( $(compgen -W "json yaml pretty" -- "${cur}") )
 }
@@ -45,6 +49,28 @@ __chkit_namespaces_list()
 	__chkit_get_object_list namespace
 }
 
+__chkit_get_sort_columns()
+{
+	local cur cmd cols
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	cmd="${COMP_WORDS[2]}"
+	case "${cmd}" in
+		"deployments" | "deployment" | "deploy" )
+			cols="%s"
+		;;
+		"po" | "pods" | "pod" )
+			cols="%s"
+		;;
+		"service" | "services" | "svc" )
+			cols="%s"
+		;;
+		"ns" | "namespaces" | "namespace" )
+			cols="%s"
+		;;
+	esac
+	COMPREPLY=( $(compgen -W "${cols}" -- "${cur}") )
+}
+
 __custom_func()
 {
 	local cur prev list
@@ -66,7 +92,10 @@ __custom_func()
 			fi
 		;;
 	esac
-}`
+}`, strings.Join(requestresults.DeployColumns, " "),
+	strings.Join(requestresults.PodColumns, " "),
+	strings.Join(requestresults.ServiceColumns, " "),
+	strings.Join(requestresults.NamespaceColumns, " "))
 
 //RootCmd main cmd entrypoint
 var RootCmd = &cobra.Command{

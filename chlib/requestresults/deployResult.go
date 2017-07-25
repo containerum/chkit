@@ -23,6 +23,8 @@ type deployListResult []struct {
 	} `json:"data"`
 }
 
+var DeployColumns = []string{"NAME", "PODS", "PODS ACTIVE", "CPU", "RAM", "AGE"}
+
 func cpuNum(cpuStr string) (ret int, err error) {
 	if cpuStr[len(cpuStr)-1:] == "m" {
 		var cpu int
@@ -53,7 +55,7 @@ func memNum(memStr string) (ret int, err error) {
 }
 
 func (l deployListResult) formatPrettyPrint() (ppc prettyPrintConfig, err error) {
-	ppc.Columns = []string{"NAME", "PODS", "PODS ACTIVE", "CPU", "RAM", "AGE"}
+	ppc.Columns = DeployColumns
 	for _, item := range l[0].Data.Items {
 		var cpuTotal, memTotal int
 		if item.Spec.Replicas != 0 {

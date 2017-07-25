@@ -175,7 +175,7 @@ type Namespace struct {
 
 type Pod struct {
 	CommonObject
-	Spec Spec `json:"spec,omitempty"`
+	Spec   Spec `json:"spec,omitempty"`
 	Status struct {
 		Conditions        []Condiniton      `json:"conditions,omitempty"`
 		ContainerStatuses []ContainerStatus `json:"containerStatuses,omitempty"`

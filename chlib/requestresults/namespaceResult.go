@@ -12,6 +12,8 @@ import (
 
 type namespaceResult []chlib.Namespace
 
+var NamespaceColumns = []string{"NAME", "HARD CPU", "HARD MEMORY", "USED CPU", "USED MEMORY", "AGE"}
+
 func (n namespaceResult) Print() error {
 	if len(n) < 2 {
 		return fmt.Errorf("Invalid namespace response")
@@ -34,7 +36,7 @@ func (n namespaceResult) Print() error {
 }
 
 func (n namespaceResult) formatPrettyPrint() (ppc prettyPrintConfig) {
-	ppc.Columns = []string{"NAME", "HARD CPU", "HARD MEMORY", "USED CPU", "USED MEMORY", "AGE"}
+	ppc.Columns = NamespaceColumns
 	for _, v := range n {
 		row := []string{
 			v.Data.Metadata.Namespace,

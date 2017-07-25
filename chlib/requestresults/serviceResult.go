@@ -21,8 +21,10 @@ type serviceListResult []struct {
 	} `json:"data"`
 }
 
+var ServiceColumns = []string{"NAME", "CLUSTER-IP", "EXTERNAL", "HOST", "PORTS", "AGE"}
+
 func (s serviceListResult) formatPrettyPrint() (ppc prettyPrintConfig) {
-	ppc.Columns = []string{"NAME", "CLUSTER-IP", "EXTERNAL", "HOST", "PORT(S)", "AGE"}
+	ppc.Columns = ServiceColumns
 	for _, item := range s[0].Data.Items {
 		var externalHost string
 		external := item.Metadata.Labels["external"]
