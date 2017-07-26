@@ -6,6 +6,9 @@ import (
 
 	"chkit-v2/chlib"
 
+	"chkit-v2/helpers"
+	"os"
+
 	"github.com/howeyc/gopass"
 	"github.com/spf13/cobra"
 )
@@ -15,6 +18,16 @@ const emailRegex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)"
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Open session and set up token",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		// Hidden password input works incorrect in Windows
+		if helpers.IsWindows() {
+			if !cmd.Flag("login").Changed || !cmd.Flag("password").Changed {
+				np.FEEDBACK.Println("Login and password must be specified")
+				cmd.Usage()
+				os.Exit(1)
+			}
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		isValidMail := regexp.MustCompile(emailRegex)
 		var email string

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"runtime"
+
 	"github.com/kardianos/osext"
 )
 
@@ -21,4 +23,8 @@ func GetProgramBuildTime() time.Time {
 		return time.Now()
 	}
 	return fi.ModTime()
+}
+
+func IsWindows() bool {
+	return runtime.GOOS == "windows"
 }
