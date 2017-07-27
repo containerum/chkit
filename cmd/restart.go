@@ -5,6 +5,8 @@ import (
 	"chkit-v2/helpers"
 	"os"
 
+	"regexp"
+
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +18,11 @@ var restartCmd = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			np.FEEDBACK.Println("Deployment name must be specified")
+			cmd.Usage()
+			os.Exit(1)
+		}
+		if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[0]) {
+			np.FEEDBACK.Println("Invalid NAME specified")
 			cmd.Usage()
 			os.Exit(1)
 		}

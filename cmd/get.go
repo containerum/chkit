@@ -10,6 +10,8 @@ import (
 
 	"fmt"
 
+	"regexp"
+
 	"github.com/spf13/cobra"
 )
 
@@ -55,8 +57,12 @@ var getCmd = &cobra.Command{
 				os.Exit(1)
 			}
 		}
-		if len(args) >= 2 && getCmdFile == "" {
+		if len(args) >= 2 && getCmdFile == "" && regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[1]) {
 			getCmdName = args[1]
+		} else {
+			np.FEEDBACK.Println("NAME is not specified or invalid")
+			cmd.Usage()
+			os.Exit(1)
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {

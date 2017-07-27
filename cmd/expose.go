@@ -12,8 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const portRegex = `^(\D+):(\d+)(:(\d+))?(:(TCP|UDP))?$`
-
 var exposeCmdName string
 
 var exposeCmdPorts []chlib.Port
@@ -38,8 +36,13 @@ var exposeCmd = &cobra.Command{
 			cmd.Usage()
 			os.Exit(1)
 		}
+		if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[1]) {
+			np.FEEDBACK.Println("Invalid NAME specified")
+			cmd.Usage()
+			os.Exit(1)
+		}
 		exposeCmdName = args[1]
-		portMatcher := regexp.MustCompile(portRegex)
+		portMatcher := regexp.MustCompile(chlib.PortRegex)
 		ports, _ := cmd.Flags().GetStringSlice("ports")
 		for _, portStr := range ports {
 			if !portMatcher.MatchString(portStr) {
@@ -48,6 +51,11 @@ var exposeCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			subm := portMatcher.FindStringSubmatch(portStr)
+			if !regexp.MustCompile(chlib.PortNameRegex).MatchString(subm[1]) {
+				np.FEEDBACK.Println("Invalid port name")
+				cmd.Usage()
+				os.Exit(1)
+			}
 			portName := subm[1]
 			targetPort, err := strconv.Atoi(subm[2])
 			if err != nil || targetPort < 0 || targetPort > 65535 {

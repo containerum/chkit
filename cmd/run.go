@@ -22,12 +22,12 @@ var runCmd = &cobra.Command{
 			cmd.Usage()
 			os.Exit(1)
 		}
-		runCmdName = args[0]
-		if !regexp.MustCompile(chlib.DeployRegex).MatchString(runCmdName) {
+		if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[0]) {
 			np.FEEDBACK.Println("Invalid deployment name")
 			cmd.Usage()
 			os.Exit(1)
 		}
+		runCmdName = args[0]
 		if !cmd.Flag("image").Changed && !cmd.Flag("configure").Changed {
 			np.FEEDBACK.Println("Image or configure parameter must be specified")
 			cmd.Usage()

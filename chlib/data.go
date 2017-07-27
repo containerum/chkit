@@ -52,11 +52,13 @@ var (
 const DefaultProto = "TCP"
 
 const (
-	LabelRegex  = `^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`
-	ImageRegex  = LabelRegex
-	CpuRegex    = `^\d+(.\d+)?m?$`
-	MemRegex    = `^\d+(.\d+)?(Mi|Gi)$`
-	DeployRegex = LabelRegex // deployment name appears in labels
+	LabelRegex      = `^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`
+	ImageRegex      = LabelRegex
+	CpuRegex        = `^\d+(.\d+)?m?$`
+	MemRegex        = `^\d+(.\d+)?(Mi|Gi)$`
+	ObjectNameRegex = LabelRegex
+	PortRegex       = `^(\D+):(\d+)(:(\d+))?(:(TCP|UDP))?$`
+	PortNameRegex   = LabelRegex
 )
 
 var (
