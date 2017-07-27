@@ -3,11 +3,13 @@ package dbconfig
 import (
 	"chkit-v2/helpers"
 	"fmt"
+	"time"
 )
 
 type TcpApiConfig struct {
-	Address    string `mapconv:"address"`
-	BufferSize int    `mapconv:"buffersize"`
+	Address    string        `mapconv:"address"`
+	BufferSize int           `mapconv:"buffersize"`
+	Timeout    time.Duration `mapconv:"timeout"`
 }
 
 const tcpApiBucket = "tcpApi"
@@ -16,6 +18,7 @@ func init() {
 	cfg := TcpApiConfig{
 		Address:    DefaultTCPServer,
 		BufferSize: DefaultBufferSize,
+		Timeout:    DefaultTCPTimeout,
 	}
 	initializers[tcpApiBucket] = helpers.StructToMap(cfg)
 }

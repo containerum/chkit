@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"net"
 
+	"time"
+
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -37,6 +39,12 @@ func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {
 	t.socket, err = net.Dial("tcp", t.cfg.Address)
 	if err != nil {
 		return result, fmt.Errorf("tcp connect: %s", err)
+	}
+	if err := t.socket.SetReadDeadline(time.Now().Add(t.cfg.Timeout)); err != nil {
+		return result, fmt.Errorf("tcp set read deadline: %s", err)
+	}
+	if err := t.socket.SetWriteDeadline(time.Now().Add(t.cfg.Timeout)); err != nil {
+		return result, fmt.Errorf("tcp set write deadline: %s", err)
 	}
 	hello, err := json.Marshal(t.authForm)
 	if err != nil {

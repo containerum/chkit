@@ -42,6 +42,7 @@ var configCmd = &cobra.Command{
 			np.FEEDBACK.Println("TCP API")
 			np.FEEDBACK.Printf("\tServer: %s", tcpApi.Address)
 			np.FEEDBACK.Println("\tBuffer size: ", tcpApi.BufferSize)
+			np.FEEDBACK.Println("\tTimeout: ", tcpApi.Timeout)
 			return
 		}
 
@@ -84,6 +85,15 @@ var configCmd = &cobra.Command{
 			}
 			httpApi.Timeout = tm
 			np.FEEDBACK.Printf("HTTP API timeout changed to: %s", tm)
+		}
+		if cmd.Flag("set-tcp-server-timeout").Changed {
+			tm, err := cmd.Flags().GetDuration("set-tcp-server-timeout")
+			if err != nil {
+				np.FEEDBACK.Printf("Invalid TCP API timeout given")
+				os.Exit(1)
+			}
+			tcpApi.Timeout = tm
+			np.FEEDBACK.Printf("TCP API timeout changed to: %s", tm)
 		}
 		if cmd.Flag("set-tcp-server-address").Changed {
 			address, _ := cmd.Flags().GetString("set-tcp-server-address")
@@ -128,5 +138,6 @@ func init() {
 	configCmd.PersistentFlags().Duration("set-http-server-timeout", dbconfig.DefaultHTTPTimeout, "HTTP API calls timeout")
 	configCmd.PersistentFlags().StringP("set-tcp-server-address", "T", dbconfig.DefaultTCPServer, "TCP API server address")
 	configCmd.PersistentFlags().Int("set-tcp-buffer-size", dbconfig.DefaultBufferSize, "TCP API buffer size")
+	configCmd.PersistentFlags().Duration("set-tcp-server-timeout", dbconfig.DefaultTCPTimeout, "TCP API calls timeout")
 	RootCmd.AddCommand(configCmd)
 }
