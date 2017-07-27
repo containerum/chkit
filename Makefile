@@ -4,40 +4,76 @@ COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE = `date +%FT%T%Z`
 DEFAULT_TCP_SERVER = sdk.containerum.io:3000
 DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
-VERSION = "2.0.2"
-LDFLAGS = "-X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
+VERSION = 2.0.2
+REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultHTTPServer=${DEFAULT_HTTP_SERVER} \
 	-X ${PACKAGE}/chlib.DevGoPath=${GOPATH} \
 	-X ${PACKAGE}/chlib.DevGoRoot=${GOROOT} \
-	-X ${PACKAGE}/helpers.CurrentClientVersion=${VERSION}"
+	-X ${PACKAGE}/helpers.CurrentClientVersion=${VERSION}
+
+BUILDDIR = build
+#track sources
+SOURCES = $(shell find ${PWD} -name '*.go')
+
+define do_build
+@echo -e "\x1b[35mRun go build\x1b[0m"
+@go build -ldflags "${LDFLAGS} ${REQLDFLAGS}" -o ${1}
+endef
+
+#remove source file after packing
+%.tar.gz : ${SOURCES}
+	$(call do_build,${BUILDDIR}/${BINARY})
+	@echo -e "\x1b[35mPack to $@\x1b[0m"
+	@chmod +x ${BUILDDIR}/chkit
+	@tar --transform 's/.*\///g' --remove-files -cvzf $@ ${BUILDDIR}/${BINARY}
+
+#removes source file after packing
+%.zip : ${SOURCES}
+	$(call do_build,${BUILDDIR}/${BINARY}.exe)
+	@echo -e "\x1b[35mPack to $@\x1b[0m"
+	@zip -mD $@ ${BUILDDIR}/${BINARY}.exe
 
 all: build
 
+#for debugging purposes
 build:
-	go build -ldflags ${LDFLAGS} -o ${BINARY}
+	go build -ldflags "${LDFLAGS} ${REQLDFLAGS}" -o ${BINARY}
 
 clean:
-	if [ -f ${BINARY} ]; then rm ${BINARY}; fi
-test:
-	go test
+	@if [ -f ${BINARY} ]; then rm ${BINARY}; fi
 
-build-all: clean-build
-	mkdir build
-	#Build for linux_386
-	GOOS=linux GOARCH=386 go build -o build/chkit_linux_x86_v${VERSION} -ldflags ${LDFLAGS}
-	#Build for linux_amd64
-	GOOS=linux GOARCH=amd64 go build -o build/chkit_linux_x64_v${VERSION} -ldflags ${LDFLAGS}
-	#Build for darwin_amd64
-	GOOS=darwin GOARCH=amd64 go build -o build/chkit_mac_x64_v${VERSION} -ldflags ${LDFLAGS}
-	#Build for windows_386
-	GOOS=windows GOARCH=386 go build -o build/chkit_win_x86_v${VERSION}.exe -ldflags ${LDFLAGS}
-	#Build for windows_amd64
-	GOOS=windows GOARCH=amd64 go build -o build/chkit_win_x64_v${VERSION}.exe -ldflags ${LDFLAGS}
-	#Build for linux ARM
-	GOOS=linux GOARCH=arm go build -o build/chkit_linux_arm_v${VERSION} -ldflags ${LDFLAGS}
 clean-build:
-	rm -rf build
+	@rm -rf ${BUILDDIR}
 
-.PHONY: all build clean
+clean-all: clean clean-build
+
+test:
+	@go test
+
+define custom_os_arch_build
+	$(eval GOOS=${1})
+	$(eval GOARCH=${2})
+	@export GOOS GOARCH
+	$(eval TARGET=${BINARY}_${GOOS}_${GOARCH}_v${VERSION})
+	$(if $(filter ${GOOS},windows),$(eval TARGET=${TARGET}.zip),$(eval TARGET=${TARGET}.tar.gz))
+	$(eval TARGET=$(subst darwin,mac,${TARGET}))
+	$(eval TARGET=$(subst 386,x86,${TARGET}))
+	$(eval TARGET=$(subst amd64,x64,${TARGET}))
+	@echo -e "\x1b[32;1mBuild ${TARGET}\x1b[0m"
+	@$(MAKE) -s -f $(lastword $(MAKEFILE_LIST)) LDFLAGS="-w -s" ${BUILDDIR}/${TARGET}
+
+endef
+
+#production builds
+build-all:
+	@mkdir -p build
+	$(call custom_os_arch_build,linux,386)
+	$(call custom_os_arch_build,linux,amd64)
+	$(call custom_os_arch_build,linux,arm)
+	$(call custom_os_arch_build,darwin,amd64)
+	$(call custom_os_arch_build,windows,386)
+	$(call custom_os_arch_build,windows,amd64)
+
+.PHONY: all build clean clean-build clean-all
