@@ -13,10 +13,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var deleteCmdKind, deleteCmdFile, deleteCmdName string
+var deleteCmdKind, deleteCmdFile string
+var deleteCmdNames []string
 
 var deleteCmd = &cobra.Command{
-	Use:        "delete (KIND NAME| --file -f FILE)",
+	Use:        "delete (KIND NAME [NAME2]...| --file -f FILE)",
 	Short:      "Remove object from namespace",
 	ValidArgs:  []string{chlib.KindPods, chlib.KindDeployments, chlib.KindNamespaces, chlib.KindService, "--file", "-f"},
 	ArgAliases: []string{"po", "pods", "pod", "deployments", "deployment", "deploy", "service", "services", "svc", "ns", "namespaces", "namespace"},
@@ -44,8 +45,13 @@ var deleteCmd = &cobra.Command{
 				os.Exit(1)
 			}
 		}
-		if len(args) >= 2 && deleteCmdFile == "" && regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[1]) {
-			deleteCmdName = args[1]
+		if len(args) >= 2 && deleteCmdFile == "" {
+			for _, v := range args[1:] {
+				if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(v) {
+					break
+				}
+				deleteCmdNames = append(deleteCmdNames, v)
+			}
 		} else {
 			np.FEEDBACK.Println("NAME is not specified or invalid")
 			cmd.Usage()
@@ -59,7 +65,7 @@ var deleteCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			deleteCmdKind = obj.Kind
-			deleteCmdName = obj.Metadata.Name
+			deleteCmdNames = []string{obj.Metadata.Name}
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -69,13 +75,16 @@ var deleteCmd = &cobra.Command{
 			return
 		}
 		nameSpace, _ := cmd.Flags().GetString("namespace")
-		np.FEEDBACK.Print("delete...")
-		_, err = client.Delete(deleteCmdKind, deleteCmdName, nameSpace, false)
-		if err != nil {
-			np.FEEDBACK.Println("ERROR")
-			np.ERROR.Println(err)
-		} else {
-			np.FEEDBACK.Println("OK")
+		for _, deleteCmdName := range deleteCmdNames {
+			np.FEEDBACK.Printf("delete %s...", deleteCmdName)
+			_, err = client.Delete(deleteCmdKind, deleteCmdName, nameSpace, false)
+			if err != nil {
+				np.FEEDBACK.Println("ERROR")
+				np.ERROR.Println(err)
+				return
+			} else {
+				np.FEEDBACK.Println("OK")
+			}
 		}
 	},
 }
