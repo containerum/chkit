@@ -29,7 +29,7 @@ var restartCmd = &cobra.Command{
 		}
 		nameSpace, _ := cmd.Flags().GetString("namespace")
 		np.FEEDBACK.Print("restart...")
-		err = client.Delete(chlib.KindDeployments, restartCmdName, nameSpace, true)
+		_, err = client.Delete(chlib.KindDeployments, restartCmdName, nameSpace, true)
 		if err != nil {
 			np.FEEDBACK.Println("ERROR")
 			np.ERROR.Println(err)

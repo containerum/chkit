@@ -104,6 +104,11 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 }
 
 func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res TcpApiResult, err error) {
+	_, err = c.tcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	defer c.tcpApiHandler.Close()
 	if nameSpace == "" {
 		nameSpace = c.userConfig.Namespace
 	}
@@ -135,17 +140,27 @@ func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res
 	if err != nil {
 		return
 	}
+	res, err = c.tcpApiHandler.Receive()
+	if err != nil {
+		return
+	}
+	err = res.CheckHttpStatus()
 	return
 }
 
-func (c *Client) Create(jsonToSend GenericJson) (err error) {
+func (c *Client) Create(jsonToSend GenericJson) (res TcpApiResult, err error) {
+	_, err = c.tcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	defer c.tcpApiHandler.Close()
 	metaDataI, hasMd := jsonToSend["metadata"]
 	if !hasMd {
-		return fmt.Errorf("JSON must have \"metadata\" parameter")
+		return res, fmt.Errorf("JSON must have \"metadata\" parameter")
 	}
 	metaData, validMd := metaDataI.(map[string]interface{})
 	if !validMd {
-		return fmt.Errorf("metadata must be object")
+		return res, fmt.Errorf("metadata must be object")
 	}
 	nameSpaceI, hasNs := metaData["namespace"]
 	var nameSpace string
@@ -153,28 +168,41 @@ func (c *Client) Create(jsonToSend GenericJson) (err error) {
 		var valid bool
 		nameSpace, valid = nameSpaceI.(string)
 		if !valid {
-			return fmt.Errorf("namespace must be string")
+			return res, fmt.Errorf("namespace must be string")
 		}
 	} else {
 		nameSpace = c.userConfig.Namespace
 	}
 	kindI, hasKind := jsonToSend["kind"]
 	if !hasKind {
-		return fmt.Errorf("JSON must have kind field")
+		return res, fmt.Errorf("JSON must have kind field")
 	}
 	kind, valid := kindI.(string)
 	if !valid {
-		return fmt.Errorf("kind must be string")
+		return res, fmt.Errorf("kind must be string")
 	}
 	httpResult, err := c.apiHandler.Create(jsonToSend, kind, nameSpace)
 	if err != nil {
 		return
 	}
 	err = httpResult.HandleApiResult()
+	if err != nil {
+		return
+	}
+	res, err = c.tcpApiHandler.Receive()
+	if err != nil {
+		return
+	}
+	err = res.CheckHttpStatus()
 	return
 }
 
-func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (err error) {
+func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (res TcpApiResult, err error) {
+	_, err = c.tcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	defer c.tcpApiHandler.Close()
 	var httpResult HttpApiResult
 	if nameSpace == "" {
 		nameSpace = c.userConfig.Namespace
@@ -188,6 +216,14 @@ func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (err error) 
 		return
 	}
 	err = httpResult.HandleApiResult()
+	if err != nil {
+		return
+	}
+	res, err = c.tcpApiHandler.Receive()
+	if err != nil {
+		return
+	}
+	err = res.CheckHttpStatus()
 	return
 }
 
@@ -216,7 +252,7 @@ func (c *Client) constructExpose(name string, ports []Port, nameSpace string) (r
 	return
 }
 
-func (c *Client) Expose(name string, ports []Port, nameSpace string) (apiResult TcpApiResult, err error) {
+func (c *Client) Expose(name string, ports []Port, nameSpace string) (res TcpApiResult, err error) {
 	if nameSpace == "" {
 		nameSpace = c.userConfig.Namespace
 	}
@@ -238,7 +274,11 @@ func (c *Client) Expose(name string, ports []Port, nameSpace string) (apiResult 
 	if err != nil {
 		return
 	}
-	apiResult, err = c.tcpApiHandler.Receive()
+	res, err = c.tcpApiHandler.Receive()
+	if err != nil {
+		return
+	}
+	err = res.CheckHttpStatus()
 	return
 }
 
@@ -282,7 +322,12 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	return
 }
 
-func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (result TcpApiResult, err error) {
+func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res TcpApiResult, err error) {
+	_, err = c.tcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	defer c.tcpApiHandler.Close()
 	req, err := c.constructRun(name, params)
 	if err != nil {
 		return
@@ -295,5 +340,13 @@ func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res
 		return
 	}
 	err = httpResult.HandleApiResult()
+	if err != nil {
+		return
+	}
+	res, err = c.tcpApiHandler.Receive()
+	if err != nil {
+		return
+	}
+	err = res.CheckHttpStatus()
 	return
 }

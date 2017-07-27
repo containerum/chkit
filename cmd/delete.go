@@ -68,7 +68,7 @@ var deleteCmd = &cobra.Command{
 		}
 		nameSpace, _ := cmd.Flags().GetString("namespace")
 		np.FEEDBACK.Print("delete...")
-		err = client.Delete(deleteCmdKind, deleteCmdName, nameSpace, false)
+		_, err = client.Delete(deleteCmdKind, deleteCmdName, nameSpace, false)
 		if err != nil {
 			np.FEEDBACK.Println("ERROR")
 			np.ERROR.Println(err)

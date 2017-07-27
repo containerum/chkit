@@ -33,7 +33,7 @@ var createCmd = &cobra.Command{
 			return
 		}
 		np.FEEDBACK.Print("create... ")
-		err = client.Create(jsonContent)
+		_, err = client.Create(jsonContent)
 		if err != nil {
 			np.FEEDBACK.Println("ERROR")
 			np.ERROR.Println(err)
