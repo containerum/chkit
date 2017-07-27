@@ -57,10 +57,17 @@ var getCmd = &cobra.Command{
 				os.Exit(1)
 			}
 		}
-		if len(args) >= 2 && getCmdFile == "" && regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[1]) {
-			getCmdName = args[1]
+		if len(args) >= 1 && getCmdFile == "" {
+			if len(args) >= 2 {
+				getCmdName = args[1]
+			}
 		} else {
-			np.FEEDBACK.Println("NAME is not specified or invalid")
+			np.FEEDBACK.Println("KIND or FILE is not specified")
+			cmd.Usage()
+			os.Exit(1)
+		}
+		if getCmdName != "" && !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(getCmdName) {
+			np.FEEDBACK.Println("NAME is invalid")
 			cmd.Usage()
 			os.Exit(1)
 		}
