@@ -230,6 +230,11 @@ func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (res TcpApiR
 func (c *Client) constructExpose(name string, ports []Port, nameSpace string) (ret GenericJson, err error) {
 	labels := make(map[string]string)
 	labels["external"] = "true"
+	for _, port := range ports {
+		if port.TargetPort != 0 {
+			labels["external"] = "false"
+		}
+	}
 	nsHash := sha256.Sum256([]byte(nameSpace))
 	labels[hex.EncodeToString(nsHash[:])[:32]] = nameSpace
 	nameHash := md5.Sum([]byte(name + time.Now().Format("2006-01-02 15:04:05.000000")))
