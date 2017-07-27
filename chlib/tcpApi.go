@@ -27,7 +27,6 @@ func NewTcpApiHandler(cfg dbconfig.TcpApiConfig, uuid, token string, np *jww.Not
 		cfg: cfg,
 		np:  np,
 	}
-	handler.np.SetPrefix("TCP")
 	handler.authForm = make(map[string]string)
 	handler.authForm["channel"] = uuid
 	handler.authForm["token"] = token
@@ -35,6 +34,7 @@ func NewTcpApiHandler(cfg dbconfig.TcpApiConfig, uuid, token string, np *jww.Not
 }
 
 func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {
+	t.np.SetPrefix("TCP")
 	t.np.DEBUG.Println("connect", t.cfg.Address)
 	t.socket, err = net.Dial("tcp", t.cfg.Address)
 	if err != nil {
@@ -70,6 +70,7 @@ func (t *TcpApiHandler) Connect() (result TcpApiResult, err error) {
 }
 
 func (t *TcpApiHandler) Receive() (result TcpApiResult, err error) {
+	t.np.SetPrefix("TCP")
 	var data []byte
 	for buf := make([]byte, t.cfg.BufferSize); !bytes.ContainsRune(buf, '\n'); {
 		n, err := t.socket.Read(buf)
