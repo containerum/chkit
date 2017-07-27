@@ -30,6 +30,9 @@ func Prompt(np *jww.Notepad, prompt string, validator validationFunc) string {
 }
 
 func portsValidateStr(portsStr string) bool {
+	if portsStr == "" {
+		return true
+	}
 	for _, portStr := range strings.Split(portsStr, " ") {
 		port, err := strconv.Atoi(portStr)
 		if err != nil || port <= 0 || port > 65535 {
@@ -91,7 +94,6 @@ func memValidate(memStr string) bool {
 	return regexp.MustCompile(MemRegex).MatchString(memStr)
 }
 
-
 func replicasValidate(replicasStr string) bool {
 	if replicasStr == "" {
 		return true
@@ -122,7 +124,7 @@ func PromptParams(np *jww.Notepad) (params ConfigureParams) {
 		for _, envVarStr := range strings.Split(envVarsStr, " ") {
 			envVar := strings.Split(envVarStr, "=")
 			params.Env = append(params.Env, EnvVar{
-				Name: envVar[0],
+				Name:  envVar[0],
 				Value: envVar[1],
 			})
 		}
