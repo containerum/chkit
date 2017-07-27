@@ -33,7 +33,7 @@ endef
 %.zip : ${SOURCES}
 	$(call do_build,${BUILDDIR}/${BINARY}.exe)
 	@echo -e "\x1b[35mPack to $@\x1b[0m"
-	@zip -mD $@ ${BUILDDIR}/${BINARY}.exe
+	@zip -jmD $@ ${BUILDDIR}/${BINARY}.exe
 
 all: build
 
