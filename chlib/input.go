@@ -127,7 +127,7 @@ func PromptParams(np *jww.Notepad) (params ConfigureParams) {
 	} else {
 		params.Memory = DefaultMemoryRequest
 	}
-	if replicas := Prompt(np, fmt.Sprintf("Enter replicas count [%d]", DefaultMemoryRequest)); replicas != "" {
+	if replicas := Prompt(np, fmt.Sprintf("Enter replicas count [%d]", DefaultReplicas)); replicas != "" {
 		params.Replicas = replicasValidate(np, replicas)
 	} else {
 		params.Replicas = DefaultReplicas
