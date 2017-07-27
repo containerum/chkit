@@ -24,7 +24,6 @@ func NewHttpApiHandler(cfg dbconfig.HttpApiConfig, uuid, token string, np *jww.N
 		cfg: cfg,
 		np:  np,
 	}
-	handler.np.SetPrefix("HTTP")
 	handler.headers = make(map[string]string)
 	handler.headers["Channel"] = uuid
 	handler.headers["Authorization"] = token
@@ -32,6 +31,7 @@ func NewHttpApiHandler(cfg dbconfig.HttpApiConfig, uuid, token string, np *jww.N
 }
 
 func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson) (result HttpApiResult, err error) {
+	h.np.SetPrefix("HTTP")
 	client := http.Client{Timeout: h.cfg.Timeout}
 	marshalled, _ := json.Marshal(jsonToSend)
 	h.np.DEBUG.Printf("%s %s\n", method, url)
