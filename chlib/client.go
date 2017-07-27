@@ -228,32 +228,40 @@ func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (res TcpApiR
 }
 
 func (c *Client) constructExpose(name string, ports []Port, nameSpace string) (ret GenericJson, err error) {
-	labels := make(map[string]string)
-	labels["external"] = "true"
+	req := new(Service)
+	req.Kind = "Service"
+
+	nsHash := sha256.Sum256([]byte(nameSpace))
+	nameLabelKey := hex.EncodeToString(nsHash[:])[:32]
+	req.Spec.Selector = map[string]string{
+		nameLabelKey: name,
+	}
+
+	external := "true"
 	for _, port := range ports {
 		if port.TargetPort != 0 {
-			labels["external"] = "false"
+			external = "false"
 		}
 	}
-	nsHash := sha256.Sum256([]byte(nameSpace))
-	labels[hex.EncodeToString(nsHash[:])[:32]] = nameSpace
+	req.Spec.Ports = ports
+	req.Metadata.Labels = map[string]string{
+		nameLabelKey: name,
+		"external":   external,
+	}
+
 	nameHash := md5.Sum([]byte(name + time.Now().Format("2006-01-02 15:04:05.000000")))
 	_, err = c.Get(KindDeployments, name, nameSpace)
 	if err != nil {
 		return nil, fmt.Errorf("expose construct: %s", err)
 	}
-	req := new(Service)
-	req.Spec.Ports = ports
-	req.Metadata.Labels = labels
 	req.Metadata.Name = fmt.Sprintf("%s-%s", name, hex.EncodeToString(nameHash[:])[:4])
-	req.Spec.Selector = labels
+
 	b, _ := json.MarshalIndent(req, "", "    ")
 	err = ioutil.WriteFile(ExposeFile, b, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("expose write file: %s", err)
 	}
 	err = json.Unmarshal(b, &ret)
-	ret["kind"] = "Service"
 	return
 }
 
