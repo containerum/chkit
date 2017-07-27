@@ -17,10 +17,20 @@ BUILDDIR = build
 #track sources
 SOURCES = $(shell find ${PWD} -name '*.go')
 
+#for installation
+PREFIX ?= usr
+DESTDIR ?=
+INSTDIR ?= ${DESTDIR}/${PREFIX}/bin
+AUTOCOMPDIR ?= ${DESTDIR}/${PREFIX}/share/bash-completion/completions
+AUTOCOMPFILE = ${AUTOCOMPDIR}/chkit.completion
+
 define do_build
 @echo -e "\x1b[35mRun go build\x1b[0m"
 @go build -ldflags "${LDFLAGS} ${REQLDFLAGS}" -o ${1}
 endef
+
+${BUILDDIR}/${BINARY}: ${SOURCES}
+	$(call do_build,${BUILDDIR}/${BINARY})
 
 #remove source file after packing
 %.tar.gz : ${SOURCES}
@@ -35,14 +45,10 @@ endef
 	@echo -e "\x1b[35mPack to $@\x1b[0m"
 	@zip -jmD $@ ${BUILDDIR}/${BINARY}.exe
 
-all: build
-
-#for debugging purposes
-build:
-	go build -ldflags "${LDFLAGS} ${REQLDFLAGS}" -o ${BINARY}
+all: ${BUILDDIR}/${BINARY}
 
 clean:
-	@if [ -f ${BINARY} ]; then rm ${BINARY}; fi
+	@if [ -f ${BUILDDIR}/${BINARY} ]; then rm ${BUILDDIR}/${BINARY}; fi
 
 clean-build:
 	@rm -rf ${BUILDDIR}
@@ -75,5 +81,20 @@ build-all:
 	$(call custom_os_arch_build,darwin,amd64)
 	$(call custom_os_arch_build,windows,386)
 	$(call custom_os_arch_build,windows,amd64)
+
+install: ${BUILDDIR}/${BINARY}
+	@echo -e "\x1b[32;1mInstall $< to ${INSTDIR}\x1b[0m"
+	@echo -e "\x1b[35mCopy $< to ${INSTDIR}\x1b[0m"
+	@install -D $< ${INSTDIR}/${BINARY}
+	@echo -e "\x1b[35mGenerate autocomplete\x1b[0m"
+	@install -d ${AUTOCOMPDIR}
+	@$< genautocomplete -f ${AUTOCOMPFILE}
+
+uninstall:
+	@echo -e "\x1b[32;1mUninstall $< from ${INSTDIR}\x1b[0m"
+	@rm ${INSTDIR}/${BINARY}
+	@echo -e "\x1b[35mRemove autocomplete ${AUTOCOMPFILE}\x1b[0m"
+	@rm ${AUTOCOMPFILE}
+	@echo -e "\x1b[35mNo removing config dir ${HOME}/.containerum\x1b[0m"
 
 .PHONY: all build clean clean-build clean-all
