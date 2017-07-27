@@ -46,6 +46,9 @@ func NewClient(db *dbconfig.ConfigDB, version, uuid string, np *jww.Notepad) (*C
 	if err != nil {
 		return nil, err
 	}
+	if userCfg.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
 	client.apiHandler = NewHttpApiHandler(cfg, uuid, userCfg.Token, np)
 	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg, uuid, userCfg.Token, np)
 	client.userConfig = &userCfg
