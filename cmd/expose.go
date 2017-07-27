@@ -40,8 +40,8 @@ var exposeCmd = &cobra.Command{
 		}
 		exposeCmdName = args[1]
 		portMatcher := regexp.MustCompile(portRegex)
-		portsStr, _ := cmd.Flags().GetString("ports")
-		for _, portStr := range strings.Split(portsStr, ",") {
+		ports, _ := cmd.Flags().GetStringSlice("ports")
+		for _, portStr := range ports {
 			if !portMatcher.MatchString(portStr) {
 				np.FEEDBACK.Println("Invalid PORT format. Must be PORTNAME:TARGETPORT[:PROTOCOL] or PORTNAME:TARGETPORT:PORT[:PROTOCOL]. Protocol is TCP or UDP")
 				cmd.Usage()
@@ -95,7 +95,7 @@ var exposeCmd = &cobra.Command{
 }
 
 func init() {
-	exposeCmd.PersistentFlags().StringP("ports", "p", "", "Port list. Format PORTNAME:TARGETPORT[:PROTOCOL] or PORTNAME:TARGETPORT:PORT[:PROTOCOL], split with \",\"")
+	exposeCmd.PersistentFlags().StringSliceP("ports", "p", []string{}, "Port list. Format PORTNAME:TARGETPORT[:PROTOCOL] or PORTNAME:TARGETPORT:PORT[:PROTOCOL]")
 	cobra.MarkFlagRequired(exposeCmd.PersistentFlags(), "ports")
 	exposeCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
 	cobra.MarkFlagCustom(exposeCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
