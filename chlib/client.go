@@ -46,9 +46,6 @@ func NewClient(db *dbconfig.ConfigDB, version, uuid string, np *jww.Notepad) (*C
 	if err != nil {
 		return nil, err
 	}
-	if userCfg.Token == "" {
-		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
-	}
 	client.apiHandler = NewHttpApiHandler(cfg, uuid, userCfg.Token, np)
 	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg, uuid, userCfg.Token, np)
 	client.userConfig = &userCfg
@@ -81,6 +78,9 @@ func (c *Client) Login(login, password string) (token string, err error) {
 }
 
 func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err error) {
+	if c.userConfig.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
 	_, err = c.tcpApiHandler.Connect()
 	if err != nil {
 		return
@@ -107,6 +107,9 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 }
 
 func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res TcpApiResult, err error) {
+	if c.userConfig.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
 	_, err = c.tcpApiHandler.Connect()
 	if err != nil {
 		return
@@ -152,6 +155,9 @@ func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res
 }
 
 func (c *Client) Create(jsonToSend GenericJson) (res TcpApiResult, err error) {
+	if c.userConfig.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
 	_, err = c.tcpApiHandler.Connect()
 	if err != nil {
 		return
@@ -201,6 +207,9 @@ func (c *Client) Create(jsonToSend GenericJson) (res TcpApiResult, err error) {
 }
 
 func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (res TcpApiResult, err error) {
+	if c.userConfig.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
 	_, err = c.tcpApiHandler.Connect()
 	if err != nil {
 		return
@@ -242,7 +251,7 @@ func (c *Client) constructExpose(name string, ports []Port, nameSpace string) (r
 
 	external := "true"
 	for _, port := range ports {
-		if port.TargetPort != 0 {
+		if port.Port != 0 {
 			external = "false"
 		}
 	}
@@ -269,6 +278,9 @@ func (c *Client) constructExpose(name string, ports []Port, nameSpace string) (r
 }
 
 func (c *Client) Expose(name string, ports []Port, nameSpace string) (res TcpApiResult, err error) {
+	if c.userConfig.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
 	if nameSpace == "" {
 		nameSpace = c.userConfig.Namespace
 	}
@@ -339,6 +351,9 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 }
 
 func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res TcpApiResult, err error) {
+	if c.userConfig.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
 	_, err = c.tcpApiHandler.Connect()
 	if err != nil {
 		return
