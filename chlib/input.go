@@ -56,7 +56,7 @@ func labelsValidate(np *jww.Notepad, labelsStr []string) (ret map[string]string)
 	for _, labelStr := range labelsStr {
 		label := strings.Split(labelStr, "=")
 		labelValidator := regexp.MustCompile(LabelRegex)
-		if len(label) != 2 || !labelValidator.MatchString(label[0]) || labelValidator.MatchString(label[1]) {
+		if len(label) != 2 || !labelValidator.MatchString(label[0]) || !labelValidator.MatchString(label[1]) {
 			validationErrorExit(np, "Invalid label found: %s\n", labelStr)
 		}
 		ret[label[0]] = label[1]
