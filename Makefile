@@ -37,7 +37,7 @@ ${BUILDDIR}/${BINARY}: ${SOURCES}
 	$(call do_build,${BUILDDIR}/${BINARY})
 	@echo -e "\x1b[35mPack to $@\x1b[0m"
 	@chmod +x ${BUILDDIR}/chkit
-	@tar --transform 's/.*\///g' --remove-files -cvzf $@ ${BUILDDIR}/${BINARY}
+	@tar --transform 's/.*\///g' --remove-files -cpvzf $@ ${BUILDDIR}/${BINARY}
 
 #removes source file after packing
 %.zip : ${SOURCES}
@@ -56,14 +56,13 @@ test:
 define custom_os_arch_build
 	$(eval GOOS=${1})
 	$(eval GOARCH=${2})
-	@export GOOS GOARCH
 	$(eval TARGET=${BINARY}_${GOOS}_${GOARCH}_v${VERSION})
 	$(if $(filter ${GOOS},windows),$(eval TARGET=${TARGET}.zip),$(eval TARGET=${TARGET}.tar.gz))
 	$(eval TARGET=$(subst darwin,mac,${TARGET}))
 	$(eval TARGET=$(subst 386,x86,${TARGET}))
 	$(eval TARGET=$(subst amd64,x64,${TARGET}))
 	@echo -e "\x1b[32;1mBuild ${TARGET}\x1b[0m"
-	@$(MAKE) -s -f $(lastword $(MAKEFILE_LIST)) LDFLAGS="-w -s" ${BUILDDIR}/${TARGET}
+	@$(MAKE) -s -f $(lastword $(MAKEFILE_LIST)) GOOS=${GOOS} GOARCH=${GOARCH} LDFLAGS="-w -s" ${BUILDDIR}/${TARGET}
 
 endef
 
