@@ -52,13 +52,17 @@ func FillStruct(s interface{}, data MappedStruct) error {
 		if tag == "" {
 			continue
 		}
+		fieldData, hasFd := data[tag]
+		if !hasFd {
+			continue
+		}
 		if fieldType.Type.Kind() == reflect.Struct {
-			err := FillStruct(field.Interface(), data[tag].(MappedStruct))
+			err := FillStruct(field.Interface(), fieldData.(MappedStruct))
 			if err != nil {
 				return err
 			}
 		} else {
-			buf := bytes.NewBuffer(data[tag].([]byte))
+			buf := bytes.NewBuffer(fieldData.([]byte))
 			dec := gob.NewDecoder(buf)
 			dec.DecodeValue(field)
 		}
