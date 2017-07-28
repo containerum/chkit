@@ -20,9 +20,12 @@ func (d *ConfigDB) initialize(bucket *bolt.Bucket, initializer helpers.MappedStr
 	for key, value := range initializer {
 		switch value.(type) {
 		case []byte: // simple value, just put to bucket
-			err := bucket.Put([]byte(key), value.([]byte))
-			if err != nil {
-				return err
+			if len(bucket.Get([]byte(key))) == 0 { // put value if not exists in bucket
+				err := bucket.Put([]byte(key), value.([]byte))
+				d.np.DEBUG.Printf("Put new field: %s", key)
+				if err != nil {
+					return err
+				}
 			}
 		case helpers.MappedStruct: // structure data, recursive put to bucket
 			newBucket, err := bucket.CreateBucketIfNotExists([]byte(key))
@@ -44,21 +47,16 @@ func OpenOrCreate(filePath string, np *jww.Notepad) (db *ConfigDB, err error) {
 	if err != nil {
 		return
 	}
-	// for all top-level buckets
 	err = db.db.Update(func(tx *bolt.Tx) error {
 		// for all top-level buckets
 		for name, initializer := range initializers {
-			bucket := tx.Bucket([]byte(name))
-			if bucket == nil {
-				db.np.DEBUG.Println("Create non-existing bucket", name)
-				bucket, err := tx.CreateBucket([]byte(name))
-				if err != nil {
-					return err
-				}
-				err = db.initialize(bucket, initializer)
-				if err != nil {
-					return err
-				}
+			bucket, err := tx.CreateBucketIfNotExists([]byte(name))
+			if err != nil {
+				return err
+			}
+			err = db.initialize(bucket, initializer)
+			if err != nil {
+				return err
 			}
 		}
 		return nil
