@@ -77,6 +77,23 @@ func (c *Client) Login(login, password string) (token string, err error) {
 	return token, nil
 }
 
+func (c *Client) filterKind(apiResult TcpApiResult, kind string) (newApiResult TcpApiResult) {
+	newApiResult = make(TcpApiResult)
+	newResult := []interface{}{}
+	for _, r := range apiResult["results"].([]interface{}) {
+		if r.(map[string]interface{})["data"].(map[string]interface{})["kind"].(string) == kind {
+			newResult = append(newResult, r)
+		}
+	}
+	newApiResult["results"] = newResult
+	for k, v := range apiResult {
+		if k != "results" {
+			newApiResult[k] = v
+		}
+	}
+	return
+}
+
 func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err error) {
 	if c.userConfig.Token == "" {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
@@ -102,7 +119,13 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 	if err != nil {
 		return
 	}
-	apiResult, err = c.tcpApiHandler.Receive()
+	tmpApiResult, err := c.tcpApiHandler.Receive()
+	// remove invalid kinds
+	if kind == KindNamespaces && name == "" {
+		apiResult = c.filterKind(tmpApiResult, "ResourceQuota")
+	} else {
+		apiResult = tmpApiResult
+	}
 	return
 }
 
