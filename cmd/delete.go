@@ -23,49 +23,47 @@ var deleteCmd = &cobra.Command{
 	ArgAliases: []string{"po", "pods", "pod", "deployments", "deployment", "deploy", "service", "services", "svc", "ns", "namespaces", "namespace"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			np.FEEDBACK.Println("KIND or file not specified")
-			cmd.Usage()
-			os.Exit(1)
-		}
-		switch args[0] {
-		case "po", "pods", "pod":
-			deleteCmdKind = chlib.KindPods
-		case "deployments", "deployment", "deploy":
-			deleteCmdKind = chlib.KindDeployments
-		case "service", "services", "svc":
-			deleteCmdKind = chlib.KindService
-		case "ns", "namespaces", "namespace":
-			deleteCmdKind = chlib.KindNamespaces
-		default:
-			if cmd.Flag("file").Changed {
-				deleteCmdFile, _ = cmd.Flags().GetString("file")
-			} else {
-				np.FEEDBACK.Printf("Invalid KIND. Choose from (%s)\n", strings.Join(cmd.ArgAliases, ", "))
-				cmd.Usage()
-				os.Exit(1)
-			}
-		}
-		if len(args) >= 2 && deleteCmdFile == "" {
-			for _, v := range args[1:] {
-				if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(v) {
-					break
-				}
-				deleteCmdNames = append(deleteCmdNames, v)
-			}
-		} else {
-			np.FEEDBACK.Println("NAME is not specified or invalid")
-			cmd.Usage()
-			os.Exit(1)
-		}
-		if deleteCmdFile != "" {
+			deleteCmdFile, _ = cmd.Flags().GetString("file")
 			var obj chlib.CommonObject
 			err := chlib.LoadJsonFromFile(deleteCmdFile, &obj)
 			if err != nil {
 				np.ERROR.Println(err)
 				os.Exit(1)
 			}
-			deleteCmdKind = obj.Kind
+			deleteCmdKind = strings.ToLower(obj.Kind) + "s"
 			deleteCmdNames = []string{obj.Metadata.Name}
+		} else {
+			if cmd.Flag("file").Changed {
+				np.FEEDBACK.Println("Can`t use both file and KIND arguments")
+				cmd.Usage()
+				os.Exit(1)
+			}
+			switch args[0] {
+			case "po", "pods", "pod":
+				deleteCmdKind = chlib.KindPods
+			case "deployments", "deployment", "deploy":
+				deleteCmdKind = chlib.KindDeployments
+			case "service", "services", "svc":
+				deleteCmdKind = chlib.KindService
+			case "ns", "namespaces", "namespace":
+				deleteCmdKind = chlib.KindNamespaces
+			default:
+				np.FEEDBACK.Printf("Invalid KIND. Choose from (%s)\n", strings.Join(cmd.ArgAliases, ", "))
+				cmd.Usage()
+				os.Exit(1)
+			}
+			if len(args) >= 2 {
+				for _, v := range args[1:] {
+					if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(v) {
+						break
+					}
+					deleteCmdNames = append(deleteCmdNames, v)
+				}
+			} else {
+				np.FEEDBACK.Println("NAME is not specified or invalid")
+				cmd.Usage()
+				os.Exit(1)
+			}
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
