@@ -5,6 +5,7 @@ import (
 	"chkit-v2/chlib/dbconfig"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -48,7 +49,14 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 	}
 	h.np.DEBUG.Println("Result", resp.Status)
 	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return result, err
+	}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		err = fmt.Errorf("Received error: %s", body)
+	}
 	return result, err
 }
 
