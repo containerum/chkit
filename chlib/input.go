@@ -20,11 +20,11 @@ var reader = bufio.NewReader(os.Stdin)
 func Prompt(np *jww.Notepad, prompt string, validator validationFunc) string {
 	np.FEEDBACK.Printf("%s: ", prompt)
 	ret, _ := reader.ReadString('\n')
-	ret = strings.TrimRight(ret, "\n")
+	ret = strings.TrimRight(ret, "\r\n")
 	for !validator(ret) {
 		np.FEEDBACK.Printf("Invalid input\n%s: ", prompt)
 		ret, _ = reader.ReadString('\n')
-		ret = strings.TrimRight(ret, "\n")
+		ret = strings.TrimRight(ret, "\r\n")
 	}
 	return ret
 }
