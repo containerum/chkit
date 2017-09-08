@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containerum/chkit-v2/chlib"
+	"github.com/containerum/chkit.v2/chlib"
 )
 
 type singleServiceResult []struct {

@@ -3,9 +3,9 @@ package cmd
 import (
 	"os"
 
-	"github.com/containerum/chkit-v2/chlib"
-	"github.com/containerum/chkit-v2/chlib/requestresults"
-	"github.com/containerum/chkit-v2/helpers"
+	"github.com/containerum/chkit.v2/chlib"
+	"github.com/containerum/chkit.v2/chlib/requestresults"
+	"github.com/containerum/chkit.v2/helpers"
 	"strings"
 
 	"fmt"

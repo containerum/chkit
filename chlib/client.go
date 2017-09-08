@@ -1,7 +1,7 @@
 package chlib
 
 import (
-	"github.com/containerum/chkit-v2/chlib/dbconfig"
+	"github.com/containerum/chkit.v2/chlib/dbconfig"
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"

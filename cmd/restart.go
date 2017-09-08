@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/containerum/chkit-v2/chlib"
-	"github.com/containerum/chkit-v2/helpers"
+	"github.com/containerum/chkit.v2/chlib"
+	"github.com/containerum/chkit.v2/helpers"
 	"os"
 
 	"regexp"

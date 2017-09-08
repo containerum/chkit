@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/containerum/chkit-v2/chlib"
-	"github.com/containerum/chkit-v2/cmd"
+	"github.com/containerum/chkit.v2/chlib"
+	"github.com/containerum/chkit.v2/cmd"
 )
 
 func main() {
