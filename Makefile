@@ -26,7 +26,15 @@ AUTOCOMPFILE = ${AUTOCOMPDIR}/chkit.completion
 
 define do_build
 @echo -e "\x1b[35mRun go build\x1b[0m"
-@go build -ldflags "${LDFLAGS} ${REQLDFLAGS}" -o ${1}
+@docker run --rm \
+	-v ${PWD}/${BUILDDIR}:/${BUILDDIR} \
+	-v ${PWD}:/go/src/${PACKAGE} \
+	-e GOOS \
+	-e GOARCH \
+	-it golang:1.9 \
+	/bin/bash -c "cd /go/src/${PACKAGE} && \
+		go build -v -ldflags '${LDFLAGS} ${REQLDFLAGS}' -o /${1} && \
+		chown $(shell id -u) /${1}"
 endef
 
 ${BUILDDIR}/${BINARY}: ${SOURCES}
@@ -68,7 +76,7 @@ endef
 
 #production builds
 build-all:
-	@mkdir -p build
+	@mkdir -p ${BUILDDIR}
 	$(call custom_os_arch_build,linux,386)
 	$(call custom_os_arch_build,linux,amd64)
 	$(call custom_os_arch_build,linux,arm)
