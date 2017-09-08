@@ -3,7 +3,7 @@ package chlib
 import (
 	"bufio"
 	"bytes"
-	"chkit-v2/chlib/dbconfig"
+	"github.com/containerum/chkit-v2/chlib/dbconfig"
 	"encoding/json"
 	"fmt"
 	"net"

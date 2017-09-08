@@ -1,5 +1,5 @@
 BINARY = chkit
-PACKAGE = chkit-v2
+PACKAGE = github.com/containerum/chkit-v2
 COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE = `date +%FT%T%Z`
 DEFAULT_TCP_SERVER = sdk.containerum.io:3000

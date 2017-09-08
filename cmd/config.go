@@ -5,9 +5,9 @@ import (
 	"net"
 	"net/url"
 
-	"chkit-v2/chlib"
-	"chkit-v2/chlib/dbconfig"
-	"chkit-v2/helpers"
+	"github.com/containerum/chkit-v2/chlib"
+	"github.com/containerum/chkit-v2/chlib/dbconfig"
+	"github.com/containerum/chkit-v2/helpers"
 	"os"
 
 	"github.com/spf13/cobra"

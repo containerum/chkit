@@ -4,8 +4,8 @@ import (
 	"os"
 	"strings"
 
-	"chkit-v2/chlib"
-	"chkit-v2/helpers"
+	"github.com/containerum/chkit-v2/chlib"
+	"github.com/containerum/chkit-v2/helpers"
 
 	"regexp"
 

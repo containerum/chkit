@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"chkit-v2/chlib"
+	"github.com/containerum/chkit-v2/chlib"
 
 	"github.com/spf13/cobra"
 )

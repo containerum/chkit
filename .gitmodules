@@ -1,0 +1,36 @@
+[submodule "vendor/github.com/boltdb/bolt"]
+	path = vendor/github.com/boltdb/bolt
+	url = https://github.com/boltdb/bolt
+[submodule "vendor/github.com/howeyc/gopass"]
+	path = vendor/github.com/howeyc/gopass
+	url = https://github.com/howeyc/gopass
+[submodule "vendor/github.com/kardianos/osext"]
+	path = vendor/github.com/kardianos/osext
+	url = https://github.com/kardianos/osext
+[submodule "vendor/github.com/olekukonko/tablewriter"]
+	path = vendor/github.com/olekukonko/tablewriter
+	url = https://github.com/olekukonko/tablewriter
+[submodule "vendor/github.com/spf13/cobra"]
+	path = vendor/github.com/spf13/cobra
+	url = https://github.com/spf13/cobra
+[submodule "vendor/github.com/spf13/jwalterweatherman"]
+	path = vendor/github.com/spf13/jwalterweatherman
+	url = https://github.com/spf13/jwalterweatherman
+[submodule "vendor/github.com/spf13/pflag"]
+	path = vendor/github.com/spf13/pflag
+	url = https://github.com/spf13/pflag
+[submodule "vendor/gopkg.in/yaml.v2"]
+	path = vendor/gopkg.in/yaml.v2
+	url = https://gopkg.in/yaml.v2
+[submodule "vendor/github.com/mattn/go-runewidth"]
+	path = vendor/github.com/mattn/go-runewidth
+	url = https://github.com/mattn/go-runewidth
+[submodule "vendor/golang.org/x/crypto"]
+	path = vendor/golang.org/x/crypto
+	url = https://go.googlesource.com/crypto
+[submodule "vendor/golang.org/x/sys"]
+	path = vendor/golang.org/x/sys
+	url = https://go.googlesource.com/sys
+[submodule "vendor/github.com/inconshreveable/mousetrap"]
+	path = vendor/github.com/inconshreveable/mousetrap
+	url = https://github.com/inconshreveable/mousetrap
