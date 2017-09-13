@@ -2,12 +2,13 @@ package chlib
 
 import (
 	"bytes"
-	"github.com/containerum/chkit.v2/chlib/dbconfig"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/containerum/chkit.v2/chlib/dbconfig"
 
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -31,7 +32,7 @@ func NewHttpApiHandler(cfg dbconfig.HttpApiConfig, uuid, token string, np *jww.N
 	return &handler
 }
 
-func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson) (result HttpApiResult, err error) {
+func (h *HttpApiHandler) makeRequestGeneric(url, method string, jsonToSend GenericJson, result interface{}) (err error) {
 	h.np.SetPrefix("HTTP")
 	client := http.Client{Timeout: h.cfg.Timeout}
 	marshalled, _ := json.Marshal(jsonToSend)
@@ -41,23 +42,28 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 		request.Header.Add(k, v)
 	}
 	if err != nil {
-		return result, fmt.Errorf("http request create error: %s", err)
+		return fmt.Errorf("http request create error: %s", err)
 	}
 	resp, err := client.Do(request)
 	if err != nil {
-		return result, fmt.Errorf("http request execute error: %s", err)
+		return fmt.Errorf("http request execute error: %s", err)
 	}
 	h.np.DEBUG.Println("Result", resp.Status)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return result, err
+		return err
 	}
-	err = json.Unmarshal(body, &result)
+	err = json.Unmarshal(body, result)
 	if err != nil {
-		err = fmt.Errorf("Received error: %s", body)
+		err = fmt.Errorf("received error: %s", body)
 	}
-	return result, err
+	return err
+}
+
+func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson) (result HttpApiResult, err error) {
+	err = h.makeRequestGeneric(url, method, jsonToSend, &result)
+	return
 }
 
 func (h *HttpApiHandler) Create(jsonToSend GenericJson, kind, nameSpace string) (result HttpApiResult, err error) {
@@ -176,6 +182,17 @@ func (h *HttpApiHandler) GetNameSpaces(name string) (result HttpApiResult, err e
 		url = fmt.Sprintf("%s/namespaces", h.cfg.Server)
 	}
 	return h.makeRequest(url, http.MethodGet, nil)
+}
+
+func (h *HttpApiHandler) GetVolume(name string) (result interface{}, err error) {
+	var url string
+	if name != "" {
+		url = fmt.Sprintf("%s/volumes/%s", h.cfg.Server, name)
+	} else {
+		url = fmt.Sprintf("%s/volumes", h.cfg.Server)
+	}
+	err = h.makeRequestGeneric(url, http.MethodGet, nil, &result)
+	return
 }
 
 func (apiResult *HttpApiResult) HandleApiResult() error {

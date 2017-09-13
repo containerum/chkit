@@ -1,7 +1,6 @@
 package chlib
 
 import (
-	"github.com/containerum/chkit.v2/chlib/dbconfig"
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
@@ -11,6 +10,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/containerum/chkit.v2/chlib/dbconfig"
 
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -402,5 +403,13 @@ func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res
 		return
 	}
 	err = res.CheckHttpStatus()
+	return
+}
+
+func (c *Client) GetVolume(name string) (res interface{}, err error) {
+	if c.userConfig.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
+	res, err = c.apiHandler.GetVolume(name)
 	return
 }
