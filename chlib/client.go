@@ -411,5 +411,10 @@ func (c *Client) GetVolume(name string) (res interface{}, err error) {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
 	res, err = c.apiHandler.GetVolume(name)
+	if tmp, ok := res.(map[string]interface{}); ok {
+		if _, ok := tmp["label"]; !ok {
+			return res, fmt.Errorf("volume %s was not found", name)
+		}
+	}
 	return
 }
