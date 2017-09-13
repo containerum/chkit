@@ -48,6 +48,9 @@ func (h *HttpApiHandler) makeRequestGeneric(url, method string, jsonToSend Gener
 	if err != nil {
 		return fmt.Errorf("http request execute error: %s", err)
 	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("got non-ok http response: %s", resp.Status)
+	}
 	h.np.DEBUG.Println("Result", resp.Status)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
