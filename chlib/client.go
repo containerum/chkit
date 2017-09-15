@@ -343,6 +343,7 @@ type ConfigureParams struct {
 	Memory   string
 	Replicas int
 	Command  []string
+	Volumes  []Volume
 }
 
 func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJson, err error) {
@@ -364,7 +365,13 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	containers[0].Command = params.Command
 	containers[0].Env = params.Env
 	containers[0].Resources.Requests = &HwResources{CPU: params.CPU, Memory: params.Memory}
+	containers[0].VolumeMounts = params.Volumes
 	req.Spec.Template.Spec.Containers = containers
+	for _, v := range params.Volumes {
+		req.Spec.Template.Spec.Volumes = append(req.Spec.Template.Spec.Volumes, VolumeName{
+			Name: v.Label,
+		})
+	}
 	b, _ := json.MarshalIndent(req, "", "    ")
 	err = ioutil.WriteFile(RunFile, b, 0600)
 	if err != nil {
@@ -411,6 +418,9 @@ func (c *Client) GetVolume(name string) (res interface{}, err error) {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
 	res, err = c.apiHandler.GetVolume(name)
+	if err != nil {
+		return
+	}
 	if tmp, ok := res.(map[string]interface{}); ok {
 		if _, ok := tmp["label"]; !ok {
 			return res, fmt.Errorf("volume %s was not found", name)

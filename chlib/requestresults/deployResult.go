@@ -155,6 +155,10 @@ func (s singleDeployResult) Print() (err error) {
 			}
 			ppc.Print()
 		}
+		fmt.Println("\t\tVolumes:")
+		for _, v := range c.VolumeMounts {
+			fmt.Printf("\t\t\t%-10s: %s\n", v.Label, v.MountPath)
+		}
 		fmt.Println("\t\tResourceLimit:")
 		fmt.Printf("\t\t\t%-10s %s\n", "CPU:", c.Resources.Limits.CPU)
 		fmt.Printf("\t\t\t%-10s %s\n", "Memory:", c.Resources.Limits.Memory)

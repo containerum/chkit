@@ -102,6 +102,34 @@ func replicasValidate(replicasStr string) bool {
 	return err == nil && ret > 0
 }
 
+func volumesValidate(volumesStr string) bool {
+	if volumesStr == "" {
+		return true
+	}
+	volsRegex := regexp.MustCompile(VolumesRegex)
+	volRegex := regexp.MustCompile(VolumeRegex)
+	if !volsRegex.MatchString(volumesStr) {
+		return false
+	}
+	volParams := volsRegex.FindStringSubmatch(volumesStr)
+	for _, v := range volParams {
+		if !volRegex.MatchString(v) {
+			return false
+		}
+	}
+	return true
+}
+
+func volumesSliceValidate(vols []string) bool {
+	volRegex := regexp.MustCompile(VolumeRegexNoQuotes)
+	for _, v := range vols {
+		if !volRegex.MatchString(v) {
+			return false
+		}
+	}
+	return true
+}
+
 func PromptParams(np *jww.Notepad) (params ConfigureParams) {
 	params.Image = Prompt(np, "Enter image", regexp.MustCompile(ImageRegex).MatchString)
 	if portsStr := Prompt(np, "Enter ports (PORT1 PORT2 ... PORTN)", portsValidateStr); portsStr != "" {
@@ -126,6 +154,15 @@ func PromptParams(np *jww.Notepad) (params ConfigureParams) {
 			params.Env = append(params.Env, EnvVar{
 				Name:  envVar[0],
 				Value: envVar[1],
+			})
+		}
+	}
+	if volumesStr := Prompt(np, "Enter volumes (volumeLabel1=\"mountPath1\" ... volumeLabelN=\"mountPathN\")", volumesValidate); volumesStr != "" {
+		for _, volumeStr := range regexp.MustCompile(VolumesRegex).FindStringSubmatch(volumesStr)[1:] {
+			volume := regexp.MustCompile(VolumeRegex).FindStringSubmatch(volumeStr)
+			params.Volumes = append(params.Volumes, Volume{
+				Label:     volume[1],
+				MountPath: volume[3],
 			})
 		}
 	}
@@ -190,6 +227,25 @@ func ParamsFromArgs(np *jww.Notepad, flags *pflag.FlagSet) (params ConfigurePara
 		envSlice, err := flags.GetStringSlice("env")
 		chkErr(err)
 		exitIfValidationError(np, envSliceValidate(envSlice), "Invalid environment variable found")
+		for _, envStr := range envSlice {
+			env := strings.Split(envStr, "=")
+			params.Env = append(params.Env, EnvVar{
+				Name:  env[0],
+				Value: env[1],
+			})
+		}
+	}
+	if flags.Changed("volumes") {
+		volsSlice, err := flags.GetStringSlice("volumes")
+		chkErr(err)
+		exitIfValidationError(np, volumesSliceValidate(volsSlice), "Invalid volume parameter found")
+		for _, volStr := range volsSlice {
+			vol := regexp.MustCompile(VolumeRegexNoQuotes).FindStringSubmatch(volStr)
+			params.Volumes = append(params.Volumes, Volume{
+				Label:     vol[1],
+				MountPath: vol[3],
+			})
+		}
 	}
 	if flags.Changed("cpu") {
 		params.CPU, err = flags.GetString("cpu")

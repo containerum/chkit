@@ -51,6 +51,11 @@ type EnvVar struct {
 	Value string `json:"value,omitempty"`
 }
 
+type Volume struct {
+	Label     string `json:"name,omitempty"`
+	MountPath string `json:"mountPath,omitempty"`
+}
+
 type Port struct {
 	ContainerPort int    `json:"containerPort,omitempty"`
 	Port          int    `json:"port,omitempty"`
@@ -69,6 +74,7 @@ type Container struct {
 	Resources                Resources `json:"resources,omitempty"`
 	TerminationMessagePath   string    `json:"terminationMessagePath,omitempty"`
 	TerminationMessagePolicy string    `json:"terminationMessagePolicy,omitempty"`
+	VolumeMounts             []Volume  `json:"volumeMounts,omitempty"`
 }
 
 type Condiniton struct {
@@ -94,6 +100,10 @@ type NodeSelector struct {
 	Role string `json:"role,omitempty"`
 }
 
+type VolumeName struct {
+	Name string `json:"name,omitempty"`
+}
+
 type Spec struct {
 	AutomountServiceAccountToken  bool        `json:"automountServiceAccountToken,omitempty"`
 	Containers                    []Container `json:"containers,omitempty"`
@@ -110,6 +120,7 @@ type Spec struct {
 		Operator          string `json:"operator,omitempty"`
 		TolerationSeconds int    `json:"tolerationSeconds,omitempty"`
 	} `json:"tolerations,omitempty"`
+	Volumes []VolumeName `json:"volumes,omitempty"`
 }
 
 type CommonObject struct {

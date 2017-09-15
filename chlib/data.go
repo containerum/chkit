@@ -52,13 +52,17 @@ var (
 const DefaultProto = "TCP"
 
 const (
-	LabelRegex      = `^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`
-	ImageRegex      = `(?:.+/)?([^:]+)(?::.+)?`
-	CpuRegex        = `^\d+(.\d+)?m?$`
-	MemRegex        = `^\d+(.\d+)?(Mi|Gi)$`
-	ObjectNameRegex = LabelRegex
-	PortRegex       = `^(\D+):(\d+)(:(\d+))?(:(TCP|UDP))?$`
-	PortNameRegex   = LabelRegex
+	nameRegex           = `[a-z0-9]([-a-z0-9]*[a-z0-9])?`
+	LabelRegex          = `^` + nameRegex + `$`
+	ImageRegex          = `(?:.+/)?([^:]+)(?::.+)?`
+	CpuRegex            = `^\d+(.\d+)?m?$`
+	MemRegex            = `^\d+(.\d+)?(Mi|Gi)$`
+	ObjectNameRegex     = LabelRegex
+	PortRegex           = `^(\D+):(\d+)(:(\d+))?(:(TCP|UDP))?$`
+	PortNameRegex       = LabelRegex
+	VolumesRegex        = `([^\"]\S*|\".+?\")\s*`
+	VolumeRegex         = `^(` + nameRegex + `)=\"([^\x00]+)\"`
+	VolumeRegexNoQuotes = `^(` + nameRegex + `)=([^\x00]+)`
 )
 
 var (

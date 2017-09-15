@@ -27,8 +27,8 @@ AUTOCOMPFILE = ${AUTOCOMPDIR}/chkit.completion
 define do_build
 @echo -e "\x1b[35mRun go build\x1b[0m"
 @docker run --rm \
-	-v ${PWD}/${BUILDDIR}:/${BUILDDIR} \
-	-v ${PWD}:/go/src/${PACKAGE} \
+	-v $(shell pwd)/${BUILDDIR}:/${BUILDDIR} \
+	-v $(shell pwd):/go/src/${PACKAGE} \
 	-e GOOS \
 	-e GOARCH \
 	-it golang:1.9 \

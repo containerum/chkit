@@ -70,6 +70,7 @@ func init() {
 	runCmd.PersistentFlags().StringSliceP("labels", "l", []string{}, "Tags for deployment. Format: key1=value1 ... keyN=valueN")
 	runCmd.PersistentFlags().StringSliceP("commands", "C", []string{}, "Commands executed on container start. Format: command1 ... commandN")
 	runCmd.PersistentFlags().StringSliceP("env", "e", []string{}, "Environment variables. Format: key1=value1 ... keyN=valueN")
+	runCmd.PersistentFlags().StringSliceP("volumes", "v", []string{}, "Volumes: Format: volumeLabel1=mountPath1 ... volumeLabelN=mountPathN")
 	runCmd.PersistentFlags().StringP("cpu", "c", chlib.DefaultCPURequest, "CPU cores. Format: (number)[m]")
 	runCmd.PersistentFlags().StringP("memory", "m", chlib.DefaultMemoryRequest, "Memory size. Format: (number)[Mi|Gi]")
 	runCmd.PersistentFlags().IntP("replicas", "r", chlib.DefaultReplicas, "Replicas count")
