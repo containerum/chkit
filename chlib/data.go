@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/user"
 	"path"
+	"regexp"
 )
 
 var homeDir string
@@ -52,20 +53,17 @@ var (
 const DefaultProto = "TCP"
 
 const (
-	nameRegex           = `[a-z0-9]([-a-z0-9]*[a-z0-9])?`
-	LabelRegex          = `^` + nameRegex + `$`
-	ImageRegex          = `(?:.+/)?([^:]+)(?::.+)?`
-	CpuRegex            = `^\d+(.\d+)?m?$`
-	MemRegex            = `^\d+(.\d+)?(Mi|Gi)$`
-	ObjectNameRegex     = LabelRegex
-	PortRegex           = `^(\D+):(\d+)(:(\d+))?(:(TCP|UDP))?$`
-	PortNameRegex       = LabelRegex
-	VolumesRegex        = `([^\"]\S*|\".+?\")\s*`
-	VolumeRegex         = `^(` + nameRegex + `)=\"([^\x00]+)\"`
-	VolumeRegexNoQuotes = `^(` + nameRegex + `)=([^\x00]+)`
+	nameRegex       = `[a-z0-9]([-a-z0-9]*[a-z0-9])?`
 )
 
 var (
-	DevGoPath string
-	DevGoRoot string
+	LabelRegex      = regexp.MustCompile(`^` + nameRegex + `$`)
+	ImageRegex      = regexp.MustCompile(`(?:.+/)?([^:]+)(?::.+)?`)
+	CpuRegex        = regexp.MustCompile(`^\d+(.\d+)?m?$`)
+	MemRegex        = regexp.MustCompile(`^\d+(.\d+)?(Mi|Gi)$`)
+	ObjectNameRegex = LabelRegex
+	PortRegex       = regexp.MustCompile(`^(\D+):(\d+)(:(\d+))?(:(TCP|UDP))?$`)
+	PortNameRegex   = LabelRegex
+	VolumesRegex    = regexp.MustCompile(`([^"]\S*|".+?")\s*`)
+	VolumeRegex     = regexp.MustCompile(`^"?(` + nameRegex + `)(\/([^/][^\x00]+))?"?="?(\/[^\x00]+)"?$`) // format: "volumeLabel/subPath"="/mountPath"
 )

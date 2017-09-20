@@ -10,8 +10,6 @@ import (
 
 	"fmt"
 
-	"regexp"
-
 	"github.com/spf13/cobra"
 )
 
@@ -66,7 +64,7 @@ var getCmd = &cobra.Command{
 			cmd.Usage()
 			os.Exit(1)
 		}
-		if getCmdName != "" && !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(getCmdName) {
+		if getCmdName != "" && !chlib.ObjectNameRegex.MatchString(getCmdName) {
 			np.FEEDBACK.Println("NAME is invalid")
 			cmd.Usage()
 			os.Exit(1)
