@@ -5,9 +5,6 @@ import (
 
 	"github.com/containerum/chkit.v2/chlib"
 	"github.com/containerum/chkit.v2/helpers"
-
-	"regexp"
-
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +19,7 @@ var runCmd = &cobra.Command{
 			cmd.Usage()
 			os.Exit(1)
 		}
-		if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[0]) {
+		if !chlib.ObjectNameRegex.MatchString(args[0]) {
 			np.FEEDBACK.Println("Invalid deployment name")
 			cmd.Usage()
 			os.Exit(1)
@@ -70,7 +67,7 @@ func init() {
 	runCmd.PersistentFlags().StringSliceP("labels", "l", []string{}, "Tags for deployment. Format: key1=value1 ... keyN=valueN")
 	runCmd.PersistentFlags().StringSliceP("commands", "C", []string{}, "Commands executed on container start. Format: command1 ... commandN")
 	runCmd.PersistentFlags().StringSliceP("env", "e", []string{}, "Environment variables. Format: key1=value1 ... keyN=valueN")
-	runCmd.PersistentFlags().StringSliceP("volumes", "v", []string{}, "Volumes: Format: volumeLabel1=mountPath1 ... volumeLabelN=mountPathN")
+	runCmd.PersistentFlags().StringSliceP("volumes", "v", []string{}, "Volumes: Format: volumeLabel1[/subPath1]=/mountPath1 ... volumeLabelN[/subPathN]=/mountPathN")
 	runCmd.PersistentFlags().StringP("cpu", "c", chlib.DefaultCPURequest, "CPU cores. Format: (number)[m]")
 	runCmd.PersistentFlags().StringP("memory", "m", chlib.DefaultMemoryRequest, "Memory size. Format: (number)[Mi|Gi]")
 	runCmd.PersistentFlags().IntP("replicas", "r", chlib.DefaultReplicas, "Replicas count")

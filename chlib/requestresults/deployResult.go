@@ -157,7 +157,10 @@ func (s singleDeployResult) Print() (err error) {
 		}
 		fmt.Println("\t\tVolumes:")
 		for _, v := range c.VolumeMounts {
-			fmt.Printf("\t\t\t%-10s: %s\n", v.Label, v.MountPath)
+			if v.SubPath[0] != '/' {
+				v.SubPath = "/" + v.SubPath
+			}
+			fmt.Printf("\t\t\t%-10s%s: %s\n", v.Label, v.SubPath, v.MountPath)
 		}
 		fmt.Println("\t\tResourceLimit:")
 		fmt.Printf("\t\t\t%-10s %s\n", "CPU:", c.Resources.Limits.CPU)

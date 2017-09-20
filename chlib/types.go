@@ -54,6 +54,7 @@ type EnvVar struct {
 type Volume struct {
 	Label     string `json:"name,omitempty"`
 	MountPath string `json:"mountPath,omitempty"`
+	SubPath   string `json:"subPath,omitempty"`
 }
 
 type Port struct {

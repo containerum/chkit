@@ -8,8 +8,6 @@ import (
 
 	"strings"
 
-	"regexp"
-
 	"github.com/spf13/cobra"
 )
 
@@ -54,7 +52,7 @@ var deleteCmd = &cobra.Command{
 			}
 			if len(args) >= 2 {
 				for _, v := range args[1:] {
-					if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(v) {
+					if !chlib.ObjectNameRegex.MatchString(v) {
 						break
 					}
 					deleteCmdNames = append(deleteCmdNames, v)

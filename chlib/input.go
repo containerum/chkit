@@ -3,7 +3,6 @@ package chlib
 import (
 	"bufio"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -54,8 +53,7 @@ func portsValidateInt(ports []int) bool {
 func labelSliceValidate(labels []string) bool {
 	for _, labelStr := range labels {
 		label := strings.Split(labelStr, "=")
-		labelValidator := regexp.MustCompile(LabelRegex)
-		if len(label) != 2 || !labelValidator.MatchString(label[0]) || !labelValidator.MatchString(label[1]) {
+		if len(label) != 2 || !LabelRegex.MatchString(label[0]) || !LabelRegex.MatchString(label[1]) {
 			return false
 		}
 	}
@@ -84,14 +82,14 @@ func cpuValidate(cpuStr string) bool {
 	if cpuStr == "" {
 		return true
 	}
-	return regexp.MustCompile(CpuRegex).MatchString(cpuStr)
+	return CpuRegex.MatchString(cpuStr)
 }
 
 func memValidate(memStr string) bool {
 	if memStr == "" {
 		return true
 	}
-	return regexp.MustCompile(MemRegex).MatchString(memStr)
+	return MemRegex.MatchString(memStr)
 }
 
 func replicasValidate(replicasStr string) bool {
@@ -106,14 +104,15 @@ func volumesValidate(volumesStr string) bool {
 	if volumesStr == "" {
 		return true
 	}
-	volsRegex := regexp.MustCompile(VolumesRegex)
-	volRegex := regexp.MustCompile(VolumeRegex)
-	if !volsRegex.MatchString(volumesStr) {
+	if !VolumesRegex.MatchString(volumesStr) {
 		return false
 	}
-	volParams := volsRegex.FindStringSubmatch(volumesStr)
-	for _, v := range volParams {
-		if !volRegex.MatchString(v) {
+	volParams := VolumesRegex.FindStringSubmatch(volumesStr)
+	for _, v := range volParams[1:] {
+		if !VolumeRegex.MatchString(v) {
+			return false
+		}
+		if strings.Count(v, "\"") % 2 != 0 {
 			return false
 		}
 	}
@@ -121,9 +120,11 @@ func volumesValidate(volumesStr string) bool {
 }
 
 func volumesSliceValidate(vols []string) bool {
-	volRegex := regexp.MustCompile(VolumeRegexNoQuotes)
 	for _, v := range vols {
-		if !volRegex.MatchString(v) {
+		if !VolumeRegex.MatchString(v) {
+			return false
+		}
+		if strings.Count(v, "\"") % 2 != 0 {
 			return false
 		}
 	}
@@ -131,7 +132,7 @@ func volumesSliceValidate(vols []string) bool {
 }
 
 func PromptParams(np *jww.Notepad) (params ConfigureParams) {
-	params.Image = Prompt(np, "Enter image", regexp.MustCompile(ImageRegex).MatchString)
+	params.Image = Prompt(np, "Enter image", ImageRegex.MatchString)
 	if portsStr := Prompt(np, "Enter ports (PORT1 PORT2 ... PORTN)", portsValidateStr); portsStr != "" {
 		for _, p := range strings.Split(portsStr, " ") {
 			port, _ := strconv.Atoi(p)
@@ -157,12 +158,13 @@ func PromptParams(np *jww.Notepad) (params ConfigureParams) {
 			})
 		}
 	}
-	if volumesStr := Prompt(np, "Enter volumes (volumeLabel1=\"mountPath1\" ... volumeLabelN=\"mountPathN\")", volumesValidate); volumesStr != "" {
-		for _, volumeStr := range regexp.MustCompile(VolumesRegex).FindStringSubmatch(volumesStr)[1:] {
-			volume := regexp.MustCompile(VolumeRegex).FindStringSubmatch(volumeStr)
+	if volumesStr := Prompt(np, "Enter volumes (volumeLabel1[/subPath1]=/mountPath1 ... volumeLabelN[/subPathN]=/mountPathN)", volumesValidate); volumesStr != "" {
+		for _, volumeStr := range VolumesRegex.FindStringSubmatch(volumesStr)[1:] {
+			volume := VolumeRegex.FindStringSubmatch(volumeStr)
 			params.Volumes = append(params.Volumes, Volume{
 				Label:     volume[1],
-				MountPath: volume[3],
+				SubPath:   volume[4],
+				MountPath: volume[5],
 			})
 		}
 	}
@@ -201,7 +203,7 @@ func ParamsFromArgs(np *jww.Notepad, flags *pflag.FlagSet) (params ConfigurePara
 	if flags.Changed("image") {
 		params.Image, err = flags.GetString("image")
 		chkErr(err)
-		exitIfValidationError(np, regexp.MustCompile(ImageRegex).MatchString(params.Image), "Invalid image name")
+		exitIfValidationError(np, ImageRegex.MatchString(params.Image), "Invalid image name")
 	}
 	if flags.Changed("port") {
 		params.Ports, err = flags.GetIntSlice("port")
@@ -240,10 +242,11 @@ func ParamsFromArgs(np *jww.Notepad, flags *pflag.FlagSet) (params ConfigurePara
 		chkErr(err)
 		exitIfValidationError(np, volumesSliceValidate(volsSlice), "Invalid volume parameter found")
 		for _, volStr := range volsSlice {
-			vol := regexp.MustCompile(VolumeRegexNoQuotes).FindStringSubmatch(volStr)
+			vol := VolumeRegex.FindStringSubmatch(volStr)
 			params.Volumes = append(params.Volumes, Volume{
 				Label:     vol[1],
-				MountPath: vol[3],
+				SubPath:   vol[4],
+				MountPath: vol[5],
 			})
 		}
 	}
