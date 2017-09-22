@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/containerum/chkit.v2/chlib"
+	"github.com/containerum/chkit/chlib"
 	"sort"
 	"strconv"
 	"strings"

@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/containerum/chkit.v2/chlib"
-	"github.com/containerum/chkit.v2/chlib/dbconfig"
+	"github.com/containerum/chkit/chlib"
+	"github.com/containerum/chkit/chlib/dbconfig"
 	"io/ioutil"
 	"log"
 	"os"
 
-	"github.com/containerum/chkit.v2/chlib/requestresults"
+	"github.com/containerum/chkit/chlib/requestresults"
 	"fmt"
 	"strings"
 

@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/containerum/chkit.v2/chlib/dbconfig"
+	"github.com/containerum/chkit/chlib/dbconfig"
 
 	jww "github.com/spf13/jwalterweatherman"
 )

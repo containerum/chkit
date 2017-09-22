@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/containerum/chkit.v2/chlib"
-	"github.com/containerum/chkit.v2/helpers"
+	"github.com/containerum/chkit/chlib"
+	"github.com/containerum/chkit/helpers"
 
 	"github.com/spf13/cobra"
 )
