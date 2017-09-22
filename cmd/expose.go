@@ -2,12 +2,11 @@ package cmd
 
 import (
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/containerum/chkit.v2/chlib"
-	"github.com/containerum/chkit.v2/helpers"
+	"github.com/containerum/chkit/chlib"
+	"github.com/containerum/chkit/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -36,13 +35,13 @@ var exposeCmd = &cobra.Command{
 			cmd.Usage()
 			os.Exit(1)
 		}
-		if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[1]) {
+		if !chlib.ObjectNameRegex.MatchString(args[1]) {
 			np.FEEDBACK.Println("Invalid NAME specified")
 			cmd.Usage()
 			os.Exit(1)
 		}
 		exposeCmdName = args[1]
-		portMatcher := regexp.MustCompile(chlib.PortRegex)
+		portMatcher := chlib.PortRegex
 		ports, _ := cmd.Flags().GetStringSlice("ports")
 		for _, portStr := range ports {
 			if !portMatcher.MatchString(portStr) {
@@ -51,7 +50,7 @@ var exposeCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			subm := portMatcher.FindStringSubmatch(portStr)
-			if !regexp.MustCompile(chlib.PortNameRegex).MatchString(subm[1]) {
+			if !chlib.PortNameRegex.MatchString(subm[1]) {
 				np.FEEDBACK.Println("Invalid port name")
 				cmd.Usage()
 				os.Exit(1)

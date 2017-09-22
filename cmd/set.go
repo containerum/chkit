@@ -4,11 +4,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/containerum/chkit.v2/chlib"
-	"github.com/containerum/chkit.v2/helpers"
-
-	"regexp"
-
+	"github.com/containerum/chkit/chlib"
+	"github.com/containerum/chkit/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +29,7 @@ var setCmd = &cobra.Command{
 			cmd.Usage()
 			os.Exit(1)
 		}
-		if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[1]) {
+		if !chlib.ObjectNameRegex.MatchString(args[1]) {
 			np.FEEDBACK.Println("Invalid DEPLOY")
 			cmd.Usage()
 			os.Exit(1)
@@ -40,7 +37,7 @@ var setCmd = &cobra.Command{
 		setCmdDeploy = args[1]
 		fieldValuePos := 2
 		if len(args) == 4 {
-			if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(args[2]) {
+			if !chlib.ObjectNameRegex.MatchString(args[2]) {
 				np.FEEDBACK.Println("Invalid CONTAINER")
 				cmd.Usage()
 				os.Exit(1)

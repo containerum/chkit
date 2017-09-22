@@ -3,12 +3,10 @@ package cmd
 import (
 	"os"
 
-	"github.com/containerum/chkit.v2/chlib"
-	"github.com/containerum/chkit.v2/helpers"
+	"github.com/containerum/chkit/chlib"
+	"github.com/containerum/chkit/helpers"
 
 	"strings"
-
-	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -54,7 +52,7 @@ var deleteCmd = &cobra.Command{
 			}
 			if len(args) >= 2 {
 				for _, v := range args[1:] {
-					if !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(v) {
+					if !chlib.ObjectNameRegex.MatchString(v) {
 						break
 					}
 					deleteCmdNames = append(deleteCmdNames, v)

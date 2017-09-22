@@ -1,7 +1,7 @@
 package dbconfig
 
 import (
-	"github.com/containerum/chkit.v2/helpers"
+	"github.com/containerum/chkit/helpers"
 	"fmt"
 )
 

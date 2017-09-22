@@ -1,10 +1,10 @@
 BINARY = chkit
-PACKAGE = github.com/containerum/chkit.v2
+PACKAGE = github.com/containerum/chkit
 COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE = `date +%FT%T%Z`
 DEFAULT_TCP_SERVER = sdk.containerum.io:3000
 DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
-VERSION = 2.1.0
+VERSION = 2.1.1
 REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \

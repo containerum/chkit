@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containerum/chkit.v2/chlib"
+	"github.com/containerum/chkit/chlib"
 )
 
 type singleDeployResult []struct {
@@ -120,11 +120,13 @@ func (s singleDeployResult) Print() (err error) {
 		fmt.Printf(replFormat, "Replicas:", status.UpdatedReplicas, "updated", status.Replicas,
 			"total", status.AvailableReplicas, "available", allReplicas-status.AvailableReplicas, "unavailable")
 	}
-	fmt.Printf("%-30s %v\n", "Strategy", strategy["type"])
-	strategyType := strings.ToLower(strategy["type"].(string)[:1]) + strategy["type"].(string)[1:]
-	fmt.Printf("%-30s %v max unavailable, %v max surge\n", strategy["type"].(string)+"Strategy",
-		strategy[strategyType].(map[string]interface{})["maxUnavailable"],
-		strategy[strategyType].(map[string]interface{})["maxSurge"])
+	if len(strategy) != 0 {
+		fmt.Printf("%-30s %v\n", "Strategy", strategy["type"])
+		strategyType := strings.ToLower(strategy["type"].(string)[:1]) + strategy["type"].(string)[1:]
+		fmt.Printf("%-30s %v max unavailable, %v max surge\n", strategy["type"].(string)+"Strategy",
+			strategy[strategyType].(map[string]interface{})["maxUnavailable"],
+			strategy[strategyType].(map[string]interface{})["maxSurge"])
+	}
 	fmt.Println("Conditions:")
 	conditionsTable := prettyPrintConfig{
 		Columns: []string{"TYPE", "STATUS", "REASON"},
@@ -157,7 +159,10 @@ func (s singleDeployResult) Print() (err error) {
 		}
 		fmt.Println("\t\tVolumes:")
 		for _, v := range c.VolumeMounts {
-			fmt.Printf("\t\t\t%-10s: %s\n", v.Label, v.MountPath)
+			if v.SubPath[0] != '/' {
+				v.SubPath = "/" + v.SubPath
+			}
+			fmt.Printf("\t\t\t%-10s%s: %s\n", v.Label, v.SubPath, v.MountPath)
 		}
 		fmt.Println("\t\tResourceLimit:")
 		fmt.Printf("\t\t\t%-10s %s\n", "CPU:", c.Resources.Limits.CPU)

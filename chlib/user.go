@@ -1,8 +1,8 @@
 package chlib
 
 import (
-	"github.com/containerum/chkit.v2/chlib/dbconfig"
-	"github.com/containerum/chkit.v2/helpers"
+	"github.com/containerum/chkit/chlib/dbconfig"
+	"github.com/containerum/chkit/helpers"
 
 	jww "github.com/spf13/jwalterweatherman"
 )

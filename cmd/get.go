@@ -3,14 +3,12 @@ package cmd
 import (
 	"os"
 
-	"github.com/containerum/chkit.v2/chlib"
-	"github.com/containerum/chkit.v2/chlib/requestresults"
-	"github.com/containerum/chkit.v2/helpers"
+	"github.com/containerum/chkit/chlib"
+	"github.com/containerum/chkit/chlib/requestresults"
+	"github.com/containerum/chkit/helpers"
 	"strings"
 
 	"fmt"
-
-	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -66,7 +64,7 @@ var getCmd = &cobra.Command{
 			cmd.Usage()
 			os.Exit(1)
 		}
-		if getCmdName != "" && !regexp.MustCompile(chlib.ObjectNameRegex).MatchString(getCmdName) {
+		if getCmdName != "" && !chlib.ObjectNameRegex.MatchString(getCmdName) {
 			np.FEEDBACK.Println("NAME is invalid")
 			cmd.Usage()
 			os.Exit(1)
