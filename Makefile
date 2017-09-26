@@ -24,9 +24,16 @@ INSTDIR ?= ${DESTDIR}/${PREFIX}/bin
 AUTOCOMPDIR ?= ${DESTDIR}/${PREFIX}/share/bash-completion/completions
 AUTOCOMPFILE = ${AUTOCOMPDIR}/chkit.completion
 
+have_docker_perm = $(shell docker images >/dev/null 2>/dev/null && echo 1)
+
+ifneq ($(have_docker_perm),1)
+$(info You don`t have permissions to run docker, so run with sudo)
+sudo=sudo
+endif
+
 define do_build
 @echo -e "\x1b[35mRun go build\x1b[0m"
-@docker run --rm \
+@$(sudo) docker run --rm \
 	-v $(shell pwd)/${BUILDDIR}:/${BUILDDIR} \
 	-v $(shell pwd):/go/src/${PACKAGE} \
 	-e GOOS \
