@@ -4,7 +4,7 @@ COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE = `date +%FT%T%Z`
 DEFAULT_TCP_SERVER = sdk.containerum.io:3000
 DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
-VERSION = 2.1.1
+VERSION = 2.1.2
 REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
@@ -24,9 +24,16 @@ INSTDIR ?= ${DESTDIR}/${PREFIX}/bin
 AUTOCOMPDIR ?= ${DESTDIR}/${PREFIX}/share/bash-completion/completions
 AUTOCOMPFILE = ${AUTOCOMPDIR}/chkit.completion
 
+have_docker_perm = $(shell docker images >/dev/null 2>/dev/null && echo 1)
+
+ifneq ($(have_docker_perm),1)
+$(info You don`t have permissions to run docker, so run with sudo)
+sudo=sudo
+endif
+
 define do_build
 @echo -e "\x1b[35mRun go build\x1b[0m"
-@docker run --rm \
+@$(sudo) docker run --rm \
 	-v $(shell pwd)/${BUILDDIR}:/${BUILDDIR} \
 	-v $(shell pwd):/go/src/${PACKAGE} \
 	-e GOOS \

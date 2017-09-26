@@ -65,5 +65,5 @@ var (
 	PortRegex       = regexp.MustCompile(`^(\D+):(\d+)(:(\d+))?(:(TCP|UDP))?$`)
 	PortNameRegex   = LabelRegex
 	VolumesRegex    = regexp.MustCompile(`([^"]\S*|".+?")\s*`)
-	VolumeRegex     = regexp.MustCompile(`^"?(` + nameRegex + `)(\/([^/][^\x00]+))?"?="?(\/[^\x00]+)"?$`) // format: "volumeLabel/subPath"="/mountPath"
+	VolumeRegex     = regexp.MustCompile(`(?U)^"?(` + nameRegex + `)(/([^/][^\x00]+))?"?="?(/[^\x00]+)"?$`) // format: "volumeLabel/subPath"="/mountPath"
 )
