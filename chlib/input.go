@@ -104,11 +104,7 @@ func volumesValidate(volumesStr string) bool {
 	if volumesStr == "" {
 		return true
 	}
-	if !VolumesRegex.MatchString(volumesStr) {
-		return false
-	}
-	volParams := VolumesRegex.FindStringSubmatch(volumesStr)
-	for _, v := range volParams[1:] {
+	for _, v := range strings.Fields(volumesStr) {
 		if !VolumeRegex.MatchString(v) {
 			return false
 		}
@@ -159,7 +155,7 @@ func PromptParams(np *jww.Notepad) (params ConfigureParams) {
 		}
 	}
 	if volumesStr := Prompt(np, "Enter volumes (volumeLabel1[/subPath1]=/mountPath1 ... volumeLabelN[/subPathN]=/mountPathN)", volumesValidate); volumesStr != "" {
-		for _, volumeStr := range VolumesRegex.FindStringSubmatch(volumesStr)[1:] {
+		for _, volumeStr := range strings.Fields(volumesStr) {
 			volume := VolumeRegex.FindStringSubmatch(volumeStr)
 			params.Volumes = append(params.Volumes, Volume{
 				Label:     volume[1],

@@ -4,7 +4,7 @@ COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE = `date +%FT%T%Z`
 DEFAULT_TCP_SERVER = sdk.containerum.io:3000
 DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
-VERSION = 2.1.2
+VERSION = 2.1.3
 REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
@@ -34,14 +34,13 @@ endif
 define do_build
 @echo -e "\x1b[35mRun go build\x1b[0m"
 @$(sudo) docker run --rm \
-	-v $(shell pwd)/${BUILDDIR}:/${BUILDDIR} \
 	-v $(shell pwd):/go/src/${PACKAGE} \
-	-e GOOS \
-	-e GOARCH \
+	-w /go/src/${PACKAGE} \
+	-e GOOS=${GOOS} \
+	-e GOARCH=${GOARCH} \
 	-it golang:1.9 \
-	/bin/bash -c "cd /go/src/${PACKAGE} && \
-		go build -v -ldflags '${LDFLAGS} ${REQLDFLAGS}' -o /${1} && \
-		chown $(shell id -u) /${1}"
+	/bin/bash -c "go build -v -ldflags '${LDFLAGS} ${REQLDFLAGS}' -o ${1} && \
+		chown $(shell id -u) ${1}"
 endef
 
 ${BUILDDIR}/${BINARY}: ${SOURCES}
