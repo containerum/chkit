@@ -34,14 +34,13 @@ endif
 define do_build
 @echo -e "\x1b[35mRun go build\x1b[0m"
 @$(sudo) docker run --rm \
-	-v $(shell pwd)/${BUILDDIR}:/${BUILDDIR} \
 	-v $(shell pwd):/go/src/${PACKAGE} \
-	-e GOOS \
-	-e GOARCH \
+	-w /go/src/${PACKAGE} \
+	-e GOOS=${GOOS} \
+	-e GOARCH=${GOARCH} \
 	-it golang:1.9 \
-	/bin/bash -c "cd /go/src/${PACKAGE} && \
-		go build -v -ldflags '${LDFLAGS} ${REQLDFLAGS}' -o /${1} && \
-		chown $(shell id -u) /${1}"
+	/bin/bash -c "go build -v -ldflags '${LDFLAGS} ${REQLDFLAGS}' -o ${1} && \
+		chown $(shell id -u) ${1}"
 endef
 
 ${BUILDDIR}/${BINARY}: ${SOURCES}

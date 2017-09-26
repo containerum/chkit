@@ -367,9 +367,13 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	containers[0].Resources.Requests = &HwResources{CPU: params.CPU, Memory: params.Memory}
 	containers[0].VolumeMounts = params.Volumes
 	req.Spec.Template.Spec.Containers = containers
+	volNames:=make(map[string]bool)
 	for _, v := range params.Volumes {
+		volNames[v.Label]=true
+	}
+	for k := range volNames {
 		req.Spec.Template.Spec.Volumes = append(req.Spec.Template.Spec.Volumes, VolumeName{
-			Name: v.Label,
+			Name: k,
 		})
 	}
 	b, _ := json.MarshalIndent(req, "", "    ")
