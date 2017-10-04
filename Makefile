@@ -14,6 +14,7 @@ REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/helpers.CurrentClientVersion=${VERSION}
 
 BUILDDIR = build
+USE_DOCKER ?= 1
 #track sources
 SOURCES = $(shell find ${PWD} -name '*.go')
 
@@ -24,13 +25,12 @@ INSTDIR ?= ${DESTDIR}/${PREFIX}/bin
 AUTOCOMPDIR ?= ${DESTDIR}/${PREFIX}/share/bash-completion/completions
 AUTOCOMPFILE = ${AUTOCOMPDIR}/chkit.completion
 
+ifeq ($(USE_DOCKER),1)
 have_docker_perm = $(shell docker images >/dev/null 2>/dev/null && echo 1)
-
 ifneq ($(have_docker_perm),1)
 $(info You don`t have permissions to run docker, so run with sudo)
 sudo=sudo
 endif
-
 define do_build
 @echo -e "\x1b[35mRun go build\x1b[0m"
 @$(sudo) docker run --rm \
@@ -42,6 +42,13 @@ define do_build
 	/bin/bash -c "go build -v -ldflags '${LDFLAGS} ${REQLDFLAGS}' -o ${1} && \
 		chown $(shell id -u) ${1}"
 endef
+else
+define do_build
+@echo -e "\x1b[35mRun go build\x1b[0m"
+go build -v -ldflags '${LDFLAGS} ${REQLDFLAGS}' -o ${1}
+endef
+endif
+
 
 ${BUILDDIR}/${BINARY}: ${SOURCES}
 	$(call do_build,${BUILDDIR}/${BINARY})
