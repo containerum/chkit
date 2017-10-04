@@ -256,7 +256,7 @@ func ParamsFromArgs(np *jww.Notepad, flags *pflag.FlagSet) (params ConfigurePara
 	if flags.Changed("memory") {
 		params.Memory, err = flags.GetString("memory")
 		chkErr(err)
-		exitIfValidationError(np, cpuValidate(params.Memory), "Invalid memory format")
+		exitIfValidationError(np, memValidate(params.Memory), "Invalid memory format")
 	} else {
 		params.Memory = DefaultMemoryRequest
 	}
