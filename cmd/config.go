@@ -57,6 +57,7 @@ var configCmd = &cobra.Command{
 				np.ERROR.Println(err)
 				os.Exit(1)
 			}
+			info.Namespace = newNamespace
 			np.FEEDBACK.Printf("Namespace changed to: %s\n", info.Namespace)
 		}
 		if cmd.Flag("set-token").Changed {
