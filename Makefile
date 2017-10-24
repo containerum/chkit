@@ -5,13 +5,11 @@ BUILD_DATE = $(shell date +%FT%T%Z)
 DEFAULT_TCP_SERVER = sdk.containerum.io:3000
 DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
 VERSION = $(shell git describe --tags $(shell git rev-list --tags --max-count=1))
-#trim 'v' prefix
-VERSION = $(VERSION:v%=%)
 REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultHTTPServer=${DEFAULT_HTTP_SERVER} \
-	-X ${PACKAGE}/helpers.CurrentClientVersion=${VERSION}
+	-X ${PACKAGE}/helpers.CurrentClientVersion=$(VERSION:v%=%)
 
 BUILDDIR = build
 USE_DOCKER ?= 1
