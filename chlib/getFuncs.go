@@ -44,7 +44,7 @@ func JsonPrettyPrint(jsonContent []GenericJson, np *jww.Notepad) (err error) {
 	if len(jsonContent) == 0 {
 		return fmt.Errorf("empty content received")
 	}
-	b, err := json.MarshalIndent(jsonContent[0]["data"], "", "    ")
+	b, err := json.MarshalIndent(jsonContent, "", "    ")
 	np.FEEDBACK.Printf("%s\n", b)
 	return
 }
@@ -53,7 +53,7 @@ func YamlPrint(jsonContent []GenericJson, np *jww.Notepad) (err error) {
 	if len(jsonContent) == 0 {
 		return fmt.Errorf("empty content received")
 	}
-	b, err := yaml.Marshal(jsonContent[0]["data"])
+	b, err := yaml.Marshal(jsonContent)
 	np.FEEDBACK.Printf("%s\n", b)
 	return
 }
