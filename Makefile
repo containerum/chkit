@@ -1,10 +1,10 @@
 BINARY = chkit
 PACKAGE = github.com/containerum/chkit
-COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
-BUILD_DATE = `date +%FT%T%Z`
+COMMIT_HASH = $(shell git rev-parse --short HEAD 2>/dev/null)
+BUILD_DATE = $(shell date +%FT%T%Z)
 DEFAULT_TCP_SERVER = sdk.containerum.io:3000
 DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
-VERSION = 2.1.5
+VERSION = $(shell git describe --tags $(shell git rev-list --tags --max-count=1))
 REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
@@ -24,6 +24,9 @@ DESTDIR ?=
 INSTDIR ?= ${DESTDIR}/${PREFIX}/bin
 AUTOCOMPDIR ?= ${DESTDIR}/${PREFIX}/share/bash-completion/completions
 AUTOCOMPFILE = ${AUTOCOMPDIR}/chkit.completion
+
+#trim 'v' prefix
+VERSION = $(VERSION:v%=%)
 
 ifeq ($(USE_DOCKER),1)
 have_docker_perm = $(shell docker images >/dev/null 2>/dev/null && echo 1)
