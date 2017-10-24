@@ -1,15 +1,20 @@
 package dbconfig
 
 import (
-	"github.com/containerum/chkit/helpers"
 	"fmt"
 	"os"
+
+	"github.com/containerum/chkit/helpers"
+
+	"time"
+
+	"errors"
 
 	"github.com/boltdb/bolt"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var initializers map[string]helpers.MappedStruct = make(map[string]helpers.MappedStruct)
+var initializers = make(map[string]helpers.MappedStruct)
 
 type ConfigDB struct {
 	db *bolt.DB
@@ -43,7 +48,10 @@ func OpenOrCreate(filePath string, np *jww.Notepad) (db *ConfigDB, err error) {
 	db.np = np
 	db.np.SetPrefix("ConfigDB")
 	db.np.DEBUG.Println("Open ", filePath)
-	db.db, err = bolt.Open(filePath, os.ModePerm, nil)
+	db.db, err = bolt.Open(filePath, os.ModePerm, &bolt.Options{Timeout: time.Second})
+	if err == bolt.ErrTimeout {
+		err = errors.New("config db blocked by other app instance, cannot open")
+	}
 	if err != nil {
 		return
 	}
