@@ -30,6 +30,11 @@ func GetCmdRequestJson(client *Client, kind, name, nameSpace string) (ret []Gene
 	}
 	items := apiResult["results"].([]interface{})
 	for _, itemI := range items {
+		// remove kind "Namespace" results if namespace list requested
+		if kind == KindNamespaces && name == "" &&
+			itemI.(map[string]interface{})["data"].(map[string]interface{})["kind"].(string) == "Namespace" {
+			continue
+		}
 		ret = append(ret, itemI.(map[string]interface{}))
 	}
 	return
