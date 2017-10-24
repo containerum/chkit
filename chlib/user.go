@@ -21,6 +21,13 @@ func UserLogin(db *dbconfig.ConfigDB, login, password string, np *jww.Notepad) (
 		return
 	}
 	info.Token = token
+	// get namespaces and set default namespace
+	nsResult, err := GetCmdRequestJson(client, KindNamespaces, "", "")
+	if err != nil {
+		return
+	}
+	info.Namespace = nsResult[0]["data"].(map[string]interface{})["metadata"].(map[string]interface{})["namespace"].(string)
+	np.FEEDBACK.Printf("Chosen namespace: %v", info.Namespace)
 	err = db.UpdateUserInfo(info)
 	return
 }
