@@ -75,7 +75,7 @@ test:
 define custom_os_arch_build
 	$(eval GOOS=${1})
 	$(eval GOARCH=${2})
-	$(eval TARGET=${BINARY}_${GOOS}_${GOARCH}_v${VERSION})
+	$(eval TARGET=${BINARY}_${GOOS}_${GOARCH}_${VERSION})
 	$(if $(filter ${GOOS},windows),$(eval TARGET=${TARGET}.zip),$(eval TARGET=${TARGET}.tar.gz))
 	$(eval TARGET=$(subst darwin,mac,${TARGET}))
 	$(eval TARGET=$(subst 386,x86,${TARGET}))
