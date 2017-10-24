@@ -11,8 +11,6 @@ REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultHTTPServer=${DEFAULT_HTTP_SERVER} \
-	-X ${PACKAGE}/chlib.DevGoPath=${GOPATH} \
-	-X ${PACKAGE}/chlib.DevGoRoot=${GOROOT} \
 	-X ${PACKAGE}/helpers.CurrentClientVersion=${VERSION}
 
 BUILDDIR = build
