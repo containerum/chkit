@@ -1,16 +1,16 @@
 BINARY = chkit
 PACKAGE = github.com/containerum/chkit
-COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
-BUILD_DATE = `date +%FT%T%Z`
+COMMIT_HASH = $(shell git rev-parse --short HEAD 2>/dev/null)
+BUILD_DATE = $(shell date +%FT%T%Z)
 DEFAULT_TCP_SERVER = sdk.containerum.io:3000
 DEFAULT_HTTP_SERVER = http://sdk.containerum.io:3333
-VERSION = 2.1.5
+VERSION = $(shell git describe --tags $(shell git rev-list --tags --max-count=1))
+#trim 'v' prefix
+VERSION = $(VERSION:v%=%)
 REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultHTTPServer=${DEFAULT_HTTP_SERVER} \
-	-X ${PACKAGE}/chlib.DevGoPath=${GOPATH} \
-	-X ${PACKAGE}/chlib.DevGoRoot=${GOROOT} \
 	-X ${PACKAGE}/helpers.CurrentClientVersion=${VERSION}
 
 BUILDDIR = build

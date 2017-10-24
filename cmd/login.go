@@ -6,8 +6,11 @@ import (
 
 	"github.com/containerum/chkit/chlib"
 
-	"github.com/containerum/chkit/helpers"
 	"os"
+
+	"github.com/containerum/chkit/helpers"
+
+	"strings"
 
 	"github.com/howeyc/gopass"
 	"github.com/spf13/cobra"
@@ -49,7 +52,7 @@ var loginCmd = &cobra.Command{
 		} else {
 			password = cmd.Flag("password").Value.String()
 		}
-		token, err := chlib.UserLogin(db, email, password, np)
+		token, err := chlib.UserLogin(db, strings.ToLower(email), strings.ToLower(password), np)
 		if err != nil {
 			np.ERROR.Println(err)
 			return
