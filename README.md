@@ -69,15 +69,15 @@ expose... OK
 ```
 **5.** Use `chkit get` command:
 ```
-$ chkit get deploy
+$ chkit get svc
 
 +------------+--------------+---------+-------------------+----------------+-----+
 | NAME       | CLUSTER-IP   | EXTERNAL| HOST              | PORT(S)        | AGE |
 +------------+--------------+---------+-------------------+----------------+-----+
-| hello-926c | 10.103.95.119| true    | containerum.io    | 24469:5000/TCP | 15s |
+| hello-926c | 10.103.95.119| true    | containerum.io    | 20865:5000/TCP | 15s |
 +------------+--------------+---------+-------------------+----------------+-----+
 ```
-**6.** Go to http://x1.containerum.io:24469:
+**6.** Go to http://x1.containerum.io:20865:
 
 ![](images/result.png)
 
