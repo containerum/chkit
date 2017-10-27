@@ -14,33 +14,22 @@ import (
 )
 
 type HttpApiHandler struct {
-	cfg     dbconfig.HttpApiConfig
-	headers map[string]string
-	np      *jww.Notepad
+	Config   *dbconfig.HttpApiConfig
+	UserInfo *dbconfig.UserInfo
+	Np       *jww.Notepad
+	Channel  string
 }
 
 type HttpApiResult map[string]interface{}
 
-func NewHttpApiHandler(cfg dbconfig.HttpApiConfig, uuid, token string, np *jww.Notepad) *HttpApiHandler {
-	handler := HttpApiHandler{
-		cfg: cfg,
-		np:  np,
-	}
-	handler.headers = make(map[string]string)
-	handler.headers["Channel"] = uuid
-	handler.headers["Authorization"] = token
-	return &handler
-}
-
 func (h *HttpApiHandler) makeRequestGeneric(url, method string, jsonToSend GenericJson, result interface{}) (err error) {
-	h.np.SetPrefix("HTTP")
-	client := http.Client{Timeout: h.cfg.Timeout}
+	h.Np.SetPrefix("HTTP")
+	client := http.Client{Timeout: h.Config.Timeout}
 	marshalled, _ := json.Marshal(jsonToSend)
-	h.np.DEBUG.Printf("%s %s\n", method, url)
+	h.Np.DEBUG.Printf("%s %s\n", method, url)
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(marshalled))
-	for k, v := range h.headers {
-		request.Header.Add(k, v)
-	}
+	request.Header.Add("Channel", h.Channel)
+	request.Header.Add("Authorization", h.UserInfo.Token)
 	if err != nil {
 		return fmt.Errorf("http request create error: %s", err)
 	}
@@ -51,7 +40,7 @@ func (h *HttpApiHandler) makeRequestGeneric(url, method string, jsonToSend Gener
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("got non-ok http response: %s", resp.Status)
 	}
-	h.np.DEBUG.Println("Result", resp.Status)
+	h.Np.DEBUG.Println("Result", resp.Status)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -71,27 +60,27 @@ func (h *HttpApiHandler) makeRequest(url, method string, jsonToSend GenericJson)
 
 func (h *HttpApiHandler) Create(jsonToSend GenericJson, kind, nameSpace string) (result HttpApiResult, err error) {
 	kind = fmt.Sprintf("%ss", strings.ToLower(kind))
-	url := fmt.Sprintf("%s/namespaces/%s/%s", h.cfg.Server, nameSpace, kind)
+	url := fmt.Sprintf("%s/namespaces/%s/%s", h.Config.Server, nameSpace, kind)
 	return h.makeRequest(url, http.MethodPost, jsonToSend)
 }
 
 func (h *HttpApiHandler) Expose(jsonToSend GenericJson, nameSpace string) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/namespaces/%s/services", h.cfg.Server, nameSpace)
+	url := fmt.Sprintf("%s/namespaces/%s/services", h.Config.Server, nameSpace)
 	return h.makeRequest(url, http.MethodPost, jsonToSend)
 }
 
 func (h *HttpApiHandler) Login(jsonToSend GenericJson) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/session/login", h.cfg.Server)
+	url := fmt.Sprintf("%s/session/login", h.Config.Server)
 	return h.makeRequest(url, http.MethodPost, jsonToSend)
 }
 
 func (h *HttpApiHandler) SetForContainer(jsonToSend GenericJson, containerName, nameSpace string) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/namespaces/%s/container/%s", h.cfg.Server, nameSpace, containerName)
+	url := fmt.Sprintf("%s/namespaces/%s/container/%s", h.Config.Server, nameSpace, containerName)
 	return h.makeRequest(url, http.MethodPatch, jsonToSend)
 }
 
 func (h *HttpApiHandler) SetForDeploy(jsonToSend GenericJson, deploy, nameSpace string) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.cfg.Server, nameSpace, deploy)
+	url := fmt.Sprintf("%s/namespaces/%s/deployments/%s/spec", h.Config.Server, nameSpace, deploy)
 	return h.makeRequest(url, http.MethodPatch, jsonToSend)
 }
 
@@ -120,7 +109,7 @@ func (h *HttpApiHandler) Replace(jsonToSend GenericJson, nameSpace, kind string)
 	if !ok {
 		return result, fmt.Errorf("repace: name is not a string")
 	}
-	url := fmt.Sprintf("%s/namespaces/%s/%s/%s", h.cfg.Server, nameSpace, kind, name)
+	url := fmt.Sprintf("%s/namespaces/%s/%s/%s", h.Config.Server, nameSpace, kind, name)
 	return h.makeRequest(url, http.MethodPut, jsonToSend)
 }
 
@@ -142,27 +131,27 @@ func (h *HttpApiHandler) ReplaceNameSpaces(jsonToSend GenericJson) (result HttpA
 		return result, fmt.Errorf("repaceNameSpace: name is not a string")
 	}
 
-	url := fmt.Sprintf("%s/namespaces/%s", h.cfg.Server, name)
+	url := fmt.Sprintf("%s/namespaces/%s", h.Config.Server, name)
 	return h.makeRequest(url, http.MethodPut, jsonToSend)
 }
 
 func (h *HttpApiHandler) Run(jsonToSend GenericJson, nameSpace string) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/namespaces/%s/deployments", h.cfg.Server, nameSpace)
+	url := fmt.Sprintf("%s/namespaces/%s/deployments", h.Config.Server, nameSpace)
 	return h.makeRequest(url, http.MethodPost, jsonToSend)
 }
 
 func (h *HttpApiHandler) Delete(kind, name, nameSpace string, allPods bool) (result HttpApiResult, err error) {
 	var url string
 	if kind == KindDeployments && allPods {
-		url = fmt.Sprintf("%s/namespaces/%s/%s/%s/pods", h.cfg.Server, nameSpace, kind, name)
+		url = fmt.Sprintf("%s/namespaces/%s/%s/%s/pods", h.Config.Server, nameSpace, kind, name)
 	} else {
-		url = fmt.Sprintf("%s/namespaces/%s/%s/%s", h.cfg.Server, nameSpace, kind, name)
+		url = fmt.Sprintf("%s/namespaces/%s/%s/%s", h.Config.Server, nameSpace, kind, name)
 	}
 	return h.makeRequest(url, http.MethodDelete, nil)
 }
 
 func (h *HttpApiHandler) DeleteNameSpaces(name string) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/namespaces/%s", h.cfg.Server, name)
+	url := fmt.Sprintf("%s/namespaces/%s", h.Config.Server, name)
 	result, err = h.makeRequest(url, http.MethodDelete, nil)
 	return
 }
@@ -170,9 +159,9 @@ func (h *HttpApiHandler) DeleteNameSpaces(name string) (result HttpApiResult, er
 func (h *HttpApiHandler) Get(kind, name, nameSpace string) (result HttpApiResult, err error) {
 	var url string
 	if name != "" {
-		url = fmt.Sprintf("%s/namespaces/%s/%s/%s", h.cfg.Server, nameSpace, kind, name)
+		url = fmt.Sprintf("%s/namespaces/%s/%s/%s", h.Config.Server, nameSpace, kind, name)
 	} else {
-		url = fmt.Sprintf("%s/namespaces/%s/%s", h.cfg.Server, nameSpace, kind)
+		url = fmt.Sprintf("%s/namespaces/%s/%s", h.Config.Server, nameSpace, kind)
 	}
 	return h.makeRequest(url, http.MethodGet, nil)
 }
@@ -180,9 +169,9 @@ func (h *HttpApiHandler) Get(kind, name, nameSpace string) (result HttpApiResult
 func (h *HttpApiHandler) GetNameSpaces(name string) (result HttpApiResult, err error) {
 	var url string
 	if name != "" {
-		url = fmt.Sprintf("%s/namespaces/%s", h.cfg.Server, name)
+		url = fmt.Sprintf("%s/namespaces/%s", h.Config.Server, name)
 	} else {
-		url = fmt.Sprintf("%s/namespaces", h.cfg.Server)
+		url = fmt.Sprintf("%s/namespaces", h.Config.Server)
 	}
 	return h.makeRequest(url, http.MethodGet, nil)
 }
@@ -190,9 +179,9 @@ func (h *HttpApiHandler) GetNameSpaces(name string) (result HttpApiResult, err e
 func (h *HttpApiHandler) GetVolume(name string) (result interface{}, err error) {
 	var url string
 	if name != "" {
-		url = fmt.Sprintf("%s/volumes/%s", h.cfg.Server, name)
+		url = fmt.Sprintf("%s/volumes/%s", h.Config.Server, name)
 	} else {
-		url = fmt.Sprintf("%s/volumes", h.cfg.Server)
+		url = fmt.Sprintf("%s/volumes", h.Config.Server)
 	}
 	err = h.makeRequestGeneric(url, http.MethodGet, nil, &result)
 	return

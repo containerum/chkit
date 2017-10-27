@@ -1,23 +1,26 @@
 package cmd
 
 import (
-	"github.com/containerum/chkit/chlib"
-	"github.com/containerum/chkit/chlib/dbconfig"
 	"io/ioutil"
 	"log"
 	"os"
 
-	"github.com/containerum/chkit/chlib/requestresults"
+	"github.com/containerum/chkit/chlib"
+	"github.com/containerum/chkit/chlib/dbconfig"
+
 	"fmt"
 	"strings"
 
+	"github.com/containerum/chkit/chlib/requestresults"
+
+	"github.com/containerum/chkit/helpers"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var db *dbconfig.ConfigDB
-
 var np *jww.Notepad
+
+var client *chlib.Client
 
 var bashCompletionFunc = fmt.Sprintf(`__chkit_get_outformat()
 {
@@ -97,6 +100,20 @@ __custom_func()
 	strings.Join(requestresults.ServiceColumns, " "),
 	strings.Join(requestresults.NamespaceColumns, " "))
 
+func exitOnErr(err error) {
+	if err != nil {
+		np.ERROR.Println(err)
+		os.Exit(1)
+	}
+}
+
+func saveUserSettings(cfg dbconfig.UserInfo) {
+	np.FEEDBACK.Println("Saving settings")
+	db, err := dbconfig.OpenOrCreate(chlib.ConfigFile, np)
+	exitOnErr(err)
+	exitOnErr(db.UpdateUserInfo(*client.UserConfig))
+}
+
 //RootCmd main cmd entrypoint
 var RootCmd = &cobra.Command{
 	Use: "chkit",
@@ -106,20 +123,27 @@ var RootCmd = &cobra.Command{
 		} else {
 			np = jww.NewNotepad(jww.LevelInfo, jww.LevelInfo, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 		}
-		var err error
-		db, err = dbconfig.OpenOrCreate(chlib.ConfigFile, np)
-		if err != nil {
-			np.ERROR.Println(err)
-			os.Exit(1)
+		db, err := dbconfig.OpenOrCreate(chlib.ConfigFile, np)
+		exitOnErr(err)
+		apiConfig, err := db.GetHttpApiConfig()
+		exitOnErr(err)
+		tcpApiConfig, err := db.GetTcpApiConfig()
+		exitOnErr(err)
+		userConfig, err := db.GetUserInfo()
+		exitOnErr(err)
+		uuid := helpers.UuidV4()
+
+		client = &chlib.Client{
+			ApiHandler:    &chlib.HttpApiHandler{Config: &apiConfig, UserInfo: &userConfig, Np: np, Channel: uuid},
+			TcpApiHandler: &chlib.TcpApiHandler{Config: &tcpApiConfig, UserInfo: &userConfig, Np: np, Channel: uuid},
+			UserConfig:    &userConfig,
 		}
+		exitOnErr(db.Close())
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if cmd.Flags().NFlag() == 0 {
 			cmd.Usage()
 		}
-	},
-	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		db.Close()
 	},
 	BashCompletionFunction: bashCompletionFunc,
 }

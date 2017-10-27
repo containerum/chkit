@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/chlib"
-	"github.com/containerum/chkit/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -84,14 +83,9 @@ var exposeCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
 		nameSpace, _ := cmd.Flags().GetString("namespace")
 		np.FEEDBACK.Print("expose...")
-		_, err = client.Expose(exposeCmdName, exposeCmdPorts, nameSpace)
+		_, err := client.Expose(exposeCmdName, exposeCmdPorts, nameSpace)
 		if err != nil {
 			np.FEEDBACK.Println("ERROR")
 			np.ERROR.Println(err)

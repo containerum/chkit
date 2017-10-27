@@ -1,9 +1,10 @@
 package dbconfig
 
 import (
-	"github.com/containerum/chkit/helpers"
 	"fmt"
 	"time"
+
+	"github.com/containerum/chkit/helpers"
 )
 
 type HttpApiConfig struct {

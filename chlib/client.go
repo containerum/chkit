@@ -7,94 +7,63 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/containerum/chkit/chlib/dbconfig"
-
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 type Client struct {
-	path          string
-	version       string
-	apiHandler    *HttpApiHandler
-	tcpApiHandler *TcpApiHandler
-	userConfig    *dbconfig.UserInfo
+	ApiHandler    *HttpApiHandler
+	TcpApiHandler *TcpApiHandler
+	UserConfig    *dbconfig.UserInfo
 }
 
 type GenericJson map[string]interface{}
 
-func NewClient(db *dbconfig.ConfigDB, version, uuid string, np *jww.Notepad) (*Client, error) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	cfg, err := db.GetHttpApiConfig()
-	if err != nil {
-		return nil, err
-	}
-	tcpApiCfg, err := db.GetTcpApiConfig()
-	if err != nil {
-		return nil, err
-	}
-	client := &Client{
-		path:    cwd,
-		version: version,
-	}
-	userCfg, err := db.GetUserInfo()
-	if err != nil {
-		return nil, err
-	}
-	client.apiHandler = NewHttpApiHandler(cfg, uuid, userCfg.Token, np)
-	client.tcpApiHandler = NewTcpApiHandler(tcpApiCfg, uuid, userCfg.Token, np)
-	client.userConfig = &userCfg
-	return client, nil
-}
-
-func (c *Client) Login(login, password string) (token string, err error) {
+func (c *Client) Login(login, password string) (err error) {
 	passwordHash := md5.Sum([]byte(login + password))
 	jsonToSend := GenericJson{
 		"username": login,
 		"password": hex.EncodeToString(passwordHash[:]),
 	}
-	apiResult, err := c.apiHandler.Login(jsonToSend)
-	if err != nil {
-		return "", err
-	}
-	err = apiResult.HandleApiResult()
-	if err != nil {
-		return "", err
-	}
-	tokenI, hasToken := apiResult["token"]
-	if !hasToken {
-		return "", fmt.Errorf("api result don`t have token")
-	}
-	token, isString := tokenI.(string)
-	if !isString {
-		return "", fmt.Errorf("received non-string token")
-	}
-	return token, nil
-}
-
-func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err error) {
-	if c.userConfig.Token == "" {
-		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
-	}
-	_, err = c.tcpApiHandler.Connect()
+	apiResult, err := c.ApiHandler.Login(jsonToSend)
 	if err != nil {
 		return
 	}
-	defer c.tcpApiHandler.Close()
+	err = apiResult.HandleApiResult()
+	if err != nil {
+		return
+	}
+	tokenI, hasToken := apiResult["token"]
+	if !hasToken {
+		return fmt.Errorf("api result don`t have token")
+	}
+	token, isString := tokenI.(string)
+	if !isString {
+		return fmt.Errorf("received non-string token")
+	}
+	c.UserConfig.Token = token
+	return nil
+}
+
+func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err error) {
+	if c.UserConfig.Token == "" {
+		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
+	_, err = c.TcpApiHandler.Connect()
+	if err != nil {
+		return
+	}
+	defer c.TcpApiHandler.Close()
 	var httpResult HttpApiResult
 	if nameSpace == "" {
-		nameSpace = c.userConfig.Namespace
+		nameSpace = c.UserConfig.Namespace
 	}
 	if kind != KindNamespaces {
-		httpResult, err = c.apiHandler.Get(kind, name, nameSpace)
+		httpResult, err = c.ApiHandler.Get(kind, name, nameSpace)
 	} else {
-		httpResult, err = c.apiHandler.GetNameSpaces(name)
+		httpResult, err = c.ApiHandler.GetNameSpaces(name)
 	}
 	if err != nil {
 		return
@@ -103,20 +72,20 @@ func (c *Client) Get(kind, name, nameSpace string) (apiResult TcpApiResult, err 
 	if err != nil {
 		return
 	}
-	return c.tcpApiHandler.Receive()
+	return c.TcpApiHandler.Receive()
 }
 
 func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res TcpApiResult, err error) {
-	if c.userConfig.Token == "" {
+	if c.UserConfig.Token == "" {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
-	_, err = c.tcpApiHandler.Connect()
+	_, err = c.TcpApiHandler.Connect()
 	if err != nil {
 		return
 	}
-	defer c.tcpApiHandler.Close()
+	defer c.TcpApiHandler.Close()
 	if nameSpace == "" {
-		nameSpace = c.userConfig.Namespace
+		nameSpace = c.UserConfig.Namespace
 	}
 	var httpResult HttpApiResult
 	if container != "" {
@@ -124,7 +93,7 @@ func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res
 			"name":    deploy,
 			parameter: value,
 		}
-		httpResult, err = c.apiHandler.SetForContainer(req, container, nameSpace)
+		httpResult, err = c.ApiHandler.SetForContainer(req, container, nameSpace)
 	} else {
 		req := make(GenericJson)
 		switch parameter {
@@ -137,7 +106,7 @@ func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res
 		default:
 			req[parameter] = value
 		}
-		httpResult, err = c.apiHandler.SetForDeploy(req, deploy, nameSpace)
+		httpResult, err = c.ApiHandler.SetForDeploy(req, deploy, nameSpace)
 	}
 	if err != nil {
 		return
@@ -146,7 +115,7 @@ func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res
 	if err != nil {
 		return
 	}
-	res, err = c.tcpApiHandler.Receive()
+	res, err = c.TcpApiHandler.Receive()
 	if err != nil {
 		return
 	}
@@ -155,14 +124,14 @@ func (c *Client) Set(deploy, container, parameter, value, nameSpace string) (res
 }
 
 func (c *Client) Create(jsonToSend GenericJson) (res TcpApiResult, err error) {
-	if c.userConfig.Token == "" {
+	if c.UserConfig.Token == "" {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
-	_, err = c.tcpApiHandler.Connect()
+	_, err = c.TcpApiHandler.Connect()
 	if err != nil {
 		return
 	}
-	defer c.tcpApiHandler.Close()
+	defer c.TcpApiHandler.Close()
 	metaDataI, hasMd := jsonToSend["metadata"]
 	if !hasMd {
 		return res, fmt.Errorf("JSON must have \"metadata\" parameter")
@@ -180,7 +149,7 @@ func (c *Client) Create(jsonToSend GenericJson) (res TcpApiResult, err error) {
 			return res, fmt.Errorf("namespace must be string")
 		}
 	} else {
-		nameSpace = c.userConfig.Namespace
+		nameSpace = c.UserConfig.Namespace
 	}
 	kindI, hasKind := jsonToSend["kind"]
 	if !hasKind {
@@ -190,7 +159,7 @@ func (c *Client) Create(jsonToSend GenericJson) (res TcpApiResult, err error) {
 	if !valid {
 		return res, fmt.Errorf("kind must be string")
 	}
-	httpResult, err := c.apiHandler.Create(jsonToSend, kind, nameSpace)
+	httpResult, err := c.ApiHandler.Create(jsonToSend, kind, nameSpace)
 	if err != nil {
 		return
 	}
@@ -198,7 +167,7 @@ func (c *Client) Create(jsonToSend GenericJson) (res TcpApiResult, err error) {
 	if err != nil {
 		return
 	}
-	res, err = c.tcpApiHandler.Receive()
+	res, err = c.TcpApiHandler.Receive()
 	if err != nil {
 		return
 	}
@@ -207,22 +176,22 @@ func (c *Client) Create(jsonToSend GenericJson) (res TcpApiResult, err error) {
 }
 
 func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (res TcpApiResult, err error) {
-	if c.userConfig.Token == "" {
+	if c.UserConfig.Token == "" {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
-	_, err = c.tcpApiHandler.Connect()
+	_, err = c.TcpApiHandler.Connect()
 	if err != nil {
 		return
 	}
-	defer c.tcpApiHandler.Close()
+	defer c.TcpApiHandler.Close()
 	var httpResult HttpApiResult
 	if nameSpace == "" {
-		nameSpace = c.userConfig.Namespace
+		nameSpace = c.UserConfig.Namespace
 	}
 	if kind != KindNamespaces {
-		httpResult, err = c.apiHandler.Delete(kind, name, nameSpace, allPods)
+		httpResult, err = c.ApiHandler.Delete(kind, name, nameSpace, allPods)
 	} else {
-		httpResult, err = c.apiHandler.DeleteNameSpaces(name)
+		httpResult, err = c.ApiHandler.DeleteNameSpaces(name)
 	}
 	if err != nil {
 		return
@@ -231,7 +200,7 @@ func (c *Client) Delete(kind, name, nameSpace string, allPods bool) (res TcpApiR
 	if err != nil {
 		return
 	}
-	res, err = c.tcpApiHandler.Receive()
+	res, err = c.TcpApiHandler.Receive()
 	if err != nil {
 		return
 	}
@@ -278,23 +247,23 @@ func (c *Client) constructExpose(name string, ports []Port, nameSpace string) (r
 }
 
 func (c *Client) Expose(name string, ports []Port, nameSpace string) (res TcpApiResult, err error) {
-	if c.userConfig.Token == "" {
+	if c.UserConfig.Token == "" {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
 	if nameSpace == "" {
-		nameSpace = c.userConfig.Namespace
+		nameSpace = c.UserConfig.Namespace
 	}
 	var req GenericJson
 	req, err = c.constructExpose(name, ports, nameSpace)
 	if err != nil {
 		return
 	}
-	_, err = c.tcpApiHandler.Connect()
+	_, err = c.TcpApiHandler.Connect()
 	if err != nil {
 		return
 	}
-	defer c.tcpApiHandler.Close()
-	httpResult, err := c.apiHandler.Expose(req, nameSpace)
+	defer c.TcpApiHandler.Close()
+	httpResult, err := c.ApiHandler.Expose(req, nameSpace)
 	if err != nil {
 		return
 	}
@@ -302,7 +271,7 @@ func (c *Client) Expose(name string, ports []Port, nameSpace string) (res TcpApi
 	if err != nil {
 		return
 	}
-	res, err = c.tcpApiHandler.Receive()
+	res, err = c.TcpApiHandler.Receive()
 	if err != nil {
 		return
 	}
@@ -343,9 +312,9 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 	containers[0].Resources.Requests = &HwResources{CPU: params.CPU, Memory: params.Memory}
 	containers[0].VolumeMounts = params.Volumes
 	req.Spec.Template.Spec.Containers = containers
-	volNames:=make(map[string]bool)
+	volNames := make(map[string]bool)
 	for _, v := range params.Volumes {
-		volNames[v.Label]=true
+		volNames[v.Label] = true
 	}
 	for k := range volNames {
 		req.Spec.Template.Spec.Volumes = append(req.Spec.Template.Spec.Volumes, VolumeName{
@@ -362,22 +331,22 @@ func (c *Client) constructRun(name string, params ConfigureParams) (ret GenericJ
 }
 
 func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res TcpApiResult, err error) {
-	if c.userConfig.Token == "" {
+	if c.UserConfig.Token == "" {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
-	_, err = c.tcpApiHandler.Connect()
+	_, err = c.TcpApiHandler.Connect()
 	if err != nil {
 		return
 	}
-	defer c.tcpApiHandler.Close()
+	defer c.TcpApiHandler.Close()
 	req, err := c.constructRun(name, params)
 	if err != nil {
 		return
 	}
 	if nameSpace == "" {
-		nameSpace = c.userConfig.Namespace
+		nameSpace = c.UserConfig.Namespace
 	}
-	httpResult, err := c.apiHandler.Run(req, nameSpace)
+	httpResult, err := c.ApiHandler.Run(req, nameSpace)
 	if err != nil {
 		return
 	}
@@ -385,7 +354,7 @@ func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res
 	if err != nil {
 		return
 	}
-	res, err = c.tcpApiHandler.Receive()
+	res, err = c.TcpApiHandler.Receive()
 	if err != nil {
 		return
 	}
@@ -394,10 +363,10 @@ func (c *Client) Run(name string, params ConfigureParams, nameSpace string) (res
 }
 
 func (c *Client) GetVolume(name string) (res interface{}, err error) {
-	if c.userConfig.Token == "" {
+	if c.UserConfig.Token == "" {
 		return nil, fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
-	res, err = c.apiHandler.GetVolume(name)
+	res, err = c.ApiHandler.GetVolume(name)
 	if err != nil {
 		return
 	}

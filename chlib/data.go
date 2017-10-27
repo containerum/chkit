@@ -53,7 +53,7 @@ var (
 const DefaultProto = "TCP"
 
 const (
-	nameRegex       = `[a-z0-9]([-a-z0-9]*[a-z0-9])?`
+	nameRegex = `[a-z0-9]([-a-z0-9]*[a-z0-9])?`
 )
 
 var (

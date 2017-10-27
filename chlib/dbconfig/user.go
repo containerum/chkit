@@ -1,8 +1,9 @@
 package dbconfig
 
 import (
-	"github.com/containerum/chkit/helpers"
 	"fmt"
+
+	"github.com/containerum/chkit/helpers"
 )
 
 type UserInfo struct {

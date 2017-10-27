@@ -129,6 +129,6 @@ func (d *ConfigDB) writeTransactional(m helpers.MappedStruct, bucketName string)
 	})
 }
 
-func (d *ConfigDB) Close() {
-	d.db.Close()
+func (d *ConfigDB) Close() error {
+	return d.db.Close()
 }

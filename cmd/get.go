@@ -3,10 +3,10 @@ package cmd
 import (
 	"os"
 
+	"strings"
+
 	"github.com/containerum/chkit/chlib"
 	"github.com/containerum/chkit/chlib/requestresults"
-	"github.com/containerum/chkit/helpers"
-	"strings"
 
 	"fmt"
 
@@ -71,12 +71,9 @@ var getCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
 		var jsonContent []chlib.GenericJson
+		var err error
+
 		if getCmdFile != "" {
 			err = chlib.LoadJsonFromFile(getCmdFile, &jsonContent)
 		} else {

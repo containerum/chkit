@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/chlib"
-	"github.com/containerum/chkit/helpers"
 
 	"strings"
 
@@ -23,11 +22,7 @@ var deleteCmd = &cobra.Command{
 		if len(args) == 0 {
 			deleteCmdFile, _ = cmd.Flags().GetString("file")
 			var obj chlib.CommonObject
-			err := chlib.LoadJsonFromFile(deleteCmdFile, &obj)
-			if err != nil {
-				np.ERROR.Println(err)
-				os.Exit(1)
-			}
+			exitOnErr(chlib.LoadJsonFromFile(deleteCmdFile, &obj))
 			deleteCmdKind = strings.ToLower(obj.Kind) + "s"
 			deleteCmdNames = []string{obj.Metadata.Name}
 		} else {
@@ -65,15 +60,10 @@ var deleteCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
 		nameSpace, _ := cmd.Flags().GetString("namespace")
 		for _, deleteCmdName := range deleteCmdNames {
 			np.FEEDBACK.Printf("delete %s...", deleteCmdName)
-			_, err = client.Delete(deleteCmdKind, deleteCmdName, nameSpace, false)
+			_, err := client.Delete(deleteCmdKind, deleteCmdName, nameSpace, false)
 			if err != nil {
 				np.FEEDBACK.Println("ERROR")
 				np.ERROR.Println(err)
