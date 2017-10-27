@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/chlib"
-	"github.com/containerum/chkit/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -54,14 +53,9 @@ var setCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
 		ns, _ := getCmd.PersistentFlags().GetString("namespace")
 		np.FEEDBACK.Print("set...")
-		_, err = client.Set(setCmdDeploy, setCmdContainer, setCmdParameter, setCmdValue, ns)
+		_, err := client.Set(setCmdDeploy, setCmdContainer, setCmdParameter, setCmdValue, ns)
 		if err == nil {
 			np.FEEDBACK.Println("OK")
 		} else {

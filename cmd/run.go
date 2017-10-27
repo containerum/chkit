@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/chlib"
-	"github.com/containerum/chkit/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -43,14 +42,9 @@ var runCmd = &cobra.Command{
 		} else {
 			params = chlib.ParamsFromArgs(np, cmd.Flags())
 		}
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
 		ns, _ := cmd.Flags().GetString("namespace")
 		np.FEEDBACK.Print("run...")
-		_, err = client.Run(runCmdName, params, ns)
+		_, err := client.Run(runCmdName, params, ns)
 		if err != nil {
 			np.FEEDBACK.Println("ERROR")
 			np.ERROR.Println(err)

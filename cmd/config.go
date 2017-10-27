@@ -5,10 +5,10 @@ import (
 	"net"
 	"net/url"
 
+	"os"
+
 	"github.com/containerum/chkit/chlib"
 	"github.com/containerum/chkit/chlib/dbconfig"
-	"github.com/containerum/chkit/helpers"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -17,21 +17,14 @@ var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configure chkit default values",
 	Run: func(cmd *cobra.Command, args []string) {
+		db, err := dbconfig.OpenOrCreate(chlib.ConfigFile, np)
+		exitOnErr(err)
 		info, err := db.GetUserInfo()
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
+		exitOnErr(err)
 		httpApi, err := db.GetHttpApiConfig()
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
+		exitOnErr(err)
 		tcpApi, err := db.GetTcpApiConfig()
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
+		exitOnErr(err)
 
 		if cmd.Flags().NFlag() == 0 {
 			np.FEEDBACK.Println("Token: ", info.Token)
@@ -48,11 +41,6 @@ var configCmd = &cobra.Command{
 
 		if cmd.Flag("set-default-namespace").Changed {
 			newNamespace := cmd.Flag("set-default-namespace").Value.String()
-			client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-			if err != nil {
-				np.ERROR.Println(err)
-				os.Exit(1)
-			}
 			if _, err := client.Get(chlib.KindNamespaces, newNamespace, ""); err != nil {
 				np.ERROR.Println(err)
 				os.Exit(1)
@@ -116,18 +104,10 @@ var configCmd = &cobra.Command{
 			np.FEEDBACK.Println("TCP API buffer size changed to: %d", bufsz)
 		}
 
-		err = db.UpdateUserInfo(info)
-		if err != nil {
-			np.ERROR.Println(err)
-		}
-		err = db.UpdateHttpApiConfig(httpApi)
-		if err != nil {
-			np.ERROR.Println(err)
-		}
-		err = db.UpdateTcpApiConfig(tcpApi)
-		if err != nil {
-			np.ERROR.Println(err)
-		}
+		exitOnErr(db.UpdateUserInfo(info))
+		exitOnErr(db.UpdateHttpApiConfig(httpApi))
+		exitOnErr(db.UpdateTcpApiConfig(tcpApi))
+		exitOnErr(db.Close())
 	},
 }
 

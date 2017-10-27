@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/containerum/chkit/chlib"
 	"github.com/containerum/chkit/chlib/requestresults"
-	"github.com/containerum/chkit/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -26,11 +24,6 @@ var volumeCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
 		resp, err := client.GetVolume(volumeName)
 		if err != nil {
 			np.ERROR.Println(err)

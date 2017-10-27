@@ -52,12 +52,8 @@ var loginCmd = &cobra.Command{
 		} else {
 			password = cmd.Flag("password").Value.String()
 		}
-		token, err := chlib.UserLogin(db, strings.ToLower(email), password, np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
-		fmt.Println("Successful login\nToken changed to: ", token)
+		exitOnErr(chlib.UserLogin(client, strings.ToLower(email), password, np))
+		saveUserSettings(*client.UserConfig)
 	},
 }
 

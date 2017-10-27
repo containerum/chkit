@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/chlib"
-	"github.com/containerum/chkit/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -27,14 +26,9 @@ var restartCmd = &cobra.Command{
 		restartCmdName = args[0]
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
 		nameSpace, _ := cmd.Flags().GetString("namespace")
 		np.FEEDBACK.Print("restart...")
-		_, err = client.Delete(chlib.KindDeployments, restartCmdName, nameSpace, true)
+		_, err := client.Delete(chlib.KindDeployments, restartCmdName, nameSpace, true)
 		if err != nil {
 			np.FEEDBACK.Println("ERROR")
 			np.ERROR.Println(err)

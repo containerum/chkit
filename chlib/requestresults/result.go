@@ -5,10 +5,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/containerum/chkit/chlib"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/containerum/chkit/chlib"
 
 	"github.com/olekukonko/tablewriter"
 	jww "github.com/spf13/jwalterweatherman"

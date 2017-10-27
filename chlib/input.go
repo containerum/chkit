@@ -108,7 +108,7 @@ func volumesValidate(volumesStr string) bool {
 		if !VolumeRegex.MatchString(v) {
 			return false
 		}
-		if strings.Count(v, "\"") % 2 != 0 {
+		if strings.Count(v, "\"")%2 != 0 {
 			return false
 		}
 	}
@@ -120,7 +120,7 @@ func volumesSliceValidate(vols []string) bool {
 		if !VolumeRegex.MatchString(v) {
 			return false
 		}
-		if strings.Count(v, "\"") % 2 != 0 {
+		if strings.Count(v, "\"")%2 != 0 {
 			return false
 		}
 	}

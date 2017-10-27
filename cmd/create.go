@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/chlib"
-	"github.com/containerum/chkit/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -22,18 +21,9 @@ var createCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		filePath, _ := cmd.Flags().GetString("file")
 		var jsonContent chlib.GenericJson
-		err := chlib.LoadJsonFromFile(filePath, &jsonContent)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
-		client, err := chlib.NewClient(db, helpers.CurrentClientVersion, helpers.UuidV4(), np)
-		if err != nil {
-			np.ERROR.Println(err)
-			return
-		}
+		exitOnErr(chlib.LoadJsonFromFile(filePath, &jsonContent))
 		np.FEEDBACK.Print("create... ")
-		_, err = client.Create(jsonContent)
+		_, err := client.Create(jsonContent)
 		if err != nil {
 			np.FEEDBACK.Println("ERROR")
 			np.ERROR.Println(err)
