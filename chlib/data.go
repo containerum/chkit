@@ -36,18 +36,20 @@ func init() {
 	ConfigDir = path.Join(homeDir, ".containerum")
 	ConfigFile = path.Join(ConfigDir, "config.db")
 	SrcFolder = path.Join(ConfigDir, "src")
-	TemplatesFolder = path.Join(SrcFolder, "json_templates")
-	RunFile = path.Join(TemplatesFolder, "run.json")
-	ExposeFile = path.Join(TemplatesFolder, "expose.json")
+	TemplatesDir = path.Join(SrcFolder, "json_templates")
+	RunFile = path.Join(TemplatesDir, "run.json")
+	ExposeFile = path.Join(TemplatesDir, "expose.json")
+	SolutionsDir = path.Join(ConfigDir, "solutions")
 }
 
 var (
-	ConfigDir       string
-	ConfigFile      string
-	SrcFolder       string
-	TemplatesFolder string
-	RunFile         string
-	ExposeFile      string
+	ConfigDir    string
+	ConfigFile   string
+	SrcFolder    string
+	TemplatesDir string
+	RunFile      string
+	ExposeFile   string
+	SolutionsDir string
 )
 
 const DefaultProto = "TCP"
