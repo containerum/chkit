@@ -34,3 +34,21 @@
 [submodule "vendor/github.com/inconshreveable/mousetrap"]
 	path = vendor/github.com/inconshreveable/mousetrap
 	url = https://github.com/inconshreveable/mousetrap
+[submodule "vendor/github.com/containerum/solutions"]
+	path = vendor/github.com/containerum/solutions
+	url = https://github.com/containerum/solutions
+[submodule "vendor/github.com/libgit2/git2go"]
+	path = vendor/github.com/libgit2/git2go
+	url = https://github.com/libgit2/git2go
+[submodule "vendor/github.com/tdewolff/buffer"]
+	path = vendor/github.com/tdewolff/buffer
+	url = https://github.com/tdewolff/buffer
+[submodule "vendor/github.com/tdewolff/minify"]
+	path = vendor/github.com/tdewolff/minify
+	url = https://github.com/tdewolff/minify
+[submodule "vendor/github.com/tdewolff/parse"]
+	path = vendor/github.com/tdewolff/parse
+	url = https://github.com/tdewolff/parse
+[submodule "vendor/github.com/tdewolff/strconv"]
+	path = vendor/github.com/tdewolff/strconv
+	url = https://github.com/tdewolff/strconv
