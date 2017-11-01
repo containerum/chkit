@@ -10,45 +10,19 @@ import (
 	"strings"
 
 	"github.com/containerum/solutions"
-	"github.com/libgit2/git2go"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
-func gitFetch(remoteUrl, destDir string) error {
-	repo, err := git.InitRepository(destDir, true)
-	if err != nil {
-		return err
-	}
-
-	remote, err := repo.Remotes.Create("origin", remoteUrl)
-	if err != nil {
-		return err
-	}
-
-	return remote.Fetch(nil, nil, "")
-}
-
-func gitCheckout(checkoutTarget, destDir string, files []string) error {
-	repo, err := git.OpenRepository(destDir)
-	if err != nil {
-		return err
-	}
-
-	ref, err := repo.References.Lookup(checkoutTarget)
-	if err != nil {
-		return err
-	}
-
-	tree, err := repo.LookupTree(ref.Target())
-	if err != nil {
-		return err
-	}
-
-	return repo.CheckoutTree(tree, &git.CheckoutOpts{Paths: files})
-}
-
-func isGitRepo(destDir string) bool {
-	_, err := git.OpenRepository(destDir)
-	return err != nil
+func gitClone(repoUrl, branch, destDir string) error {
+	_, err := git.PlainClone(destDir, false, &git.CloneOptions{
+		URL:           repoUrl,
+		Progress:      os.Stdout,
+		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branch)),
+		SingleBranch:  true,
+		Depth:         1,
+	})
+	return err
 }
 
 func githubDownload(user, repo, branch, destDir string, files []string) error {
@@ -78,15 +52,7 @@ func fetchFiles(name, branch, destDir string, files []string) error {
 	case 2: //3rd party solution on github
 		return githubDownload(nameItems[0], nameItems[1], branch, destDir, files)
 	default: //3rd party solution on any git hosting
-		if !isGitRepo(destDir) {
-			if err := gitFetch(name, destDir); err != nil {
-				return err
-			}
-		}
-
-		if err := gitCheckout(branch, destDir, files); err != nil {
-			return err
-		}
+		return gitClone(name, branch, destDir)
 	}
 	return nil
 }
