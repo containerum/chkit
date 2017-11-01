@@ -27,7 +27,7 @@ func gitClone(repoUrl, branch, destDir string) error {
 
 func githubDownload(user, repo, branch, destDir string, files []string) error {
 	for _, file := range files {
-		resp, err := http.Get(fmt.Sprintf("https://raw.githubusercontent/%s/%s/%s/%s", user, repo, branch, file))
+		resp, err := http.Get(fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, branch, file))
 		if err != nil {
 			return err
 		}
