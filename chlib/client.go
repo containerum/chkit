@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"time"
 
+	"strings"
+
 	"github.com/containerum/chkit/chlib/dbconfig"
 	"github.com/containerum/solutions"
 )
@@ -379,7 +381,7 @@ func (c *Client) GetVolume(name string) (res interface{}, err error) {
 	return
 }
 
-func (c *Client) RunSolution(solutionDir string, env map[string]interface{}, nameSpace string) error {
+func (c *Client) RunSolution(solutionDir string, envArgs []string, nameSpace string, prefix string) error {
 	if c.UserConfig.Token == "" {
 		return fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}
@@ -387,6 +389,16 @@ func (c *Client) RunSolution(solutionDir string, env map[string]interface{}, nam
 	solution, err := solutions.OpenSolution(solutionDir)
 	if err != nil {
 		return fmt.Errorf("open solution: %v", err)
+	}
+
+	if !envSliceValidate(envArgs) {
+		return fmt.Errorf("invalid environment variable argument detected")
+	}
+
+	var env = make(map[string]interface{})
+	for _, v := range envArgs {
+		envVar := strings.Split(v, "=")
+		env[envVar[0]] = envVar[1]
 	}
 
 	solution.AddValues(env)
