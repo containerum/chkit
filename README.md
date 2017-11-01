@@ -4,9 +4,6 @@ Desktop client for Containerum.com platform.
 
 ## Documentation
 [See full ENG documentation](https://github.com/containerum/chkit/wiki)
-
-[See full RUS documentation](https://containerum.com/documentation/cli-tool)
-
 ## Installation
 
 **1.** Download binaries for MacOs, Ubuntu x32, Ubuntu x64, Windows x32 and Windows x64 [here](https://github.com/containerum/chkit/releases).
