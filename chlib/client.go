@@ -381,7 +381,7 @@ func (c *Client) GetVolume(name string) (res interface{}, err error) {
 	return
 }
 
-func (c *Client) RunSolution(solutionDir string, envArgs []string, nameSpace string, prefix string) error {
+func (c *Client) RunSolution(solutionDir string, envArgs []string, nameSpace string) error {
 	if c.UserConfig.Token == "" {
 		return fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
 	}

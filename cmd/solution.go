@@ -43,8 +43,7 @@ var solutionCmd = &cobra.Command{
 		np.FEEDBACK.Println("Parse and run")
 		envArg, _ := cmd.Flags().GetStringSlice("env")
 		ns, _ := cmd.Flags().GetString("namespace")
-		prefix, _ := cmd.Flags().GetString("prefix")
-		err = client.RunSolution(solutionPath, envArg, ns, prefix)
+		err = client.RunSolution(solutionPath, envArg, ns)
 		exitOnErr(err)
 		np.FEEDBACK.Println("OK")
 	},
@@ -53,7 +52,6 @@ var solutionCmd = &cobra.Command{
 func init() {
 	solutionCmd.PersistentFlags().StringSliceP("env", "e", []string{}, "Environment variables. Format: key1=value1 ... keyN=valueN")
 	solutionCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
-	solutionCmd.PersistentFlags().StringP("prefix", "p", "", "Services and deployments name prefix")
 	solutionCmd.PersistentFlags().StringP("branch", "b", "master", "Branch in remote repo")
 	RootCmd.AddCommand(solutionCmd)
 }
