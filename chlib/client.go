@@ -10,7 +10,10 @@ import (
 	"strconv"
 	"time"
 
+	"strings"
+
 	"github.com/containerum/chkit/chlib/dbconfig"
+	"github.com/containerum/solutions"
 )
 
 type Client struct {
@@ -376,4 +379,48 @@ func (c *Client) GetVolume(name string) (res interface{}, err error) {
 		}
 	}
 	return
+}
+
+func (c *Client) RunSolution(solutionDir string, envArgs []string, nameSpace string) error {
+	if c.UserConfig.Token == "" {
+		return fmt.Errorf("Token is empty. Please login or set it manually (see help for \"config\" command)")
+	}
+
+	solution, err := solutions.OpenSolution(solutionDir)
+	if err != nil {
+		return fmt.Errorf("open solution: %v", err)
+	}
+
+	if !envSliceValidate(envArgs) {
+		return fmt.Errorf("invalid environment variable argument detected")
+	}
+
+	var env = make(map[string]interface{})
+	for _, v := range envArgs {
+		envVar := strings.Split(v, "=")
+		env[envVar[0]] = envVar[1]
+	}
+
+	solution.AddValues(env)
+
+	if nameSpace == "" {
+		nameSpace = c.UserConfig.Namespace
+	}
+
+	seq, err := solution.GenerateRunSequence(nameSpace)
+	if err != nil {
+		return fmt.Errorf("generate solution run sequence: %v", err)
+	}
+
+	for _, v := range seq {
+		var jsonToSend GenericJson
+		if err := json.Unmarshal([]byte(v.Config), &jsonToSend); err != nil {
+			return fmt.Errorf("config unmarshal: %v", err)
+		}
+		if _, err := c.ApiHandler.Create(jsonToSend, v.Type, nameSpace); err != nil {
+			return fmt.Errorf("%s create: %v", v.Type, err)
+		}
+	}
+
+	return nil
 }

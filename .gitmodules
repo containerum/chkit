@@ -22,15 +22,57 @@
 [submodule "vendor/gopkg.in/yaml.v2"]
 	path = vendor/gopkg.in/yaml.v2
 	url = https://gopkg.in/yaml.v2
+[submodule "vendor/github.com/containerum/solutions"]
+	path = vendor/github.com/containerum/solutions
+	url = https://github.com/containerum/solutions
+[submodule "vendor/github.com/jbenet/go-context"]
+	path = vendor/github.com/jbenet/go-context
+	url = https://github.com/jbenet/go-context
 [submodule "vendor/github.com/mattn/go-runewidth"]
 	path = vendor/github.com/mattn/go-runewidth
 	url = https://github.com/mattn/go-runewidth
+[submodule "vendor/github.com/mitchellh/go-homedir"]
+	path = vendor/github.com/mitchellh/go-homedir
+	url = https://github.com/mitchellh/go-homedir
+[submodule "vendor/github.com/sergi/go-diff"]
+	path = vendor/github.com/sergi/go-diff
+	url = https://github.com/sergi/go-diff
+[submodule "vendor/github.com/src-d/gcfg"]
+	path = vendor/github.com/src-d/gcfg
+	url = https://github.com/src-d/gcfg
+[submodule "vendor/github.com/tdewolff/buffer"]
+	path = vendor/github.com/tdewolff/buffer
+	url = https://github.com/tdewolff/buffer
+[submodule "vendor/github.com/tdewolff/minify"]
+	path = vendor/github.com/tdewolff/minify
+	url = https://github.com/tdewolff/minify
+[submodule "vendor/github.com/tdewolff/parse"]
+	path = vendor/github.com/tdewolff/parse
+	url = https://github.com/tdewolff/parse
+[submodule "vendor/github.com/tdewolff/strconv"]
+	path = vendor/github.com/tdewolff/strconv
+	url = https://github.com/tdewolff/strconv
+[submodule "vendor/github.com/xanzy/ssh-agent"]
+	path = vendor/github.com/xanzy/ssh-agent
+	url = https://github.com/xanzy/ssh-agent
 [submodule "vendor/golang.org/x/crypto"]
 	path = vendor/golang.org/x/crypto
 	url = https://go.googlesource.com/crypto
+[submodule "vendor/golang.org/x/net"]
+	path = vendor/golang.org/x/net
+	url = https://go.googlesource.com/net
 [submodule "vendor/golang.org/x/sys"]
 	path = vendor/golang.org/x/sys
 	url = https://go.googlesource.com/sys
-[submodule "vendor/github.com/inconshreveable/mousetrap"]
-	path = vendor/github.com/inconshreveable/mousetrap
-	url = https://github.com/inconshreveable/mousetrap
+[submodule "vendor/golang.org/x/text"]
+	path = vendor/golang.org/x/text
+	url = https://go.googlesource.com/text
+[submodule "vendor/gopkg.in/src-d/go-billy.v3"]
+	path = vendor/gopkg.in/src-d/go-billy.v3
+	url = https://gopkg.in/src-d/go-billy.v3
+[submodule "vendor/gopkg.in/src-d/go-git.v4"]
+	path = vendor/gopkg.in/src-d/go-git.v4
+	url = https://gopkg.in/src-d/go-git.v4
+[submodule "vendor/gopkg.in/warnings.v0"]
+	path = vendor/gopkg.in/warnings.v0
+	url = https://gopkg.in/warnings.v0
