@@ -76,3 +76,6 @@
 [submodule "vendor/gopkg.in/warnings.v0"]
 	path = vendor/gopkg.in/warnings.v0
 	url = https://gopkg.in/warnings.v0
+[submodule "vendor/github.com/inconshreveable/mousetrap"]
+	path = vendor/github.com/inconshreveable/mousetrap
+	url = https://github.com/inconshreveable/mousetrap
