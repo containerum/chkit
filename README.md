@@ -1,6 +1,7 @@
 # chkit
-Desktop client for Containerum.com platform.
+Desktop client for [Containerum.com] platform.
 
+To use it sign up on [Containerum.com](https://containerum.com).
 
 ## Documentation
 [See full ENG documentation](https://github.com/containerum/chkit/wiki)
