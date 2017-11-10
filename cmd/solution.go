@@ -21,7 +21,7 @@ var solutionRunCmd = &cobra.Command{
 	Use:   "run <solution name>",
 	Short: "Run a solution",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		if len(args) < 2 {
+		if len(args) < 1 {
 			np.FEEDBACK.Println("Solution name must be specified")
 			cmd.Usage()
 			os.Exit(1)
