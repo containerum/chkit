@@ -9,7 +9,10 @@ import (
 	"path"
 	"strings"
 
+	"encoding/csv"
+
 	"github.com/containerum/solutions"
+	"github.com/olekukonko/tablewriter"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
@@ -83,4 +86,26 @@ func DownloadSolution(name, solutionPath, branch string) error {
 	}
 
 	return fetchFiles(name, branch, solutionPath, files)
+}
+
+var (
+	SolutionListUrl string // csv file with solutions description
+)
+
+func ShowSolutionList() error {
+	resp, err := http.Get(SolutionListUrl)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	tbl, err := tablewriter.NewCSVReader(os.Stdout, csv.NewReader(resp.Body), true)
+	if err != nil {
+		return err
+	}
+
+	tbl.SetAlignment(tablewriter.ALIGN_CENTER)
+	tbl.Render()
+
+	return nil
 }
