@@ -10,29 +10,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var solutionCmdName string
-var solutionCmdValidArgs = []string{"run"}
 var solutionCmd = &cobra.Command{
-	Use:       "solution run <solution name>",
-	Short:     "Run a solution",
-	Aliases:   []string{"sln"},
-	ValidArgs: solutionCmdValidArgs,
+	Use:     "solution",
+	Short:   "Solutions management",
+	Aliases: []string{"sln"},
+}
+
+var solutionCmdName string
+var solutionRunCmd = &cobra.Command{
+	Use:   "run <solution name>",
+	Short: "Run a solution",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 {
 			np.FEEDBACK.Println("Solution name must be specified")
 			cmd.Usage()
 			os.Exit(1)
 		}
-		switch args[0] {
-		case "run":
-		default:
-			np.FEEDBACK.Println("Valid subcommands are:", strings.Join(solutionCmdValidArgs, ", "))
-			cmd.Usage()
-			os.Exit(1)
-		}
-		solutionCmdName = args[1]
+		solutionCmdName = args[0]
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		np.SetPrefix("Solution")
 		nameParts := strings.Split(solutionCmdName, "/")
 		solutionDirName := strings.TrimSuffix(nameParts[len(nameParts)-1], ".git")
 		solutionPath := path.Join(chlib.SolutionsDir, solutionDirName)
@@ -49,9 +46,20 @@ var solutionCmd = &cobra.Command{
 	},
 }
 
+var solutionListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "Show solutions made by Containerum",
+	Run: func(cmd *cobra.Command, args []string) {
+		np.SetPrefix("Solution")
+		exitOnErr(helpers.ShowSolutionList())
+	},
+}
+
 func init() {
-	solutionCmd.PersistentFlags().StringSliceP("env", "e", []string{}, "Environment variables. Format: key1=value1 ... keyN=valueN")
-	solutionCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
-	solutionCmd.PersistentFlags().StringP("branch", "b", "master", "Branch in remote repo")
+	solutionRunCmd.PersistentFlags().StringSliceP("env", "e", []string{}, "Environment variables. Format: key1=value1 ... keyN=valueN")
+	solutionRunCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
+	solutionRunCmd.PersistentFlags().StringP("branch", "b", "master", "Branch in remote repo")
+	solutionCmd.AddCommand(solutionRunCmd)
+	solutionCmd.AddCommand(solutionListCmd)
 	RootCmd.AddCommand(solutionCmd)
 }

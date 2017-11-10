@@ -9,7 +9,8 @@ REQLDFLAGS = -X ${PACKAGE}/chlib.CommitHash=${COMMIT_HASH} \
 	-X ${PACKAGE}/chlib.BuildDate=${BUILD_DATE} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultTCPServer=${DEFAULT_TCP_SERVER} \
 	-X ${PACKAGE}/chlib/dbconfig.DefaultHTTPServer=${DEFAULT_HTTP_SERVER} \
-	-X ${PACKAGE}/helpers.CurrentClientVersion=$(VERSION:v%=%)
+	-X ${PACKAGE}/helpers.CurrentClientVersion=$(VERSION:v%=%) \
+	-X ${PACKAGE}/helpers.SolutionListUrl=https://raw.githubusercontent.com/containerum/solution-list/master/containerum-solutions.csv
 
 BUILDDIR = build
 USE_DOCKER ?= 1
