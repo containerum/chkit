@@ -35,6 +35,10 @@ func githubDownload(user, repo, branch, destDir string, files []string) error {
 			return err
 		}
 
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf(resp.Status)
+		}
+
 		content, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return err
@@ -98,6 +102,10 @@ func ShowSolutionList() error {
 		return err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf(resp.Status)
+	}
 
 	tbl, err := tablewriter.NewCSVReader(os.Stdout, csv.NewReader(resp.Body), true)
 	if err != nil {
