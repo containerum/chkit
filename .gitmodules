@@ -1,9 +1,6 @@
 [submodule "vendor/github.com/boltdb/bolt"]
 	path = vendor/github.com/boltdb/bolt
 	url = https://github.com/boltdb/bolt
-[submodule "vendor/github.com/howeyc/gopass"]
-	path = vendor/github.com/howeyc/gopass
-	url = https://github.com/howeyc/gopass
 [submodule "vendor/github.com/kardianos/osext"]
 	path = vendor/github.com/kardianos/osext
 	url = https://github.com/kardianos/osext

@@ -1,19 +1,19 @@
 package cmd
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/containerum/chkit/chlib"
 
-	"os"
-
-	"github.com/containerum/chkit/helpers"
-
 	"strings"
 
-	"github.com/howeyc/gopass"
+	"syscall"
+
+	"bufio"
+	"os"
+
 	"github.com/spf13/cobra"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 const emailRegex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)"
@@ -21,22 +21,15 @@ const emailRegex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)"
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Open session and set up token",
-	PreRun: func(cmd *cobra.Command, args []string) {
-		// Hidden password input works incorrect in Windows
-		if helpers.IsWindows() {
-			if !cmd.Flag("login").Changed || !cmd.Flag("password").Changed {
-				np.FEEDBACK.Println("Login and password must be specified")
-				cmd.Usage()
-				os.Exit(1)
-			}
-		}
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		isValidMail := regexp.MustCompile(emailRegex)
 		var email string
 		if !cmd.Flag("login").Changed {
 			np.FEEDBACK.Print("Enter your email: ")
-			fmt.Scan(&email)
+			var err error
+			email, err = bufio.NewReader(os.Stdin).ReadString('\n')
+			email = strings.TrimRight(email, "\r\n")
+			exitOnErr(err)
 		} else {
 			email = cmd.Flag("login").Value.String()
 		}
@@ -47,7 +40,8 @@ var loginCmd = &cobra.Command{
 		var password string
 		if !cmd.Flag("password").Changed {
 			np.FEEDBACK.Print("Enter your password: ")
-			passwordB, _ := gopass.GetPasswdMasked()
+			passwordB, err := terminal.ReadPassword(int(syscall.Stdin))
+			exitOnErr(err)
 			password = string(passwordB)
 		} else {
 			password = cmd.Flag("password").Value.String()
