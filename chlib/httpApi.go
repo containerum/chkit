@@ -75,7 +75,7 @@ func (h *HttpApiHandler) Login(jsonToSend GenericJson) (result HttpApiResult, er
 }
 
 func (h *HttpApiHandler) SetForContainer(jsonToSend GenericJson, containerName, nameSpace string) (result HttpApiResult, err error) {
-	url := fmt.Sprintf("%s/namespaces/%s/container/%s", h.Config.Server, nameSpace, containerName)
+	url := fmt.Sprintf("%s/namespaces/%s/container-setimage/%s", h.Config.Server, nameSpace, containerName)
 	return h.makeRequest(url, http.MethodPatch, jsonToSend)
 }
 
