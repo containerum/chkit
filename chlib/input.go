@@ -217,8 +217,8 @@ func ParamsFromArgs(np *jww.Notepad, flags *pflag.FlagSet) (params ConfigurePara
 	} else {
 		params.Labels = make(map[string]string)
 	}
-	if flags.Changed("command") {
-		params.Command, err = flags.GetStringSlice("command")
+	if flags.Changed("commands") {
+		params.Command, err = flags.GetStringSlice("commands")
 		chkErr(err)
 	}
 	if flags.Changed("env") {
