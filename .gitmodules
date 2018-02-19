@@ -1,3 +1,6 @@
+[submodule "vendor/git.containerum.net/ch/kube-client"]
+	path = vendor/git.containerum.net/ch/kube-client
+	url = git@git.containerum.net:ch/kube-client.git
 [submodule "vendor/github.com/boltdb/bolt"]
 	path = vendor/github.com/boltdb/bolt
 	url = https://github.com/boltdb/bolt
