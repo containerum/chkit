@@ -1,26 +1,13 @@
 package cmd
 
 import (
-	"io/ioutil"
-	"log"
+	"fmt"
 	"os"
 
-	"github.com/containerum/chkit/chlib"
-	"github.com/containerum/chkit/chlib/dbconfig"
-
-	"fmt"
-	"strings"
-
-	"github.com/containerum/chkit/chlib/requestresults"
-
-	"github.com/containerum/chkit/helpers"
-	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
 var np *jww.Notepad
-
-var client *chlib.Client
 
 var bashCompletionFunc = fmt.Sprintf(`__chkit_get_outformat()
 {
@@ -95,59 +82,11 @@ __custom_func()
 			fi
 		;;
 	esac
-}`, strings.Join(requestresults.DeployColumns, " "),
-	strings.Join(requestresults.PodColumns, " "),
-	strings.Join(requestresults.ServiceColumns, " "),
-	strings.Join(requestresults.NamespaceColumns, " "))
+}`)
 
 func exitOnErr(err error) {
 	if err != nil {
 		np.ERROR.Println(err)
 		os.Exit(1)
 	}
-}
-
-func saveUserSettings(cfg dbconfig.UserInfo) {
-	np.FEEDBACK.Println("Saving settings")
-	db, err := dbconfig.OpenOrCreate(chlib.ConfigFile, np)
-	exitOnErr(err)
-	exitOnErr(db.UpdateUserInfo(*client.UserConfig))
-}
-
-//RootCmd main cmd entrypoint
-var RootCmd = &cobra.Command{
-	Use: "chkit",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		if debug, _ := cmd.Flags().GetBool("debug"); debug {
-			np = jww.NewNotepad(jww.LevelDebug, jww.LevelDebug, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
-		} else {
-			np = jww.NewNotepad(jww.LevelInfo, jww.LevelInfo, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
-		}
-		db, err := dbconfig.OpenOrCreate(chlib.ConfigFile, np)
-		exitOnErr(err)
-		apiConfig, err := db.GetHttpApiConfig()
-		exitOnErr(err)
-		tcpApiConfig, err := db.GetTcpApiConfig()
-		exitOnErr(err)
-		userConfig, err := db.GetUserInfo()
-		exitOnErr(err)
-		uuid := helpers.UuidV4()
-
-		client = &chlib.Client{
-			ApiHandler:    &chlib.HttpApiHandler{Config: &apiConfig, UserInfo: &userConfig, Np: np, Channel: uuid},
-			TcpApiHandler: &chlib.TcpApiHandler{Config: &tcpApiConfig, UserInfo: &userConfig, Np: np, Channel: uuid},
-			UserConfig:    &userConfig,
-		}
-		exitOnErr(db.Close())
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		if cmd.Flags().NFlag() == 0 {
-			cmd.Usage()
-		}
-	},
-	BashCompletionFunction: bashCompletionFunc,
-}
-
-func init() {
-	RootCmd.PersistentFlags().BoolP("debug", "d", false, "turn on debugging messages")
 }
