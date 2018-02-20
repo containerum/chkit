@@ -2,14 +2,13 @@
 
 
 [[projects]]
-  branch = "master"
+  branch = "develop"
   name = "git.containerum.net/ch/kube-client"
   packages = [
-    ".",
     "pkg/cmd",
     "pkg/model"
   ]
-  revision = "8864ed0339cb006c9594983e02e5a50201de4379"
+  revision = "2f6ae5e4045638d065b194cd9170d289e3e68aeb"
 
 [[projects]]
   name = "github.com/boltdb/bolt"
@@ -275,6 +274,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "90c503e463b02a40d4f22d42c7af4c26b74e7a034056d87193519371e45f7808"
+  inputs-digest = "e79ba8e452f837dda098c352fa99f6cdccc49646250bb8ee716cefc5bdf7be4a"
   solver-name = "gps-cdcl"
   solver-version = 1
