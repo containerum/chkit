@@ -1,10 +1,6 @@
 package client
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"os"
-
 	kubeClient "git.containerum.net/ch/kube-client/pkg/cmd"
 	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/err"
@@ -12,8 +8,7 @@ import (
 )
 
 const (
-	ErrUnableToPackTokens    = err.Err("unable to pack tokens")
-	ErrUnableToSaveTokenFile = err.Err("unable to save token file")
+	ErrUnableToCreateClient = err.Err("unable to create client")
 )
 
 type ChkitClient struct {
@@ -22,16 +17,23 @@ type ChkitClient struct {
 	config model.Config
 }
 
-func (client *ChkitClient) SaveTokens() error {
-	packedTokens, err := json.Marshal(client.tokens)
+func (client *ChkitClient) Config() model.Config {
+	return client.config
+}
+func NewClient(config model.Config) (ChkitClient, error) {
+	kube, err := kubeClient.CreateCmdClient(kubeClient.ClientConfig{
+		APIurl:         config.APIaddr + ":1214",
+		ResourceAddr:   config.APIaddr + ":1213",
+		UserManagerURL: config.APIaddr + ":8111",
+		User: kubeClient.User{
+			Role: "user",
+		},
+	})
 	if err != nil {
-		return ErrUnableToPackTokens.Wrap(err)
+		return ChkitClient{}, ErrUnableToCreateClient.Wrap(err)
 	}
-	err = ioutil.WriteFile(client.config.TokenFile,
-		packedTokens,
-		os.ModePerm)
-	if err != nil {
-		return ErrUnableToSaveTokenFile.Wrap(err)
-	}
-	return nil
+	return ChkitClient{
+		kube:   *kube,
+		config: config,
+	}, nil
 }
