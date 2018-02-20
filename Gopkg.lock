@@ -11,10 +11,10 @@
   revision = "2f6ae5e4045638d065b194cd9170d289e3e68aeb"
 
 [[projects]]
-  name = "github.com/boltdb/bolt"
+  name = "github.com/BurntSushi/toml"
   packages = ["."]
-  revision = "2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8"
-  version = "v1.3.1"
+  revision = "b26d9c308763d68093482582cea63d69be07a0f0"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "master"
@@ -130,6 +130,12 @@
   ]
   revision = "639f6272aec6b52094db77b9ec488214b0b4b1a1"
   version = "v2.3.2"
+
+[[projects]]
+  name = "github.com/urfave/cli"
+  packages = ["."]
+  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+  version = "v1.20.0"
 
 [[projects]]
   branch = "master"
@@ -260,6 +266,15 @@
   version = "v4.1.1"
 
 [[projects]]
+  branch = "v2"
+  name = "gopkg.in/urfave/cli.v2"
+  packages = [
+    ".",
+    "altsrc"
+  ]
+  revision = "d3ae77c26ac8db90639677e4831a728d33c36111"
+
+[[projects]]
   name = "gopkg.in/warnings.v0"
   packages = ["."]
   revision = "ec4a0fea49c7b46c2aeb0b51aac55779c607e52b"
@@ -274,6 +289,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e79ba8e452f837dda098c352fa99f6cdccc49646250bb8ee716cefc5bdf7be4a"
+  inputs-digest = "7a51739c51b3b3e7d5a23d579dc7a18af28e09bf15f5df9cf3e293f9057a5d9c"
   solver-name = "gps-cdcl"
   solver-version = 1
