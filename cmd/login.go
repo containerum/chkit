@@ -34,7 +34,7 @@ var loginCmd = &cobra.Command{
 			password = cmd.Flag("password").Value.String()
 		}
 		exitOnErr(ChkitClient.Login(email, password))
-		np.FEEDBACK.Printf("Succesfull login!")
+		np.FEEDBACK.Println("Succesfull login!")
 		exitOnErr(ChkitClient.SaveTokens())
 	},
 }
