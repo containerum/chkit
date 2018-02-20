@@ -2,6 +2,16 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "git.containerum.net/ch/kube-client"
+  packages = [
+    ".",
+    "pkg/cmd",
+    "pkg/model"
+  ]
+  revision = "8864ed0339cb006c9594983e02e5a50201de4379"
+
+[[projects]]
   name = "github.com/boltdb/bolt"
   packages = ["."]
   revision = "2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8"
@@ -12,6 +22,12 @@
   name = "github.com/containerum/solutions"
   packages = ["."]
   revision = "cf98ef93964f879aa704aac38a3426d6d2bdb607"
+
+[[projects]]
+  name = "github.com/go-resty/resty"
+  packages = ["."]
+  revision = "00cb083b8cdc8b0fb1e1f5ebe24bbc23e0ff0cf6"
+  version = "v1.2"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -148,7 +164,11 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context"]
+  packages = [
+    "context",
+    "idna",
+    "publicsuffix"
+  ]
   revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
 
 [[projects]]
@@ -164,12 +184,20 @@
   branch = "master"
   name = "golang.org/x/text"
   packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
     "internal/gen",
+    "internal/tag",
     "internal/triegen",
     "internal/ucd",
+    "language",
+    "secure/bidirule",
     "transform",
+    "unicode/bidi",
     "unicode/cldr",
-    "unicode/norm"
+    "unicode/norm",
+    "unicode/rangetable"
   ]
   revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
 
@@ -247,6 +275,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "65171c478d93bd3aa55f39c15a849780c7b5c81ca8fd1c61b06a26c5cd074a7a"
+  inputs-digest = "90c503e463b02a40d4f22d42c7af4c26b74e7a034056d87193519371e45f7808"
   solver-name = "gps-cdcl"
   solver-version = 1
