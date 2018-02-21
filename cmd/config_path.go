@@ -13,7 +13,7 @@ var (
 func init() {
 	home, err := homedir.Dir()
 	if err != nil {
-		np.FATAL.Println(err)
+		notepad.FATAL.Println(err)
 	}
 	ConfigPath = path.Join(home, configDir)
 }

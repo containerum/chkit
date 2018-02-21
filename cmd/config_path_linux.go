@@ -1,5 +1,7 @@
 package cmd
 
-const (
-	configDir = "/.config/containerum"
+import "path"
+
+var (
+	configDir = path.Join(".config", "containerum")
 )
