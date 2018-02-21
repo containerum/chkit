@@ -38,16 +38,8 @@
   name = "github.com/olekukonko/tablewriter"
 
 [[constraint]]
-  name = "github.com/spf13/cobra"
-  version = "0.0.1"
-
-[[constraint]]
   branch = "master"
   name = "github.com/spf13/jwalterweatherman"
-
-[[constraint]]
-  name = "github.com/spf13/pflag"
-  version = "1.0.0"
 
 [[constraint]]
   branch = "master"
@@ -56,10 +48,6 @@
 [[constraint]]
   name = "gopkg.in/src-d/go-git.v4"
   version = "4.1.1"
-
-[[constraint]]
-  branch = "v2"
-  name = "gopkg.in/yaml.v2"
 
 [prune]
   go-tests = true
