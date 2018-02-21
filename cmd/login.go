@@ -16,7 +16,7 @@ var loginCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var email string
 		if !cmd.Flag("login").Changed {
-			np.FEEDBACK.Print("Enter your email: ")
+			notepad.FEEDBACK.Print("Enter your email: ")
 			var err error
 			email, err = bufio.NewReader(os.Stdin).ReadString('\n')
 			email = strings.TrimRight(email, "\r\n")
@@ -26,7 +26,7 @@ var loginCmd = &cobra.Command{
 		}
 		var password string
 		if !cmd.Flag("password").Changed {
-			np.FEEDBACK.Print("Enter your password: ")
+			notepad.FEEDBACK.Print("Enter your password: ")
 			passwordB, err := terminal.ReadPassword(int(syscall.Stdin))
 			exitOnErr(err)
 			password = string(passwordB)
@@ -34,7 +34,7 @@ var loginCmd = &cobra.Command{
 			password = cmd.Flag("password").Value.String()
 		}
 		exitOnErr(ChkitClient.Login(email, password))
-		np.FEEDBACK.Println("Succesfull login!")
+		notepad.FEEDBACK.Println("Succesfull login!")
 		exitOnErr(ChkitClient.SaveTokens())
 	},
 }
