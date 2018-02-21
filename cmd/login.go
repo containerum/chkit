@@ -35,7 +35,10 @@ var loginCmd = &cobra.Command{
 		}
 		exitOnErr(ChkitClient.Login(email, password))
 		notepad.FEEDBACK.Println("Succesfull login!")
-		exitOnErr(ChkitClient.SaveTokens())
+		file, err := os.Create(Configuration.TokenFile)
+		exitOnErr(err)
+		defer file.Close()
+		exitOnErr(ChkitClient.SaveTokens(file))
 	},
 }
 
