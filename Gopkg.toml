@@ -24,6 +24,9 @@
 #   go-tests = true
 #   unused-packages = true
 
+[prune]
+  go-tests = true
+  unused-packages = true
 
 [[constraint]]
   branch = "develop"
@@ -47,10 +50,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/spf13/jwalterweatherman"
-
-[[constraint]]
-  branch = "master"
   name = "golang.org/x/crypto"
 
 [[constraint]]
@@ -61,6 +60,3 @@
   branch = "v2"
   name = "gopkg.in/urfave/cli.v2"
 
-[prune]
-  go-tests = true
-  unused-packages = true
