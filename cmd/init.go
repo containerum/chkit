@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"path"
-
 	"github.com/blang/semver"
 
 	"github.com/containerum/chkit/pkg/model"
@@ -23,27 +21,31 @@ var (
 	}
 )
 
-var App = &cli.App{
-	Name:    "chkit",
-	Version: semver.MustParse(Version).String(),
-	Action: func(ctx *cli.Context) error {
+func Run(args []string) error {
 
-		return nil
-	},
-	Before: func(ctx *cli.Context) error {
-		err := initConfig()
-		if err != nil {
-			log.WithError(err).
-				Errorf("error while getting homedir path")
-			return err
-		}
-		return nil
-	},
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:    "config",
-			Aliases: []string{"c"},
-			Value:   path.Join(Configuration.ConfigPath, "config.file"),
+	var App = &cli.App{
+		Name:    "chkit",
+		Version: semver.MustParse(Version).String(),
+		Action: func(ctx *cli.Context) error {
+
+			return nil
 		},
-	},
+		Before: func(ctx *cli.Context) error {
+			err := initConfig()
+			if err != nil {
+				log.WithError(err).
+					Errorf("error while getting homedir path")
+				return err
+			}
+			return nil
+		},
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Value:   Configuration.ConfigPath,
+			},
+		},
+	}
+	return App.Run(args)
 }
