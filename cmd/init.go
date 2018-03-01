@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"github.com/containerum/chkit/pkg/client"
-	"github.com/containerum/chkit/pkg/model"
 	jww "github.com/spf13/jwalterweatherman"
 	cli "gopkg.in/urfave/cli.v2"
 )

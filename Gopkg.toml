@@ -26,12 +26,20 @@
 
 
 [[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/kube-client"
+
+[[constraint]]
   branch = "master"
   name = "github.com/containerum/solutions"
 
 [[constraint]]
   branch = "master"
   name = "github.com/kardianos/osext"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/mitchellh/go-homedir"
 
 [[constraint]]
   branch = "master"
@@ -49,10 +57,10 @@
   name = "gopkg.in/src-d/go-git.v4"
   version = "4.1.1"
 
+[[constraint]]
+  branch = "v2"
+  name = "gopkg.in/urfave/cli.v2"
+
 [prune]
   go-tests = true
   unused-packages = true
-
-[[constraint]]
-  branch = "develop"
-  name = "git.containerum.net/ch/kube-client"

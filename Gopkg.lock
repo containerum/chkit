@@ -2,25 +2,10 @@
 
 
 [[projects]]
-  branch = "develop"
-  name = "git.containerum.net/ch/kube-client"
-  packages = [
-    "pkg/cmd",
-    "pkg/model"
-  ]
-  revision = "2f6ae5e4045638d065b194cd9170d289e3e68aeb"
-
-[[projects]]
   branch = "master"
   name = "github.com/containerum/solutions"
   packages = ["."]
   revision = "cf98ef93964f879aa704aac38a3426d6d2bdb607"
-
-[[projects]]
-  name = "github.com/go-resty/resty"
-  packages = ["."]
-  revision = "00cb083b8cdc8b0fb1e1f5ebe24bbc23e0ff0cf6"
-  version = "v1.2"
 
 [[projects]]
   branch = "master"
@@ -134,16 +119,12 @@
     "ssh/knownhosts",
     "ssh/terminal"
   ]
-  revision = "432090b8f568c018896cd8a0fb0345872bbac6ce"
+  revision = "91a49db82a88618983a78a06c1cbd4e00ab749ab"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = [
-    "context",
-    "idna",
-    "publicsuffix"
-  ]
+  packages = ["context"]
   revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
 
 [[projects]]
@@ -153,28 +134,20 @@
     "unix",
     "windows"
   ]
-  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
+  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/text"
   packages = [
-    "collate",
-    "collate/build",
-    "internal/colltab",
     "internal/gen",
-    "internal/tag",
     "internal/triegen",
     "internal/ucd",
-    "language",
-    "secure/bidirule",
     "transform",
-    "unicode/bidi",
     "unicode/cldr",
-    "unicode/norm",
-    "unicode/rangetable"
+    "unicode/norm"
   ]
-  revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   name = "gopkg.in/src-d/go-billy.v4"
@@ -250,6 +223,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ab3a42387230a7b5b944eddf049830768d42b290de7aba62df5956130dd186fc"
+  inputs-digest = "f1c12385d98df38150ee6de675dfd11b8c3ac429a571f8dca5abd6e8303aa039"
   solver-name = "gps-cdcl"
   solver-version = 1
