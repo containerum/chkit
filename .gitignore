@@ -1,4 +1,5 @@
 chkit
 chkit-v2*
 build
+!build/
 .idea
