@@ -8,12 +8,15 @@ import (
 )
 
 type Client struct {
-	tokens        kubeClientModels.Tokens
+	Config        model.ClientConfig
+	Tokens        kubeClientModels.Tokens
 	kubeApiClient kubeClient.Client
 }
 
-func NewClient(config model.Config) (*Client, error) {
-	chcli := &Client{}
+func NewClient(config model.ClientConfig) (*Client, error) {
+	chcli := &Client{
+		Config: config,
+	}
 	kubecli, err := kubeClient.CreateCmdClient(kubeClient.Config{
 		APIurl:         config.APIaddr + ":1214",
 		UserManagerURL: config.APIaddr + ":8111",
@@ -40,10 +43,6 @@ func (client *Client) Login(username, password string) error {
 	if err != nil {
 		return err
 	}
-	client.tokens = tokens
+	client.Tokens = tokens
 	return nil
-}
-
-func (client *Client) Tokens() kubeClientModels.Tokens {
-	return client.tokens
 }
