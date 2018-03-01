@@ -21,6 +21,7 @@ func Run(args []string) error {
 	Configuration := &model.Config{}
 	log := &logrus.Logger{
 		Formatter: &logrus.TextFormatter{},
+		Level:     logrus.DebugLevel,
 	}
 	err := initConfig(Configuration)
 	if err != nil {
@@ -30,6 +31,7 @@ func Run(args []string) error {
 	}
 	var App = &cli.App{
 		Name:    "chkit",
+		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
 			err := loadConfig(&Configuration.Client, ctx.String("config"))
