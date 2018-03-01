@@ -10,7 +10,7 @@ import (
 )
 
 func readLogin() string {
-	notepad.FEEDBACK.Print("Enter your email: ")
+	log.Print("Enter your email: ")
 	email, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	email = strings.TrimRight(email, "\r\n")
 	exitOnErr(err)
@@ -18,7 +18,7 @@ func readLogin() string {
 }
 
 func readPassword() string {
-	notepad.FEEDBACK.Print("Enter your password: ")
+	log.Print("Enter your password: ")
 	passwordB, err := terminal.ReadPassword(int(syscall.Stdin))
 	exitOnErr(err)
 	return string(passwordB)

@@ -1,7 +1,10 @@
 package cmd
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/sirupsen/logrus"
+
+	chClient "github.com/containerum/chkit/pkg/client"
+	"github.com/containerum/chkit/pkg/model"
 	cli "gopkg.in/urfave/cli.v2"
 )
 
@@ -17,8 +20,10 @@ var Configuration = struct {
 	ClientConfig model.Config
 }{}
 
-var ChkitClient client.ChkitClient
-var notepad *jww.Notepad
+var ChkitClient chClient.Client
+var log = &logrus.Logger{
+	Formatter: &logrus.TextFormatter{},
+}
 
 var App = &cli.App{
 	Name: "chkit",

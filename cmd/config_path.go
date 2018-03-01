@@ -9,7 +9,8 @@ import (
 func init() {
 	home, err := homedir.Dir()
 	if err != nil {
-		notepad.FATAL.Println(err)
+		log.WithError(err).
+			Fatalf("error while getting homedir path")
 	}
 	Configuration.ConfigPath = path.Join(home, configDir)
 }

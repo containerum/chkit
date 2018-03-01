@@ -6,7 +6,7 @@ import (
 
 func exitOnErr(err error) {
 	if err != nil {
-		notepad.ERROR.Println(err)
+		log.WithError(err).Fatal(err)
 		os.Exit(1)
 	}
 }
