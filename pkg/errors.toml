@@ -1,0 +1,9 @@
+
+Name = "chkit-errors"
+SID = 777
+
+[[error]]
+    Name = "UnableToInitClient"
+    Message = "unable to init client"
+    StatusHTTP = 418
+    Kind = 1
