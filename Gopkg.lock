@@ -2,10 +2,26 @@
 
 
 [[projects]]
+  branch = "develop"
+  name = "git.containerum.net/ch/kube-client"
+  packages = [
+    "pkg/cherry",
+    "pkg/client",
+    "pkg/model"
+  ]
+  revision = "396a2b912aa365784ac15e84bbe0b74bb57e646d"
+
+[[projects]]
   branch = "master"
   name = "github.com/containerum/solutions"
   packages = ["."]
   revision = "cf98ef93964f879aa704aac38a3426d6d2bdb607"
+
+[[projects]]
+  name = "github.com/go-resty/resty"
+  packages = ["."]
+  revision = "00cb083b8cdc8b0fb1e1f5ebe24bbc23e0ff0cf6"
+  version = "v1.2"
 
 [[projects]]
   branch = "master"
@@ -124,7 +140,11 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context"]
+  packages = [
+    "context",
+    "idna",
+    "publicsuffix"
+  ]
   revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
 
 [[projects]]
@@ -139,12 +159,20 @@
 [[projects]]
   name = "golang.org/x/text"
   packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
     "internal/gen",
+    "internal/tag",
     "internal/triegen",
     "internal/ucd",
+    "language",
+    "secure/bidirule",
     "transform",
+    "unicode/bidi",
     "unicode/cldr",
-    "unicode/norm"
+    "unicode/norm",
+    "unicode/rangetable"
   ]
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
@@ -223,6 +251,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f1c12385d98df38150ee6de675dfd11b8c3ac429a571f8dca5abd6e8303aa039"
+  inputs-digest = "8259528c6321fd813df7a97fbdc970f3b34b0debbd3bd2051dfa7e1297de48ec"
   solver-name = "gps-cdcl"
   solver-version = 1
