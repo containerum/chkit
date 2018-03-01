@@ -43,3 +43,7 @@ func (client *Client) Login(username, password string) error {
 	client.tokens = tokens
 	return nil
 }
+
+func (client *Client) Tokens() kubeClientModels.Tokens {
+	return client.tokens
+}
