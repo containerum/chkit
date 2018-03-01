@@ -1,33 +1,49 @@
 package cmd
 
 import (
-	"github.com/sirupsen/logrus"
+	"path"
 
-	chClient "github.com/containerum/chkit/pkg/client"
+	"github.com/blang/semver"
+
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
 )
 
 const (
+	Version        = "3.0.0-alpha"
 	FlagAPIaddr    = "apiaddr"
 	FlagConfigFile = "config"
 )
 
-var Configuration = struct {
-	ConfigPath   string
-	ConfigFile   string
-	TokenFile    string
-	ClientConfig model.Config
-}{}
-
-var ChkitClient chClient.Client
-var log = &logrus.Logger{
-	Formatter: &logrus.TextFormatter{},
-}
+var (
+	Configuration = model.Config{}
+	log           = &logrus.Logger{
+		Formatter: &logrus.TextFormatter{},
+	}
+)
 
 var App = &cli.App{
-	Name: "chkit",
+	Name:    "chkit",
+	Version: semver.MustParse(Version).String(),
 	Action: func(ctx *cli.Context) error {
+
 		return nil
+	},
+	Before: func(ctx *cli.Context) error {
+		err := initConfig()
+		if err != nil {
+			log.WithError(err).
+				Errorf("error while getting homedir path")
+			return err
+		}
+		return nil
+	},
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "config",
+			Aliases: []string{"c"},
+			Value:   path.Join(Configuration.ConfigPath, "config.file"),
+		},
 	},
 }
