@@ -2,5 +2,11 @@ package model
 
 type Config struct {
 	ConfigPath string
-	APIaddr    string
+	Client     ClientConfig
+}
+
+type ClientConfig struct {
+	APIaddr  string
+	Username string
+	Password string
 }

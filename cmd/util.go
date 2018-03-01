@@ -15,11 +15,11 @@ func exitOnErr(err error) {
 }
 
 func loadConfig(configFilePath string) error {
-	config := model.Config{}
+	config := model.ClientConfig{}
 	_, err := toml.DecodeFile(configFilePath, &config)
 	if err != nil {
 		return err
 	}
-	Configuration = config
+	Configuration.Client = config
 	return nil
 }
