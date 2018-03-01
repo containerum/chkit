@@ -31,3 +31,15 @@ func NewClient(config model.Config) (*Client, error) {
 	chcli.kubeApiClient = *kubecli
 	return chcli, nil
 }
+
+func (client *Client) Login(username, password string) error {
+	tokens, err := client.kubeApiClient.Login(kubeClientModels.Login{
+		Username: username,
+		Password: password,
+	})
+	if err != nil {
+		return err
+	}
+	client.tokens = tokens
+	return nil
+}
