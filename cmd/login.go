@@ -19,8 +19,16 @@ func commandLogin(log *logrus.Logger, config *model.Config) *cli.Command {
 		Name:  "login",
 		Usage: "use username and password to login in the system",
 		Action: func(ctx *cli.Context) error {
-			config.Client.Username = readLogin(log)
-			config.Client.Password = readPassword(log)
+			if ctx.IsSet("username") {
+				config.Client.Username = ctx.String("username")
+			} else {
+				config.Client.Username = readLogin(log)
+			}
+			if ctx.IsSet("pass") {
+				config.Client.Password = ctx.String("pass")
+			} else {
+				config.Client.Password = readPassword(log)
+			}
 			err := saveConfig(config)
 			if err != nil {
 				log.WithError(err).
@@ -28,6 +36,16 @@ func commandLogin(log *logrus.Logger, config *model.Config) *cli.Command {
 				return err
 			}
 			return nil
+		},
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "pass",
+				Usage: "password to system",
+			},
+			&cli.StringFlag{
+				Name:  "username",
+				Usage: "your account email",
+			},
 		},
 	}
 }
