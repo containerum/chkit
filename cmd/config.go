@@ -6,11 +6,11 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-func init() {
+func initConfig() error {
 	home, err := homedir.Dir()
 	if err != nil {
-		log.WithError(err).
-			Fatalf("error while getting homedir path")
+		return err
 	}
 	Configuration.ConfigPath = path.Join(home, configDir)
+	return nil
 }
