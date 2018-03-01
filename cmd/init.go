@@ -6,6 +6,7 @@ import (
 
 	"github.com/blang/semver"
 
+	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
@@ -13,16 +14,19 @@ import (
 
 const (
 	Version        = "3.0.0-alpha"
-	FlagAPIaddr    = "apiaddr"
+	containerumAPI = "https://94.130.09.147:8082"
 	FlagConfigFile = "config"
+	FlagAPIaddr    = "apiaddr"
 )
 
 func Run(args []string) error {
-	Configuration := &model.Config{}
-	log := &logrus.Logger{
-		Formatter: &logrus.TextFormatter{},
-		Level:     logrus.DebugLevel,
+	chClient, _ := client.NewClient(model.ClientConfig{})
+	Configuration := &model.Config{
+		Client: chClient.Config,
 	}
+	log := logrus.New()
+	log.Formatter = &logrus.TextFormatter{}
+	log.Level = logrus.InfoLevel
 	err := initConfig(Configuration)
 	if err != nil {
 		log.WithError(err).
@@ -34,7 +38,10 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
-			err := loadConfig(&Configuration.Client, ctx.String("config"))
+			err := loadConfig(&chClient.Config, ctx.String("config"))
+			if chClient.Config.APIaddr == "" {
+				chClient.Config.APIaddr = ctx.String("api")
+			}
 			if err != nil && !os.IsNotExist(err) {
 				log.WithError(err).
 					Errorf("error while loading config file")
@@ -46,7 +53,12 @@ func Run(args []string) error {
 					return err
 				}
 			}
-			return nil
+			err = saveConfig(Configuration)
+			if err != nil {
+				log.WithError(err).
+					Errorf("error while saving config")
+			}
+			return err
 		},
 		Commands: []*cli.Command{
 			commandLogin(log, Configuration),
@@ -57,6 +69,13 @@ func Run(args []string) error {
 				Usage:   "config file",
 				Aliases: []string{"c"},
 				Value:   path.Join(Configuration.ConfigPath, "config.toml"),
+			},
+			&cli.StringFlag{
+				Name:    "api",
+				Usage:   "API address",
+				Value:   containerumAPI,
+				Hidden:  true,
+				EnvVars: []string{"CONTAINERUM_API"},
 			},
 		},
 	}
