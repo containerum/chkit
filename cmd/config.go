@@ -3,14 +3,15 @@ package cmd
 import (
 	"path"
 
+	"github.com/containerum/chkit/pkg/model"
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-func initConfig() error {
+func initConfig(config *model.Config) error {
 	home, err := homedir.Dir()
 	if err != nil {
 		return err
 	}
-	Configuration.ConfigPath = path.Join(home, configDir)
+	config.ConfigPath = path.Join(home, configDir)
 	return nil
 }
