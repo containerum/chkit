@@ -72,10 +72,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/spf13/jwalterweatherman"
+  name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "7c0cea34c8ece3fbeb2b27ab9b59511d360fb394"
+  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
+  version = "v1.0.4"
 
 [[projects]]
   name = "github.com/src-d/gcfg"
@@ -251,6 +251,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8259528c6321fd813df7a97fbdc970f3b34b0debbd3bd2051dfa7e1297de48ec"
+  inputs-digest = "e2c8dd45b0e34fe669b8c0d3ef293bb2c81db83b98f3821c10a1592e4c7f133d"
   solver-name = "gps-cdcl"
   solver-version = 1
