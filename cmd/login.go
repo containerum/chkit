@@ -18,18 +18,18 @@ var commandLogin = &cli.Command{
 	Usage: "use username and password to login in the system",
 	Action: func(ctx *cli.Context) error {
 		log := getLog(ctx)
-		chClient := getClient(ctx)
+		config := getConfig(ctx)
 		if ctx.IsSet("username") {
-			chClient.Config.Username = ctx.String("username")
+			config.Username = ctx.String("username")
 		} else {
-			chClient.Config.Username = readLogin(log)
+			config.Username = readLogin(log)
 		}
 		if ctx.IsSet("pass") {
-			chClient.Config.Password = ctx.String("pass")
+			config.Password = ctx.String("pass")
 		} else {
-			chClient.Config.Password = readPassword(log)
+			config.Password = readPassword(log)
 		}
-		setClient(ctx, chClient)
+		setConfig(ctx, config)
 		return nil
 	},
 	Flags: []cli.Flag{
