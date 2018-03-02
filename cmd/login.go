@@ -30,7 +30,6 @@ var commandLogin = &cli.Command{
 			chClient.Config.Password = readPassword(log)
 		}
 		setClient(ctx, chClient)
-		saveConfig(ctx, chClient.Config)
 		return nil
 	},
 	Flags: []cli.Flag{
