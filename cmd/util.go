@@ -13,6 +13,29 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
+func getLog(ctx *cli.Context) *logrus.Logger {
+	return ctx.App.Metadata["log"].(*logrus.Logger)
+}
+func getConfig(ctx *cli.Context) model.ClientConfig {
+	return ctx.App.Metadata["config"].(model.ClientConfig)
+}
+
+func setConfig(ctx *cli.Context, config model.ClientConfig) {
+	client := getClient(ctx)
+	client.Config = config
+	setClient(ctx, client)
+}
+
+func saveConfig(ctx *cli.Context, config model.ClientConfig) {
+	setConfig(ctx, config)
+	log := getLog(ctx)
+	err := writeConfig(getConfigPath(ctx), &config)
+	if err != nil {
+		log.WithError(err).
+			Fatalf("error while saving config")
+	}
+}
+
 func getClient(ctx *cli.Context) chClient.Client {
 	return ctx.App.Metadata["client"].(chClient.Client)
 }
@@ -39,7 +62,7 @@ func loadConfig(configFilePath string, config *model.ClientConfig) error {
 	return nil
 }
 
-func saveConfig(configPath string, config *model.ClientConfig) error {
+func writeConfig(configPath string, config *model.ClientConfig) error {
 	err := os.MkdirAll(configPath, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		return err
