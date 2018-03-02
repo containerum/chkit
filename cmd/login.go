@@ -17,10 +17,13 @@ var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "use username and password to login in the system",
 	Action: func(ctx *cli.Context) error {
-		login(ctx)
+		if err := setupConfig(ctx); err != nil {
+			return err
+		}
 		if err := setupClient(ctx); err != nil {
 			return err
 		}
+		persist(ctx)
 		return nil
 	},
 	Flags: []cli.Flag{
@@ -43,10 +46,17 @@ func login(ctx *cli.Context) {
 	} else {
 		config.Username = readLogin(log)
 	}
+	if strings.TrimSpace(config.Username) == "" {
+		log.Fatalln("Username must be non-empty string!")
+	}
+
 	if ctx.IsSet("pass") {
 		config.Password = ctx.String("pass")
 	} else {
 		config.Password = readPassword(log)
+	}
+	if strings.TrimSpace(config.Password) == "" {
+		log.Fatalln("Password must be non-empty string!")
 	}
 	setConfig(ctx, config)
 }
