@@ -74,12 +74,12 @@ func writeConfig(configPath string, config *model.ClientConfig) error {
 	return toml.NewEncoder(file).Encode(&config)
 }
 
-func saveTokens(config *model.Config) error {
-	file, err := os.Create(path.Join(config.ConfigPath, "tokens"))
+func saveTokens(ctx *cli.Context, tokens kubeClientModels.Tokens) error {
+	file, err := os.Create(path.Join(getConfigPath(ctx), "tokens"))
 	if err != nil {
 		return err
 	}
-	return json.NewEncoder(file).Encode(&config.Tokens)
+	return json.NewEncoder(file).Encode(tokens)
 }
 
 func loadTokens(config *model.Config) (kubeClientModels.Tokens, error) {
