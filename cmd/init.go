@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"path"
 
 	"github.com/blang/semver"
@@ -34,12 +35,21 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
-			if err := setupConfig(ctx); err != nil {
+			if err := setupConfig(ctx); err != nil && !os.IsNotExist(err) {
 				log.Fatal(err)
+			} else if os.IsNotExist(err) {
+				login(ctx)
+				config := getConfig(ctx)
+				if config.APIaddr == "" {
+					config.APIaddr = ctx.String("api")
+				}
+			} else {
+				return err
 			}
 			if err := setupClient(ctx); err != nil {
 				log.Fatal(err)
 			}
+			persist(ctx)
 			clientConfig := getClient(ctx).Config
 			log.Infof("logged as %q", clientConfig.Username)
 			return err

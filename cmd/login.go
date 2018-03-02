@@ -13,6 +13,13 @@ import (
 	cli "gopkg.in/urfave/cli.v2"
 )
 
+var commandLogin = cli.Command{
+	Name: "login",
+	Action: func(ctx *cli.Context) error {
+		return nil
+	},
+}
+
 func login(ctx *cli.Context) {
 	log := getLog(ctx)
 	config := getConfig(ctx)

@@ -35,11 +35,6 @@ func setupConfig(ctx *cli.Context) error {
 		log.WithError(err).
 			Errorf("error while loading config file")
 		return err
-	} else if os.IsNotExist(err) ||
-		config.Username == "" ||
-		config.Password == "" {
-		login(ctx)
-		config = getConfig(ctx)
 	}
 	if config.APIaddr == "" {
 		config.APIaddr = ctx.String("api")
@@ -47,6 +42,7 @@ func setupConfig(ctx *cli.Context) error {
 	setConfig(ctx, config)
 	return nil
 }
+
 func persist(ctx *cli.Context) {
 	if !ctx.IsSet("config") {
 		saveConfig(ctx)
