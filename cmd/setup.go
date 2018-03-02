@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
@@ -11,6 +12,20 @@ import (
 )
 
 func setupClient(ctx *cli.Context) error {
+	log := getLog(ctx)
+	client, err := chClient.NewClient(getConfig(ctx))
+	if err != nil {
+		err = chkitErrors.ErrUnableToInitClient().
+			AddDetailsErr(err)
+		log.WithError(err).
+			Error(err)
+		return err
+	}
+	setClient(ctx, *client)
+	return nil
+}
+
+func setup(ctx *cli.Context) error {
 	log := getLog(ctx)
 	config := model.ClientConfig{}
 	err := loadConfig(ctx.String("config"), &config)
@@ -25,19 +40,14 @@ func setupClient(ctx *cli.Context) error {
 			return err
 		}
 		config = getConfig(ctx)
+		fmt.Println(config)
 	}
 	if config.APIaddr == "" {
 		config.APIaddr = ctx.String("api")
 	}
-	client, err := chClient.NewClient(config)
-	if err != nil {
-		err = chkitErrors.ErrUnableToInitClient().
-			AddDetailsErr(err)
-		log.WithError(err).
-			Error(err)
-		return err
+	setConfig(ctx, config)
+	if !ctx.IsSet("config") {
+		saveConfig(ctx, config)
 	}
-	setClient(ctx, *client)
-	saveConfig(ctx, config)
 	return nil
 }
