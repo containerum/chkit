@@ -35,10 +35,10 @@ func NewClient(config model.ClientConfig) (*Client, error) {
 	return chcli, nil
 }
 
-func (client *Client) Login(username, password string) error {
+func (client *Client) Login() error {
 	tokens, err := client.kubeApiClient.Login(kubeClientModels.Login{
-		Username: username,
-		Password: password,
+		Username: client.Config.Username,
+		Password: client.Config.Password,
 	})
 	if err != nil {
 		return err
