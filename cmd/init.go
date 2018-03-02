@@ -38,12 +38,14 @@ func Run(args []string) error {
 				log.Error(err)
 				return err
 			}
-			log.Infof("logged as %q", getClient(ctx).Config.Username)
+			clientConfig := getClient(ctx).Config
+			log.Infof("logged as %q", clientConfig.Username)
 			return err
 		},
 		Metadata: map[string]interface{}{
 			"client":     chClient.Client{},
 			"configPath": configPath,
+			"log":        log,
 		},
 		Commands: []*cli.Command{
 			commandLogin(log, configPath),
