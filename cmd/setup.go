@@ -52,8 +52,7 @@ func configurate(ctx *cli.Context) error {
 	return nil
 }
 func persist(ctx *cli.Context) {
-	config := getConfig(ctx)
 	if !ctx.IsSet("config") {
-		saveConfig(ctx, config)
+		saveConfig(ctx)
 	}
 }
