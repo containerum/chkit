@@ -17,19 +17,10 @@ var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "use username and password to login in the system",
 	Action: func(ctx *cli.Context) error {
-		log := getLog(ctx)
-		config := getConfig(ctx)
-		if ctx.IsSet("username") {
-			config.Username = ctx.String("username")
-		} else {
-			config.Username = readLogin(log)
+		login(ctx)
+		if err := setupClient(ctx); err != nil {
+			return err
 		}
-		if ctx.IsSet("pass") {
-			config.Password = ctx.String("pass")
-		} else {
-			config.Password = readPassword(log)
-		}
-		setConfig(ctx, config)
 		return nil
 	},
 	Flags: []cli.Flag{
@@ -42,6 +33,22 @@ var commandLogin = &cli.Command{
 			Usage: "your account email",
 		},
 	},
+}
+
+func login(ctx *cli.Context) {
+	log := getLog(ctx)
+	config := getConfig(ctx)
+	if ctx.IsSet("username") {
+		config.Username = ctx.String("username")
+	} else {
+		config.Username = readLogin(log)
+	}
+	if ctx.IsSet("pass") {
+		config.Password = ctx.String("pass")
+	} else {
+		config.Password = readPassword(log)
+	}
+	setConfig(ctx, config)
 }
 
 func readLogin(log *logrus.Logger) string {
