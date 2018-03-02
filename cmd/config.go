@@ -6,7 +6,7 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-func getConfigPath() (string, error) {
+func configPath() (string, error) {
 	home, err := homedir.Dir()
 	if err != nil {
 		return "", err
