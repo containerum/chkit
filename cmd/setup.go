@@ -5,18 +5,15 @@ import (
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
-
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/sirupsen/logrus"
+
 	"gopkg.in/urfave/cli.v2"
 )
 
-func setupClient(log *logrus.Logger, ctx *cli.Context) error {
-	clientConfig := model.ClientConfig{}
-	err := loadConfig(ctx.String("config"), &clientConfig)
-	if clientConfig.APIaddr == "" {
-		clientConfig.APIaddr = ctx.String("api")
-	}
+func setupClient(ctx *cli.Context) error {
+	log := getLog(ctx)
+	config := model.ClientConfig{}
+	err := loadConfig(ctx.String("config"), &config)
 	if err != nil && !os.IsNotExist(err) {
 		log.WithError(err).
 			Errorf("error while loading config file")
@@ -27,8 +24,12 @@ func setupClient(log *logrus.Logger, ctx *cli.Context) error {
 		if err != nil {
 			return err
 		}
+		config = getConfig(ctx)
 	}
-	client, err := chClient.NewClient(clientConfig)
+	if config.APIaddr == "" {
+		config.APIaddr = ctx.String("api")
+	}
+	client, err := chClient.NewClient(config)
 	if err != nil {
 		err = chkitErrors.ErrUnableToInitClient().
 			AddDetailsErr(err)
@@ -37,5 +38,6 @@ func setupClient(log *logrus.Logger, ctx *cli.Context) error {
 		return err
 	}
 	setClient(ctx, *client)
+	saveConfig(ctx, config)
 	return nil
 }
