@@ -34,10 +34,11 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
-			err := setupConfig(ctx)
-			if err != nil {
-				log.Error(err)
-				return err
+			if err := setupConfig(ctx); err != nil {
+				log.Fatal(err)
+			}
+			if err := setupClient(ctx); err != nil {
+				log.Fatal(err)
 			}
 			clientConfig := getClient(ctx).Config
 			log.Infof("logged as %q", clientConfig.Username)
