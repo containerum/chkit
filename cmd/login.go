@@ -13,31 +13,6 @@ import (
 	cli "gopkg.in/urfave/cli.v2"
 )
 
-var commandLogin = &cli.Command{
-	Name:  "login",
-	Usage: "use username and password to login in the system",
-	Action: func(ctx *cli.Context) error {
-		if err := setupConfig(ctx); err != nil {
-			return err
-		}
-		if err := setupClient(ctx); err != nil {
-			return err
-		}
-		persist(ctx)
-		return nil
-	},
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "pass",
-			Usage: "password to system",
-		},
-		&cli.StringFlag{
-			Name:  "username",
-			Usage: "your account email",
-		},
-	},
-}
-
 func login(ctx *cli.Context) {
 	log := getLog(ctx)
 	config := getConfig(ctx)

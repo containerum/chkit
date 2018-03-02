@@ -50,15 +50,21 @@ func Run(args []string) error {
 			"log":        log,
 			"config":     model.ClientConfig{},
 		},
-		Commands: []*cli.Command{
-			commandLogin,
-		},
+		Commands: []*cli.Command{},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
 				Usage:   "config file",
 				Aliases: []string{"c"},
 				Value:   path.Join(configPath, "config.toml"),
+			},
+			&cli.StringFlag{
+				Name:  "pass",
+				Usage: "password to system",
+			},
+			&cli.StringFlag{
+				Name:  "username",
+				Usage: "your account email",
 			},
 			&cli.StringFlag{
 				Name:    "api",
