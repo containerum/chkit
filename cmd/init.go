@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"os"
 	"path"
 
 	"github.com/blang/semver"
 
 	"github.com/containerum/chkit/pkg/client"
-	"github.com/containerum/chkit/pkg/model"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -24,7 +22,7 @@ func Run(args []string) error {
 	log.Formatter = &logrus.TextFormatter{}
 	log.Level = logrus.InfoLevel
 
-	configPath, err := getConfigPath()
+	configPath, err := configPath()
 	if err != nil {
 		log.WithError(err).
 			Errorf("error while getting homedir path")
@@ -35,32 +33,17 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
-			clientConfig := model.ClientConfig{}
-			err := loadConfig(ctx.String("config"), &clientConfig)
-			if clientConfig.APIaddr == "" {
-				clientConfig.APIaddr = ctx.String("api")
-			}
-			if err != nil && !os.IsNotExist(err) {
-				log.WithError(err).
-					Errorf("error while loading config file")
-				return err
-			} else if os.IsNotExist(err) {
-				log.Info("You are not logged in!")
-				err = ctx.App.Command("login").Run(ctx)
-				if err != nil {
-					return err
-				}
-			}
-			err = saveConfig(configPath, &clientConfig)
+			err := setupClient(log, ctx)
 			if err != nil {
-				log.WithError(err).
-					Errorf("error while saving config")
+				log.Error(err)
 				return err
 			}
-			return nil
+			log.Infof("logged as %q", getClient(ctx).Config.Username)
+			return err
 		},
 		Metadata: map[string]interface{}{
-			"client": chClient.Client{},
+			"client":     chClient.Client{},
+			"configPath": configPath,
 		},
 		Commands: []*cli.Command{
 			commandLogin(log, configPath),
