@@ -21,9 +21,7 @@ func getConfig(ctx *cli.Context) model.ClientConfig {
 }
 
 func setConfig(ctx *cli.Context, config model.ClientConfig) {
-	client := getClient(ctx)
-	client.Config = config
-	setClient(ctx, client)
+	ctx.App.Metadata["config"] = config
 }
 
 func saveConfig(ctx *cli.Context) {
