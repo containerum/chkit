@@ -20,14 +20,11 @@ const (
 )
 
 func Run(args []string) error {
-	chClient, _ := client.NewClient(model.ClientConfig{})
-	Configuration := &model.Config{
-		Client: chClient.Config,
-	}
 	log := logrus.New()
 	log.Formatter = &logrus.TextFormatter{}
 	log.Level = logrus.InfoLevel
-	err := initConfig(Configuration)
+
+	configPath, err := getConfigPath()
 	if err != nil {
 		log.WithError(err).
 			Errorf("error while getting homedir path")
@@ -38,9 +35,10 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
-			err := loadConfig(&chClient.Config, ctx.String("config"))
-			if chClient.Config.APIaddr == "" {
-				chClient.Config.APIaddr = ctx.String("api")
+			clientConfig := model.ClientConfig{}
+			err := loadConfig(ctx.String("config"), &clientConfig)
+			if clientConfig.APIaddr == "" {
+				clientConfig.APIaddr = ctx.String("api")
 			}
 			if err != nil && !os.IsNotExist(err) {
 				log.WithError(err).
@@ -53,22 +51,27 @@ func Run(args []string) error {
 					return err
 				}
 			}
-			err = saveConfig(Configuration)
+			err = saveConfig(configPath, &clientConfig)
 			if err != nil {
 				log.WithError(err).
 					Errorf("error while saving config")
+				return err
 			}
-			return err
+
+			return nil
+		},
+		Metadata: map[string]interface{}{
+			"client": client.Client{},
 		},
 		Commands: []*cli.Command{
-			commandLogin(log, Configuration),
+			commandLogin(log, configPath),
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
 				Usage:   "config file",
 				Aliases: []string{"c"},
-				Value:   path.Join(Configuration.ConfigPath, "config.toml"),
+				Value:   path.Join(configPath, "config.toml"),
 			},
 			&cli.StringFlag{
 				Name:    "api",
