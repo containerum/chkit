@@ -29,12 +29,6 @@ func commandLogin(log *logrus.Logger, configPath string) *cli.Command {
 			} else {
 				chClient.Config.Password = readPassword(log)
 			}
-			err := saveConfig(configPath, &chClient.Config)
-			if err != nil {
-				log.WithError(err).
-					Errorf("error while saving config file")
-				return err
-			}
 			setClient(ctx, chClient)
 			return nil
 		},
