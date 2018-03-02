@@ -33,7 +33,7 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
-			err := setupClient(log, ctx)
+			err := setupClient(ctx)
 			if err != nil {
 				log.Error(err)
 				return err
@@ -48,7 +48,7 @@ func Run(args []string) error {
 			"log":        log,
 		},
 		Commands: []*cli.Command{
-			commandLogin(configPath),
+			commandLogin,
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
