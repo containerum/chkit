@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
-	"github.com/containerum/chkit/pkg/model"
 
 	"gopkg.in/urfave/cli.v2"
 )
@@ -29,26 +27,24 @@ func setupClient(ctx *cli.Context) error {
 	return nil
 }
 
-func configurate(ctx *cli.Context) error {
+func setupConfig(ctx *cli.Context) error {
 	log := getLog(ctx)
-	config := model.ClientConfig{}
+	config := getConfig(ctx)
 	err := loadConfig(ctx.String("config"), &config)
 	if err != nil && !os.IsNotExist(err) {
 		log.WithError(err).
 			Errorf("error while loading config file")
 		return err
-	} else if os.IsNotExist(err) {
-		log.Info("You are not logged in!")
-		err = ctx.App.Command("login").Run(ctx)
-		if err != nil {
-			return err
-		}
+	} else if os.IsNotExist(err) ||
+		config.Username == "" ||
+		config.Password == "" {
+		login(ctx)
 		config = getConfig(ctx)
-		fmt.Println(config)
 	}
 	if config.APIaddr == "" {
 		config.APIaddr = ctx.String("api")
 	}
+	setConfig(ctx, config)
 	return nil
 }
 func persist(ctx *cli.Context) {
