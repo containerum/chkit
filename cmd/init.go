@@ -36,7 +36,7 @@ func Run(args []string) error {
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
 			if err := setupConfig(ctx); err != nil && !os.IsNotExist(err) {
-				log.Fatal(err)
+				return err
 			} else if os.IsNotExist(err) {
 				login(ctx)
 				config := getConfig(ctx)
@@ -60,21 +60,15 @@ func Run(args []string) error {
 			"log":        log,
 			"config":     model.ClientConfig{},
 		},
-		Commands: []*cli.Command{},
+		Commands: []*cli.Command{
+			commandLogin,
+		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
 				Usage:   "config file",
 				Aliases: []string{"c"},
 				Value:   path.Join(configPath, "config.toml"),
-			},
-			&cli.StringFlag{
-				Name:  "pass",
-				Usage: "password to system",
-			},
-			&cli.StringFlag{
-				Name:  "username",
-				Usage: "your account email",
 			},
 			&cli.StringFlag{
 				Name:    "api",

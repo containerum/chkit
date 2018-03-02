@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 
@@ -28,12 +26,9 @@ func setupClient(ctx *cli.Context) error {
 }
 
 func setupConfig(ctx *cli.Context) error {
-	log := getLog(ctx)
 	config := getConfig(ctx)
 	err := loadConfig(ctx.String("config"), &config)
-	if err != nil && !os.IsNotExist(err) {
-		log.WithError(err).
-			Errorf("error while loading config file")
+	if err != nil {
 		return err
 	}
 	if config.APIaddr == "" {
