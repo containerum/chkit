@@ -20,6 +20,10 @@ func getClient(ctx *cli.Context) chClient.Client {
 func setClient(ctx *cli.Context, client chClient.Client) {
 	ctx.App.Metadata["client"] = client
 }
+
+func getConfigPath(ctx *cli.Context) string {
+	return ctx.App.Metadata["configPath"].(string)
+}
 func exitOnErr(log *logrus.Logger, err error) {
 	if err != nil {
 		log.WithError(err).Fatal(err)
