@@ -13,7 +13,11 @@ import (
 
 func setupClient(ctx *cli.Context) error {
 	log := getLog(ctx)
-	client, err := chClient.NewClient(getConfig(ctx))
+	config := getConfig(ctx)
+	if config.APIaddr == "" {
+		config.APIaddr = ctx.String("api")
+	}
+	client, err := chClient.NewClient(config)
 	if err != nil {
 		err = chkitErrors.ErrUnableToInitClient().
 			AddDetailsErr(err)
@@ -25,7 +29,7 @@ func setupClient(ctx *cli.Context) error {
 	return nil
 }
 
-func setup(ctx *cli.Context) error {
+func configurate(ctx *cli.Context) error {
 	log := getLog(ctx)
 	config := model.ClientConfig{}
 	err := loadConfig(ctx.String("config"), &config)
@@ -45,9 +49,11 @@ func setup(ctx *cli.Context) error {
 	if config.APIaddr == "" {
 		config.APIaddr = ctx.String("api")
 	}
-	setConfig(ctx, config)
+	return nil
+}
+func persist(ctx *cli.Context) {
+	config := getConfig(ctx)
 	if !ctx.IsSet("config") {
 		saveConfig(ctx, config)
 	}
-	return nil
 }
