@@ -6,6 +6,7 @@ import (
 	"github.com/blang/semver"
 
 	"github.com/containerum/chkit/pkg/client"
+	"github.com/containerum/chkit/pkg/model"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -33,7 +34,7 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
-			err := configurate(ctx)
+			err := setupConfig(ctx)
 			if err != nil {
 				log.Error(err)
 				return err
@@ -46,6 +47,7 @@ func Run(args []string) error {
 			"client":     chClient.Client{},
 			"configPath": configPath,
 			"log":        log,
+			"config":     model.ClientConfig{},
 		},
 		Commands: []*cli.Command{
 			commandLogin,
