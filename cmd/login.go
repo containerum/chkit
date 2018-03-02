@@ -24,7 +24,7 @@ var commandLogin = &cli.Command{
 		}
 		setConfig(ctx, config)
 		persist(ctx)
-		return nil
+		return mainActivity(ctx)
 	},
 	Flags: []cli.Flag{
 		&cli.StringFlag{

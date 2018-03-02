@@ -52,7 +52,7 @@ func Run(args []string) error {
 			persist(ctx)
 			clientConfig := getClient(ctx).Config
 			log.Infof("logged as %q", clientConfig.Username)
-			return err
+			return mainActivity(ctx)
 		},
 		Metadata: map[string]interface{}{
 			"client":     chClient.Client{},
