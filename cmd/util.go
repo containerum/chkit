@@ -26,10 +26,9 @@ func setConfig(ctx *cli.Context, config model.ClientConfig) {
 	setClient(ctx, client)
 }
 
-func saveConfig(ctx *cli.Context, config model.ClientConfig) {
-	setConfig(ctx, config)
+func saveConfig(ctx *cli.Context) {
 	log := getLog(ctx)
-	err := writeConfig(getConfigPath(ctx), &config)
+	err := writeConfig(ctx)
 	if err != nil {
 		log.WithError(err).
 			Fatalf("error while saving config")
@@ -62,7 +61,8 @@ func loadConfig(configFilePath string, config *model.ClientConfig) error {
 	return nil
 }
 
-func writeConfig(configPath string, config *model.ClientConfig) error {
+func writeConfig(ctx *cli.Context) error {
+	configPath := getConfigPath(ctx)
 	err := os.MkdirAll(configPath, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		return err
@@ -71,7 +71,8 @@ func writeConfig(configPath string, config *model.ClientConfig) error {
 	if err != nil {
 		return err
 	}
-	return toml.NewEncoder(file).Encode(&config)
+	config := getConfig(ctx)
+	return toml.NewEncoder(file).Encode(config)
 }
 
 func saveTokens(ctx *cli.Context, tokens kubeClientModels.Tokens) error {
