@@ -28,12 +28,6 @@ func setupClient(log *logrus.Logger, ctx *cli.Context) error {
 			return err
 		}
 	}
-	err = saveConfig(getConfigPath(ctx), &clientConfig)
-	if err != nil {
-		log.WithError(err).
-			Errorf("error while saving config")
-		return err
-	}
 	client, err := chClient.NewClient(clientConfig)
 	if err != nil {
 		err = chkitErrors.ErrUnableToInitClient().
