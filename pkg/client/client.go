@@ -1,4 +1,4 @@
-package client
+package chClient
 
 import (
 	kubeClient "git.containerum.net/ch/kube-client/pkg/client"

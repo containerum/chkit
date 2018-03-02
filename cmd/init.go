@@ -57,11 +57,10 @@ func Run(args []string) error {
 					Errorf("error while saving config")
 				return err
 			}
-
 			return nil
 		},
 		Metadata: map[string]interface{}{
-			"client": client.Client{},
+			"client": chClient.Client{},
 		},
 		Commands: []*cli.Command{
 			commandLogin(log, configPath),

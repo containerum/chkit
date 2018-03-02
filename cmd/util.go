@@ -13,12 +13,12 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
-func getClient(ctx *cli.Context) client.Client {
-	return ctx.App.Metadata["client"].(client.Client)
+func getClient(ctx *cli.Context) chClient.Client {
+	return ctx.App.Metadata["client"].(chClient.Client)
 }
 
-func setClient(ctx *cli.Context, chClient client.Client) {
-	ctx.App.Metadata["client"] = chClient
+func setClient(ctx *cli.Context, client chClient.Client) {
+	ctx.App.Metadata["client"] = client
 }
 func exitOnErr(log *logrus.Logger, err error) {
 	if err != nil {
