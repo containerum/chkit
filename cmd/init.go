@@ -48,7 +48,7 @@ func Run(args []string) error {
 			"log":        log,
 		},
 		Commands: []*cli.Command{
-			commandLogin(log, configPath),
+			commandLogin(configPath),
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{

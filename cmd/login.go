@@ -13,11 +13,12 @@ import (
 	cli "gopkg.in/urfave/cli.v2"
 )
 
-func commandLogin(log *logrus.Logger, configPath string) *cli.Command {
+func commandLogin(configPath string) *cli.Command {
 	return &cli.Command{
 		Name:  "login",
 		Usage: "use username and password to login in the system",
 		Action: func(ctx *cli.Context) error {
+			log := getLog(ctx)
 			chClient := getClient(ctx)
 			if ctx.IsSet("username") {
 				chClient.Config.Username = ctx.String("username")
