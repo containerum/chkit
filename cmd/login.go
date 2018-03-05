@@ -43,10 +43,14 @@ var commandLogin = &cli.Command{
 func login(ctx *cli.Context) error {
 	log := getLog(ctx)
 	config := getConfig(ctx)
+	var err error
 	if ctx.IsSet("username") {
 		config.Username = ctx.String("username")
 	} else {
-		config.Username = readLogin(log)
+		config.Username, err = readLogin(log)
+		if err != nil {
+			return err
+		}
 	}
 	if strings.TrimSpace(config.Username) == "" {
 		return chkitErrors.ErrInvalidUsername().
@@ -56,7 +60,10 @@ func login(ctx *cli.Context) error {
 	if ctx.IsSet("pass") {
 		config.Password = ctx.String("pass")
 	} else {
-		config.Password = readPassword(log)
+		config.Password, err = readPassword(log)
+		if err != nil {
+			return err
+		}
 	}
 	if strings.TrimSpace(config.Password) == "" {
 		return chkitErrors.ErrInvalidPassword().
@@ -66,17 +73,23 @@ func login(ctx *cli.Context) error {
 	return nil
 }
 
-func readLogin(log *logrus.Logger) string {
+func readLogin(log *logrus.Logger) (string, error) {
 	fmt.Print("Enter your email: ")
 	email, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	email = strings.TrimRight(email, "\r\n")
-	exitOnErr(log, err)
-	return email
+	if err != nil {
+		return "", chkitErrors.ErrUnableToReadUsername().
+			AddDetailsErr(err)
+	}
+	return email, nil
 }
 
-func readPassword(log *logrus.Logger) string {
+func readPassword(log *logrus.Logger) (string, error) {
 	fmt.Print("Enter your password: ")
 	passwordB, err := terminal.ReadPassword(int(syscall.Stdin))
-	exitOnErr(log, err)
-	return string(passwordB)
+	if err != nil {
+		return "", chkitErrors.ErrUnableToReadPassword().
+			AddDetailsErr(err)
+	}
+	return string(passwordB), nil
 }
