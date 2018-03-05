@@ -17,14 +17,22 @@ var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "login your in the system",
 	Action: func(ctx *cli.Context) error {
-		login(ctx)
+		log := getLog(ctx)
+		if err := login(ctx); err != nil {
+			log.Fatalf("error while login: %v", err)
+		}
 		config := getConfig(ctx)
 		if config.APIaddr == "" {
 			config.APIaddr = ctx.String("api")
 		}
 		setConfig(ctx, config)
-		persist(ctx)
-		return mainActivity(ctx)
+		if err := persist(ctx); err != nil {
+			log.Fatalf("%v", err)
+		}
+		if err := mainActivity(ctx); err != nil {
+			log.Fatalf("%v", err)
+		}
+		return nil
 	},
 	Flags: []cli.Flag{
 		&cli.StringFlag{
