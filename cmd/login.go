@@ -9,8 +9,6 @@ import (
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 
-	"github.com/sirupsen/logrus"
-
 	"golang.org/x/crypto/ssh/terminal"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -47,7 +45,7 @@ func login(ctx *cli.Context) error {
 	if ctx.IsSet("username") {
 		config.Username = ctx.String("username")
 	} else {
-		config.Username, err = readLogin(log)
+		config.Username, err = readLogin()
 		if err != nil {
 			return err
 		}
@@ -60,7 +58,7 @@ func login(ctx *cli.Context) error {
 	if ctx.IsSet("pass") {
 		config.Password = ctx.String("pass")
 	} else {
-		config.Password, err = readPassword(log)
+		config.Password, err = readPassword()
 		if err != nil {
 			return err
 		}
@@ -73,7 +71,7 @@ func login(ctx *cli.Context) error {
 	return nil
 }
 
-func readLogin(log *logrus.Logger) (string, error) {
+func readLogin() (string, error) {
 	fmt.Print("Enter your email: ")
 	email, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	email = strings.TrimRight(email, "\r\n")
@@ -84,7 +82,7 @@ func readLogin(log *logrus.Logger) (string, error) {
 	return email, nil
 }
 
-func readPassword(log *logrus.Logger) (string, error) {
+func readPassword() (string, error) {
 	fmt.Print("Enter your password: ")
 	passwordB, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
