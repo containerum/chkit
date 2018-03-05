@@ -4,8 +4,8 @@ import (
 	"os"
 	"path"
 
+	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/blang/semver"
-
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -54,11 +54,15 @@ func Run(args []string) error {
 			log.Infof("logged as %q", clientConfig.Username)
 			return mainActivity(ctx)
 		},
+		After: func(ctx *cli.Context) error {
+			return nil
+		},
 		Metadata: map[string]interface{}{
 			"client":     chClient.Client{},
 			"configPath": configPath,
 			"log":        log,
 			"config":     model.ClientConfig{},
+			"tokens":     kubeClientModels.Tokens{},
 		},
 		Commands: []*cli.Command{
 			commandLogin,
