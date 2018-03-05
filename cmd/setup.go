@@ -38,8 +38,9 @@ func setupConfig(ctx *cli.Context) error {
 	return nil
 }
 
-func persist(ctx *cli.Context) {
+func persist(ctx *cli.Context) error {
 	if !ctx.IsSet("config") {
-		saveConfig(ctx)
+		return saveConfig(ctx)
 	}
+	return nil
 }
