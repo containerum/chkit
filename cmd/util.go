@@ -73,6 +73,13 @@ func writeConfig(ctx *cli.Context) error {
 	return toml.NewEncoder(file).Encode(config)
 }
 
+func getTokens(ctx *cli.Context) kubeClientModels.Tokens {
+	return ctx.App.Metadata["tokens"].(kubeClientModels.Tokens)
+}
+
+func setTokens(ctx *cli.Context, tokens kubeClientModels.Tokens) {
+	ctx.App.Metadata["tokens"] = tokens
+}
 func saveTokens(ctx *cli.Context, tokens kubeClientModels.Tokens) error {
 	file, err := os.Create(path.Join(getConfigPath(ctx), "tokens"))
 	if err != nil {
