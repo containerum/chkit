@@ -7,3 +7,15 @@ SID = 777
     Message = "unable to init client"
     StatusHTTP = 418
     Kind = 1
+
+[[error]]
+    Name = "InvalidUsername"
+    Message = "invalid username"
+    StatusHTTP  = 418
+    Kind = 2
+
+[[error]]
+    Name = "InvalidPassword"
+    Message = "invalid password"
+    StatusHTTP = 418
+    Kind = 3
