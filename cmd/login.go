@@ -39,7 +39,6 @@ var commandLogin = &cli.Command{
 }
 
 func login(ctx *cli.Context) error {
-	log := getLog(ctx)
 	config := getConfig(ctx)
 	var err error
 	if ctx.IsSet("username") {
