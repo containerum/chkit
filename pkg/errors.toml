@@ -31,3 +31,10 @@ SID = 777
     Message = "unable to read password"
     StatusHTTP = 418
     Kind = 5
+
+[[error]]
+    Name = "UnableToSaveLogin"
+    Message = "unable to save login"
+    StatusHTTP = 418
+    Kind = 6
+

@@ -67,6 +67,18 @@ func ErrUnableToReadPassword(params ...func(*cherry.Err)) *cherry.Err {
 	}
 	return err
 }
+
+func ErrUnableToSaveLogin(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "unable to save login", StatusHTTP: 418, ID: cherry.ErrID{SID: 0x309, Kind: 0x6}, Details: []string(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
 func renderTemplate(templText string) string {
 	buf := &bytes.Buffer{}
 	templ, err := template.New("").Parse(templText)
