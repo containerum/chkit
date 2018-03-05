@@ -7,6 +7,8 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containerum/chkit/pkg/chkitErrors"
+
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/crypto/ssh/terminal"
@@ -38,7 +40,7 @@ var commandLogin = &cli.Command{
 	},
 }
 
-func login(ctx *cli.Context) {
+func login(ctx *cli.Context) error {
 	log := getLog(ctx)
 	config := getConfig(ctx)
 	if ctx.IsSet("username") {
@@ -47,7 +49,8 @@ func login(ctx *cli.Context) {
 		config.Username = readLogin(log)
 	}
 	if strings.TrimSpace(config.Username) == "" {
-		log.Fatalln("Username must be non-empty string!")
+		return chkitErrors.ErrInvalidUsername().
+			AddDetailF("username must be non-empty string!")
 	}
 
 	if ctx.IsSet("pass") {
@@ -56,9 +59,11 @@ func login(ctx *cli.Context) {
 		config.Password = readPassword(log)
 	}
 	if strings.TrimSpace(config.Password) == "" {
-		log.Fatalln("Password must be non-empty string!")
+		return chkitErrors.ErrInvalidPassword().
+			AddDetailF("Password must be non-empty string!")
 	}
 	setConfig(ctx, config)
+	return nil
 }
 
 func readLogin(log *logrus.Logger) string {
