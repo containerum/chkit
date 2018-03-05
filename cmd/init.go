@@ -14,7 +14,7 @@ import (
 
 const (
 	Version        = "3.0.0-alpha"
-	containerumAPI = "https://94.130.09.147:8082"
+	containerumAPI = "http://192.168.88.200" //"https://94.130.09.147:8082"
 	FlagConfigFile = "config"
 	FlagAPIaddr    = "apiaddr"
 )
@@ -35,24 +35,30 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
+			log := getLog(ctx)
 			if err := setupConfig(ctx); err != nil && !os.IsNotExist(err) {
-				return err
+				log.Fatalf("error while config setup: %v", err)
 			} else if os.IsNotExist(err) {
-				login(ctx)
+				if err := login(ctx); err != nil {
+					log.Fatalf("error while login: %v", err)
+				}
 				config := getConfig(ctx)
 				if config.APIaddr == "" {
 					config.APIaddr = ctx.String("api")
 				}
-			} else {
-				return err
 			}
 			if err := setupClient(ctx); err != nil {
-				log.Fatal(err)
+				log.Fatalf("error while client setup: %v", err)
 			}
-			persist(ctx)
+			if err := persist(ctx); err != nil {
+				log.Fatalf("%v", err)
+			}
 			clientConfig := getClient(ctx).Config
 			log.Infof("logged as %q", clientConfig.Username)
-			return mainActivity(ctx)
+			if err := mainActivity(ctx); err != nil {
+				log.Fatalf("error in main activity: %v", err)
+			}
+			return nil
 		},
 		After: func(ctx *cli.Context) error {
 			return nil
