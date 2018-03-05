@@ -5,6 +5,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/containerum/chkit/pkg/chkitErrors"
+
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/BurntSushi/toml"
 	"github.com/containerum/chkit/pkg/client"
@@ -24,13 +26,13 @@ func setConfig(ctx *cli.Context, config model.ClientConfig) {
 	ctx.App.Metadata["config"] = config
 }
 
-func saveConfig(ctx *cli.Context) {
-	log := getLog(ctx)
+func saveConfig(ctx *cli.Context) error {
 	err := writeConfig(ctx)
 	if err != nil {
-		log.WithError(err).
-			Fatalf("error while saving config")
+		return chkitErrors.ErrUnableToSaveConfig().
+			AddDetailsErr(err)
 	}
+	return nil
 }
 
 func getClient(ctx *cli.Context) chClient.Client {
