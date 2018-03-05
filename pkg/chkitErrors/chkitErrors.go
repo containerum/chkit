@@ -43,6 +43,30 @@ func ErrInvalidPassword(params ...func(*cherry.Err)) *cherry.Err {
 	}
 	return err
 }
+
+func ErrUnableToReadUsername(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "unable to read username", StatusHTTP: 418, ID: cherry.ErrID{SID: 0x309, Kind: 0x4}, Details: []string(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUnableToReadPassword(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "unable to read password", StatusHTTP: 418, ID: cherry.ErrID{SID: 0x309, Kind: 0x5}, Details: []string(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
 func renderTemplate(templText string) string {
 	buf := &bytes.Buffer{}
 	templ, err := template.New("").Parse(templText)

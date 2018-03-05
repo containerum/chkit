@@ -19,3 +19,15 @@ SID = 777
     Message = "invalid password"
     StatusHTTP = 418
     Kind = 3
+
+[[error]]
+    Name = "UnableToReadUsername"
+    Message = "unable to read username"
+    StatusHTTP = 418
+    Kind = 4
+
+[[error]]
+    Name = "UnableToReadPassword"
+    Message = "unable to read password"
+    StatusHTTP = 418
+    Kind = 5
