@@ -13,7 +13,7 @@ type ErrSID uint64
 // ErrKind -- represents kind of error
 type ErrKind uint64
 
-// ErrID -- represnsents unique error ID
+// ErrID -- represents unique error ID
 type ErrID struct {
 	SID  ErrSID  `json:"sid"`
 	Kind ErrKind `json:"kind"`
@@ -23,7 +23,7 @@ func (errID *ErrID) String() string {
 	return fmt.Sprintf("%v-%v", errID.SID, errID.Kind)
 }
 
-// Err -- standart serializable API error
+// Err -- standard serializable API error
 // Message -- constant error message:
 //		+ "invalid username"
 //		+ "quota exceeded"
@@ -65,7 +65,7 @@ func BuildErr(SID ErrSID) func(string, int, ErrKind) *Err {
 // Returns text representation kinda
 // "unable to parse quota []"
 func (err *Err) Error() string {
-	buf := bytes.NewBufferString(" [" + err.ID.String() + "] " +
+	buf := bytes.NewBufferString("[" + err.ID.String() + "] " +
 		http.StatusText(err.StatusHTTP) + " " +
 		err.Message)
 	detailsLen := len(err.Details)
@@ -99,4 +99,42 @@ func (err *Err) AddDetailsErr(details ...error) *Err {
 		err.AddDetails(detail.Error())
 	}
 	return err
+}
+
+// Equals -- compares with other cherry error.
+// Two cherry errors equal if IDs are deep equal (Kind and SID are equal).
+func (err *Err) Equals(other *Err) bool {
+	if err == other {
+		return true
+	}
+
+	if err == nil || other == nil {
+		return false
+	}
+
+	return err.ID.Kind == other.ID.Kind && err.ID.SID == other.ID.SID
+}
+
+// Equals -- attempts to compare error with cherry error.
+// If error is not *Err returns false. Otherwise uses (*Err).Equals() for comparison.
+func Equals(err error, other *Err) bool {
+	if err == nil {
+		return false
+	}
+	if cherryErr, ok := err.(*Err); ok {
+		return cherryErr.Equals(other)
+	}
+	return false
+}
+
+// ProducedByService -- determines whether error produced by given service
+// If err is not *Err returns false. Otherwise compares (*Err).ID.SID with sid.
+func ProducedByService(err error, sid ErrSID) bool {
+	if err == nil {
+		return false
+	}
+	if cherryErr, ok := err.(*Err); ok {
+		return cherryErr.ID.SID == sid
+	}
+	return false
 }

@@ -1,9 +1,8 @@
 package client
 
 import (
-	"net/http"
+	"git.containerum.net/ch/kube-client/pkg/rest"
 
-	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/model"
 )
 
@@ -14,41 +13,43 @@ const (
 
 // DeletePod -- deletes pod in provided namespace
 func (client *Client) DeletePod(namespace, pod string) error {
-	resp, err := client.Request.
-		SetPathParams(map[string]string{
-			"pod": pod,
-		}).
-		SetError(cherry.Err{}).
-		Delete(client.APIurl + kubeAPIpodPath)
-	return MapErrors(resp, err,
-		http.StatusOK,
-		http.StatusAccepted)
+	return client.re.Delete(rest.Rq{
+		URL: rest.URL{
+			Path: client.APIurl + kubeAPIpodPath,
+			Params: rest.P{
+				"pod": pod,
+			},
+		},
+	})
 }
 
 // GetPod -- gets a particular pod by name.
 func (client *Client) GetPod(namespace, pod string) (model.Pod, error) {
-	resp, err := client.Request.
-		SetPathParams(map[string]string{
-			"namespace": namespace,
-			"pod":       pod,
-		}).
-		SetError(cherry.Err{}).
-		Get(client.APIurl + kubeAPIpodPath)
-	if err = MapErrors(resp, err, http.StatusOK, http.StatusAccepted); err != nil {
-		return model.Pod{}, err
-	}
-	return *resp.Result().(*model.Pod), nil
+	var gainedPod model.Pod
+	err := client.re.Get(rest.Rq{
+		Result: &gainedPod,
+		URL: rest.URL{
+			Path: client.APIurl + kubeAPIpodPath,
+			Params: rest.P{
+				"namespace": namespace,
+				"pod":       pod,
+			},
+		},
+	})
+	return gainedPod, err
 }
 
+// GetPodList -- returns list of pods in provided namespace
 func (client *Client) GetPodList(namespace string) ([]model.Pod, error) {
-	resp, err := client.Request.
-		SetPathParams(map[string]string{
-			"namespace": namespace,
-		}).
-		SetError(cherry.Err{}).
-		Get(client.APIurl + kubeAPIpodRootPath)
-	if err = MapErrors(resp, err, http.StatusOK, http.StatusAccepted); err != nil {
-		return nil, err
-	}
-	return *resp.Result().(*[]model.Pod), nil
+	var podList []model.Pod
+	err := client.re.Get(rest.Rq{
+		Result: &podList,
+		URL: rest.URL{
+			Path: client.APIurl + kubeAPIpodRootPath,
+			Params: rest.P{
+				"namespace": namespace,
+			},
+		},
+	})
+	return podList, err
 }

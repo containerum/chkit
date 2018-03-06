@@ -1,9 +1,8 @@
 package client
 
 import (
-	"net/http"
+	"git.containerum.net/ch/kube-client/pkg/rest"
 
-	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/model"
 )
 
@@ -17,31 +16,37 @@ const (
 // If they're correct returns user access data:
 // list of namespaces and list of volumes OR uninitialized structure AND error
 func (client *Client) CheckToken(token string) (model.CheckTokenResponse, error) {
-	resp, err := client.Request.
-		SetPathParams(map[string]string{
-			"access_token": token,
-		}).
-		SetResult(model.CheckTokenResponse{}).
-		Get(client.AuthURL + getCheckToken)
-	if err = MapErrors(resp, err, http.StatusOK); err != nil {
-		return model.CheckTokenResponse{}, err
-	}
-	return *resp.Result().(*model.CheckTokenResponse), nil
+	var tokenResponse model.CheckTokenResponse
+	err := client.re.Get(rest.Rq{
+		Result: &tokenResponse,
+		URL: rest.URL{
+			Path: client.APIurl + getCheckToken,
+			Params: rest.P{
+				"access_token": token,
+			},
+		},
+	})
+	return tokenResponse, err
 }
 
 // ExtendToken -- consumes refresh JWT token and user fingerprint
 // If they're correct returns new extended access and refresh token OR void tokens AND error.
 // Old access and refresh token become inactive.
 func (client *Client) ExtendToken(refreshToken string) (model.Tokens, error) {
-	resp, err := client.Request.
-		SetPathParams(map[string]string{
-			"refresh_token": refreshToken,
-		}).
-		SetResult(model.Tokens{}).
-		SetError(cherry.Err{}).
-		Put(client.AuthURL + getExtendToken)
-	if err = MapErrors(resp, err, http.StatusOK); err != nil {
-		return model.Tokens{}, err
-	}
-	return *resp.Result().(*model.Tokens), nil
+	var tokens model.Tokens
+	err := client.re.Put(rest.Rq{
+		Result: &tokens,
+		URL: rest.URL{
+			Path: client.APIurl + getExtendToken,
+			Params: rest.P{
+				"refresh_token": refreshToken,
+			},
+		},
+	})
+	return tokens, err
+}
+
+// SetToken -- sets access token
+func (client *Client) SetToken(token string) {
+	client.re.SetToken(token)
 }

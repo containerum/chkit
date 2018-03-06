@@ -7,9 +7,11 @@
   packages = [
     "pkg/cherry",
     "pkg/client",
-    "pkg/model"
+    "pkg/model",
+    "pkg/rest",
+    "pkg/rest/re"
   ]
-  revision = "396a2b912aa365784ac15e84bbe0b74bb57e646d"
+  revision = "6ae6e3e29c8b4ee116b9d748d8687e97b2ff80ac"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -32,8 +34,8 @@
 [[projects]]
   name = "github.com/go-resty/resty"
   packages = ["."]
-  revision = "00cb083b8cdc8b0fb1e1f5ebe24bbc23e0ff0cf6"
-  version = "v1.2"
+  revision = "65798e030a35b911602b4d1d743d6f50ac93b665"
+  version = "v1.3"
 
 [[projects]]
   branch = "master"
@@ -157,7 +159,7 @@
     "idna",
     "publicsuffix"
   ]
-  revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
+  revision = "d25186b37f34ebdbbea8f488ef055638dfab272d"
 
 [[projects]]
   branch = "master"
@@ -166,7 +168,7 @@
     "unix",
     "windows"
   ]
-  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
+  revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
 
 [[projects]]
   name = "golang.org/x/text"
