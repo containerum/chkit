@@ -17,11 +17,8 @@ func NewClient(config model.ClientConfig) (*Client, error) {
 	chcli := &Client{
 		Config: config,
 	}
-	kubecli, err := kubeClient.CreateCmdClient(kubeClient.Config{
-		APIurl:         config.APIaddr + ":1214",
-		UserManagerURL: config.APIaddr + ":8111",
-		ResourceAddr:   config.APIaddr + ":1213",
-		AuthURL:        config.APIaddr + ":1111",
+	kubecli, err := kubeClient.NewClient(kubeClient.Config{
+		APIurl: config.APIaddr,
 		User: kubeClient.User{
 			Role: "user",
 		},
@@ -43,6 +40,7 @@ func (client *Client) Login() error {
 	if err != nil {
 		return err
 	}
+	client.kubeApiClient.SetToken(tokens.AccessToken)
 	client.Tokens = tokens
 	return nil
 }
