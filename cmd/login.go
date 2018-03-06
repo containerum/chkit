@@ -17,9 +17,8 @@ var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "login your in the system",
 	Action: func(ctx *cli.Context) error {
-		log := getLog(ctx)
 		if err := login(ctx); err != nil {
-			log.Fatalf("error while login: %v", err)
+			return chkitErrors.NewExitCoder(err)
 		}
 		config := getConfig(ctx)
 		if config.APIaddr == "" {
@@ -27,10 +26,10 @@ var commandLogin = &cli.Command{
 		}
 		setConfig(ctx, config)
 		if err := persist(ctx); err != nil {
-			log.Fatalf("%v", err)
+			return chkitErrors.NewExitCoder(err)
 		}
 		if err := mainActivity(ctx); err != nil {
-			log.Fatalf("%v", err)
+			return chkitErrors.NewExitCoder(err)
 		}
 		return nil
 	},
