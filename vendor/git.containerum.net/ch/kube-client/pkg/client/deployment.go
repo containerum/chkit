@@ -19,7 +19,7 @@ const (
 // returns a Deployment data OR uninitialized struct AND an error
 func (client *Client) GetDeployment(namespace, deployment string) (model.Deployment, error) {
 	var depl model.Deployment
-	err := client.re.Get(rest.Rq{
+	err := client.RestAPI.Get(rest.Rq{
 		Result: &depl,
 		URL: rest.URL{
 			Path: client.APIurl + kubeAPIdeploymentPath,
@@ -36,7 +36,7 @@ func (client *Client) GetDeployment(namespace, deployment string) (model.Deploym
 // returns a list of Deployments OR nil slice AND an error
 func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, error) {
 	var depls []model.Deployment
-	err := client.re.Get(rest.Rq{
+	err := client.RestAPI.Get(rest.Rq{
 		Result: &depls,
 		URL: rest.URL{
 			Path: client.APIurl + kubeAPIdeploymentsPath,
@@ -51,7 +51,7 @@ func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, e
 // DeleteDeployment -- consumes a namespace, a deployment,
 // an user role and an ID
 func (client *Client) DeleteDeployment(namespace, deployment string) error {
-	return client.re.Delete(rest.Rq{
+	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
 			Path: client.APIurl + resourceDeploymentPath,
 			Params: rest.P{
@@ -65,7 +65,7 @@ func (client *Client) DeleteDeployment(namespace, deployment string) error {
 // CreateDeployment -- consumes a namespace, an user ID and a Role,
 // returns nil if OK
 func (client *Client) CreateDeployment(namespace string, deployment model.Deployment) error {
-	return client.re.Post(rest.Rq{
+	return client.RestAPI.Post(rest.Rq{
 		Body: deployment,
 		URL: rest.URL{
 			Path: client.APIurl + resourceDeploymentRootPath,
@@ -79,7 +79,7 @@ func (client *Client) CreateDeployment(namespace string, deployment model.Deploy
 // SetContainerImage -- set or changes deployment container image
 // Consumes namespace, deployment and container data
 func (client *Client) SetContainerImage(namespace, deployment string, updateImage model.UpdateImage) error {
-	return client.re.Put(rest.Rq{
+	return client.RestAPI.Put(rest.Rq{
 		Body: updateImage,
 		URL: rest.URL{
 			Path: client.APIurl + resourceImagePath,
@@ -93,7 +93,7 @@ func (client *Client) SetContainerImage(namespace, deployment string, updateImag
 
 // ReplaceDeployment -- replaces deployment in provided namespace with new one
 func (client *Client) ReplaceDeployment(namespace string, deployment model.Deployment) error {
-	return client.re.Put(rest.Rq{
+	return client.RestAPI.Put(rest.Rq{
 		Body: deployment,
 		URL: rest.URL{
 			Path: client.APIurl + resourceDeploymentPath,
@@ -107,7 +107,7 @@ func (client *Client) ReplaceDeployment(namespace string, deployment model.Deplo
 
 // SetReplicas -- sets or changes deployment replicas
 func (client *Client) SetReplicas(namespace, deployment string, replicas int) error {
-	return client.re.Put(rest.Rq{
+	return client.RestAPI.Put(rest.Rq{
 		Body: model.UpdateReplicas{
 			Replicas: replicas,
 		},

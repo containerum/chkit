@@ -15,7 +15,7 @@ const (
 
 // DeleteVolume -- deletes Volume with provided volume name
 func (client *Client) DeleteVolume(volumeName string) error {
-	return client.re.Delete(rest.Rq{
+	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
 			Path: client.APIurl + resourceVolumePath,
 			Params: rest.P{
@@ -29,7 +29,7 @@ func (client *Client) DeleteVolume(volumeName string) error {
 // consumes optional userID param
 func (client *Client) GetVolume(volumeName string) (model.Volume, error) {
 	var volume model.Volume
-	err := client.re.Get(rest.Rq{
+	err := client.RestAPI.Get(rest.Rq{
 		Result: &volume,
 		URL: rest.URL{
 			Path: client.APIurl + resourceVolumePath,
@@ -51,7 +51,7 @@ func (client *Client) GetVolumeList(filter *string) ([]model.Volume, error) {
 	if filter != nil {
 		query["filter"] = *filter
 	}
-	err := client.re.Get(rest.Rq{
+	err := client.RestAPI.Get(rest.Rq{
 		Result: &volumeList,
 		URL: rest.URL{
 			Path:   client.APIurl + resourceVolumeRootPath,
@@ -63,7 +63,7 @@ func (client *Client) GetVolumeList(filter *string) ([]model.Volume, error) {
 
 //RenameVolume -- change volume name
 func (client *Client) RenameVolume(volumeName, newName string) error {
-	return client.re.Put(rest.Rq{
+	return client.RestAPI.Put(rest.Rq{
 		Body: model.ResourceUpdateName{
 			Label: newName,
 		},
@@ -78,7 +78,7 @@ func (client *Client) RenameVolume(volumeName, newName string) error {
 
 // SetVolumeAccess -- sets User Volume access
 func (client *Client) SetVolumeAccess(volumeName string, accessData model.ResourceUpdateUserAccess) error {
-	return client.re.Post(rest.Rq{
+	return client.RestAPI.Post(rest.Rq{
 		Body: accessData,
 		URL: rest.URL{
 			Path: client.APIurl + resourceVolumeAccessPath,
@@ -91,7 +91,7 @@ func (client *Client) SetVolumeAccess(volumeName string, accessData model.Resour
 
 // DeleteAccess -- deletes user Volume access
 func (client *Client) DeleteAccess(volumeName, username string) error {
-	return client.re.Delete(rest.Rq{
+	return client.RestAPI.Delete(rest.Rq{
 		Body: model.ResourceUpdateUserAccess{
 			Username: username,
 		},

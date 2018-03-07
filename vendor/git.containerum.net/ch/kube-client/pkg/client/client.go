@@ -4,16 +4,13 @@ import (
 	"net/url"
 
 	"git.containerum.net/ch/kube-client/pkg/rest"
-	"git.containerum.net/ch/kube-client/pkg/rest/re"
 )
 
 //TODO: Make Interface
 
 //Client - rest client
 type Client struct {
-	re rest.REST
 	Config
-	User User
 }
 
 //User -
@@ -40,12 +37,10 @@ func NewClient(config Config) (*Client, error) {
 	}
 	config.APIurl = APIurl.String()
 	if config.RestAPI == nil {
-		config.RestAPI = re.NewResty()
+		panic("[kube-client] undefined RestAPI in config")
 	}
 	client := &Client{
-		re:     config.RestAPI,
-		Config: config,
-		User:   config.User,
+		config,
 	}
 	return client, nil
 }

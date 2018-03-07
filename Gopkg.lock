@@ -11,7 +11,7 @@
     "pkg/rest",
     "pkg/rest/re"
   ]
-  revision = "6ae6e3e29c8b4ee116b9d748d8687e97b2ff80ac"
+  revision = "341b18ac69d57529d2b9df23e26f8d4eb05efc3d"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -149,7 +149,7 @@
     "ssh/knownhosts",
     "ssh/terminal"
   ]
-  revision = "91a49db82a88618983a78a06c1cbd4e00ab749ab"
+  revision = "85f98707c97e11569271e4d9b3d397e079c4f4d0"
 
 [[projects]]
   branch = "master"
@@ -265,6 +265,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "484c2fd7f08c25cefdbdc60a3f9dd13c4d28cc4206170c5928fe0908bf553d89"
+  inputs-digest = "0660bf585d7167562f465267c2f2cb670a207d63aa276239532f9cfe400ab361"
   solver-name = "gps-cdcl"
   solver-version = 1

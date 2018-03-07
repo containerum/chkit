@@ -15,7 +15,7 @@ const (
 // returns a Service OR an uninitialized Service struct AND an error
 func (client *Client) GetService(namespace, serviceName string) (model.Service, error) {
 	var service model.Service
-	err := client.re.Get(rest.Rq{
+	err := client.RestAPI.Get(rest.Rq{
 		Result: &service,
 		URL: rest.URL{
 			Path: client.APIurl + servicePath,
@@ -32,7 +32,7 @@ func (client *Client) GetService(namespace, serviceName string) (model.Service, 
 // returns a slice of Services OR a nil slice AND an error
 func (client *Client) GetServiceList(namespace string) ([]model.Service, error) {
 	var serviceList []model.Service
-	err := client.re.Get(rest.Rq{
+	err := client.RestAPI.Get(rest.Rq{
 		Result: &serviceList,
 		URL: rest.URL{
 			Path: client.APIurl + servicesPath,
@@ -48,7 +48,7 @@ func (client *Client) GetServiceList(namespace string) ([]model.Service, error) 
 // returns the created Service AND nil OR an uninitialized Service AND an error
 func (client *Client) CreateService(namespace string, service model.Service) (model.Service, error) {
 	var gainedService model.Service
-	err := client.re.Post(rest.Rq{
+	err := client.RestAPI.Post(rest.Rq{
 		Body:   service,
 		Result: &gainedService,
 		URL: rest.URL{
@@ -64,7 +64,7 @@ func (client *Client) CreateService(namespace string, service model.Service) (mo
 // DeleteService -- consumes a namespace, a servicce name,
 // returns error in case of problem
 func (client *Client) DeleteService(namespace, serviceName string) error {
-	return client.re.Delete(rest.Rq{
+	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
 			Path: client.APIurl + servicePath,
 			Params: rest.P{
@@ -79,7 +79,7 @@ func (client *Client) DeleteService(namespace, serviceName string) error {
 // returns an ipdated Service OR an uninitialized Service AND an error
 func (client *Client) UpdateService(namespace string, service model.Service) (model.Service, error) {
 	var gainedService model.Service
-	err := client.re.Put(rest.Rq{
+	err := client.RestAPI.Put(rest.Rq{
 		Body:   service,
 		Result: &gainedService,
 		URL: rest.URL{

@@ -17,7 +17,7 @@ const (
 // list of namespaces and list of volumes OR uninitialized structure AND error
 func (client *Client) CheckToken(token string) (model.CheckTokenResponse, error) {
 	var tokenResponse model.CheckTokenResponse
-	err := client.re.Get(rest.Rq{
+	err := client.RestAPI.Get(rest.Rq{
 		Result: &tokenResponse,
 		URL: rest.URL{
 			Path: client.APIurl + getCheckToken,
@@ -34,7 +34,7 @@ func (client *Client) CheckToken(token string) (model.CheckTokenResponse, error)
 // Old access and refresh token become inactive.
 func (client *Client) ExtendToken(refreshToken string) (model.Tokens, error) {
 	var tokens model.Tokens
-	err := client.re.Put(rest.Rq{
+	err := client.RestAPI.Put(rest.Rq{
 		Result: &tokens,
 		URL: rest.URL{
 			Path: client.APIurl + getExtendToken,
@@ -48,5 +48,5 @@ func (client *Client) ExtendToken(refreshToken string) (model.Tokens, error) {
 
 // SetToken -- sets access token
 func (client *Client) SetToken(token string) {
-	client.re.SetToken(token)
+	client.RestAPI.SetToken(token)
 }
