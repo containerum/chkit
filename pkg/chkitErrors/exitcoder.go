@@ -13,10 +13,15 @@ type ExitCoder struct {
 	Code int
 }
 
-func NewExitCoder(err error) *ExitCoder {
-	return &ExitCoder{
-		Err:  err,
-		Code: 1,
+func NewExitCoder(err error) cli.ExitCoder {
+	switch err := err.(type) {
+	case cli.ExitCoder:
+		return err
+	default:
+		return &ExitCoder{
+			Code: 1,
+			Err:  err,
+		}
 	}
 }
 func (coder *ExitCoder) Error() string {
