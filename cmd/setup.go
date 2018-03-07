@@ -12,6 +12,7 @@ func setupClient(ctx *cli.Context) error {
 	config := getConfig(ctx)
 	var client *chClient.Client
 	var err error
+	config.Fingerprint = Fingerprint()
 	if ctx.Bool("test") {
 		log.Infof("running in test mode")
 		client, err = chClient.NewClient(config, chClient.UnsafeSkipTLSCheck)
