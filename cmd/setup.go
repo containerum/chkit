@@ -31,6 +31,9 @@ func setupConfig(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	if ctx.Bool("test") {
+		ctx.Set("api", testContainerumAPI)
+	}
 	if config.APIaddr == "" {
 		config.APIaddr = ctx.String("api")
 	}
