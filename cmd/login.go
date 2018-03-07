@@ -28,6 +28,9 @@ var commandLogin = &cli.Command{
 		if err := persist(ctx); err != nil {
 			return chkitErrors.NewExitCoder(err)
 		}
+		if err := setupClient(ctx); err != nil {
+			return chkitErrors.NewExitCoder(err)
+		}
 		if err := mainActivity(ctx); err != nil {
 			return chkitErrors.NewExitCoder(err)
 		}
