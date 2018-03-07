@@ -9,9 +9,10 @@ import (
 
 func TestLoginToSandbox(test *testing.T) {
 	client, err := chClient.NewClient(model.Config{
-		APIaddr:  "https://192.168.88.200:8082",
-		Username: "helpik94@yandex.ru",
-		Password: "12345678",
+		APIaddr:     "https://192.168.88.200:8082",
+		Username:    "helpik94@yandex.ru",
+		Password:    "12345678",
+		Fingerprint: Fingerprint(),
 	}, chClient.UnsafeSkipTLSCheck)
 	if err != nil {
 		test.Fatalf("error while client creation: %v", err)
