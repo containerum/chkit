@@ -10,10 +10,15 @@ import (
 func setupClient(ctx *cli.Context) error {
 	log := getLog(ctx)
 	config := getConfig(ctx)
-	if config.APIaddr == "" {
-		config.APIaddr = ctx.String("api")
+	var client *chClient.Client
+	var err error
+	if ctx.Bool("test") {
+		log.Infof("running in test mode")
+		client, err = chClient.NewClient(config, chClient.UnsafeSkipTLSCheck)
+	} else {
+		client, err = chClient.NewClient(config)
 	}
-	client, err := chClient.NewClient(config)
+
 	if err != nil {
 		err = chkitErrors.ErrUnableToInitClient().
 			AddDetailsErr(err)
