@@ -22,7 +22,11 @@ var commandLogin = &cli.Command{
 		}
 		config := getConfig(ctx)
 		if config.APIaddr == "" {
-			config.APIaddr = ctx.String("api")
+			if ctx.Bool("test") {
+				config.APIaddr = testContainerumAPI
+			} else {
+				config.APIaddr = ctx.String("api")
+			}
 		}
 		setConfig(ctx, config)
 		if err := persist(ctx); err != nil {
@@ -32,7 +36,7 @@ var commandLogin = &cli.Command{
 			return chkitErrors.NewExitCoder(err)
 		}
 		if err := mainActivity(ctx); err != nil {
-			return chkitErrors.NewExitCoder(err)
+			return err
 		}
 		return nil
 	},
