@@ -1,14 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"os"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/containerum/chkit/cmd"
 )
 
 func main() {
 	if err := cmd.Run(os.Args); err != nil {
-		fmt.Println(err)
+		logrus.Fatalf("fatal error: %v", err)
 	}
 }
