@@ -8,7 +8,7 @@ import (
 )
 
 func TestLoginToSandbox(test *testing.T) {
-	client, err := chClient.NewClient(model.ClientConfig{
+	client, err := chClient.NewClient(model.Config{
 		APIaddr:  "https://192.168.88.200:8082",
 		Username: "helpik94@yandex.ru",
 		Password: "12345678",

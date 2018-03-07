@@ -67,7 +67,7 @@ func Run(args []string) error {
 			"client":     chClient.Client{},
 			"configPath": configPath,
 			"log":        log,
-			"config":     model.ClientConfig{},
+			"config":     model.Config{},
 			"tokens":     kubeClientModels.Tokens{},
 		},
 		Commands: []*cli.Command{

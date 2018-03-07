@@ -18,11 +18,11 @@ import (
 func getLog(ctx *cli.Context) *logrus.Logger {
 	return ctx.App.Metadata["log"].(*logrus.Logger)
 }
-func getConfig(ctx *cli.Context) model.ClientConfig {
-	return ctx.App.Metadata["config"].(model.ClientConfig)
+func getConfig(ctx *cli.Context) model.Config {
+	return ctx.App.Metadata["config"].(model.Config)
 }
 
-func setConfig(ctx *cli.Context, config model.ClientConfig) {
+func setConfig(ctx *cli.Context, config model.Config) {
 	ctx.App.Metadata["config"] = config
 }
 
@@ -53,7 +53,7 @@ func exitOnErr(log *logrus.Logger, err error) {
 	}
 }
 
-func loadConfig(configFilePath string, config *model.ClientConfig) error {
+func loadConfig(configFilePath string, config *model.Config) error {
 	_, err := toml.DecodeFile(configFilePath, &config)
 	if err != nil {
 		return err
@@ -90,9 +90,9 @@ func saveTokens(ctx *cli.Context, tokens kubeClientModels.Tokens) error {
 	return json.NewEncoder(file).Encode(tokens)
 }
 
-func loadTokens(config *model.Config) (kubeClientModels.Tokens, error) {
+func loadTokens(ctx *cli.Context) (kubeClientModels.Tokens, error) {
 	tokens := kubeClientModels.Tokens{}
-	file, err := os.Open(path.Join(config.ConfigPath, "tokens"))
+	file, err := os.Open(path.Join(getConfigPath(ctx), "tokens"))
 	if err != nil {
 		return tokens, err
 	}

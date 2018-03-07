@@ -9,17 +9,18 @@ import (
 )
 
 type Client struct {
-	Config        model.ClientConfig
+	Config        model.Config
 	Tokens        kubeClientModels.Tokens
 	kubeApiClient kubeClient.Client
 }
 
-func NewClient(config model.ClientConfig, options ...func(*Client) *Client) (*Client, error) {
+func NewClient(config model.Config, options ...func(*Client) *Client) (*Client, error) {
 	chcli := &Client{
 		Config: config,
 	}
 	kubecli, err := kubeClient.NewClient(kubeClient.Config{
-		APIurl: config.APIaddr,
+		APIurl:  config.APIaddr,
+		RestAPI: re.NewResty(),
 		User: kubeClient.User{
 			Role: "user",
 		},
@@ -29,6 +30,7 @@ func NewClient(config model.ClientConfig, options ...func(*Client) *Client) (*Cl
 			AddDetailsErr(err)
 		return nil, err
 	}
+	kubecli.SetFingerprint(config.Fingerprint)
 	chcli.kubeApiClient = *kubecli
 	for _, option := range options {
 		chcli = option(chcli)
@@ -37,8 +39,11 @@ func NewClient(config model.ClientConfig, options ...func(*Client) *Client) (*Cl
 }
 
 func UnsafeSkipTLSCheck(client *Client) *Client {
-	if _, ok := client.kubeApiClient.RestAPI.(*re.Resty); ok {
-		client.kubeApiClient.RestAPI = re.NewResty(re.SkipTLSVerify)
+	restAPI := client.kubeApiClient.RestAPI
+	if _, ok := restAPI.(*re.Resty); ok || restAPI == nil {
+		newRestAPI := re.NewResty(re.SkipTLSVerify)
+		newRestAPI.SetFingerprint(client.Config.Fingerprint)
+		client.kubeApiClient.RestAPI = newRestAPI
 	}
 	return client
 }
