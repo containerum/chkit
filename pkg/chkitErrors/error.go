@@ -13,11 +13,18 @@ var (
 	_ error          = Err("")
 	_ cli.ExitCoder  = Err("")
 	_ cli.MultiError = Err("")
+	_ ErrMatcher     = Err("")
 
 	_ error          = &Wrapper{}
 	_ cli.ExitCoder  = &Wrapper{}
 	_ cli.MultiError = &Wrapper{}
+	_ ErrMatcher     = &Wrapper{}
 )
+
+type ErrMatcher interface {
+	error
+	Match(...error) bool
+}
 
 func (err Err) Error() string {
 	return string(err)
@@ -31,6 +38,22 @@ func (err Err) ExitCode() int {
 }
 func (err Err) Wrap(errs ...error) *Wrapper {
 	return Wrap(err, errs...)
+}
+
+func (err Err) Match(errs ...error) bool {
+	for _, er := range errs {
+		switch er := er.(type) {
+		case *Wrapper:
+			if er.main == err {
+				return true
+			}
+		default:
+			if err == er {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 type Wrapper struct {
