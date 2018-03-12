@@ -49,7 +49,7 @@ func setupConfig(ctx *cli.Context) error {
 	}
 	if ctx.IsSet("test") {
 		testAPIurl := os.Getenv("CONTAINERUM_API")
-		log.Infof("useing test api %q", testAPIurl)
+		log.Infof("using test api %q", testAPIurl)
 		config.APIaddr = testAPIurl
 	}
 
