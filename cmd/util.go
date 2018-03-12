@@ -15,6 +15,10 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
+const (
+	ErrUnableToSaveConfig chkitErrors.Err = "unable to save config"
+)
+
 func getLog(ctx *cli.Context) *logrus.Logger {
 	return ctx.App.Metadata["log"].(*logrus.Logger)
 }
@@ -29,8 +33,7 @@ func setConfig(ctx *cli.Context, config model.Config) {
 func saveConfig(ctx *cli.Context) error {
 	err := writeConfig(ctx)
 	if err != nil {
-		return chkitErrors.ErrUnableToSaveConfig().
-			AddDetailsErr(err)
+		return ErrUnableToSaveConfig.Wrap(err)
 	}
 	return nil
 }
