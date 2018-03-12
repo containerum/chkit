@@ -1,8 +1,7 @@
 package model
 
 type Config struct {
+	UserInfo
 	APIaddr     string
-	Username    string
-	Password    string
 	Fingerprint string
 }
