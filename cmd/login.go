@@ -25,8 +25,11 @@ var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "login your in the system",
 	Action: func(ctx *cli.Context) error {
+		err := setupConfig(ctx)
+		if err != nil && err != ErrInvalidUserInfo {
+			return err
+		}
 		config := getConfig(ctx)
-		var err error
 		var user model.UserInfo
 		if user, err = login(ctx); err != nil {
 			return err
@@ -52,6 +55,12 @@ var commandLogin = &cli.Command{
 		&cli.StringFlag{
 			Name:  "pass",
 			Usage: "password to system",
+		},
+		&cli.StringFlag{
+			Name:   "test",
+			Usage:  "test presets",
+			Value:  "api",
+			Hidden: false,
 		},
 	},
 }
