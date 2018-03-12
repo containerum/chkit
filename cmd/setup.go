@@ -10,6 +10,7 @@ import (
 
 const (
 	ErrUnableToLoadConfig chkitErrors.Err = "unable to load config"
+	ErrInvalidUserInfo    chkitErrors.Err = "invalid user info"
 	ErrInvalidAPIurl      chkitErrors.Err = "invalid API url"
 	ErrUnableToInitClient chkitErrors.Err = "unable to init client"
 )
@@ -19,9 +20,14 @@ func setupClient(ctx *cli.Context) error {
 	config := getConfig(ctx)
 	var client *chClient.Client
 	var err error
-	if ctx.Bool("test") {
+	if ctx.IsSet("test") {
 		log.Infof("running in test mode")
-		client, err = chClient.NewClient(config, chClient.UnsafeSkipTLSCheck)
+		switch ctx.String("test") {
+		case "mock":
+			client, err = chClient.NewClient(config, chClient.Mock)
+		case "api":
+			client, err = chClient.NewClient(config, chClient.UnsafeSkipTLSCheck)
+		}
 	} else {
 		client, err = chClient.NewClient(config)
 	}
@@ -34,18 +40,26 @@ func setupClient(ctx *cli.Context) error {
 }
 
 func setupConfig(ctx *cli.Context) error {
+	log := getLog(ctx)
 	config := getConfig(ctx)
 	err := loadConfig(ctx.String("config"), &config)
 	if err != nil {
 		return ErrUnableToLoadConfig.
 			Wrap(err)
 	}
-	if ctx.Bool("test") {
-		config.APIaddr = os.Getenv("CONTAINERUM_API")
+	if ctx.IsSet("test") {
+		testAPIurl := os.Getenv("CONTAINERUM_API")
+		log.Infof("useing test api %q", testAPIurl)
+		config.APIaddr = testAPIurl
 	}
+
 	if config.APIaddr == "" {
 		return ErrInvalidAPIurl
 	}
+	if config.Password == "" || config.Username == "" {
+		return ErrInvalidUserInfo
+	}
+
 	config.Fingerprint = Fingerprint()
 	setConfig(ctx, config)
 	return nil
