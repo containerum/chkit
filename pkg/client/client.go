@@ -56,7 +56,7 @@ func Mock(client *Client) *Client {
 }
 func (client *Client) Login() error {
 	tokens, err := client.kubeApiClient.Login(kubeClientModels.Login{
-		Username: client.Config.Username,
+		Login:    client.Config.Username,
 		Password: client.Config.Password,
 	})
 	if err != nil {
