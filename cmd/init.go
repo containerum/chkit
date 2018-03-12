@@ -13,10 +13,9 @@ import (
 )
 
 const (
-	Version            = "3.0.0-alpha"
-	testContainerumAPI = "https://192.168.88.200:8082" //"https://94.130.09.147:8082"
-	FlagConfigFile     = "config"
-	FlagAPIaddr        = "apiaddr"
+	Version        = "3.0.0-alpha"
+	FlagConfigFile = "config"
+	FlagAPIaddr    = "apiaddr"
 )
 
 func Run(args []string) error {

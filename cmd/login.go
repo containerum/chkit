@@ -23,7 +23,7 @@ var commandLogin = &cli.Command{
 		config := getConfig(ctx)
 		if config.APIaddr == "" {
 			if ctx.Bool("test") {
-				config.APIaddr = testContainerumAPI
+				config.APIaddr = os.Getenv("CONTAINERUM_API")
 			} else {
 				config.APIaddr = ctx.String("api")
 			}
