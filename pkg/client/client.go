@@ -4,6 +4,7 @@ import (
 	kubeClient "git.containerum.net/ch/kube-client/pkg/client"
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"git.containerum.net/ch/kube-client/pkg/rest/re"
+	"git.containerum.net/ch/kube-client/pkg/rest/remock"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
 )
@@ -45,6 +46,10 @@ func UnsafeSkipTLSCheck(client *Client) *Client {
 		newRestAPI.SetFingerprint(client.Config.Fingerprint)
 		client.kubeApiClient.RestAPI = newRestAPI
 	}
+	return client
+}
+func Mock(client *Client) *Client {
+	client.kubeApiClient.RestAPI = remock.NewMock()
 	return client
 }
 func (client *Client) Login() error {
