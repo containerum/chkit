@@ -2,7 +2,6 @@
 
 
 [[projects]]
-  branch = "develop"
   name = "git.containerum.net/ch/kube-client"
   packages = [
     "pkg/cherry",
@@ -13,7 +12,8 @@
     "pkg/rest/remock",
     "pkg/rest/remock/ermockerr"
   ]
-  revision = "0edd8da5f8d8d92529bf2ffae796710829134a1a"
+  revision = "9b6af8b3494e2a0283c010490b3bda4317f15ab9"
+  version = "v0.1.0"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -316,6 +316,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e1decb03ee73d9a57e0073d2b22504c853c11232b8d35b998fd94ad12dda08c4"
+  inputs-digest = "4b75fe08b5ddd3f724a97f1c2f54b54a605520e9831c38e509b9a408b1f6da8a"
   solver-name = "gps-cdcl"
   solver-version = 1

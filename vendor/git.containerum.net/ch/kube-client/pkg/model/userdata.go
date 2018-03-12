@@ -44,7 +44,7 @@ type CheckTokenResponse struct {
 
 // Login --
 type Login struct {
-	Username  string  `json:"username"`
+	Login     string  `json:"login"`
 	Password  string  `json:"password"`
 	Recaptcha *string `json:"recaptcha,omitempty"`
 }
