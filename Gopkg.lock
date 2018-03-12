@@ -9,7 +9,9 @@
     "pkg/client",
     "pkg/model",
     "pkg/rest",
-    "pkg/rest/re"
+    "pkg/rest/re",
+    "pkg/rest/remock",
+    "pkg/rest/remock/ermockerr"
   ]
   revision = "341b18ac69d57529d2b9df23e26f8d4eb05efc3d"
 
@@ -38,6 +40,12 @@
   version = "v1.3"
 
 [[projects]]
+  name = "github.com/gogo/protobuf"
+  packages = ["proto"]
+  revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/jbenet/go-context"
   packages = ["io"]
@@ -54,6 +62,12 @@
   packages = ["."]
   revision = "0ff8514904a8ebfcfb3c32ad73e1f8498a7f81b4"
   version = "0.3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/matishsiao/goInfo"
+  packages = ["."]
+  revision = "617e6440957ee5591c8912e8b7e2f03a86298722"
 
 [[projects]]
   name = "github.com/mattn/go-runewidth"
@@ -90,6 +104,12 @@
   packages = ["."]
   revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
   version = "v1.0.4"
+
+[[projects]]
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/src-d/gcfg"
@@ -192,6 +212,12 @@
   version = "v0.3.0"
 
 [[projects]]
+  name = "gopkg.in/inf.v0"
+  packages = ["."]
+  revision = "3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4"
+  version = "v0.9.0"
+
+[[projects]]
   name = "gopkg.in/src-d/go-billy.v4"
   packages = [
     ".",
@@ -262,9 +288,21 @@
   revision = "ec4a0fea49c7b46c2aeb0b51aac55779c607e52b"
   version = "v0.1.2"
 
+[[projects]]
+  branch = "master"
+  name = "k8s.io/apimachinery"
+  packages = [
+    "pkg/api/resource",
+    "pkg/util/errors",
+    "pkg/util/sets",
+    "pkg/util/validation",
+    "pkg/util/validation/field"
+  ]
+  revision = "e9ff529c66f83aeac6dff90f11ea0c5b7c4d626a"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0660bf585d7167562f465267c2f2cb670a207d63aa276239532f9cfe400ab361"
+  inputs-digest = "c85e5639938d53e0f3b94d75cb3826a78e771b037eae5af7768bdc71dcf7198e"
   solver-name = "gps-cdcl"
   solver-version = 1
