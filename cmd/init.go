@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"os"
 	"path"
 
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/blang/semver"
+	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -35,16 +35,23 @@ func Run(args []string) error {
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
 			log := getLog(ctx)
-			if err := setupConfig(ctx); err != nil && !os.IsNotExist(err) {
-				log.Fatalf("error while config setup: %v", err)
-			} else if os.IsNotExist(err) {
-				if err := login(ctx); err != nil {
-					log.Fatalf("error while login: %v", err)
+			switch err := setupConfig(ctx).(type) {
+			case nil:
+				//
+			case chkitErrors.ErrMatcher:
+				if err.Match(ErrInvalidUserInfo) {
+					config := getConfig(ctx)
+					user, err := login(ctx)
+					if err != nil {
+						return err
+					}
+					config.UserInfo = user
+					setConfig(ctx, config)
+				} else {
+					return err
 				}
-				config := getConfig(ctx)
-				if config.APIaddr == "" {
-					config.APIaddr = ctx.String("api")
-				}
+			default:
+				return err
 			}
 			if err := setupClient(ctx); err != nil {
 				log.Fatalf("error while client setup: %v", err)
@@ -53,7 +60,7 @@ func Run(args []string) error {
 				log.Fatalf("%v", err)
 			}
 			clientConfig := getClient(ctx).Config
-			log.Infof("logged as %q", clientConfig.Username)
+			log.Infof("Hello, %q!", clientConfig.Username)
 			if err := mainActivity(ctx); err != nil {
 				log.Fatalf("error in main activity: %v", err)
 			}
@@ -86,11 +93,11 @@ func Run(args []string) error {
 				Hidden:  true,
 				EnvVars: []string{"CONTAINERUM_API"},
 			},
-			&cli.BoolFlag{
+			&cli.StringFlag{
 				Name:   "test",
 				Usage:  "test presets",
-				Value:  false,
-				Hidden: true,
+				Value:  "api",
+				Hidden: false,
 			},
 		},
 	}
