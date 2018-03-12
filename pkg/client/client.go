@@ -9,6 +9,10 @@ import (
 	"github.com/containerum/chkit/pkg/model"
 )
 
+const (
+	ErrUnableToInitClient chkitErrors.Err = "unable to init client"
+)
+
 type Client struct {
 	Config        model.Config
 	Tokens        kubeClientModels.Tokens
@@ -27,9 +31,7 @@ func NewClient(config model.Config, options ...func(*Client) *Client) (*Client, 
 		},
 	})
 	if err != nil {
-		err = chkitErrors.ErrUnableToInitClient().
-			AddDetailsErr(err)
-		return nil, err
+		return nil, ErrUnableToInitClient.Wrap(err)
 	}
 	kubecli.SetFingerprint(config.Fingerprint)
 	chcli.kubeApiClient = *kubecli
