@@ -8,26 +8,30 @@ import (
 	"syscall"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/model"
 
 	"golang.org/x/crypto/ssh/terminal"
 	cli "gopkg.in/urfave/cli.v2"
+)
+
+var (
+	ErrUnableToReadPassword chkitErrors.Err = "unable to read password"
+	ErrUnableToReadUsername chkitErrors.Err = "unable to read username"
+	ErrInvalidPassword      chkitErrors.Err = "invalid password"
+	ErrInvalidUsername      chkitErrors.Err = "invalid username"
 )
 
 var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "login your in the system",
 	Action: func(ctx *cli.Context) error {
-		if err := login(ctx); err != nil {
-			return chkitErrors.NewExitCoder(err)
-		}
 		config := getConfig(ctx)
-		if config.APIaddr == "" {
-			if ctx.Bool("test") {
-				config.APIaddr = os.Getenv("CONTAINERUM_API")
-			} else {
-				config.APIaddr = ctx.String("api")
-			}
+		var err error
+		var user model.UserInfo
+		if user, err = login(ctx); err != nil {
+			return err
 		}
+		config.UserInfo = user
 		setConfig(ctx, config)
 		if err := persist(ctx); err != nil {
 			return chkitErrors.NewExitCoder(err)
@@ -52,36 +56,33 @@ var commandLogin = &cli.Command{
 	},
 }
 
-func login(ctx *cli.Context) error {
-	config := getConfig(ctx)
+func login(ctx *cli.Context) (model.UserInfo, error) {
+	user := model.UserInfo{}
 	var err error
 	if ctx.IsSet("username") {
-		config.Username = ctx.String("username")
+		user.Username = ctx.String("username")
 	} else {
-		config.Username, err = readLogin()
+		user.Username, err = readLogin()
 		if err != nil {
-			return err
+			return user, err
 		}
 	}
-	if strings.TrimSpace(config.Username) == "" {
-		return chkitErrors.ErrInvalidUsername().
-			AddDetailF("username must be non-empty string!")
+	if strings.TrimSpace(user.Username) == "" {
+		return user, ErrInvalidUsername
 	}
 
 	if ctx.IsSet("pass") {
-		config.Password = ctx.String("pass")
+		user.Password = ctx.String("pass")
 	} else {
-		config.Password, err = readPassword()
+		user.Password, err = readPassword()
 		if err != nil {
-			return err
+			return user, err
 		}
 	}
-	if strings.TrimSpace(config.Password) == "" {
-		return chkitErrors.ErrInvalidPassword().
-			AddDetailF("Password must be non-empty string!")
+	if strings.TrimSpace(user.Password) == "" {
+		return user, ErrInvalidPassword
 	}
-	setConfig(ctx, config)
-	return nil
+	return user, nil
 }
 
 func readLogin() (string, error) {
@@ -89,8 +90,7 @@ func readLogin() (string, error) {
 	email, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	email = strings.TrimRight(email, "\r\n")
 	if err != nil {
-		return "", chkitErrors.ErrUnableToReadUsername().
-			AddDetailsErr(err)
+		return "", ErrUnableToReadUsername.Wrap(err)
 	}
 	return email, nil
 }
@@ -99,8 +99,7 @@ func readPassword() (string, error) {
 	fmt.Print("Enter your password: ")
 	passwordB, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
-		return "", chkitErrors.ErrUnableToReadPassword().
-			AddDetailsErr(err)
+		return "", ErrUnableToReadPassword.Wrap(err)
 	}
 	return string(passwordB), nil
 }
