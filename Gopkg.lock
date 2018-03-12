@@ -13,7 +13,7 @@
     "pkg/rest/remock",
     "pkg/rest/remock/ermockerr"
   ]
-  revision = "341b18ac69d57529d2b9df23e26f8d4eb05efc3d"
+  revision = "0edd8da5f8d8d92529bf2ffae796710829134a1a"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -32,6 +32,19 @@
   name = "github.com/containerum/solutions"
   packages = ["."]
   revision = "cf98ef93964f879aa704aac38a3426d6d2bdb607"
+
+[[projects]]
+  name = "github.com/emirpasic/gods"
+  packages = [
+    "containers",
+    "lists",
+    "lists/arraylist",
+    "trees",
+    "trees/binaryheap",
+    "utils"
+  ]
+  revision = "f6c17b524822278a87e3b3bd809fec33b51f5b46"
+  version = "v1.9.0"
 
 [[projects]]
   name = "github.com/go-resty/resty"
@@ -102,8 +115,8 @@
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
-  version = "v1.0.4"
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
 
 [[projects]]
   name = "github.com/spf13/pflag"
@@ -169,7 +182,7 @@
     "ssh/knownhosts",
     "ssh/terminal"
   ]
-  revision = "85f98707c97e11569271e4d9b3d397e079c4f4d0"
+  revision = "c7dcf104e3a7a1417abc0230cb0d5240d764159d"
 
 [[projects]]
   branch = "master"
@@ -179,7 +192,7 @@
     "idna",
     "publicsuffix"
   ]
-  revision = "d25186b37f34ebdbbea8f488ef055638dfab272d"
+  revision = "ae89d30ce0c63142b652837da33d782e2b0a9b25"
 
 [[projects]]
   branch = "master"
@@ -188,7 +201,7 @@
     "unix",
     "windows"
   ]
-  revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
+  revision = "c28acc882ebcbfbe8ce9f0f14b9ac26ee138dd51"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -273,8 +286,8 @@
     "utils/merkletrie/internal/frame",
     "utils/merkletrie/noder"
   ]
-  revision = "886dc83f3ed518a78772055497bcc7d7621b468e"
-  version = "v4.1.1"
+  revision = "1d28459504251497e0ce6132a0fadd5eb44ffd22"
+  version = "v4.2.0"
 
 [[projects]]
   branch = "v2"
@@ -303,6 +316,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c85e5639938d53e0f3b94d75cb3826a78e771b037eae5af7768bdc71dcf7198e"
+  inputs-digest = "e1decb03ee73d9a57e0073d2b22504c853c11232b8d35b998fd94ad12dda08c4"
   solver-name = "gps-cdcl"
   solver-version = 1
