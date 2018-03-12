@@ -54,7 +54,7 @@ func exitOnErr(log *logrus.Logger, err error) {
 }
 
 func loadConfig(configFilePath string, config *model.Config) error {
-	_, err := toml.DecodeFile(configFilePath, &config)
+	_, err := toml.DecodeFile(configFilePath, &config.UserInfo)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func writeConfig(ctx *cli.Context) error {
 		return err
 	}
 	config := getConfig(ctx)
-	return toml.NewEncoder(file).Encode(config)
+	return toml.NewEncoder(file).Encode(config.UserInfo)
 }
 
 func getTokens(ctx *cli.Context) kubeClientModels.Tokens {
