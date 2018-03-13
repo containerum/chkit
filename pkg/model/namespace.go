@@ -1,9 +1,11 @@
 package model
 
 import (
+	"bytes"
 	"time"
 
 	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/olekukonko/tablewriter"
 )
 
 type Namespace struct {
@@ -28,4 +30,15 @@ func NamespaceFromKube(kubeNameSpace kubeModels.Namespace) Namespace {
 			VolumeFromKube(volume))
 	}
 	return ns
+}
+
+func (ns *Namespace) RenderTextTable() string {
+	buf := &bytes.Buffer{}
+	table := tablewriter.NewWriter(buf)
+	table.SetHeader(new(Volume).TableHeaders())
+	for _, volume := range ns.Volumes {
+		table.Append(volume.TableRow())
+	}
+	table.Render()
+	return buf.String()
 }
