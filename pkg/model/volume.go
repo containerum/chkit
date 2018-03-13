@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
@@ -12,6 +13,20 @@ type Volume struct {
 	Access    string
 	Replicas  uint
 	Storage   uint
+}
+
+func (volume *Volume) TableHeaders() []string {
+	return []string{"Label", "Created", "Access", "Replicas", "Storage, GB"}
+}
+
+func (volume *Volume) TableRow() []string {
+	return []string{
+		volume.Label,
+		volume.CreatedAt.Format("2 Jan 2006 15:04 -0700 MST "),
+		volume.Access,
+		fmt.Sprintf("%d", volume.Replicas),
+		fmt.Sprintf("%d", volume.Storage),
+	}
 }
 
 func VolumeFromKube(kv kubeModels.Volume) Volume {
