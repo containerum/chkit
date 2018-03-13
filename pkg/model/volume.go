@@ -7,6 +7,10 @@ import (
 	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
 )
 
+const (
+	CreationTimeFormat = "2 Jan 2006 15:04 -0700 MST "
+)
+
 type Volume struct {
 	Label     string
 	CreatedAt time.Time
@@ -22,7 +26,7 @@ func (volume *Volume) TableHeaders() []string {
 func (volume *Volume) TableRow() []string {
 	return []string{
 		volume.Label,
-		volume.CreatedAt.Format("2 Jan 2006 15:04 -0700 MST "),
+		volume.CreatedAt.Format(CreationTimeFormat),
 		volume.Access,
 		fmt.Sprintf("%d", volume.Replicas),
 		fmt.Sprintf("%d", volume.Storage),
