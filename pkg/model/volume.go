@@ -19,20 +19,23 @@ type Volume struct {
 	Storage   uint
 }
 
-func (volume *Volume) TableHeaders() []string {
+func (_ *Volume) TableHeaders() []string {
 	return []string{"Label", "Created", "Access", "Replicas", "Storage, GB"}
 }
 
-func (volume *Volume) TableRow() []string {
-	return []string{
+func (volume *Volume) TableRows() [][]string {
+	return [][]string{{
 		volume.Label,
 		volume.CreatedAt.Format(CreationTimeFormat),
 		volume.Access,
 		fmt.Sprintf("%d", volume.Replicas),
 		fmt.Sprintf("%d", volume.Storage),
-	}
+	}}
 }
 
+func (volume *Volume) RenderTable() string {
+	return RenderTable(volume)
+}
 func VolumeFromKube(kv kubeModels.Volume) Volume {
 	volume := Volume{
 		Label:     kv.Label,
