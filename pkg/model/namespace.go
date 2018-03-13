@@ -15,6 +15,33 @@ type Namespace struct {
 	Volumes   []Volume
 }
 
+func (_ *Namespace) TableHeaders() []string {
+	return []string{"Label", "Created", "Access", "Volumes"}
+}
+
+func (namespace *Namespace) TableRows() [][]string {
+	creationTime := "unknown"
+	if namespace.CreatedAt != nil {
+		creationTime = namespace.CreatedAt.Format(CreationTimeFormat)
+	}
+	volumes := ""
+	for i, volume := range namespace.Volumes {
+		if i > 0 {
+			volumes += "\n" + volume.Label
+		}
+		volumes += volume.Label
+	}
+	return [][]string{{
+		namespace.Label,
+		creationTime,
+		namespace.Access,
+		volumes,
+	}}
+}
+
+func (namespace *Namespace) RenderTable() string {
+	return RenderTable(namespace)
+}
 func NamespaceFromKube(kubeNameSpace kubeModels.Namespace) Namespace {
 	ns := Namespace{
 		Label:  kubeNameSpace.Label,
@@ -32,12 +59,12 @@ func NamespaceFromKube(kubeNameSpace kubeModels.Namespace) Namespace {
 	return ns
 }
 
-func (ns *Namespace) RenderTextTable() string {
+func (ns *Namespace) RenderVolumes() string {
 	buf := &bytes.Buffer{}
 	table := tablewriter.NewWriter(buf)
 	table.SetHeader(new(Volume).TableHeaders())
 	for _, volume := range ns.Volumes {
-		table.Append(volume.TableRow())
+		table.AppendBulk(volume.TableRows())
 	}
 	table.Render()
 	return buf.String()
