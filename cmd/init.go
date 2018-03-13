@@ -78,6 +78,7 @@ func Run(args []string) error {
 		},
 		Commands: []*cli.Command{
 			commandLogin,
+			commandGet,
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
