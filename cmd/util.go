@@ -5,10 +5,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/containerum/chkit/pkg/chkitErrors"
-
-	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/BurntSushi/toml"
+	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -78,14 +76,14 @@ func writeConfig(ctx *cli.Context) error {
 	return toml.NewEncoder(file).Encode(config.UserInfo)
 }
 
-func getTokens(ctx *cli.Context) kubeClientModels.Tokens {
-	return ctx.App.Metadata["tokens"].(kubeClientModels.Tokens)
+func getTokens(ctx *cli.Context) model.Tokens {
+	return ctx.App.Metadata["tokens"].(model.Tokens)
 }
 
-func setTokens(ctx *cli.Context, tokens kubeClientModels.Tokens) {
+func setTokens(ctx *cli.Context, tokens model.Tokens) {
 	ctx.App.Metadata["tokens"] = tokens
 }
-func saveTokens(ctx *cli.Context, tokens kubeClientModels.Tokens) error {
+func saveTokens(ctx *cli.Context, tokens model.Tokens) error {
 	file, err := os.Create(path.Join(getConfigPath(ctx), "tokens"))
 	if err != nil {
 		return err
@@ -93,8 +91,8 @@ func saveTokens(ctx *cli.Context, tokens kubeClientModels.Tokens) error {
 	return json.NewEncoder(file).Encode(tokens)
 }
 
-func loadTokens(ctx *cli.Context) (kubeClientModels.Tokens, error) {
-	tokens := kubeClientModels.Tokens{}
+func loadTokens(ctx *cli.Context) (model.Tokens, error) {
+	tokens := model.Tokens{}
 	file, err := os.Open(path.Join(getConfigPath(ctx), "tokens"))
 	if err != nil {
 		return tokens, err
