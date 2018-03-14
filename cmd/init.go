@@ -56,10 +56,22 @@ func Run(args []string) error {
 			if err := setupClient(ctx); err != nil {
 				log.Fatalf("error while client setup: %v", err)
 			}
+			tokens, err := loadTokens(ctx)
+			if err != nil {
+				return chkitErrors.NewExitCoder(err)
+			}
+			client := getClient(ctx)
+			client.Tokens = tokens
+			if err := client.Auth(); err != nil {
+				return err
+			}
 			if err := persist(ctx); err != nil {
 				log.Fatalf("%v", err)
 			}
-			clientConfig := getClient(ctx).Config
+			if err := saveTokens(ctx, tokens); err != nil {
+				return chkitErrors.NewExitCoder(err)
+			}
+			clientConfig := client.Config
 			log.Infof("Hello, %q!", clientConfig.Username)
 			if err := mainActivity(ctx); err != nil {
 				log.Fatalf("error in main activity: %v", err)
