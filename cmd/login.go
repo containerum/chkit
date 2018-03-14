@@ -42,10 +42,14 @@ var commandLogin = &cli.Command{
 		if err := setupClient(ctx); err != nil {
 			return chkitErrors.NewExitCoder(err)
 		}
-		if err := mainActivity(ctx); err != nil {
+		client := getClient(ctx)
+		if err := client.Login(); err != nil {
+
+		}
+		if err := saveTokens(ctx, client.Tokens); err != nil {
 			return err
 		}
-		return nil
+		return mainActivity(ctx)
 	},
 	Flags: []cli.Flag{
 		&cli.StringFlag{
