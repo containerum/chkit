@@ -15,15 +15,13 @@ var commandGet = &cli.Command{
 		&cli.Command{
 			Name:        "ns",
 			Description: `show namespace or namespace list`,
-			Usage: `chkit get ns newton
-chkit get ns`,
+			Usage:       `chkit get ns newton\nchkit get ns`,
 			Action: func(ctx *cli.Context) error {
-				if err := setupConfig(ctx); err != nil {
+				// INIT
+				if err := setupAll(ctx); err != nil {
 					return err
 				}
-				if err := setupClient(ctx); err != nil {
-					return err
-				}
+				// END INIT
 				client := getClient(ctx)
 				if ctx.NArg() > 0 {
 					name := ctx.Args().First()
