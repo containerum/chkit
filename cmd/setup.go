@@ -71,3 +71,22 @@ func persist(ctx *cli.Context) error {
 	}
 	return nil
 }
+
+func setupAll(ctx *cli.Context) error {
+	if err := setupConfig(ctx); err != nil {
+		return err
+	}
+	if err := setupClient(ctx); err != nil {
+		return err
+	}
+	client := getClient(ctx)
+	tokens, err := loadTokens(ctx)
+	if err != nil {
+		return err
+	}
+	client.Tokens = tokens
+	if err := client.Auth(); err != nil {
+		return err
+	}
+	return saveTokens(ctx, tokens)
+}
