@@ -1,6 +1,7 @@
 package chClient
 
 import (
+	"git.containerum.net/ch/kube-client/pkg/cherry"
 	kubeClient "git.containerum.net/ch/kube-client/pkg/client"
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"git.containerum.net/ch/kube-client/pkg/rest/re"
@@ -17,7 +18,7 @@ const (
 // Client -- chkit core client
 type Client struct {
 	Config        model.Config
-	Tokens        kubeClientModels.Tokens
+	Tokens        model.Tokens
 	kubeAPIClient kubeClient.Client
 }
 
@@ -61,6 +62,21 @@ func Mock(client *Client) *Client {
 	return client
 }
 
+func (client *Client) Auth() error {
+	if err := client.Extend(); err != nil {
+		switch err := err.(type) {
+		case *cherry.Err:
+			if err.ID != (cherry.ErrID{1, 1}) {
+				return err
+			}
+			// if token is rotten, then login
+		default:
+			return err
+		}
+	}
+	return client.Login()
+}
+
 // Login -- client login method. Updates tokens
 func (client *Client) Login() error {
 	tokens, err := client.kubeAPIClient.Login(kubeClientModels.Login{
@@ -71,6 +87,16 @@ func (client *Client) Login() error {
 		return err
 	}
 	client.kubeAPIClient.SetToken(tokens.AccessToken)
-	client.Tokens = tokens
+	client.Tokens = model.Tokens(tokens)
+	return nil
+}
+
+func (client *Client) Extend() error {
+	tokens, err := client.kubeAPIClient.
+		ExtendToken(client.Tokens.RefreshToken)
+	if err != nil {
+		return err
+	}
+	client.Tokens = model.Tokens(tokens)
 	return nil
 }
