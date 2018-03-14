@@ -10,15 +10,18 @@ import (
 )
 
 const (
+	// ErrUnableToInitClient -- unable to init client
 	ErrUnableToInitClient chkitErrors.Err = "unable to init client"
 )
 
+// Client -- chkit core client
 type Client struct {
 	Config        model.Config
 	Tokens        kubeClientModels.Tokens
-	kubeApiClient kubeClient.Client
+	kubeAPIClient kubeClient.Client
 }
 
+// NewClient -- creates new client with provided options
 func NewClient(config model.Config, options ...func(*Client) *Client) (*Client, error) {
 	chcli := &Client{
 		Config: config,
@@ -34,35 +37,40 @@ func NewClient(config model.Config, options ...func(*Client) *Client) (*Client, 
 		return nil, ErrUnableToInitClient.Wrap(err)
 	}
 	kubecli.SetFingerprint(config.Fingerprint)
-	chcli.kubeApiClient = *kubecli
+	chcli.kubeAPIClient = *kubecli
 	for _, option := range options {
 		chcli = option(chcli)
 	}
 	return chcli, nil
 }
 
+// UnsafeSkipTLSCheck -- optional client parameter to skip TLS verification
 func UnsafeSkipTLSCheck(client *Client) *Client {
-	restAPI := client.kubeApiClient.RestAPI
+	restAPI := client.kubeAPIClient.RestAPI
 	if _, ok := restAPI.(*re.Resty); ok || restAPI == nil {
 		newRestAPI := re.NewResty(re.SkipTLSVerify)
 		newRestAPI.SetFingerprint(client.Config.Fingerprint)
-		client.kubeApiClient.RestAPI = newRestAPI
+		client.kubeAPIClient.RestAPI = newRestAPI
 	}
 	return client
 }
+
+// Mock -- optional parameter. Forces Client to use mock api
 func Mock(client *Client) *Client {
-	client.kubeApiClient.RestAPI = remock.NewMock()
+	client.kubeAPIClient.RestAPI = remock.NewMock()
 	return client
 }
+
+// Login -- client login method. Updates tokens
 func (client *Client) Login() error {
-	tokens, err := client.kubeApiClient.Login(kubeClientModels.Login{
+	tokens, err := client.kubeAPIClient.Login(kubeClientModels.Login{
 		Login:    client.Config.Username,
 		Password: client.Config.Password,
 	})
 	if err != nil {
 		return err
 	}
-	client.kubeApiClient.SetToken(tokens.AccessToken)
+	client.kubeAPIClient.SetToken(tokens.AccessToken)
 	client.Tokens = tokens
 	return nil
 }
