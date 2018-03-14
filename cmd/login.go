@@ -44,10 +44,10 @@ var commandLogin = &cli.Command{
 		}
 		client := getClient(ctx)
 		if err := client.Login(); err != nil {
-
+			return chkitErrors.NewExitCoder(err)
 		}
 		if err := saveTokens(ctx, client.Tokens); err != nil {
-			return err
+			return chkitErrors.NewExitCoder(err)
 		}
 		return mainActivity(ctx)
 	},
