@@ -63,13 +63,14 @@ func Mock(client *Client) *Client {
 }
 
 func (client *Client) Auth() error {
-	if err := client.Extend(); err != nil {
+	if err := client.Extend(); client.Tokens.RefreshToken != "" && err != nil {
 		switch err := err.(type) {
 		case *cherry.Err:
-			if err.ID != (cherry.ErrID{1, 1}) {
-				return err
+			switch err.ID.Kind {
+			case 2:
+				// if token is rotten, then login
+			default:
 			}
-			// if token is rotten, then login
 		default:
 			return err
 		}
