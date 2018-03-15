@@ -7,8 +7,6 @@ import "time"
 // https://ch.pages.containerum.net/api-docs/modules/resource-service/index.html#get-namespace
 type Volume struct {
 	CreateTime       time.Time `json:"create_time"`
-	Deleted          bool      `json:"deleted"`
-	TariffID         string    `json:"tariff_id"`
 	Label            string    `json:"label"`
 	Access           string    `json:"access"`
 	AccessChangeTime time.Time `json:"access_change_time"`
