@@ -7,10 +7,18 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
+// GetNamespace -- commmand 'get' entity data
 var GetNamespace = &cli.Command{
 	Name:        "ns",
 	Description: `show namespace or namespace list`,
-	Usage:       `chkit get ns newton\nchkit get ns`,
+	Usage:       `Shows namespace data or namespace list`,
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:   "volumes",
+			Usage:  "show namespace volumes",
+			Hidden: false,
+		},
+	},
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		if ctx.NArg() > 0 {
@@ -20,6 +28,7 @@ var GetNamespace = &cli.Command{
 				return err
 			}
 			fmt.Println(ns.RenderTable())
+			fmt.Println(ns.RenderVolumes())
 		}
 		return nil
 	},
