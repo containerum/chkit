@@ -86,8 +86,6 @@ func setupAll(ctx *cli.Context) error {
 		return err
 	}
 	client.Tokens = tokens
-	if err := client.Auth(); err != nil {
-		return err
-	}
-	return util.SaveTokens(ctx, tokens)
+	util.SetClient(ctx, client)
+	return nil
 }
