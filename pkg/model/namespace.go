@@ -20,7 +20,7 @@ func (_ *Namespace) TableHeaders() []string {
 }
 
 func (namespace *Namespace) TableRows() [][]string {
-	creationTime := "unknown"
+	creationTime := ""
 	if namespace.CreatedAt != nil {
 		creationTime = namespace.CreatedAt.Format(CreationTimeFormat)
 	}
