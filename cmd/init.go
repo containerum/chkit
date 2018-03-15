@@ -110,7 +110,7 @@ func Run(args []string) error {
 				Name:   "test",
 				Usage:  "test presets",
 				Value:  "api",
-				Hidden: false,
+				Hidden: true,
 			},
 		},
 	}
