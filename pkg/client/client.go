@@ -2,6 +2,8 @@ package chClient
 
 import (
 	"git.containerum.net/ch/kube-client/pkg/cherry"
+	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
+	"git.containerum.net/ch/kube-client/pkg/cherry/user-manager"
 	kubeClient "git.containerum.net/ch/kube-client/pkg/client"
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"git.containerum.net/ch/kube-client/pkg/rest/re"
@@ -15,6 +17,8 @@ const (
 	ErrUnableToInitClient chkitErrors.Err = "unable to init client"
 	// ErrWrongPasswordLoginCombination -- wrong login-password combination
 	ErrWrongPasswordLoginCombination chkitErrors.Err = "wrong login-password combination"
+	// ErrUserNotExist -- user doesn't not exist
+	ErrUserNotExist chkitErrors.Err = "user doesn't not exist"
 )
 
 // Client -- chkit core client
@@ -67,30 +71,18 @@ func Mock(client *Client) *Client {
 
 func (client *Client) Auth() error {
 	if client.Tokens.RefreshToken != "" {
-		switch err := client.Extend().(type) {
-		case *cherry.Err:
-			switch err.ID.Kind {
-			case 2, 3:
-				// if token is rotten, then login
-			default:
-				return err
-			}
+		err := client.Extend()
+		switch {
+		case err == nil:
+			return nil
+		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
+			cherry.Equals(err, autherr.ErrTokenNotFound()):
+			return client.Login()
 		default:
 			return err
 		}
-
 	}
-	switch err := client.Login().(type) {
-	case *cherry.Err:
-		switch err.ID.Kind {
-		case 6, 19:
-			return ErrWrongPasswordLoginCombination
-		default:
-			return err
-		}
-	default:
-		return err
-	}
+	return nil
 }
 
 // Login -- client login method. Updates tokens
@@ -99,7 +91,13 @@ func (client *Client) Login() error {
 		Login:    client.Config.Username,
 		Password: client.Config.Password,
 	})
-	if err != nil {
+	switch {
+	case err == nil:
+	case cherry.Equals(err, umErrors.ErrInvalidLogin()):
+		return ErrWrongPasswordLoginCombination
+	case cherry.Equals(err, umErrors.ErrUserNotExist()):
+		return ErrUserNotExist
+	default:
 		return err
 	}
 	client.kubeAPIClient.SetToken(tokens.AccessToken)
