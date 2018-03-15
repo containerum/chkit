@@ -36,21 +36,8 @@ func Run(args []string) error {
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
 			log := util.GetLog(ctx)
-			switch err := setupConfig(ctx).(type) {
+			switch err := setupAll(ctx).(type) {
 			case nil:
-				//
-			case chkitErrors.ErrMatcher:
-				if err.Match(ErrInvalidUserInfo) {
-					config := util.GetConfig(ctx)
-					user, err := login(ctx)
-					if err != nil {
-						return err
-					}
-					config.UserInfo = user
-					util.SetConfig(ctx, config)
-				} else {
-					return err
-				}
 			default:
 				return err
 			}
