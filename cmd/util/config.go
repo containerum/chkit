@@ -9,14 +9,17 @@ import (
 	cli "gopkg.in/urfave/cli.v2"
 )
 
+// GetConfig -- exctract config structure from Context
 func GetConfig(ctx *cli.Context) model.Config {
 	return ctx.App.Metadata["config"].(model.Config)
 }
 
+// SetConfig -- store config in Context
 func SetConfig(ctx *cli.Context, config model.Config) {
 	ctx.App.Metadata["config"] = config
 }
 
+// SaveConfig -- writes config in config path
 func SaveConfig(ctx *cli.Context) error {
 	err := WriteConfig(ctx)
 	if err != nil {
@@ -24,9 +27,13 @@ func SaveConfig(ctx *cli.Context) error {
 	}
 	return nil
 }
+
+// GetConfigPath -- exctract config path from Context
 func GetConfigPath(ctx *cli.Context) string {
 	return ctx.App.Metadata["configPath"].(string)
 }
+
+// LoadConfig -- loads config from fs
 func LoadConfig(configFilePath string, config *model.Config) error {
 	_, err := toml.DecodeFile(configFilePath, &config.UserInfo)
 	if err != nil {
@@ -35,6 +42,7 @@ func LoadConfig(configFilePath string, config *model.Config) error {
 	return nil
 }
 
+// WriteConfig -- writes config from Context to config dir
 func WriteConfig(ctx *cli.Context) error {
 	configPath := GetConfigPath(ctx)
 	err := os.MkdirAll(configPath, os.ModePerm)
