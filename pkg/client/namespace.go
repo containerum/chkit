@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"git.containerum.net/ch/kube-client/pkg/cherry"
+
+	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"git.containerum.net/ch/kube-client/pkg/rest"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
@@ -16,17 +19,27 @@ const (
 
 // GetNamespace -- returns info of namespace with given label
 func (client *Client) GetNamespace(label string) (model.Namespace, error) {
-	namespace, err := client.kubeAPIClient.GetNamespace(label)
-	switch err := err.(type) {
-	case *rest.UnexpectedHTTPstatusError:
-		if err.Status == http.StatusNotFound {
-			return model.Namespace{}, ErrUnableToGetNamespace.
-				Wrap(fmt.Errorf("namespace %q doesn't exist", label))
+	var err error
+	var namespace kubeClientModels.Namespace
+	for i := 0; i == 0 || (i < 4 && err != nil); i++ {
+		namespace, err = client.kubeAPIClient.GetNamespace(label)
+		switch er := err.(type) {
+		case nil:
+			break
+		case *rest.UnexpectedHTTPstatusError:
+			if er.Status == http.StatusNotFound {
+				return model.Namespace{}, ErrUnableToGetNamespace.
+					Wrap(fmt.Errorf("namespace %q doesn't exist", label))
+			}
+		case *cherry.Err:
+			switch er.ID.Kind {
+			case 2, 3:
+				// rotten access token
+				if err = client.Auth(); err != nil {
+					continue
+				}
+			}
 		}
-	case nil:
-		return model.NamespaceFromKube(namespace), nil
-	default:
-		return model.Namespace{}, ErrUnableToGetNamespace.Wrap(err)
 	}
-	return model.Namespace{}, nil
+	return model.NamespaceFromKube(namespace), err
 }
