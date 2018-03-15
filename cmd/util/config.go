@@ -35,7 +35,7 @@ func GetConfigPath(ctx *cli.Context) string {
 
 // LoadConfig -- loads config from fs
 func LoadConfig(configFilePath string, config *model.Config) error {
-	_, err := toml.DecodeFile(configFilePath, &config.UserInfo)
+	_, err := toml.DecodeFile(configFilePath, &config.StorableConfig)
 	if err != nil {
 		return err
 	}
@@ -54,5 +54,5 @@ func WriteConfig(ctx *cli.Context) error {
 		return err
 	}
 	config := GetConfig(ctx)
-	return toml.NewEncoder(file).Encode(config.UserInfo)
+	return toml.NewEncoder(file).Encode(config.StorableConfig)
 }
