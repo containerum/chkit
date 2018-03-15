@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"gopkg.in/urfave/cli.v2"
@@ -16,8 +17,8 @@ const (
 )
 
 func setupClient(ctx *cli.Context) error {
-	log := getLog(ctx)
-	config := getConfig(ctx)
+	log := util.GetLog(ctx)
+	config := util.GetConfig(ctx)
 	var client *chClient.Client
 	var err error
 	if ctx.IsSet("test") {
@@ -35,14 +36,14 @@ func setupClient(ctx *cli.Context) error {
 		return ErrUnableToInitClient.
 			Wrap(err)
 	}
-	setClient(ctx, *client)
+	util.SetClient(ctx, *client)
 	return nil
 }
 
 func setupConfig(ctx *cli.Context) error {
-	log := getLog(ctx)
-	config := getConfig(ctx)
-	err := loadConfig(ctx.String("config"), &config)
+	log := util.GetLog(ctx)
+	config := util.GetConfig(ctx)
+	err := util.LoadConfig(ctx.String("config"), &config)
 	if err != nil {
 		return ErrUnableToLoadConfig.
 			Wrap(err)
@@ -61,13 +62,13 @@ func setupConfig(ctx *cli.Context) error {
 	}
 
 	config.Fingerprint = Fingerprint()
-	setConfig(ctx, config)
+	util.SetConfig(ctx, config)
 	return nil
 }
 
 func persist(ctx *cli.Context) error {
 	if !ctx.IsSet("config") {
-		return saveConfig(ctx)
+		return util.SaveConfig(ctx)
 	}
 	return nil
 }
@@ -79,8 +80,8 @@ func setupAll(ctx *cli.Context) error {
 	if err := setupClient(ctx); err != nil {
 		return err
 	}
-	client := getClient(ctx)
-	tokens, err := loadTokens(ctx)
+	client := util.GetClient(ctx)
+	tokens, err := util.LoadTokens(ctx)
 	if err != nil {
 		return err
 	}
@@ -88,5 +89,5 @@ func setupAll(ctx *cli.Context) error {
 	if err := client.Auth(); err != nil {
 		return err
 	}
-	return saveTokens(ctx, tokens)
+	return util.SaveTokens(ctx, tokens)
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
 
@@ -29,24 +30,24 @@ var commandLogin = &cli.Command{
 		if err != nil && err != ErrInvalidUserInfo {
 			return err
 		}
-		config := getConfig(ctx)
+		config := util.GetConfig(ctx)
 		var user model.UserInfo
 		if user, err = login(ctx); err != nil {
 			return err
 		}
 		config.UserInfo = user
-		setConfig(ctx, config)
+		util.SetConfig(ctx, config)
 		if err := persist(ctx); err != nil {
 			return chkitErrors.NewExitCoder(err)
 		}
 		if err := setupClient(ctx); err != nil {
 			return chkitErrors.NewExitCoder(err)
 		}
-		client := getClient(ctx)
+		client := util.GetClient(ctx)
 		if err := client.Login(); err != nil {
 			return chkitErrors.NewExitCoder(err)
 		}
-		if err := saveTokens(ctx, client.Tokens); err != nil {
+		if err := util.SaveTokens(ctx, client.Tokens); err != nil {
 			return chkitErrors.NewExitCoder(err)
 		}
 		return mainActivity(ctx)

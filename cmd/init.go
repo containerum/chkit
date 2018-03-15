@@ -5,6 +5,7 @@ import (
 
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/blang/semver"
+	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
@@ -34,19 +35,19 @@ func Run(args []string) error {
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
 		Action: func(ctx *cli.Context) error {
-			log := getLog(ctx)
+			log := util.GetLog(ctx)
 			switch err := setupConfig(ctx).(type) {
 			case nil:
 				//
 			case chkitErrors.ErrMatcher:
 				if err.Match(ErrInvalidUserInfo) {
-					config := getConfig(ctx)
+					config := util.GetConfig(ctx)
 					user, err := login(ctx)
 					if err != nil {
 						return err
 					}
 					config.UserInfo = user
-					setConfig(ctx, config)
+					util.SetConfig(ctx, config)
 				} else {
 					return err
 				}
@@ -56,11 +57,11 @@ func Run(args []string) error {
 			if err := setupClient(ctx); err != nil {
 				log.Fatalf("error while client setup: %v", err)
 			}
-			tokens, err := loadTokens(ctx)
+			tokens, err := util.LoadTokens(ctx)
 			if err != nil {
 				return chkitErrors.NewExitCoder(err)
 			}
-			client := getClient(ctx)
+			client := util.GetClient(ctx)
 			client.Tokens = tokens
 			if err := client.Auth(); err != nil {
 				return err
@@ -68,7 +69,7 @@ func Run(args []string) error {
 			if err := persist(ctx); err != nil {
 				log.Fatalf("%v", err)
 			}
-			if err := saveTokens(ctx, tokens); err != nil {
+			if err := util.SaveTokens(ctx, tokens); err != nil {
 				return chkitErrors.NewExitCoder(err)
 			}
 			clientConfig := client.Config
