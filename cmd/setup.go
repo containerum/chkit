@@ -62,6 +62,11 @@ func setupConfig(ctx *cli.Context) error {
 	}
 
 	config.Fingerprint = Fingerprint()
+	tokens, err := util.LoadTokens(ctx)
+	if err != nil {
+		return err
+	}
+	config.Tokens = tokens
 	util.SetConfig(ctx, config)
 	return nil
 }
@@ -80,12 +85,5 @@ func setupAll(ctx *cli.Context) error {
 	if err := setupClient(ctx); err != nil {
 		return err
 	}
-	client := util.GetClient(ctx)
-	tokens, err := util.LoadTokens(ctx)
-	if err != nil {
-		return err
-	}
-	client.Tokens = tokens
-	util.SetClient(ctx, client)
 	return nil
 }
