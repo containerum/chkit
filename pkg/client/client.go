@@ -13,12 +13,13 @@ import (
 const (
 	// ErrUnableToInitClient -- unable to init client
 	ErrUnableToInitClient chkitErrors.Err = "unable to init client"
+	// ErrWrongPasswordLoginCombination -- wrong login-password combination
+	ErrWrongPasswordLoginCombination chkitErrors.Err = "wrong login-password combination"
 )
 
 // Client -- chkit core client
 type Client struct {
-	Config        model.Config
-	Tokens        model.Tokens
+	model.Config
 	kubeAPIClient kubeClient.Client
 }
 
@@ -38,6 +39,7 @@ func NewClient(config model.Config, options ...func(*Client) *Client) (*Client, 
 		return nil, ErrUnableToInitClient.Wrap(err)
 	}
 	kubecli.SetFingerprint(config.Fingerprint)
+	kubecli.SetToken(config.Tokens.AccessToken)
 	chcli.kubeAPIClient = *kubecli
 	for _, option := range options {
 		chcli = option(chcli)
@@ -51,6 +53,7 @@ func UnsafeSkipTLSCheck(client *Client) *Client {
 	if _, ok := restAPI.(*re.Resty); ok || restAPI == nil {
 		newRestAPI := re.NewResty(re.SkipTLSVerify)
 		newRestAPI.SetFingerprint(client.Config.Fingerprint)
+		newRestAPI.SetToken(client.Tokens.AccessToken)
 		client.kubeAPIClient.RestAPI = newRestAPI
 	}
 	return client
@@ -63,19 +66,31 @@ func Mock(client *Client) *Client {
 }
 
 func (client *Client) Auth() error {
-	if err := client.Extend(); client.Tokens.RefreshToken != "" && err != nil {
-		switch err := err.(type) {
+	if client.Tokens.RefreshToken != "" {
+		switch err := client.Extend().(type) {
 		case *cherry.Err:
 			switch err.ID.Kind {
-			case 2:
+			case 2, 3:
 				// if token is rotten, then login
 			default:
+				return err
 			}
 		default:
 			return err
 		}
+
 	}
-	return client.Login()
+	switch err := client.Login().(type) {
+	case *cherry.Err:
+		switch err.ID.Kind {
+		case 6, 19:
+			return ErrWrongPasswordLoginCombination
+		default:
+			return err
+		}
+	default:
+		return err
+	}
 }
 
 // Login -- client login method. Updates tokens
