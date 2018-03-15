@@ -5,6 +5,7 @@
   name = "git.containerum.net/ch/kube-client"
   packages = [
     "pkg/cherry",
+    "pkg/cherry/auth",
     "pkg/cherry/user-manager",
     "pkg/client",
     "pkg/model",
@@ -317,6 +318,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "691f700ae8ed06a4792a46df8edd21960829ca355c4076efa682e4335123c196"
+  inputs-digest = "b938bf77266c4a0c22313aeab609d02f7e14a2dd67cf557c03254fb6f9d860a9"
   solver-name = "gps-cdcl"
   solver-version = 1
