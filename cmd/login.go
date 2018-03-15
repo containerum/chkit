@@ -26,25 +26,24 @@ var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "login your in the system",
 	Action: func(ctx *cli.Context) error {
-		err := setupConfig(ctx)
-		if err != nil && err != ErrInvalidUserInfo {
+		if err := setupConfig(ctx); err != nil {
 			return err
-		}
-		config := util.GetConfig(ctx)
-		var user model.UserInfo
-		if user, err = login(ctx); err != nil {
-			return err
-		}
-		config.UserInfo = user
-		util.SetConfig(ctx, config)
-		if err := persist(ctx); err != nil {
-			return chkitErrors.NewExitCoder(err)
 		}
 		if err := setupClient(ctx); err != nil {
-			return chkitErrors.NewExitCoder(err)
+			return err
 		}
+
 		client := util.GetClient(ctx)
-		if err := client.Login(); err != nil {
+		client.Tokens = model.Tokens{}
+		loginData, err := login(ctx)
+		if err != nil {
+			return err
+		}
+		client.Config.UserInfo = loginData
+		util.SetClient(ctx, client)
+
+		client = util.GetClient(ctx)
+		if err := client.Auth(); err != nil {
 			return chkitErrors.NewExitCoder(err)
 		}
 		if err := util.SaveTokens(ctx, client.Tokens); err != nil {
@@ -60,12 +59,6 @@ var commandLogin = &cli.Command{
 		&cli.StringFlag{
 			Name:  "pass",
 			Usage: "password to system",
-		},
-		&cli.StringFlag{
-			Name:   "test",
-			Usage:  "test presets",
-			Value:  "api",
-			Hidden: false,
 		},
 	},
 }
