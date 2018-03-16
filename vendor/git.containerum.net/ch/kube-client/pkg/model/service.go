@@ -26,7 +26,7 @@ type Service struct {
 // ServicePort -- represent service port
 type ServicePort struct {
 	Name       string   `json:"name"`
-	Port       int      `json:"port"`
-	TargetPort *int     `json:"target_port,omitempty"`
+	Port       *int     `json:"port,omitempty"`
+	TargetPort int      `json:"target_port"`
 	Protocol   Protocol `json:"protocol"`
 }

@@ -127,6 +127,30 @@ func Equals(err error, other *Err) bool {
 	return false
 }
 
+// WhichOne -- searches err in list of cherry errs.
+// If err is in list returns list item which equals to err.
+// If err is not in list returns nil. Uses (*Err).Equals() for comparison.
+func WhichOne(err error, list ...*Err) *Err {
+	if err == nil {
+		return nil
+	}
+	cherryErr, ok := err.(*Err)
+	if !ok {
+		return nil
+	}
+	for _, v := range list {
+		if cherryErr.Equals(v) {
+			return v
+		}
+	}
+	return nil
+}
+
+// In -- determines whether err is in list of cherry errs.
+func In(err error, list ...*Err) bool {
+	return WhichOne(err, list...) != nil
+}
+
 // ProducedByService -- determines whether error produced by given service
 // If err is not *Err returns false. Otherwise compares (*Err).ID.SID with sid.
 func ProducedByService(err error, sid ErrSID) bool {
