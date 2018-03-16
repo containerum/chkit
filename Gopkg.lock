@@ -6,7 +6,7 @@
   packages = [
     "pkg/cherry",
     "pkg/cherry/auth",
-    "pkg/cherry/resource-service",
+    "pkg/cherry/kube-api",
     "pkg/cherry/user-manager",
     "pkg/client",
     "pkg/model",
@@ -319,6 +319,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c92b9953f32ce670aa2dee8eb8c4b32128ce4843445fdf3025c1464ae6337141"
+  inputs-digest = "e4e0dedd604217e95b8be9b32fc0ab19d629682fc2a266a25c2ab949efabff9a"
   solver-name = "gps-cdcl"
   solver-version = 1
