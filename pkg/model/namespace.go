@@ -13,14 +13,15 @@ var (
 	_ TableRenderer = &NamespaceList{}
 )
 
-type Namespace struct {
-	CreatedAt *time.Time
-	Label     string
-	Access    string
-	Volumes   []Volume
-}
-
 type NamespaceList []Namespace
+
+func NamespaceListFromKube(kubeList []kubeModels.Namespace) NamespaceList {
+	var list NamespaceList = make([]Namespace, 0, len(kubeList))
+	for _, namespace := range kubeList {
+		list = append(list, NamespaceFromKube(namespace))
+	}
+	return list
+}
 
 func (_ NamespaceList) TableHeaders() []string {
 	return new(Namespace).TableHeaders()
@@ -33,6 +34,14 @@ func (list NamespaceList) TableRows() [][]string {
 	}
 	return row
 }
+
+type Namespace struct {
+	CreatedAt *time.Time
+	Label     string
+	Access    string
+	Volumes   []Volume
+}
+
 func (_ *Namespace) TableHeaders() []string {
 	return []string{"Label", "Created", "Access", "Volumes"}
 }
