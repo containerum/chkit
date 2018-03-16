@@ -43,7 +43,7 @@ type Namespace struct {
 }
 
 func (_ *Namespace) TableHeaders() []string {
-	return []string{"Label", "Created", "Access", "Volumes"}
+	return []string{"Label", "Created" /* "Access",*/, "Volumes"}
 }
 
 func (namespace *Namespace) TableRows() [][]string {
@@ -61,7 +61,7 @@ func (namespace *Namespace) TableRows() [][]string {
 	return [][]string{{
 		namespace.Label,
 		creationTime,
-		namespace.Access,
+		//namespace.Access,
 		volumes,
 	}}
 }
