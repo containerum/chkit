@@ -8,6 +8,11 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
+var (
+	_ TableRenderer = &Namespace{}
+	_ TableRenderer = &NamespaceList{}
+)
+
 type Namespace struct {
 	CreatedAt *time.Time
 	Label     string
@@ -15,6 +20,19 @@ type Namespace struct {
 	Volumes   []Volume
 }
 
+type NamespaceList []Namespace
+
+func (_ NamespaceList) TableHeaders() []string {
+	return new(Namespace).TableHeaders()
+}
+
+func (list NamespaceList) TableRows() [][]string {
+	row := make([][]string, 0, len(list))
+	for _, ns := range list {
+		row = append(row, ns.TableRows()...)
+	}
+	return row
+}
 func (_ *Namespace) TableHeaders() []string {
 	return []string{"Label", "Created", "Access", "Volumes"}
 }
