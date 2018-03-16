@@ -14,10 +14,15 @@ import (
 const (
 	// ErrUnableToGetNamespace -- unable to get namespace
 	ErrUnableToGetNamespace chkitErrors.Err = "unable to get namespace"
-	ErrNamespaceNotExists   chkitErrors.Err = "namespace not exists"
+	// ErrNamespaceNotExists -- namespace not exists
+	ErrNamespaceNotExists chkitErrors.Err = "namespace not exists"
 )
 
-// GetNamespace -- returns info of namespace with given label
+// GetNamespace -- returns info of namespace with given label.
+// Returns:
+// 	- ErrNamespaceNotExists
+//  - ErrWrongPasswordLoginCombination
+//  - ErrUserNotExist
 func (client *Client) GetNamespace(label string) (model.Namespace, error) {
 	var err error
 	var namespace kubeClientModels.Namespace
