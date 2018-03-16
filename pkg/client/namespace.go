@@ -1,6 +1,7 @@
 package chClient
 
 import (
+	"fmt"
 	"time"
 
 	"git.containerum.net/ch/kube-client/pkg/cherry"
@@ -14,6 +15,8 @@ import (
 const (
 	// ErrUnableToGetNamespace -- unable to get namespace
 	ErrUnableToGetNamespace chkitErrors.Err = "unable to get namespace"
+	// ErrYouDoNotHaveAccessToNamespace -- you don't have access to namespace
+	ErrYouDoNotHaveAccessToNamespace chkitErrors.Err = "you don't have access to namespace"
 	// ErrNamespaceNotExists -- namespace not exists
 	ErrNamespaceNotExists chkitErrors.Err = "namespace not exists"
 )
@@ -45,4 +48,30 @@ func (client *Client) GetNamespace(label string) (model.Namespace, error) {
 		time.Sleep(time.Second)
 	}
 	return model.NamespaceFromKube(namespace), err
+}
+
+func (client *Client) GetNamespaceList() (model.NamespaceList, error) {
+	var err error
+	var list []kubeClientModels.Namespace
+	for i := 0; i == 0 || (i < 4 && err != nil); i++ {
+		list, err = client.kubeAPIClient.GetNamespaceList(nil)
+		switch {
+		case err == nil:
+			break
+		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
+			cherry.Equals(err, autherr.ErrTokenNotFound()):
+			fmt.Printf("reauth: %v\n", err)
+			err = client.Auth()
+			switch err {
+			case ErrWrongPasswordLoginCombination, ErrUserNotExist:
+				return []model.Namespace{}, err
+			default:
+				fmt.Println(err)
+			}
+		case cherry.Equals(err, kubeErrors.ErrAccessError()):
+			return model.NamespaceList{}, ErrYouDoNotHaveAccessToNamespace
+		}
+		time.Sleep(200 * time.Duration(i) * time.Millisecond)
+	}
+	return model.NamespaceListFromKube(list), err
 }
