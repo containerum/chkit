@@ -10,6 +10,10 @@ import (
 )
 
 const (
+	// ErrUnableToLogin -- unable to login
+	ErrUnableToLogin chkitErrors.Err = "unable to login"
+	// ErrUnableToRefreshToken -- unable to refresh token
+	ErrUnableToRefreshToken chkitErrors.Err = "unable to refresh token"
 	// ErrWrongPasswordLoginCombination -- wrong login-password combination
 	ErrWrongPasswordLoginCombination chkitErrors.Err = "wrong login-password combination"
 	// ErrUserNotExist -- user doesn't not exist
@@ -25,9 +29,9 @@ func (client *Client) Auth() error {
 			return nil
 		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
 			cherry.Equals(err, autherr.ErrTokenNotFound()):
-			break
+			return client.Login()
 		default:
-			return err
+			return ErrUnableToRefreshToken.Wrap(err)
 		}
 	}
 	return client.Login()
@@ -46,7 +50,7 @@ func (client *Client) Login() error {
 	case cherry.Equals(err, umErrors.ErrUserNotExist()):
 		return ErrUserNotExist
 	default:
-		return err
+		return ErrUnableToLogin.Wrap(err)
 	}
 	client.kubeAPIClient.SetToken(tokens.AccessToken)
 	client.Tokens = model.Tokens(tokens)
