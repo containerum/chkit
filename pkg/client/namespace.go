@@ -29,7 +29,7 @@ func (client *Client) GetNamespace(label string) (model.Namespace, error) {
 			cherry.Equals(err, autherr.ErrTokenNotFound()):
 			switch client.Auth() {
 			case ErrWrongPasswordLoginCombination, ErrUserNotExist:
-				return err
+				return model.Namespace{}, err
 			}
 		}
 	}
