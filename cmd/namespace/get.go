@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/pkg/model"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -21,6 +22,12 @@ var GetNamespace = &cli.Command{
 				return err
 			}
 			fmt.Println(ns.RenderTable())
+		} else {
+			list, err := client.GetNamespaceList()
+			if err != nil {
+				return err
+			}
+			fmt.Println(model.RenderTable(list))
 		}
 		return nil
 	},
