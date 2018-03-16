@@ -2,6 +2,7 @@ package chClient
 
 import (
 	"git.containerum.net/ch/kube-client/pkg/cherry"
+	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
 	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/chkitErrors"
@@ -24,7 +25,7 @@ func (client *Client) GetNamespace(label string) (model.Namespace, error) {
 		case err == nil:
 			break
 		case cherry.Equals(err, rserrors.ErrResourceNotExists()):
-			return ErrNamespaceNotExists
+			return model.Namespace{}, ErrNamespaceNotExists
 		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
 			cherry.Equals(err, autherr.ErrTokenNotFound()):
 			switch client.Auth() {
