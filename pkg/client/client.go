@@ -69,6 +69,7 @@ func Mock(client *Client) *Client {
 	return client
 }
 
+// Auth -- refreshes tokens, on invalid token uses Login method to get new tokens
 func (client *Client) Auth() error {
 	if client.Tokens.RefreshToken != "" {
 		err := client.Extend()
@@ -105,6 +106,7 @@ func (client *Client) Login() error {
 	return nil
 }
 
+// Extend -- refreshes tokens, invalidates old
 func (client *Client) Extend() error {
 	tokens, err := client.kubeAPIClient.
 		ExtendToken(client.Tokens.RefreshToken)
