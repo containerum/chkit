@@ -11,6 +11,25 @@ const (
 	CreationTimeFormat = "2 Jan 2006 15:04 -0700 MST "
 )
 
+var (
+	_ TableRenderer = &Volume{}
+	_ TableRenderer = &VolumeList{}
+)
+
+type VolumeList []Volume
+
+func (_ VolumeList) TableHeaders() []string {
+	return new(Volume).TableHeaders()
+}
+
+func (list VolumeList) TableRows() [][]string {
+	rows := make([][]string, 0, len(list))
+	for _, volume := range list {
+		rows = append(rows, volume.TableRows()...)
+	}
+	return rows
+}
+
 type Volume struct {
 	Label     string
 	CreatedAt time.Time
