@@ -2,7 +2,6 @@ package chClient
 
 import (
 	"fmt"
-	"time"
 
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
@@ -29,7 +28,7 @@ const (
 func (client *Client) GetNamespace(label string) (model.Namespace, error) {
 	var err error
 	var namespace kubeClientModels.Namespace
-	for i := 0; i == 0 || (i < 4 && err != nil); i++ {
+	for i := uint(0); i == 0 || (i < 4 && err != nil); i++ {
 		namespace, err = client.kubeAPIClient.GetNamespace(label)
 		switch {
 		case err == nil:
@@ -45,7 +44,7 @@ func (client *Client) GetNamespace(label string) (model.Namespace, error) {
 				return model.Namespace{}, err
 			}
 		}
-		time.Sleep(time.Second)
+		waitNextAttempt(i)
 	}
 	return model.NamespaceFromKube(namespace), err
 }
@@ -53,7 +52,7 @@ func (client *Client) GetNamespace(label string) (model.Namespace, error) {
 func (client *Client) GetNamespaceList() (model.NamespaceList, error) {
 	var err error
 	var list []kubeClientModels.Namespace
-	for i := 0; i == 0 || (i < 4 && err != nil); i++ {
+	for i := uint(0); i == 0 || (i < 4 && err != nil); i++ {
 		list, err = client.kubeAPIClient.GetNamespaceList(nil)
 		switch {
 		case err == nil:
@@ -71,7 +70,7 @@ func (client *Client) GetNamespaceList() (model.NamespaceList, error) {
 		case cherry.Equals(err, kubeErrors.ErrAccessError()):
 			return model.NamespaceList{}, ErrYouDoNotHaveAccessToNamespace
 		}
-		time.Sleep(200 * time.Duration(i) * time.Millisecond)
+		waitNextAttempt(i)
 	}
 	return model.NamespaceListFromKube(list), err
 }
