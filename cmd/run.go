@@ -97,7 +97,7 @@ func Run(args []string) error {
 			&cli.StringFlag{
 				Name:   "test",
 				Usage:  "test presets",
-				Value:  "api",
+				Value:  "",
 				Hidden: true,
 			},
 		},
