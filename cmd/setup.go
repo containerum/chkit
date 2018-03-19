@@ -13,7 +13,6 @@ const (
 	ErrUnableToLoadConfig chkitErrors.Err = "unable to load config"
 	ErrInvalidUserInfo    chkitErrors.Err = "invalid user info"
 	ErrInvalidAPIurl      chkitErrors.Err = "invalid API url"
-	ErrUnableToInitClient chkitErrors.Err = "unable to init client"
 )
 
 func setupClient(ctx *cli.Context) error {
@@ -21,20 +20,18 @@ func setupClient(ctx *cli.Context) error {
 	config := util.GetConfig(ctx)
 	var client *chClient.Client
 	var err error
-	if ctx.IsSet("test") {
-		log.Infof("running in test mode")
-		switch ctx.String("test") {
-		case "mock":
-			client, err = chClient.NewClient(config, chClient.Mock)
-		case "api":
-			client, err = chClient.NewClient(config, chClient.UnsafeSkipTLSCheck)
-		}
-	} else {
-		client, err = chClient.NewClient(config)
+	switch ctx.String("test") {
+	case "mock":
+		log.Infof("Using mock API")
+		client, err = chClient.NewClient(config, chClient.WithMock)
+	case "api":
+		log.Infof("Using test API")
+		client, err = chClient.NewClient(config, chClient.WithTestAPI)
+	default:
+		client, err = chClient.NewClient(config, chClient.WithCommonAPI)
 	}
 	if err != nil {
-		return ErrUnableToInitClient.
-			Wrap(err)
+		return err
 	}
 	util.SetClient(ctx, *client)
 	return nil
