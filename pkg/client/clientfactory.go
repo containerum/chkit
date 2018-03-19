@@ -7,13 +7,16 @@ import (
 	"github.com/containerum/chkit/pkg/model"
 )
 
+// KubeAPIclientFactory -- creates new kube-client with provided config
 type KubeAPIclientFactory func(model.Config) (*kubeClient.Client, error)
 
 var (
 	_ KubeAPIclientFactory = WithTestAPI
 	_ KubeAPIclientFactory = WithMock
+	_ KubeAPIclientFactory = WithCommonAPI
 )
 
+// WithCommonAPI -- creates kube-client for production api
 func WithCommonAPI(config model.Config) (*kubeClient.Client, error) {
 	client, err := kubeClient.NewClient(kubeClient.Config{
 		APIurl:  config.APIaddr,
@@ -30,6 +33,7 @@ func WithCommonAPI(config model.Config) (*kubeClient.Client, error) {
 	return client, nil
 }
 
+// WithTestAPI -- creates kube-client for test api
 func WithTestAPI(config model.Config) (*kubeClient.Client, error) {
 	client, err := kubeClient.NewClient(kubeClient.Config{
 		APIurl: config.APIaddr,
@@ -47,6 +51,7 @@ func WithTestAPI(config model.Config) (*kubeClient.Client, error) {
 	return client, nil
 }
 
+// WithMock -- creates kube-client with mock API
 func WithMock(config model.Config) (*kubeClient.Client, error) {
 	client, err := kubeClient.NewClient(kubeClient.Config{
 		APIurl: config.APIaddr,
