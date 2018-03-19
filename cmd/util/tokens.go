@@ -32,8 +32,10 @@ func SaveTokens(ctx *cli.Context, tokens model.Tokens) error {
 func LoadTokens(ctx *cli.Context) (model.Tokens, error) {
 	tokens := model.Tokens{}
 	file, err := os.Open(path.Join(GetConfigPath(ctx), "tokens"))
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return tokens, err
+	} else if err != nil && os.IsNotExist(err) {
+		return tokens, nil
 	}
 	return tokens, json.NewDecoder(file).Decode(&tokens)
 }

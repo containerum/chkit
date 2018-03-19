@@ -51,16 +51,6 @@ var commandLogin = &cli.Command{
 		}
 		return mainActivity(ctx)
 	},
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "username",
-			Usage: "your account email",
-		},
-		&cli.StringFlag{
-			Name:  "pass",
-			Usage: "password to system",
-		},
-	},
 }
 
 func login(ctx *cli.Context) (model.UserInfo, error) {
@@ -108,5 +98,6 @@ func readPassword() (string, error) {
 	if err != nil {
 		return "", ErrUnableToReadPassword.Wrap(err)
 	}
+	fmt.Println("")
 	return string(passwordB), nil
 }

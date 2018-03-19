@@ -21,9 +21,11 @@ const (
 
 func Run(args []string) error {
 	log := logrus.New()
-	log.Formatter = &logrus.TextFormatter{}
-	log.Level = logrus.InfoLevel
-
+	log.Formatter = &logrus.TextFormatter{
+		FullTimestamp:   true,
+		TimestampFormat: "2006 Jan Mon 15:04:05",
+	}
+	log.SetLevel(logrus.DebugLevel)
 	configPath, err := configPath()
 	if err != nil {
 		log.WithError(err).
@@ -34,41 +36,7 @@ func Run(args []string) error {
 		Name:    "chkit",
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
-		Action: func(ctx *cli.Context) error {
-			log := util.GetLog(ctx)
-			switch err := setupAll(ctx).(type) {
-			case nil:
-			default:
-				return err
-			}
-			if err := setupClient(ctx); err != nil {
-				log.Fatalf("error while client setup: %v", err)
-			}
-			tokens, err := util.LoadTokens(ctx)
-			if err != nil {
-				return chkitErrors.NewExitCoder(err)
-			}
-			client := util.GetClient(ctx)
-			client.Tokens = tokens
-			if err := client.Auth(); err != nil {
-				return err
-			}
-			if err := persist(ctx); err != nil {
-				log.Fatalf("%v", err)
-			}
-			if err := util.SaveTokens(ctx, tokens); err != nil {
-				return chkitErrors.NewExitCoder(err)
-			}
-			clientConfig := client.Config
-			log.Infof("Hello, %q!", clientConfig.Username)
-			if err := mainActivity(ctx); err != nil {
-				log.Fatalf("error in main activity: %v", err)
-			}
-			return nil
-		},
-		After: func(ctx *cli.Context) error {
-			return nil
-		},
+		Action:  runAction,
 		Metadata: map[string]interface{}{
 			"client":     chClient.Client{},
 			"configPath": configPath,
@@ -100,7 +68,63 @@ func Run(args []string) error {
 				Value:  "",
 				Hidden: true,
 			},
+
+		&cli.StringFlag{
+			Name:  "username",
+			Usage: "your account email",
+		},
+		&cli.StringFlag{
+			Name:  "pass",
+			Usage: "password to system",
+		},
 		},
 	}
 	return App.Run(args)
+}
+
+func runAction(ctx *cli.Context) error {
+	log := util.GetLog(ctx)
+	log.Debugf("running setup")
+	err := setupConfig(ctx)
+	config := util.GetConfig(ctx)
+	switch err {
+	case ErrInvalidUserInfo:
+		log.Debugf("invalid user information")
+		log.Debugf("running login")
+		user, err := login(ctx)
+		if err != nil {
+			return err
+		}
+		config.UserInfo = user
+		util.SetConfig(ctx, config)
+	default:
+		log.Debugf("fatal error")
+		return err
+	}
+	log.Debugf("loading tokens")
+	tokens, err := util.LoadTokens(ctx)
+	if err != nil {
+		return err
+	}
+	log.Debugf("client initialisation")
+	if err := setupClient(ctx); err != nil {
+		return err
+	}
+	client := util.GetClient(ctx)
+	client.Tokens = tokens
+	if err := client.Auth(); err != nil {
+		return err
+	}
+	if err := persist(ctx); err != nil {
+		log.Fatalf("%v", err)
+	}
+	if err := util.SaveTokens(ctx, tokens); err != nil {
+		return chkitErrors.NewExitCoder(err)
+	}
+	clientConfig := client.Config
+	log.Infof("Hello, %q!", clientConfig.Username)
+	if err := mainActivity(ctx); err != nil {
+		log.Fatalf("error in main activity: %v", err)
+	}
+	return nil
 }
