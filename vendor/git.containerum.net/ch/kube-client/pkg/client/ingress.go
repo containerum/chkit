@@ -32,8 +32,11 @@ func (client *Client) AddIngress(namespace string, ingress model.Ingress) error 
 // If role=user -> return user's
 func (client *Client) GetIngressList(namespace string, page, perPage *uint64) ([]model.Ingress, error) {
 	var ingressList []model.Ingress
+	jsonAdaptor := struct {
+		Ingresses *[]model.Ingress `json:"ingresses"`
+	}{&ingressList}
 	err := client.RestAPI.Get(rest.Rq{
-		Result: &ingressList,
+		Result: &jsonAdaptor,
 		Query: rest.Q{
 			"page":     strconv.FormatUint(*page, 10),
 			"per_page": strconv.FormatUint(*perPage, 10),

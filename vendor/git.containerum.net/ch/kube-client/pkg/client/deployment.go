@@ -36,8 +36,11 @@ func (client *Client) GetDeployment(namespace, deployment string) (model.Deploym
 // returns a list of Deployments OR nil slice AND an error
 func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, error) {
 	var depls []model.Deployment
+	jsonAdaptor := struct {
+		Deployments *[]model.Deployment `json:"deployments"`
+	}{&depls}
 	err := client.RestAPI.Get(rest.Rq{
-		Result: &depls,
+		Result: &jsonAdaptor,
 		URL: rest.URL{
 			Path: client.APIurl + kubeAPIdeploymentsPath,
 			Params: rest.P{

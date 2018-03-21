@@ -32,8 +32,11 @@ func (client *Client) GetService(namespace, serviceName string) (model.Service, 
 // returns a slice of Services OR a nil slice AND an error
 func (client *Client) GetServiceList(namespace string) ([]model.Service, error) {
 	var serviceList []model.Service
+	jsonAdaptor := struct {
+		Services *[]model.Service
+	}{&serviceList}
 	err := client.RestAPI.Get(rest.Rq{
-		Result: &serviceList,
+		Result: &jsonAdaptor,
 		URL: rest.URL{
 			Path: client.APIurl + servicesPath,
 			Params: rest.P{

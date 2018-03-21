@@ -15,8 +15,8 @@
     "pkg/rest/remock",
     "pkg/rest/remock/ermockerr"
   ]
-  revision = "2035dec77ef785eae29663b2b361d1d6701eedfc"
-  version = "v0.2.2"
+  revision = "ecf5ddce42d2d81eb3517babd5fe427eceb898cc"
+  version = "v0.2.6"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -76,8 +76,8 @@
 [[projects]]
   name = "github.com/kevinburke/ssh_config"
   packages = ["."]
-  revision = "0ff8514904a8ebfcfb3c32ad73e1f8498a7f81b4"
-  version = "0.3"
+  revision = "9fc7bb800b555d63157c65a904c86a2cc7b4e795"
+  version = "0.4"
 
 [[projects]]
   branch = "master"
@@ -191,7 +191,7 @@
     "ssh/knownhosts",
     "ssh/terminal"
   ]
-  revision = "c7dcf104e3a7a1417abc0230cb0d5240d764159d"
+  revision = "80db560fac1fb3e6ac81dbc7f8ae4c061f5257bd"
 
 [[projects]]
   branch = "master"
@@ -201,7 +201,7 @@
     "idna",
     "publicsuffix"
   ]
-  revision = "ae89d30ce0c63142b652837da33d782e2b0a9b25"
+  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
 
 [[projects]]
   branch = "master"
@@ -210,7 +210,7 @@
     "unix",
     "windows"
   ]
-  revision = "c28acc882ebcbfbe8ce9f0f14b9ac26ee138dd51"
+  revision = "641605214e7dab930817f68e2fef560efbb033e5"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -326,7 +326,7 @@
     "pkg/util/validation",
     "pkg/util/validation/field"
   ]
-  revision = "e9ff529c66f83aeac6dff90f11ea0c5b7c4d626a"
+  revision = "664546e0ebca14c11c581d6570ee4fa246efc58d"
 
 [solve-meta]
   analyzer-name = "dep"

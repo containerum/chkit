@@ -446,6 +446,30 @@ func ErrInternalError(params ...func(*cherry.Err)) *cherry.Err {
 	}
 	return err
 }
+
+func ErrAccountBlocked(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Account is blocked", StatusHTTP: 403, ID: cherry.ErrID{SID: 0x4, Kind: 0x24}, Details: []string(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUserAlreadyActivated(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "User is already activated", StatusHTTP: 400, ID: cherry.ErrID{SID: 0x4, Kind: 0x25}, Details: []string(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
 func renderTemplate(templText string) string {
 	buf := &bytes.Buffer{}
 	templ, err := template.New("").Parse(templText)
