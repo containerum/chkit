@@ -35,8 +35,12 @@ func WithCommonAPI(config model.Config) (*kubeClient.Client, error) {
 
 // WithTestAPI -- creates kube-client for test api
 func WithTestAPI(config model.Config) (*kubeClient.Client, error) {
+	newRestAPI := re.NewResty(re.SkipTLSVerify)
+	newRestAPI.SetFingerprint(config.Fingerprint)
+	newRestAPI.SetToken(config.Tokens.AccessToken)
 	client, err := kubeClient.NewClient(kubeClient.Config{
-		APIurl: config.APIaddr,
+		APIurl:  config.APIaddr,
+		RestAPI: newRestAPI,
 		User: kubeClient.User{
 			Role: "user",
 		},
@@ -44,17 +48,17 @@ func WithTestAPI(config model.Config) (*kubeClient.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	newRestAPI := re.NewResty(re.SkipTLSVerify)
-	newRestAPI.SetFingerprint(config.Fingerprint)
-	newRestAPI.SetToken(config.Tokens.AccessToken)
-	client.RestAPI = newRestAPI
 	return client, nil
 }
 
 // WithMock -- creates kube-client with mock API
 func WithMock(config model.Config) (*kubeClient.Client, error) {
+	newRestAPI := remock.NewMock()
+	newRestAPI.SetFingerprint(config.Fingerprint)
+	newRestAPI.SetToken(config.Tokens.AccessToken)
 	client, err := kubeClient.NewClient(kubeClient.Config{
-		APIurl: config.APIaddr,
+		APIurl:  config.APIaddr,
+		RestAPI: newRestAPI,
 		User: kubeClient.User{
 			Role: "user",
 		},
@@ -62,9 +66,5 @@ func WithMock(config model.Config) (*kubeClient.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	newRestAPI := remock.NewMock()
-	newRestAPI.SetFingerprint(config.Fingerprint)
-	newRestAPI.SetToken(config.Tokens.AccessToken)
-	client.RestAPI = newRestAPI
 	return client, nil
 }
