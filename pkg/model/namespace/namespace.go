@@ -1,16 +1,18 @@
-package model
+package namespace
 
 import (
 	"bytes"
 	"time"
 
 	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/model/volume"
 	"github.com/olekukonko/tablewriter"
 )
 
 var (
-	_ TableRenderer = &Namespace{}
-	_ TableRenderer = &NamespaceList{}
+	_ model.TableRenderer = &Namespace{}
+	_ model.TableRenderer = &NamespaceList{}
 )
 
 type NamespaceList []Namespace
@@ -39,7 +41,7 @@ type Namespace struct {
 	CreatedAt *time.Time
 	Label     string
 	Access    string
-	Volumes   []Volume
+	Volumes   []volume.Volume
 }
 
 func (_ *Namespace) TableHeaders() []string {
@@ -49,7 +51,7 @@ func (_ *Namespace) TableHeaders() []string {
 func (namespace *Namespace) TableRows() [][]string {
 	creationTime := ""
 	if namespace.CreatedAt != nil {
-		creationTime = namespace.CreatedAt.Format(CreationTimeFormat)
+		creationTime = namespace.CreatedAt.Format(model.CreationTimeFormat)
 	}
 	volumes := ""
 	for i, volume := range namespace.Volumes {
