@@ -1,19 +1,16 @@
-package model
+package volume
 
 import (
 	"fmt"
 	"time"
 
 	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
-)
-
-const (
-	CreationTimeFormat = "2 Jan 2006 15:04 -0700 MST "
+	"github.com/containerum/chkit/pkg/model"
 )
 
 var (
-	_ TableRenderer = &Volume{}
-	_ TableRenderer = &VolumeList{}
+	_ model.TableRenderer = &Volume{}
+	_ model.TableRenderer = &VolumeList{}
 )
 
 type VolumeList []Volume
@@ -53,7 +50,7 @@ func (_ *Volume) TableHeaders() []string {
 func (volume *Volume) TableRows() [][]string {
 	return [][]string{{
 		volume.Label,
-		volume.CreatedAt.Format(CreationTimeFormat),
+		volume.CreatedAt.Format(model.CreationTimeFormat),
 		volume.Access,
 		fmt.Sprintf("%d", volume.Replicas),
 		fmt.Sprintf("%d", volume.Storage),
@@ -61,7 +58,7 @@ func (volume *Volume) TableRows() [][]string {
 }
 
 func (volume *Volume) RenderTable() string {
-	return RenderTable(volume)
+	return model.RenderTable(volume)
 }
 func VolumeFromKube(kv kubeModels.Volume) Volume {
 	volume := Volume{
