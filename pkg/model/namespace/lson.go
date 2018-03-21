@@ -1,12 +1,16 @@
 package namespace
 
-import "encoding/json"
+import (
+	"encoding/json"
 
-var (
-	_ json.Marshaler = new(NamespaceList)
+	"github.com/containerum/chkit/pkg/model"
 )
 
-func (list NamespaceList) MarshalJSON() ([]byte, error) {
+var (
+	_ model.JSONrenderer = new(NamespaceList)
+)
+
+func (list NamespaceList) RenderJSON() (string, error) {
 	data, err := json.MarshalIndent(list, "", indent)
-	return data, err
+	return string(data), err
 }

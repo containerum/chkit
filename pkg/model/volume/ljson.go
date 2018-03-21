@@ -1,12 +1,16 @@
 package volume
 
-import "encoding/json"
+import (
+	"encoding/json"
 
-var (
-	_ json.Marshaler = new(VolumeList)
+	"github.com/containerum/chkit/pkg/model"
 )
 
-func (list VolumeList) MarshalJSON() ([]byte, error) {
+var (
+	_ model.JSONrenderer = new(VolumeList)
+)
+
+func (list VolumeList) RenderJSON() (string, error) {
 	data, err := json.MarshalIndent(list, "", indent)
-	return data, err
+	return string(data), err
 }

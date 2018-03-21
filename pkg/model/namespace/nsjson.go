@@ -3,17 +3,19 @@ package namespace
 import (
 	"encoding/json"
 	"strings"
+
+	"github.com/containerum/chkit/pkg/model"
 )
 
 var (
-	_ json.Marshaler = new(Namespace)
+	_ model.JSONrenderer = new(Namespace)
 )
 
 var (
 	indent = strings.Repeat(" ", 4)
 )
 
-func (ns *Namespace) MarshalJSON() ([]byte, error) {
+func (ns *Namespace) RenderJSON() (string, error) {
 	data, err := json.MarshalIndent(ns, "", indent)
-	return data, err
+	return string(data), err
 }
