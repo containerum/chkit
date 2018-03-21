@@ -11,7 +11,6 @@ type TableItem interface {
 	TableRows() [][]string
 }
 type TableRenderer interface {
-	TableItem
 	RenderTable() string
 }
 
