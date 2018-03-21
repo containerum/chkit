@@ -1,5 +1,5 @@
 package model
 
 type YAMLrenderer interface {
-	RenderYAML() string
+	RenderYAML() (string, error)
 }
