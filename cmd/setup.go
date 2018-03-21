@@ -8,6 +8,8 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/ninedraft/delog"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -31,7 +33,7 @@ func setupClient(ctx *cli.Context) error {
 		log.Infof("Using mock API")
 		client, err = chClient.NewClient(config, chClient.WithMock)
 	case "api":
-		log.Infof("Using test API")
+		log.Infof("Using test API: %q", config.APIaddr)
 		client, err = chClient.NewClient(config, chClient.WithTestAPI)
 	default:
 		client, err = chClient.NewClient(config, chClient.WithCommonAPI)
@@ -45,9 +47,7 @@ func setupClient(ctx *cli.Context) error {
 
 func setupConfig(ctx *cli.Context) error {
 	config := util.GetConfig(ctx)
-	defer util.SetConfig(ctx, config)
 	log := util.GetLog(ctx)
-
 	log.Debugf("test: %q", ctx.String("test"))
 	config.Fingerprint = Fingerprint()
 	tokens, err := util.LoadTokens(ctx)
@@ -70,8 +70,10 @@ func setupConfig(ctx *cli.Context) error {
 	}
 	if config.Password == "" || config.Username == "" {
 		log.Debugf("invalid username or pass")
+		util.SetConfig(ctx, config)
 		return ErrInvalidUserInfo
 	}
+	util.SetConfig(ctx, config)
 	return nil
 }
 
@@ -124,6 +126,18 @@ func setupAll(ctx *cli.Context) error {
 	log.Debugf("setuping client")
 	if err := setupClient(ctx); err != nil {
 		return err
+	}
+	client := util.GetClient(ctx)
+	log.Debugf("API: %q", client.APIaddr)
+	return nil
+}
+
+func setupLog(ctx *cli.Context) error {
+	log := util.GetLog(ctx)
+	if ctx.IsSet("test") {
+		log.Formatter = delog.NewFormatter(log.Formatter)
+		log.SetLevel(logrus.DebugLevel)
+		log.Debug("debug mode on")
 	}
 	return nil
 }
