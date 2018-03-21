@@ -69,7 +69,7 @@ func (namespace *Namespace) TableRows() [][]string {
 }
 
 func (namespace *Namespace) RenderTable() string {
-	return RenderTable(namespace)
+	return model.RenderTable(namespace)
 }
 func NamespaceFromKube(kubeNameSpace kubeModels.Namespace) Namespace {
 	ns := Namespace{
@@ -80,10 +80,10 @@ func NamespaceFromKube(kubeNameSpace kubeModels.Namespace) Namespace {
 		createdAt := time.Unix(*kubeNameSpace.CreatedAt, 0)
 		ns.CreatedAt = &createdAt
 	}
-	ns.Volumes = make([]Volume, 0, len(kubeNameSpace.Volumes))
-	for _, volume := range kubeNameSpace.Volumes {
+	ns.Volumes = make([]volume.Volume, 0, len(kubeNameSpace.Volumes))
+	for _, kubeVolume := range kubeNameSpace.Volumes {
 		ns.Volumes = append(ns.Volumes,
-			VolumeFromKube(volume))
+			volume.VolumeFromKube(kubeVolume))
 	}
 	return ns
 }
@@ -91,7 +91,7 @@ func NamespaceFromKube(kubeNameSpace kubeModels.Namespace) Namespace {
 func (ns *Namespace) RenderVolumes() string {
 	buf := &bytes.Buffer{}
 	table := tablewriter.NewWriter(buf)
-	table.SetHeader(new(Volume).TableHeaders())
+	table.SetHeader(new(volume.Volume).TableHeaders())
 	for _, volume := range ns.Volumes {
 		table.AppendBulk(volume.TableRows())
 	}
