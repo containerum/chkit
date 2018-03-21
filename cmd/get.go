@@ -19,7 +19,7 @@ var commandGet = &cli.Command{
 	ArgsUsage: `get ns [namespace_name] --> show namespace data
 	         get ns                  --> show namespace list`,
 	Action: func(ctx *cli.Context) error {
-		return nil
+		return ctx.App.Command("help").Run(ctx)
 	},
 	Subcommands: []*cli.Command{
 		namespace.GetNamespace,
