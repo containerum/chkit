@@ -8,7 +8,7 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/model/namespace"
 )
 
 const (
@@ -25,31 +25,31 @@ const (
 // 	- ErrNamespaceNotExists
 //  - ErrWrongPasswordLoginCombination
 //  - ErrUserNotExist
-func (client *Client) GetNamespace(label string) (model.Namespace, error) {
+func (client *Client) GetNamespace(label string) (namespace.Namespace, error) {
 	var err error
-	var namespace kubeClientModels.Namespace
+	var kubeNamespace kubeClientModels.Namespace
 	for i := uint(0); i == 0 || (i < 4 && err != nil); i++ {
-		namespace, err = client.kubeAPIClient.GetNamespace(label)
+		kubeNamespace, err = client.kubeAPIClient.GetNamespace(label)
 		switch {
 		case err == nil:
 			break
 		case cherry.Equals(err, kubeErrors.ErrResourceNotExist()) ||
 			cherry.Equals(err, kubeErrors.ErrAccessError()) ||
 			cherry.Equals(err, kubeErrors.ErrUnableGetResource()):
-			return model.Namespace{}, ErrNamespaceNotExists
+			return namespace.Namespace{}, ErrNamespaceNotExists
 		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
 			cherry.Equals(err, autherr.ErrTokenNotFound()):
 			switch client.Auth() {
 			case ErrWrongPasswordLoginCombination, ErrUserNotExist:
-				return model.Namespace{}, err
+				return namespace.Namespace{}, err
 			}
 		}
 		waitNextAttempt(i)
 	}
-	return model.NamespaceFromKube(namespace), err
+	return namespace.NamespaceFromKube(kubeNamespace), err
 }
 
-func (client *Client) GetNamespaceList() (model.NamespaceList, error) {
+func (client *Client) GetNamespaceList() (namespace.NamespaceList, error) {
 	var err error
 	var list []kubeClientModels.Namespace
 	for i := uint(0); i == 0 || (i < 4 && err != nil); i++ {
@@ -63,14 +63,14 @@ func (client *Client) GetNamespaceList() (model.NamespaceList, error) {
 			err = client.Auth()
 			switch err {
 			case ErrWrongPasswordLoginCombination, ErrUserNotExist:
-				return []model.Namespace{}, err
+				return []namespace.Namespace{}, err
 			default:
 				fmt.Println(err)
 			}
 		case cherry.Equals(err, kubeErrors.ErrAccessError()):
-			return model.NamespaceList{}, ErrYouDoNotHaveAccessToNamespace
+			return namespace.NamespaceList{}, ErrYouDoNotHaveAccessToNamespace
 		}
 		waitNextAttempt(i)
 	}
-	return model.NamespaceListFromKube(list), err
+	return namespace.NamespaceListFromKube(list), err
 }
