@@ -311,6 +311,12 @@
   version = "v0.1.2"
 
 [[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
+  version = "v2.1.1"
+
+[[projects]]
   branch = "master"
   name = "k8s.io/apimachinery"
   packages = [
@@ -325,6 +331,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "69fca871b9db138044458e28883166bb155551ebba3b4bffc8021bfb718fa9e7"
+  inputs-digest = "0efea3c7d64de017431f21c041911531b7eba76626596316117e37b9faa8acd1"
   solver-name = "gps-cdcl"
   solver-version = 1
