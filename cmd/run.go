@@ -19,13 +19,15 @@ const (
 	FlagAPIaddr    = "apiaddr"
 )
 
+var (
+	ErrFatalError chkitErrors.Err = "fatal error"
+)
+
 func Run(args []string) error {
 	log := logrus.New()
-	log.Formatter = &logrus.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: "2006 Jan Mon 15:04:05",
-	}
-	log.SetLevel(logrus.DebugLevel)
+	log.Formatter = util.NewLogDebugger(3, nil)
+
+	log.SetLevel(logrus.InfoLevel)
 	configPath, err := configPath()
 	if err != nil {
 		log.WithError(err).
@@ -69,14 +71,14 @@ func Run(args []string) error {
 				Hidden: true,
 			},
 
-		&cli.StringFlag{
-			Name:  "username",
-			Usage: "your account email",
-		},
-		&cli.StringFlag{
-			Name:  "pass",
-			Usage: "password to system",
-		},
+			&cli.StringFlag{
+				Name:  "username",
+				Usage: "your account email",
+			},
+			&cli.StringFlag{
+				Name:  "pass",
+				Usage: "password to system",
+			},
 		},
 	}
 	return App.Run(args)
@@ -84,11 +86,19 @@ func Run(args []string) error {
 
 func runAction(ctx *cli.Context) error {
 	log := util.GetLog(ctx)
+	if ctx.IsSet("test") {
+		log.SetLevel(logrus.DebugLevel)
+		log.Debug("running in test mode")
+	}
+	log.Debugf("loading config")
+	if err := loadConfig(ctx); err != nil {
+		return err
+	}
 	log.Debugf("running setup")
 	err := setupConfig(ctx)
 	config := util.GetConfig(ctx)
-	switch err {
-	case ErrInvalidUserInfo:
+	switch {
+	case ErrInvalidUserInfo.Match(err):
 		log.Debugf("invalid user information")
 		log.Debugf("running login")
 		user, err := login(ctx)
@@ -101,24 +111,15 @@ func runAction(ctx *cli.Context) error {
 		log.Debugf("fatal error")
 		return err
 	}
-	log.Debugf("loading tokens")
-	tokens, err := util.LoadTokens(ctx)
-	if err != nil {
-		return err
-	}
 	log.Debugf("client initialisation")
 	if err := setupClient(ctx); err != nil {
-		return err
-	}
-	client := util.GetClient(ctx)
-	client.Tokens = tokens
-	if err := client.Auth(); err != nil {
 		return err
 	}
 	if err := persist(ctx); err != nil {
 		log.Fatalf("%v", err)
 	}
-	if err := util.SaveTokens(ctx, tokens); err != nil {
+	client := util.GetClient(ctx)
+	if err := util.SaveTokens(ctx, client.Tokens); err != nil {
 		return chkitErrors.NewExitCoder(err)
 	}
 	clientConfig := client.Config
