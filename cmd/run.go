@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"path"
+	"time"
 
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/blang/semver"
@@ -9,6 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/ninedraft/delog"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -25,9 +27,11 @@ var (
 
 func Run(args []string) error {
 	log := logrus.New()
-	log.Formatter = util.NewLogDebugger(3, nil)
-
 	log.SetLevel(logrus.InfoLevel)
+	log.Formatter = &logrus.TextFormatter{
+		FullTimestamp:   true,
+		TimestampFormat: time.RFC1123,
+	}
 	configPath, err := configPath()
 	if err != nil {
 		log.WithError(err).
@@ -87,6 +91,7 @@ func Run(args []string) error {
 func runAction(ctx *cli.Context) error {
 	log := util.GetLog(ctx)
 	if ctx.IsSet("test") {
+		log.Formatter = delog.NewFormatter(log.Formatter)
 		log.SetLevel(logrus.DebugLevel)
 		log.Debug("running in test mode")
 	}
@@ -98,6 +103,8 @@ func runAction(ctx *cli.Context) error {
 	err := setupConfig(ctx)
 	config := util.GetConfig(ctx)
 	switch {
+	case err == nil:
+		// pass
 	case ErrInvalidUserInfo.Match(err):
 		log.Debugf("invalid user information")
 		log.Debugf("running login")
@@ -109,7 +116,7 @@ func runAction(ctx *cli.Context) error {
 		util.SetConfig(ctx, config)
 	default:
 		log.Debugf("fatal error")
-		return err
+		return ErrFatalError.Wrap(err)
 	}
 	log.Debugf("client initialisation")
 	if err := setupClient(ctx); err != nil {
