@@ -17,3 +17,7 @@ func (list NamespaceList) TableRows() [][]string {
 	}
 	return row
 }
+
+func (list NamespaceList) RenderTable() string {
+	return model.RenderTable(list)
+}

@@ -6,12 +6,16 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-type TableRenderer interface {
+type TableItem interface {
 	TableHeaders() []string
 	TableRows() [][]string
 }
+type TableRenderer interface {
+	TableItem
+	RenderTable() string
+}
 
-func RenderTable(renderer TableRenderer) string {
+func RenderTable(renderer TableItem) string {
 	buf := &bytes.Buffer{}
 	table := tablewriter.NewWriter(buf)
 	table.SetHeader(renderer.TableHeaders())

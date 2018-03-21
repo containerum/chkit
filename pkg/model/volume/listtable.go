@@ -17,3 +17,7 @@ func (list VolumeList) TableRows() [][]string {
 	}
 	return rows
 }
+
+func (list VolumeList) RenderTable() string {
+	return model.RenderTable(list)
+}
