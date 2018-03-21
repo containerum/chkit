@@ -28,20 +28,21 @@ const (
 func (client *Client) GetNamespace(label string) (namespace.Namespace, error) {
 	var err error
 	var kubeNamespace kubeClientModels.Namespace
+retry:
 	for i := uint(0); i == 0 || (i < 4 && err != nil); i++ {
 		kubeNamespace, err = client.kubeAPIClient.GetNamespace(label)
 		switch {
 		case err == nil:
-			break
-		case cherry.Equals(err, kubeErrors.ErrResourceNotExist()) ||
-			cherry.Equals(err, kubeErrors.ErrAccessError()) ||
-			cherry.Equals(err, kubeErrors.ErrUnableGetResource()):
+			break retry
+		case cherry.In(err,
+			kubeErrors.ErrResourceNotExist(),
+			kubeErrors.ErrAccessError(),
+			kubeErrors.ErrUnableGetResource()):
 			return namespace.Namespace{}, ErrNamespaceNotExists
-		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
-			cherry.Equals(err, autherr.ErrTokenNotFound()):
-			switch client.Auth() {
-			case ErrWrongPasswordLoginCombination, ErrUserNotExist:
-				return namespace.Namespace{}, err
+		case cherry.In(err, autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			if er := client.Auth(); er != nil {
+				return namespace.Namespace{}, er
 			}
 		}
 		waitNextAttempt(i)
