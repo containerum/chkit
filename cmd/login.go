@@ -25,31 +25,46 @@ var (
 var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "login your in the system",
+	Before: func(ctx *cli.Context) error {
+		return setupLog(ctx)
+	},
 	Action: func(ctx *cli.Context) error {
-		if err := setupConfig(ctx); err != nil {
+		log := util.GetLog(ctx)
+		err := setupConfig(ctx)
+		config := util.GetConfig(ctx)
+		switch err {
+		case nil, ErrInvalidUserInfo:
+			userInfo, err := login(ctx)
+			if err != nil {
+				log.Debugf("fatal error: %v", err)
+				return err
+			}
+			config.UserInfo = userInfo
+			util.SetConfig(ctx, config)
+		default:
 			return err
 		}
 		if err := setupClient(ctx); err != nil {
 			return err
 		}
-
 		client := util.GetClient(ctx)
-		client.Tokens = model.Tokens{}
-		loginData, err := login(ctx)
-		if err != nil {
+		if err := client.Auth(); err != nil {
 			return err
 		}
-		client.Config.UserInfo = loginData
-		util.SetClient(ctx, client)
-
-		client = util.GetClient(ctx)
-		if err := client.Auth(); err != nil {
-			return chkitErrors.NewExitCoder(err)
-		}
 		if err := util.SaveTokens(ctx, client.Tokens); err != nil {
-			return chkitErrors.NewExitCoder(err)
+			return err
 		}
 		return mainActivity(ctx)
+	},
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:  "username",
+			Usage: "your account email",
+		},
+		&cli.StringFlag{
+			Name:  "pass",
+			Usage: "password to system",
+		},
 	},
 }
 
