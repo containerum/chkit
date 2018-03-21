@@ -10,7 +10,6 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/ninedraft/delog"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -89,12 +88,10 @@ func Run(args []string) error {
 }
 
 func runAction(ctx *cli.Context) error {
-	log := util.GetLog(ctx)
-	if ctx.IsSet("test") {
-		log.Formatter = delog.NewFormatter(log.Formatter)
-		log.SetLevel(logrus.DebugLevel)
-		log.Debug("running in test mode")
+	if err := setupLog(ctx); err != nil {
+		return err
 	}
+	log := util.GetLog(ctx)
 	log.Debugf("loading config")
 	if err := loadConfig(ctx); err != nil {
 		return err
