@@ -6,7 +6,6 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
 	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
-	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/namespace"
 )
@@ -26,52 +25,45 @@ const (
 //  - ErrWrongPasswordLoginCombination
 //  - ErrUserNotExist
 func (client *Client) GetNamespace(label string) (namespace.Namespace, error) {
-	var err error
-	var kubeNamespace kubeClientModels.Namespace
-retry:
-	for i := uint(0); i == 0 || (i < 4 && err != nil); i++ {
-		kubeNamespace, err = client.kubeAPIClient.GetNamespace(label)
+	var ns namespace.Namespace
+	err := retry(4, func() error {
+		kubeNamespace, err := client.kubeAPIClient.GetNamespace(label)
 		switch {
 		case err == nil:
-			break retry
+			ns = namespace.NamespaceFromKube(kubeNamespace)
+			return nil
 		case cherry.In(err,
 			kubeErrors.ErrResourceNotExist(),
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableGetResource()):
-			return namespace.Namespace{}, ErrNamespaceNotExists
+			return ErrNamespaceNotExists
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
-			if er := client.Auth(); er != nil {
-				return namespace.Namespace{}, er
-			}
+			return client.Auth()
+		default:
+			return err
 		}
-		waitNextAttempt(i)
-	}
-	return namespace.NamespaceFromKube(kubeNamespace), err
+	})
+	return ns, err
 }
 
 func (client *Client) GetNamespaceList() (namespace.NamespaceList, error) {
-	var err error
-	var list []kubeClientModels.Namespace
-	for i := uint(0); i == 0 || (i < 4 && err != nil); i++ {
-		list, err = client.kubeAPIClient.GetNamespaceList(nil)
+	var list namespace.NamespaceList
+	err := retry(4, func() error {
+		kubeList, err := client.kubeAPIClient.GetNamespaceList(nil)
 		switch {
 		case err == nil:
-			break
+			list = namespace.NamespaceListFromKube(kubeList)
+			return err
 		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
 			cherry.Equals(err, autherr.ErrTokenNotFound()):
 			fmt.Printf("reauth: %v\n", err)
-			err = client.Auth()
-			switch err {
-			case ErrWrongPasswordLoginCombination, ErrUserNotExist:
-				return []namespace.Namespace{}, err
-			default:
-				fmt.Println(err)
-			}
+			return client.Auth()
 		case cherry.Equals(err, kubeErrors.ErrAccessError()):
-			return namespace.NamespaceList{}, ErrYouDoNotHaveAccessToNamespace
+			return ErrYouDoNotHaveAccessToNamespace
+		default:
+			return err
 		}
-		waitNextAttempt(i)
-	}
-	return namespace.NamespaceListFromKube(list), err
+	})
+	return list, err
 }
