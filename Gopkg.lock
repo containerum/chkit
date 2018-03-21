@@ -98,6 +98,12 @@
   revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
 
 [[projects]]
+  name = "github.com/ninedraft/delog"
+  packages = ["."]
+  revision = "12025bf7709a8fa8b15c468f135fc27c703f12f0"
+  version = "v0.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
@@ -319,6 +325,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e4e0dedd604217e95b8be9b32fc0ab19d629682fc2a266a25c2ab949efabff9a"
+  inputs-digest = "69fca871b9db138044458e28883166bb155551ebba3b4bffc8021bfb718fa9e7"
   solver-name = "gps-cdcl"
   solver-version = 1
