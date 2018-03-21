@@ -61,15 +61,15 @@ func setupConfig(ctx *cli.Context) error {
 	config.Tokens = tokens
 	if ctx.IsSet("test") {
 		testAPIurl := os.Getenv("CONTAINERUM_API")
-		log.Debugf("[%s] using test api %q", util.DebugData(), testAPIurl)
+		log.Debugf("using test api %q", testAPIurl)
 		config.APIaddr = testAPIurl
 	}
 	if _, err := url.Parse(config.APIaddr); err != nil {
-		log.Debugf("[%v] invalid API url: %q", util.DebugData(), config.APIaddr)
+		log.Debugf("invalid API url: %q", config.APIaddr)
 		return ErrInvalidAPIurl.Wrap(err)
 	}
 	if config.Password == "" || config.Username == "" {
-		log.Debugf("[%v] invalid username or pass", util.DebugData())
+		log.Debugf("invalid username or pass")
 		return ErrInvalidUserInfo
 	}
 	return nil
