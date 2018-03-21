@@ -1,21 +1,24 @@
 package cmd
 
 import (
+	"net/url"
 	"os"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/labstack/gommon/log"
 	"gopkg.in/urfave/cli.v2"
 )
 
 const (
-	ErrUnableToLoadConfig chkitErrors.Err = "unable to load config"
-	ErrInvalidUserInfo    chkitErrors.Err = "invalid user info"
-	ErrInvalidAPIurl      chkitErrors.Err = "invalid API url"
-	ErrUnableToLoadTokens chkitErrors.Err = "unable to load tokens"
+	ErrUnableToLoadConfig       chkitErrors.Err = "unable to load config"
+	ErrInvalidUserInfo          chkitErrors.Err = "invalid user info"
+	ErrInvalidAPIurl            chkitErrors.Err = "invalid API url"
+	ErrUnableToLoadTokens       chkitErrors.Err = "unable to load tokens"
+	ErrUnableToSaveTokens       chkitErrors.Err = "unable to save tokens"
+	ErrUnableToCreateConfigDir  chkitErrors.Err = "unable to create config dir"
+	ErrUnableToCreateConfigFile chkitErrors.Err = "unable to create config file"
 )
 
 func setupClient(ctx *cli.Context) error {
@@ -42,31 +45,33 @@ func setupClient(ctx *cli.Context) error {
 
 func setupConfig(ctx *cli.Context) error {
 	config := util.GetConfig(ctx)
-	if ctx.IsSet("test") {
-		testAPIurl := os.Getenv("CONTAINERUM_API")
-		log.Infof("using test api %q", testAPIurl)
-		config.APIaddr = testAPIurl
-	}
-	if config.APIaddr == "" {
-		log.Debug("invalid API url")
-		return ErrInvalidAPIurl
-	}
-	if config.Password == "" || config.Username == "" {
-		log.Debugf("invalid username or pass")
-		return ErrInvalidUserInfo
-	}
+	defer util.SetConfig(ctx, config)
+	log := util.GetLog(ctx)
+
+	log.Debugf("test: %q", ctx.String("test"))
 	config.Fingerprint = Fingerprint()
 	tokens, err := util.LoadTokens(ctx)
 	if err != nil && !os.IsNotExist(err) {
 		return ErrUnableToLoadTokens.Wrap(err)
 	} else if os.IsNotExist(err) {
-		err = util.SaveTokens(ctx, model.Tokens{})
-		if err != nil {
-			return err
+		if err = util.SaveTokens(ctx, model.Tokens{}); err != nil {
+			return ErrUnableToSaveTokens.Wrap(err)
 		}
 	}
 	config.Tokens = tokens
-	util.SetConfig(ctx, config)
+	if ctx.IsSet("test") {
+		testAPIurl := os.Getenv("CONTAINERUM_API")
+		log.Debugf("[%s] using test api %q", util.DebugData(), testAPIurl)
+		config.APIaddr = testAPIurl
+	}
+	if _, err := url.Parse(config.APIaddr); err != nil {
+		log.Debugf("[%v] invalid API url: %q", util.DebugData(), config.APIaddr)
+		return ErrInvalidAPIurl.Wrap(err)
+	}
+	if config.Password == "" || config.Username == "" {
+		log.Debugf("[%v] invalid username or pass", util.DebugData())
+		return ErrInvalidUserInfo
+	}
 	return nil
 }
 
@@ -83,30 +88,36 @@ func loadConfig(ctx *cli.Context) error {
 
 	err := os.MkdirAll(util.GetConfigPath(ctx), os.ModePerm)
 	if err != nil && !os.IsExist(err) {
-		return err
+		return ErrUnableToCreateConfigDir.Wrap(err)
 	}
 
 	_, err = os.Stat(ctx.String("config"))
 	if err != nil && os.IsNotExist(err) {
 		file, err := os.Create(ctx.String("config"))
 		if err != nil {
-			return err
+			return ErrUnableToCreateConfigFile.Wrap(err)
 		}
-		return file.Close()
+		if err = file.Close(); err != nil {
+			return ErrUnableToCreateConfigDir.Wrap(err)
+		}
 	} else if err != nil {
-		return err
+		return ErrUnableToCreateConfigDir.Wrap(err)
 	}
 
 	err = util.LoadConfig(ctx.String("config"), &config)
 	if err != nil {
-		return err
+		return ErrUnableToLoadConfig.Wrap(err)
 	}
+	util.SetConfig(ctx, config)
 	return nil
 }
 
 func setupAll(ctx *cli.Context) error {
 	log := util.GetLog(ctx)
 	log.Debugf("setuping config")
+	if err := loadConfig(ctx); err != nil {
+		return err
+	}
 	if err := setupConfig(ctx); err != nil {
 		return err
 	}
