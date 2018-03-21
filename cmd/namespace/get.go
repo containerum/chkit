@@ -14,7 +14,9 @@ var GetNamespace = &cli.Command{
 	Description: `show namespace or namespace list`,
 	Usage:       `Shows namespace data or namespace list`,
 	Action: func(ctx *cli.Context) error {
+		log := util.GetLog(ctx)
 		client := util.GetClient(ctx)
+		log.Debugf("get ns from %q", client.APIaddr)
 		if ctx.NArg() > 0 {
 			name := ctx.Args().First()
 			ns, err := client.GetNamespace(name)
