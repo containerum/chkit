@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	_ model.JSONrenderer = new(Port)
+	_ model.JSONrenderer = Port{}
 )
 
-func (port *Port) RenderJSON() (string, error) {
+func (port Port) RenderJSON() (string, error) {
 	data, err := json.MarshalIndent(port, "", "    ")
 	return string(data), err
 }

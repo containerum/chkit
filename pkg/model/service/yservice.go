@@ -6,10 +6,10 @@ import (
 )
 
 var (
-	_ model.YAMLrenderer = new(Service)
+	_ model.YAMLrenderer = Service{}
 )
 
-func (serv *Service) RenderYAML() (string, error) {
+func (serv Service) RenderYAML() (string, error) {
 	data, err := yaml.Marshal(serv)
 	return string(data), err
 }

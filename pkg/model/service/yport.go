@@ -6,10 +6,10 @@ import (
 )
 
 var (
-	_ model.YAMLrenderer = new(Port)
+	_ model.YAMLrenderer = Port{}
 )
 
-func (port *Port) RenderYAML() (string, error) {
+func (port Port) RenderYAML() (string, error) {
 	data, err := yaml.Marshal(port)
 	return string(data), err
 }
