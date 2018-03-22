@@ -20,7 +20,7 @@ func (client *Client) GetPod(ns, podname string) (pod.Pod, error) {
 			autherr.ErrTokenNotOwnedBySender()):
 			return true, client.Auth()
 		default:
-			return true, err
+			return true, ErrFatalError.Wrap(err)
 		}
 	})
 	return gainedPod, err
@@ -40,7 +40,7 @@ func (client *Client) GetPodList(ns string) (pod.PodList, error) {
 			autherr.ErrTokenNotOwnedBySender()):
 			return true, client.Auth()
 		default:
-			return true, err
+			return true, ErrFatalError.Wrap(err)
 		}
 	})
 	return gainedList, err
