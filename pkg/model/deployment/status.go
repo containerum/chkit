@@ -5,17 +5,29 @@ import (
 	"strings"
 	"time"
 
+	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model"
 )
 
 type Status struct {
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
-	Replicas            int
-	ReadyReplicas       int
-	AvailableReplicas   int
-	UnavailableReplicas int
-	UpdatedReplicas     int
+	Replicas            uint
+	ReadyReplicas       uint
+	AvailableReplicas   uint
+	UnavailableReplicas uint
+	UpdatedReplicas     uint
+}
+
+func StatusFromKubeStatus(kubeStatus kubeModel.DeploymentStatus) Status {
+	return Status{
+		CreatedAt:           time.Unix(kubeStatus.CreatedAt, 0),
+		UpdatedAt:           time.Unix(kubeStatus.UpdatedAt, 0),
+		Replicas:            uint(kubeStatus.Replicas),
+		AvailableReplicas:   uint(kubeStatus.AvailableReplicas),
+		UnavailableReplicas: uint(kubeStatus.UnavailableReplicas),
+		UpdatedReplicas:     uint(kubeStatus.UpdatedReplicas),
+	}
 }
 
 func (status *Status) String() string {
