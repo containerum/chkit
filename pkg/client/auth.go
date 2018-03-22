@@ -29,8 +29,9 @@ func (client *Client) Auth() error {
 		switch {
 		case err == nil:
 			return nil
-		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
-			cherry.Equals(err, autherr.ErrTokenNotFound()):
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
 			return client.Login()
 		case cherry.In(err, gatewayErrors.ErrInternal()):
 			return ErrInternalError
