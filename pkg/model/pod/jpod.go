@@ -8,6 +8,7 @@ import (
 
 var (
 	_ model.JSONrenderer = new(Pod)
+	_ json.Marshaler     = new(JSONpod)
 )
 
 func (pod *Pod) RenderJSON() (string, error) {
