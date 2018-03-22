@@ -15,7 +15,7 @@ var (
 	indent = strings.Repeat(" ", 4)
 )
 
-func (ns *Namespace) RenderJSON() (string, error) {
+func (ns Namespace) RenderJSON() (string, error) {
 	data, err := json.MarshalIndent(ns, "", indent)
 	return string(data), err
 }

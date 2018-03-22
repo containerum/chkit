@@ -9,7 +9,7 @@ var (
 	_ model.YAMLrenderer = new(Namespace)
 )
 
-func (ns *Namespace) RenderYAML() (string, error) {
+func (ns Namespace) RenderYAML() (string, error) {
 	data, err := yaml.Marshal(ns)
 	return string(data), err
 }

@@ -12,11 +12,11 @@ var (
 	_ model.TableRenderer = &Namespace{}
 )
 
-func (_ *Namespace) TableHeaders() []string {
+func (_ Namespace) TableHeaders() []string {
 	return []string{"Label", "Created" /* "Access",*/, "Volumes"}
 }
 
-func (namespace *Namespace) TableRows() [][]string {
+func (namespace Namespace) TableRows() [][]string {
 	creationTime := ""
 	if namespace.CreatedAt != nil {
 		creationTime = namespace.CreatedAt.Format(model.CreationTimeFormat)
@@ -36,7 +36,7 @@ func (namespace *Namespace) TableRows() [][]string {
 	}}
 }
 
-func (namespace *Namespace) RenderTable() string {
+func (namespace Namespace) RenderTable() string {
 	return model.RenderTable(namespace)
 }
 func NamespaceFromKube(kubeNameSpace kubeModels.Namespace) Namespace {
