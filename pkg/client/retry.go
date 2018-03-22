@@ -13,11 +13,12 @@ func waitNextAttempt(attempt uint) {
 	}
 }
 
-func retry(maxTimes uint, fn func() error) error {
+func retry(maxTimes uint, fn func() (bool, error)) error {
 	var err error
+	var ok bool
 	for i := uint(0); i == 0 || (i < maxTimes && err != nil); i++ {
-		err = fn()
-		if err == nil {
+		ok, err = fn()
+		if err == nil || !ok {
 			break
 		}
 		waitNextAttempt(i)
