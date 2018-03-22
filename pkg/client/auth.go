@@ -2,6 +2,7 @@ package chClient
 
 import (
 	"git.containerum.net/ch/kube-client/pkg/cherry"
+	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
 	"git.containerum.net/ch/kube-client/pkg/cherry/user-manager"
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
@@ -17,7 +18,8 @@ const (
 	// ErrWrongPasswordLoginCombination -- wrong login-password combination
 	ErrWrongPasswordLoginCombination chkitErrors.Err = "wrong login-password combination"
 	// ErrUserNotExist -- user doesn't not exist
-	ErrUserNotExist chkitErrors.Err = "user doesn't not exist"
+	ErrUserNotExist  chkitErrors.Err = "user doesn't not exist"
+	ErrInternalError chkitErrors.Err = "internal server error"
 )
 
 // Auth -- refreshes tokens, on invalid token uses Login method to get new tokens
@@ -30,6 +32,8 @@ func (client *Client) Auth() error {
 		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
 			cherry.Equals(err, autherr.ErrTokenNotFound()):
 			return client.Login()
+		case cherry.In(err, gatewayErrors.ErrInternal()):
+			return ErrInternalError
 		default:
 			return ErrUnableToRefreshToken.Wrap(err)
 		}
