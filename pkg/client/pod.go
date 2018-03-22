@@ -8,20 +8,40 @@ import (
 
 func (client *Client) GetPod(ns, podname string) (pod.Pod, error) {
 	var gainedPod pod.Pod
-	err := retry(4, func() error {
+	err := retry(4, func() (bool, error) {
 		kubePod, err := client.kubeAPIClient.GetPod(ns, podname)
 		switch {
 		case err == nil:
 			gainedPod = pod.PodFromKube(kubePod)
-			return nil
+			return false, nil
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound(),
 			autherr.ErrTokenNotOwnedBySender()):
-			return client.Auth()
+			return true, client.Auth()
 		default:
-			return err
+			return true, err
 		}
 	})
 	return gainedPod, err
+}
+
+func (client *Client) GetPodList(ns string) (pod.PodList, error) {
+	var gainedList pod.PodList
+	err := retry(4, func() (bool, error) {
+		kubePod, err := client.kubeAPIClient.GetPodList(ns)
+		switch {
+		case err == nil:
+			gainedList = pod.PodListFromKube(kubePod)
+			return false, nil
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
+			return true, client.Auth()
+		default:
+			return true, err
+		}
+	})
+	return gainedList, err
 }

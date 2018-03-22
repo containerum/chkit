@@ -26,22 +26,22 @@ const (
 //  - ErrUserNotExist
 func (client *Client) GetNamespace(label string) (namespace.Namespace, error) {
 	var ns namespace.Namespace
-	err := retry(4, func() error {
+	err := retry(4, func() (bool, error) {
 		kubeNamespace, err := client.kubeAPIClient.GetNamespace(label)
 		switch {
 		case err == nil:
 			ns = namespace.NamespaceFromKube(kubeNamespace)
-			return nil
+			return false, nil
 		case cherry.In(err,
 			kubeErrors.ErrResourceNotExist(),
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableGetResource()):
-			return ErrNamespaceNotExists
+			return false, ErrNamespaceNotExists
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
-			return client.Auth()
+			return true, client.Auth()
 		default:
-			return err
+			return true, err
 		}
 	})
 	return ns, err
@@ -49,20 +49,20 @@ func (client *Client) GetNamespace(label string) (namespace.Namespace, error) {
 
 func (client *Client) GetNamespaceList() (namespace.NamespaceList, error) {
 	var list namespace.NamespaceList
-	err := retry(4, func() error {
+	err := retry(4, func() (bool, error) {
 		kubeList, err := client.kubeAPIClient.GetNamespaceList(nil)
 		switch {
 		case err == nil:
 			list = namespace.NamespaceListFromKube(kubeList)
-			return err
+			return false, err
 		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
 			cherry.Equals(err, autherr.ErrTokenNotFound()):
 			fmt.Printf("reauth: %v\n", err)
-			return client.Auth()
+			return true, client.Auth()
 		case cherry.Equals(err, kubeErrors.ErrAccessError()):
-			return ErrYouDoNotHaveAccessToNamespace
+			return false, ErrYouDoNotHaveAccessToNamespace
 		default:
-			return err
+			return true, err
 		}
 	})
 	return list, err
