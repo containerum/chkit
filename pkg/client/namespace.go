@@ -1,8 +1,6 @@
 package chClient
 
 import (
-	"fmt"
-
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
 	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
@@ -55,11 +53,12 @@ func (client *Client) GetNamespaceList() (namespace.NamespaceList, error) {
 		case err == nil:
 			list = namespace.NamespaceListFromKube(kubeList)
 			return false, err
-		case cherry.Equals(err, autherr.ErrInvalidToken()) ||
-			cherry.Equals(err, autherr.ErrTokenNotFound()):
-			fmt.Printf("reauth: %v\n", err)
-			return true, client.Auth()
-		case cherry.Equals(err, kubeErrors.ErrAccessError()):
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			er := client.Auth()
+			return true, er
+		case cherry.In(err, kubeErrors.ErrAccessError()):
 			return false, ErrYouDoNotHaveAccessToNamespace
 		default:
 			return true, err
