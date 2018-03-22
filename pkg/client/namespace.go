@@ -39,7 +39,7 @@ func (client *Client) GetNamespace(label string) (namespace.Namespace, error) {
 			autherr.ErrTokenNotFound()):
 			return true, client.Auth()
 		default:
-			return true, err
+			return true, ErrFatalError.Wrap(err)
 		}
 	})
 	return ns, err
@@ -59,9 +59,9 @@ func (client *Client) GetNamespaceList() (namespace.NamespaceList, error) {
 			er := client.Auth()
 			return true, er
 		case cherry.In(err, kubeErrors.ErrAccessError()):
-			return false, ErrYouDoNotHaveAccessToNamespace
+			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
 		default:
-			return true, err
+			return true, ErrFatalError.Wrap(err)
 		}
 	})
 	return list, err
