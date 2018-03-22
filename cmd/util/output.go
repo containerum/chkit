@@ -20,6 +20,8 @@ func WriteData(ctx *cli.Context, renderer model.Renderer) error {
 	case ctx.IsSet("yaml"):
 		output = ctx.String("yaml")
 		data, err = renderer.RenderYAML()
+	default:
+		data = renderer.RenderTable()
 	}
 	if err != nil {
 		return err
