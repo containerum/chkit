@@ -1,8 +1,6 @@
 package clinamespace
 
 import (
-	"fmt"
-
 	"github.com/containerum/chkit/pkg/model/namespace"
 
 	"github.com/containerum/chkit/cmd/util"
@@ -19,14 +17,13 @@ var GetNamespace = &cli.Command{
 		&cli.StringFlag{
 			Name: "json",
 		},
+		&cli.StringFlag{
+			Name: "yaml",
+		},
 	},
 	Action: func(ctx *cli.Context) error {
 		log := util.GetLog(ctx)
 		client := util.GetClient(ctx)
-		if ctx.NArg() == 0 {
-
-		}
-
 		var showItem model.Renderer
 		var err error
 		switch ctx.NArg() {
@@ -48,12 +45,10 @@ var GetNamespace = &cli.Command{
 			}
 			showItem = list
 		}
-		switch {
-		case ctx.IsSet("json"):
-		case ctx.IsSet("yaml"):
-		default:
-			fmt.Println(showItem.RenderTable())
+		err = util.WriteData(ctx, showItem)
+		if err != nil {
+			log.Debugf("fatal error: %v", err)
 		}
-		return nil
+		return err
 	},
 }
