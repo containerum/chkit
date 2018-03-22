@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/containerum/chkit/cmd/namespace"
+	"github.com/containerum/chkit/cmd/pod"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -22,6 +23,7 @@ var commandGet = &cli.Command{
 		return ctx.App.Command("help").Run(ctx)
 	},
 	Subcommands: []*cli.Command{
-		namespace.GetNamespace,
+		clinamespace.GetNamespace,
+		clipod.GetPodAction,
 	},
 }
