@@ -13,12 +13,6 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
-type renderer interface {
-	model.TableRenderer
-	model.YAMLrenderer
-	model.JSONrenderer
-}
-
 // GetNamespace -- commmand 'get' entity data
 var GetNamespace = &cli.Command{
 	Name:        "ns",
@@ -33,7 +27,7 @@ var GetNamespace = &cli.Command{
 		log := util.GetLog(ctx)
 		client := util.GetClient(ctx)
 		log.Debugf("get ns from %q", client.APIaddr)
-		var namespaceData renderer
+		var namespaceData model.Renderer
 		if ctx.NArg() > 0 {
 			name := ctx.Args().First()
 			ns, err := client.GetNamespace(name)
