@@ -28,3 +28,25 @@ func (client *Client) GetService(namespace, serviceName string) (service.Service
 	})
 	return gainedService, err
 }
+
+func (client *Client) GetServiceList(namespace string) (service.ServiceList, error) {
+	var gainedList service.ServiceList
+	err := retry(4, func() (bool, error) {
+		kubeLsit, err := client.kubeAPIClient.GetServiceList(namespace)
+		switch {
+		case err == nil:
+			gainedList = service.ServiceListFromKube(kubeLsit)
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			er := client.Auth()
+			return true, er
+		case cherry.In(err, kubeErrors.ErrAccessError()):
+			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	return gainedList, err
+}
