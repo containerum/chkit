@@ -33,7 +33,7 @@ func setupClient(ctx *cli.Context) error {
 		log.Infof("Using mock API")
 		client, err = chClient.NewClient(config, chClient.WithMock)
 	case "api":
-		log.Infof("Using test API: %q", config.APIaddr)
+		log.Debugf("Using test API: %q", config.APIaddr)
 		client, err = chClient.NewClient(config, chClient.WithTestAPI)
 	default:
 		client, err = chClient.NewClient(config, chClient.WithCommonAPI)
