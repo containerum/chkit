@@ -1,4 +1,4 @@
-package namespace
+package clinamespace
 
 import (
 	"fmt"
