@@ -2,11 +2,8 @@ package clinamespace
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
-	"strings"
 
-	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/model/namespace"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
@@ -26,64 +23,37 @@ var GetNamespace = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		log := util.GetLog(ctx)
 		client := util.GetClient(ctx)
-		log.Debugf("get ns from %q", client.APIaddr)
-		var namespaceData model.Renderer
-		if ctx.NArg() > 0 {
-			name := ctx.Args().First()
-			ns, err := client.GetNamespace(name)
-			if err != nil {
-				return err
-			}
-			namespaceData = &ns
-		} else {
-			list, err := client.GetNamespaceList()
-			if err != nil {
-				return err
-			}
-			namespaceData = list
+		if ctx.NArg() == 0 {
+
 		}
-		ok, flag := isSet(ctx.Args().Slice(), "json", "yaml")
-		switch {
-		case ok && flag.Name == "json":
-			log.Debugf("rendering namespace to JSON")
-			data, err := namespaceData.RenderJSON()
+
+		var showItem model.Renderer
+		var err error
+		switch ctx.NArg() {
+		case 1:
+			namespaceLabel := ctx.Args().First()
+			log.Debugf("getting namespace %q", namespaceLabel)
+			showItem, err = client.GetNamespace(namespaceLabel)
 			if err != nil {
+				log.Debugf("fatal error: %v", err)
 				return err
-			}
-			if flag.Value == "" {
-				fmt.Println(data)
-			} else {
-				if err := ioutil.WriteFile(flag.Value, []byte(data), os.ModePerm); err != nil {
-					return chkitErrors.NewExitCoder(err)
-				}
 			}
 		default:
-			log.Debugf("rendering namespace to table")
-			fmt.Println(namespaceData.RenderTable())
+			var list namespace.NamespaceList
+			log.Debugf("getting namespace list")
+			list, err := client.GetNamespaceList()
+			if err != nil {
+				log.Debugf("fatal error: %v", err)
+				return err
+			}
+			showItem = list
+		}
+		switch {
+		case ctx.IsSet("json"):
+		case ctx.IsSet("yaml"):
+		default:
+			fmt.Println(showItem.RenderTable())
 		}
 		return nil
 	},
-}
-
-func isSet(args []string, flags ...string) (bool, *cli.StringFlag) {
-	for _, flag := range flags {
-		for i, arg := range args {
-			if len(flag) == 1 {
-				arg = strings.TrimPrefix(arg, "-")
-			} else if len(flag) > 1 {
-				arg = strings.TrimPrefix(arg, "--")
-			}
-			if arg == flag {
-				value := ""
-				if i+1 < len(args) {
-					value = args[i+1]
-				}
-				return true, &cli.StringFlag{
-					Name:  flag,
-					Value: value,
-				}
-			}
-		}
-	}
-	return false, nil
 }
