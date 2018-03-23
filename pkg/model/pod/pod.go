@@ -1,6 +1,8 @@
 package pod
 
 import (
+	"fmt"
+
 	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
 )
 
@@ -15,7 +17,10 @@ type Pod struct {
 func PodFromKube(pod kubeModel.Pod) Pod {
 	containers := []string{}
 	for _, container := range pod.Containers {
-		containers = append(containers, container.Name)
+		containers = append(containers,
+			fmt.Sprintf("%s [%s]",
+				container.Name,
+				container.Image))
 	}
 	hostname := ""
 	if pod.Hostname != nil {
