@@ -138,5 +138,10 @@ func (fs *FileSystemLatestCheckerDownloader) LatestDownload() (io.ReadCloser, er
 		return nil, err
 	}
 
-	return os.Open(path.Join(fs.baseDir, DownloadFileName(latestVersion)))
+	pkg, err := os.Open(path.Join(fs.baseDir, DownloadFileName(latestVersion)))
+	if err != nil {
+		return nil, chkitErrors.Wrap(ErrUpdateDownload, err)
+	}
+
+	return pkg, nil
 }
