@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"time"
 
+	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model/volume"
 	"github.com/olekukonko/tablewriter"
 )
@@ -13,6 +14,7 @@ type Namespace struct {
 	Label     string
 	Access    string
 	Volumes   []volume.Volume
+	origin    kubeModel.Namespace
 }
 
 func (ns *Namespace) RenderVolumes() string {
