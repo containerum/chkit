@@ -7,20 +7,16 @@ import (
 )
 
 var (
-	_ model.JSONrenderer = new(Pod)
-	_ json.Marshaler     = new(JSONpod)
+	_ model.JSONrenderer = Pod{}
+	_ json.Marshaler     = Pod{}
 )
 
-func (pod *Pod) RenderJSON() (string, error) {
-	data, err := json.MarshalIndent(pod, "", "   ")
+func (pod Pod) RenderJSON() (string, error) {
+	data, err := pod.MarshalJSON()
 	return string(data), err
 }
 
-type JSONpod struct {
-	Pod
-}
-
-func (pod JSONpod) MarshalJSON() ([]byte, error) {
-	data, err := pod.RenderJSON()
-	return []byte(data), err
+func (pod Pod) MarshalJSON() ([]byte, error) {
+	data, err := json.MarshalIndent(pod.origin, "", "    ")
+	return data, err
 }

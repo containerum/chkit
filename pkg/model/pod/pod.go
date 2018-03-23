@@ -2,6 +2,7 @@ package pod
 
 import (
 	"git.containerum.net/ch/kube-client/pkg/model"
+	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
 )
 
 type Pod struct {
@@ -9,6 +10,7 @@ type Pod struct {
 	Hostname   string
 	Containers []string
 	Status     Status
+	origin     kubeModel.Pod
 }
 
 func PodFromKube(pod model.Pod) Pod {

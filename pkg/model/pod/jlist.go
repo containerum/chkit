@@ -11,10 +11,6 @@ var (
 )
 
 func (list PodList) RenderJSON() (string, error) {
-	jsonList := make([]JSONpod, 0, len(list))
-	for _, pod := range list {
-		jsonList = append(jsonList, JSONpod{pod})
-	}
-	data, err := json.MarshalIndent(jsonList, "", "    ")
+	data, err := json.MarshalIndent(list, "", "    ")
 	return string(data), err
 }
