@@ -6,10 +6,15 @@ import (
 )
 
 var (
-	_ model.YAMLrenderer = new(Volume)
+	_ model.YAMLrenderer = Volume{}
+	_ yaml.Marshaler     = Volume{}
 )
 
-func (v *Volume) RenderYAML() (string, error) {
+func (v Volume) RenderYAML() (string, error) {
 	data, err := yaml.Marshal(v)
 	return string(data), err
+}
+
+func (vol Volume) MarshalYAML() (interface{}, error) {
+	return vol.origin, nil
 }

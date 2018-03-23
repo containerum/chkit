@@ -2,19 +2,21 @@ package volume
 
 import (
 	"encoding/json"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/model"
 )
 
 var (
 	_ model.JSONrenderer = new(Volume)
-)
-var (
-	indent = strings.Repeat(" ", 4)
+	_ json.Marshaler     = Volume{}
 )
 
-func (v *Volume) RenderJSON() (string, error) {
-	data, err := json.MarshalIndent(v, "", indent)
+func (vol Volume) RenderJSON() (string, error) {
+	data, err := vol.MarshalJSON()
 	return string(data), err
+}
+
+func (vol Volume) MarshalJSON() ([]byte, error) {
+	data, err := json.MarshalIndent(vol.origin, "", "    ")
+	return data, err
 }
