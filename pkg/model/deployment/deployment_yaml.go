@@ -7,9 +7,14 @@ import (
 
 var (
 	_ model.YAMLrenderer = Deployment{}
+	_ yaml.Marshaler     = Deployment{}
 )
 
 func (depl Deployment) RenderYAML() (string, error) {
-	data, err := yaml.Marshal(depl)
+	data, err := yaml.Marshal(depl.origin)
 	return string(data), err
+}
+
+func (depl Deployment) MarshalYAML() (interface{}, error) {
+	return depl.origin, nil
 }

@@ -8,9 +8,15 @@ import (
 
 var (
 	_ model.JSONrenderer = Deployment{}
+	_ json.Marshaler     = Deployment{}
 )
 
 func (depl Deployment) RenderJSON() (string, error) {
-	data, err := json.MarshalIndent(depl, "", "    ")
+	data, err := depl.MarshalJSON()
 	return string(data), err
+}
+
+func (depl Deployment) MarshalJSON() ([]byte, error) {
+	data, err := json.MarshalIndent(depl.origin, "", "   ")
+	return data, err
 }
