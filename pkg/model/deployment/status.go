@@ -30,14 +30,23 @@ func StatusFromKubeStatus(kubeStatus kubeModel.DeploymentStatus) Status {
 	}
 }
 
-func (status *Status) String() string {
+func (status *Status) ColumnReplicas() string {
+	if status == nil {
+		return "unknown"
+	}
+	return strings.Join([]string{
+		"Available: " + fmt.Sprintf("%d/%d", status.AvailableReplicas, status.Replicas),
+		"Ready: " + fmt.Sprintf("%d/%d", status.ReadyReplicas, status.Replicas),
+		"Updated: " + fmt.Sprintf("%d/%d", status.UpdatedReplicas, status.Replicas),
+	}, "\n")
+}
+
+func (status *Status) ColumnWhen() string {
 	if status == nil {
 		return "unknown"
 	}
 	return strings.Join([]string{
 		"Created: " + status.CreatedAt.Format(model.CreationTimeFormat),
 		"Updated: " + status.UpdatedAt.Format(model.CreationTimeFormat),
-		"Available replicas: " + fmt.Sprintf("%d/%d", status.AvailableReplicas, status.Replicas),
-		"Ready replicas: " + fmt.Sprintf("%d/%d", status.ReadyReplicas, status.Replicas),
 	}, "\n")
 }
