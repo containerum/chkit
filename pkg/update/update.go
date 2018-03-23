@@ -108,11 +108,13 @@ askLoop:
 	if err != nil {
 		return err
 	}
+	defer archive.Close()
 
 	pkg, err := unpack(archive)
 	if err != nil {
 		return err
 	}
+	defer pkg.Close()
 
 	err = verifiedUpdate(pkg)
 	if err != nil {
