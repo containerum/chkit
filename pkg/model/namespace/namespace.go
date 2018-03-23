@@ -17,6 +17,24 @@ type Namespace struct {
 	origin    kubeModel.Namespace
 }
 
+func NamespaceFromKube(kubeNameSpace kubeModel.Namespace) Namespace {
+	ns := Namespace{
+		Label:  kubeNameSpace.Label,
+		Access: kubeNameSpace.Access,
+		origin: kubeNameSpace,
+	}
+	if kubeNameSpace.CreatedAt != nil {
+		createdAt := time.Unix(*kubeNameSpace.CreatedAt, 0)
+		ns.CreatedAt = &createdAt
+	}
+	ns.Volumes = make([]volume.Volume, 0, len(kubeNameSpace.Volumes))
+	for _, kubeVolume := range kubeNameSpace.Volumes {
+		ns.Volumes = append(ns.Volumes,
+			volume.VolumeFromKube(kubeVolume))
+	}
+	return ns
+}
+
 func (ns *Namespace) RenderVolumes() string {
 	buf := &bytes.Buffer{}
 	table := tablewriter.NewWriter(buf)

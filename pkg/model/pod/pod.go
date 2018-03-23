@@ -1,7 +1,6 @@
 package pod
 
 import (
-	"git.containerum.net/ch/kube-client/pkg/model"
 	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
 )
 
@@ -13,7 +12,7 @@ type Pod struct {
 	origin     kubeModel.Pod
 }
 
-func PodFromKube(pod model.Pod) Pod {
+func PodFromKube(pod kubeModel.Pod) Pod {
 	containers := []string{}
 	for _, container := range pod.Containers {
 		containers = append(containers, container.Name)
@@ -31,5 +30,6 @@ func PodFromKube(pod model.Pod) Pod {
 		Hostname:   hostname,
 		Containers: containers,
 		Status:     status,
+		origin:     pod,
 	}
 }
