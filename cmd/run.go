@@ -48,6 +48,7 @@ func Run(args []string) error {
 			"log":        log,
 			"config":     model.Config{},
 			"tokens":     kubeClientModels.Tokens{},
+			"version":    semver.MustParse(Version),
 		},
 		Commands: []*cli.Command{
 			commandLogin,

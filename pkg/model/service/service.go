@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"git.containerum.net/ch/kube-client/pkg/model"
+	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
 )
 
 type Service struct {
@@ -13,6 +14,7 @@ type Service struct {
 	IPs       []string
 	Domain    string
 	Ports     []Port
+	origin    kubeModels.Service
 }
 
 func ServiceFromKube(kubeService model.Service) Service {
@@ -32,5 +34,6 @@ func ServiceFromKube(kubeService model.Service) Service {
 		IPs:       kubeService.IPs,
 		Domain:    kubeService.Domain,
 		Ports:     ports,
+		origin:    kubeService,
 	}
 }

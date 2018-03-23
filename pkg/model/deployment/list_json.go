@@ -1,4 +1,4 @@
-package volume
+package deployment
 
 import (
 	"encoding/json"
@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	_ model.JSONrenderer = new(VolumeList)
+	_ model.JSONrenderer = DeploymentList{}
 )
 
-func (list VolumeList) RenderJSON() (string, error) {
+func (list DeploymentList) RenderJSON() (string, error) {
 	data, err := json.MarshalIndent(list, "", "    ")
 	return string(data), err
 }

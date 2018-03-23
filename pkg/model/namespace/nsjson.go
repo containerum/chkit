@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	_ model.JSONrenderer = new(Namespace)
+	_ model.JSONrenderer = Namespace{}
+	_ json.Marshaler     = Namespace{}
 )
 
 var (
@@ -16,6 +17,11 @@ var (
 )
 
 func (ns Namespace) RenderJSON() (string, error) {
-	data, err := json.MarshalIndent(ns, "", indent)
+	data, err := ns.MarshalJSON()
 	return string(data), err
+}
+
+func (ns Namespace) MarshalJSON() ([]byte, error) {
+	data, err := json.MarshalIndent(ns.origin, "", "    ")
+	return data, err
 }

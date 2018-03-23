@@ -16,22 +16,21 @@ func (depl Deployment) RenderTable() string {
 }
 
 func (_ *Deployment) TableHeaders() []string {
-	return []string{"Name", "Status", "Volumes"}
+	return []string{"Name", "When", "Replicas", "Containers"}
 }
 
 func (depl *Deployment) TableRows() [][]string {
-	volumes := make([]string, len(depl.Volumes))
-	for _, volume := range depl.Volumes {
-		volumes = append(volumes,
-			fmt.Sprintf("%q %s %dGb",
-				volume.Label,
-				volume.Access,
-				volume.Storage))
-
+	containers := make([]string, 0, len(depl.Containers))
+	for _, container := range depl.Containers {
+		containers = append(containers,
+			fmt.Sprintf("%s [%s]",
+				container.Name,
+				container.Image))
 	}
 	return [][]string{{
 		depl.Name,
-		depl.Status.String(),
-		strings.Join(volumes, "\n"),
+		depl.Status.ColumnWhen(),
+		depl.Status.ColumnReplicas(),
+		strings.Join(containers, "\n"),
 	}}
 }

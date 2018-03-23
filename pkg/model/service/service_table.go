@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/containerum/chkit/pkg/model"
 )
@@ -28,7 +27,7 @@ func (serv *Service) TableRows() [][]string {
 	}
 	createdAt := "none"
 	if serv.CreatedAt != nil {
-		createdAt = serv.CreatedAt.Format(time.RFC1123)
+		createdAt = model.TimestampFormat(*serv.CreatedAt)
 	}
 	return [][]string{{
 		serv.Name,

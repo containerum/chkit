@@ -1,11 +1,9 @@
 package namespace
 
 import (
-	"time"
+	"fmt"
 
-	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/containerum/chkit/pkg/model/volume"
 )
 
 var (
@@ -13,13 +11,13 @@ var (
 )
 
 func (_ Namespace) TableHeaders() []string {
-	return []string{"Label", "Created" /* "Access",*/, "Volumes"}
+	return []string{"Label", "Created", "Limits"}
 }
 
 func (namespace Namespace) TableRows() [][]string {
 	creationTime := ""
 	if namespace.CreatedAt != nil {
-		creationTime = namespace.CreatedAt.Format(model.CreationTimeFormat)
+		creationTime = model.TimestampFormat(*namespace.CreatedAt)
 	}
 	volumes := ""
 	for i, volume := range namespace.Volumes {
@@ -31,27 +29,12 @@ func (namespace Namespace) TableRows() [][]string {
 	return [][]string{{
 		namespace.Label,
 		creationTime,
-		//namespace.Access,
-		volumes,
+		fmt.Sprintf("CPU: %s; MEM %s",
+			namespace.Resources.Hard.CPU,
+			namespace.Resources.Hard.Memory),
 	}}
 }
 
 func (namespace Namespace) RenderTable() string {
 	return model.RenderTable(namespace)
-}
-func NamespaceFromKube(kubeNameSpace kubeModels.Namespace) Namespace {
-	ns := Namespace{
-		Label:  kubeNameSpace.Label,
-		Access: kubeNameSpace.Access,
-	}
-	if kubeNameSpace.CreatedAt != nil {
-		createdAt := time.Unix(*kubeNameSpace.CreatedAt, 0)
-		ns.CreatedAt = &createdAt
-	}
-	ns.Volumes = make([]volume.Volume, 0, len(kubeNameSpace.Volumes))
-	for _, kubeVolume := range kubeNameSpace.Volumes {
-		ns.Volumes = append(ns.Volumes,
-			volume.VolumeFromKube(kubeVolume))
-	}
-	return ns
 }

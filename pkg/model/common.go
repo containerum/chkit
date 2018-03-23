@@ -5,5 +5,9 @@ import (
 )
 
 const (
-	CreationTimeFormat = time.RFC1123
+	CreationTimeFormat = time.RFC822
 )
+
+func TimestampFormat(timestamp time.Time) string {
+	return timestamp.UTC().Format(CreationTimeFormat)
+}

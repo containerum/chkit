@@ -12,6 +12,7 @@ type Volume struct {
 	Access    string
 	Replicas  uint
 	Storage   uint
+	origin    kubeModels.Volume
 }
 
 func VolumeFromKube(kv kubeModels.Volume) Volume {
@@ -21,6 +22,7 @@ func VolumeFromKube(kv kubeModels.Volume) Volume {
 		Access:    kv.Access,
 		Replicas:  uint(kv.Replicas),
 		Storage:   uint(kv.Storage),
+		origin:    kv,
 	}
 	return volume
 }

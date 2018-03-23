@@ -3,7 +3,6 @@ package pod
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/containerum/chkit/pkg/model"
 )
@@ -27,7 +26,7 @@ func (pod *Pod) TableRows() [][]string {
 			pod.Hostname,
 			pod.Status.Phase,
 			strconv.Itoa(pod.Status.RestartCount),
-			pod.Status.StartedAt.Format(time.RFC1123),
+			model.TimestampFormat(pod.Status.StartedAt),
 			strings.Join(pod.Containers, "\n"),
 		},
 	}

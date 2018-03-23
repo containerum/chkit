@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/containerum/chkit/cmd/deployment"
 	"github.com/containerum/chkit/cmd/namespace"
 	"github.com/containerum/chkit/cmd/pod"
 	"github.com/containerum/chkit/cmd/service"
@@ -27,5 +28,6 @@ var commandGet = &cli.Command{
 		clinamespace.GetNamespace,
 		clipod.GetPodAction,
 		cliserv.GetService,
+		clideployment.GetDeployment,
 	},
 }
