@@ -9,6 +9,10 @@ import (
 
 	"net/http"
 
+	"io/ioutil"
+	"os"
+	"path"
+
 	"github.com/cheggaaa/pb"
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
@@ -93,4 +97,46 @@ func (gh *GithubLatestCheckerDownloader) LatestDownload() (io.ReadCloser, error)
 	bar := pb.New64(resp.ContentLength)
 
 	return bar.NewProxyReader(resp.Body), nil
+}
+
+type FileSystemLatestCheckerDownloader struct {
+	baseDir string
+	log     *logrus.Logger
+	ctx     *cli.Context
+}
+
+func NewFileSystemLatestCheckerDownloader(ctx *cli.Context, baseDir string) *FileSystemLatestCheckerDownloader {
+	return &FileSystemLatestCheckerDownloader{
+		baseDir: baseDir,
+		ctx:     ctx,
+		log:     util.GetLog(ctx),
+	}
+}
+
+func (fs *FileSystemLatestCheckerDownloader) LatestVersion() (string, error) {
+	fs.log.Debug("get latest version from filesystem")
+
+	verFile, err := os.Open(path.Join(fs.baseDir, "version"))
+	if err != nil {
+		return "0.0.1-alpha", chkitErrors.Wrap(ErrUpdateCheck, err)
+	}
+	defer verFile.Close()
+
+	ver, err := ioutil.ReadAll(verFile)
+	if err != nil {
+		return "0.0.1-alpha", chkitErrors.Wrap(ErrUpdateCheck, err)
+	}
+
+	return string(ver), nil
+}
+
+func (fs *FileSystemLatestCheckerDownloader) LatestDownload() (io.ReadCloser, error) {
+	fs.log.Debug("get latest version package from filesystem")
+
+	latestVersion, err := fs.LatestVersion()
+	if err != nil {
+		return nil, err
+	}
+
+	return os.Open(path.Join(fs.baseDir, DownloadFileName(latestVersion)))
 }
