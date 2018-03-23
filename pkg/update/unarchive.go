@@ -13,7 +13,7 @@ import (
 )
 
 // unpack .tar.gz archive to temporary dir and save paths
-func unarchive(rd io.Reader, update *Update) error {
+func unarchive(rd io.Reader, update *Package) error {
 	fmap := update.getFileMap()
 	retVal := reflect.ValueOf(update)
 

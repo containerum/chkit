@@ -20,7 +20,7 @@ const (
 	ErrUpdateApply = chkitErrors.Err("update apply failed")
 )
 
-func verifiedUpdate(upd *Update) error {
+func verifiedUpdate(upd *Package) error {
 	checksum, err := ioutil.ReadAll(upd.Hash)
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)

@@ -11,13 +11,13 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 )
 
-type Update struct {
+type Package struct {
 	Binary    io.Reader `filename:"chkit"`
 	Hash      io.Reader `filename:"sha256.sum"`
 	Signature io.Reader `filename:"ecdsa.sig"`
 }
 
-func (u *Update) getFileMap() (ret map[string]int) {
+func (u *Package) getFileMap() (ret map[string]int) {
 	ret = make(map[string]int)
 	for t, i := reflect.TypeOf(u), 0; i < t.NumField(); i++ {
 		ret[t.Field(i).Tag.Get("filename")] = i
@@ -25,7 +25,7 @@ func (u *Update) getFileMap() (ret map[string]int) {
 	return
 }
 
-func (u *Update) Close() {
+func (u *Package) Close() {
 	for v, i := reflect.ValueOf(u), 0; i < v.NumField(); i++ {
 		if cl, ok := v.Field(i).Interface().(io.Closer); ok {
 			cl.Close()
@@ -38,8 +38,8 @@ const (
 	ErrExpectedFilesNotFound = chkitErrors.Err("unable to find expected files in archive")
 )
 
-func unpack(rd io.Reader) (*Update, error) {
-	var ret Update
+func unpack(rd io.Reader) (*Package, error) {
+	var ret Package
 	retVal := reflect.ValueOf(&ret)
 
 	if err := unarchive(rd, &ret); err != nil {
