@@ -12,7 +12,7 @@ var commandGet = &cli.Command{
 	Name: "get",
 	Before: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
-			return nil
+			return cli.ShowSubcommandHelp(ctx)
 		}
 		if err := setupLog(ctx); err != nil {
 			return err
