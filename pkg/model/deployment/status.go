@@ -36,8 +36,6 @@ func (status *Status) ColumnReplicas() string {
 	}
 	return strings.Join([]string{
 		"Available: " + fmt.Sprintf("%d/%d", status.AvailableReplicas, status.Replicas),
-		"Ready: " + fmt.Sprintf("%d/%d", status.ReadyReplicas, status.Replicas),
-		"Updated: " + fmt.Sprintf("%d/%d", status.UpdatedReplicas, status.Replicas),
 	}, "\n")
 }
 
@@ -46,7 +44,7 @@ func (status *Status) ColumnWhen() string {
 		return "unknown"
 	}
 	return strings.Join([]string{
-		"Created: " + status.CreatedAt.Format(model.CreationTimeFormat),
-		"Updated: " + status.UpdatedAt.Format(model.CreationTimeFormat),
+		"Created: " + model.TimestampFormat(status.CreatedAt),
+		"Updated: " + model.TimestampFormat(status.UpdatedAt),
 	}, "\n")
 }
