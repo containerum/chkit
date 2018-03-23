@@ -63,7 +63,7 @@ func NewGithubLatestCheckerDownloader(ctx *cli.Context, owner, repo string) *Git
 }
 
 func (gh *GithubLatestCheckerDownloader) LatestVersion() (string, error) {
-	gh.log.Info("get latest version from github")
+	gh.log.Debug("get latest version from github")
 
 	var latestVersionResp struct {
 		LatestVersion string `json:"tag_name"`
@@ -78,7 +78,7 @@ func (gh *GithubLatestCheckerDownloader) LatestVersion() (string, error) {
 }
 
 func (gh *GithubLatestCheckerDownloader) LatestDownload() (io.ReadCloser, error) {
-	gh.log.Info("download update")
+	gh.log.Debug("download update")
 
 	latestVersion, err := gh.LatestVersion()
 	if err != nil {

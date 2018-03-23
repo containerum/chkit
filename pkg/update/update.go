@@ -5,8 +5,20 @@ import (
 
 	"crypto"
 
+	"fmt"
+
+	"os"
+
+	"bufio"
+
+	"strings"
+
+	"github.com/blang/semver"
+	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/inconshreveable/go-update"
+	"golang.org/x/crypto/ssh/terminal"
+	"gopkg.in/urfave/cli.v2"
 )
 
 var PublicKey = `
@@ -17,7 +29,8 @@ MMY8pjmjepSy2kuz+nl9aFLqmr+rDNdYvEBqQaZrYMc6k29gjvoQnQ==
 `
 
 const (
-	ErrUpdateApply = chkitErrors.Err("update apply failed")
+	ErrUpdateApply  = chkitErrors.Err("update apply failed")
+	ErrVersionParse = chkitErrors.Err("version parse failed")
 )
 
 func verifiedUpdate(upd *Package) error {
@@ -40,6 +53,74 @@ func verifiedUpdate(upd *Package) error {
 	})
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
+	}
+
+	return nil
+}
+
+func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter bool) error {
+	latestVersion, err := downloader.LatestVersion()
+	if err != nil {
+		return err
+	}
+
+	latestVersionSemver, err := semver.ParseTolerant(latestVersion)
+	if err != nil {
+		return chkitErrors.Wrap(ErrVersionParse, err)
+	}
+
+	if latestVersionSemver.LE(util.GetVersion(ctx)) {
+		return nil
+	}
+
+	// check if we have terminal supports escape sequences
+	var colorStart, colorEnd string
+	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+		colorStart = "\x1b[31;1m"
+		colorEnd = "\x1b[0m"
+	}
+	fmt.Printf("%sYou are using version %s, however version %s is available%s\n",
+		colorStart, util.GetVersion(ctx), latestVersionSemver, colorEnd)
+
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Split(bufio.ScanWords)
+askLoop:
+	for {
+		fmt.Println("Do you want to update [Y/n]: ")
+		for !scanner.Scan() {
+			break
+		}
+		if scanner.Err() != nil {
+			util.GetLog(ctx).WithError(err).Error("scan failed")
+			continue
+		}
+		switch strings.ToLower(scanner.Text()) {
+		case "", "y":
+			break askLoop
+		case "n":
+			return nil
+		default:
+			continue
+		}
+	}
+
+	archive, err := downloader.LatestDownload()
+	if err != nil {
+		return err
+	}
+
+	pkg, err := unpack(archive)
+	if err != nil {
+		return err
+	}
+
+	err = verifiedUpdate(pkg)
+	if err != nil {
+		return err
+	}
+
+	if restartAfter {
+		gracefulRestart(ctx)
 	}
 
 	return nil
