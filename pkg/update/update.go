@@ -44,13 +44,18 @@ func verifiedUpdate(upd *Package) error {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
 
-	err = update.Apply(upd.Binary, update.Options{
+	opts := update.Options{
 		Checksum:  checksum,
 		Signature: signature,
 		Verifier:  update.NewECDSAVerifier(),
 		Hash:      crypto.SHA256,
-		PublicKey: []byte(PublicKey),
-	})
+	}
+	err = opts.SetPublicKeyPEM([]byte(PublicKey))
+	if err != nil {
+		return chkitErrors.Wrap(ErrUpdateApply, err)
+	}
+	err = update.Apply(upd.Binary, opts)
+
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
