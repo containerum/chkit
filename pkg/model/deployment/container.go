@@ -13,9 +13,8 @@ type Container struct {
 
 func (container *Container) String() string {
 	return strings.Join([]string{
-		"Name: " + container.Name,
-		"Resources: " + fmt.Sprintf("CPU %s MEM %s",
-			container.Limits.CPU,
-			container.Limits.Memory),
-	}, "\n")
+		container.Name,
+		fmt.Sprintf("CPU %s", container.Limits.CPU),
+		fmt.Sprintf("MEM %s", container.Limits.Memory),
+	}, ", ")
 }
