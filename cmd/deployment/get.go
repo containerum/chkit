@@ -13,6 +13,14 @@ var (
 )
 var GetDeployment = &cli.Command{
 	Name: "deployment",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name: "json",
+		},
+		&cli.StringFlag{
+			Name: "yaml",
+		},
+	},
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		log := util.GetLog(ctx)
