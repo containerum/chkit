@@ -4,16 +4,16 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"io"
-	"os"
-	"path"
 
 	"reflect"
+
+	"bytes"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 )
 
 // unpack .tar.gz archive to temporary dir and save paths
-func unarchive(rd io.Reader, tmpDir string, update *Update) error {
+func unarchive(rd io.Reader, update *Update) error {
 	fmap := update.getFileMap()
 	retVal := reflect.ValueOf(update)
 
@@ -38,19 +38,13 @@ func unarchive(rd io.Reader, tmpDir string, update *Update) error {
 			field, updateFile := fmap[header.Name]
 			if updateFile {
 				// this is our file, unpack it
-				fpath := path.Join(tmpDir, header.Name)
-				file, createErr := os.Create(fpath)
-				if createErr != nil {
-					return chkitErrors.Wrap(ErrUnpack, createErr)
-				}
+				buf := bytes.NewBuffer(make([]byte, header.Size))
 
-				if _, copyErr := io.Copy(file, tarf); copyErr != nil {
+				if _, copyErr := io.Copy(buf, tarf); copyErr != nil {
 					return chkitErrors.Wrap(ErrUnpack, copyErr)
 				}
 
-				retVal.Field(field).SetString(fpath)
-
-				file.Close()
+				retVal.Field(field).Set(reflect.ValueOf(io.Reader(buf)))
 			}
 		}
 	}

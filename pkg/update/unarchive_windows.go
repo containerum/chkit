@@ -3,8 +3,6 @@ package update
 import (
 	"archive/zip"
 	"io"
-	"os"
-	"path"
 
 	"bytes"
 	"io/ioutil"
@@ -15,7 +13,7 @@ import (
 )
 
 // unpack .zip archive and save paths
-func unarchive(rd io.Reader, tmpDir string, update *Update) error {
+func unarchive(rd io.Reader, update *Update) error {
 	fmap := update.getFileMap()
 	retVal := reflect.ValueOf(update)
 
@@ -33,26 +31,20 @@ func unarchive(rd io.Reader, tmpDir string, update *Update) error {
 		if archFile.FileInfo().Mode().IsRegular() {
 			field, updateFile := fmap[archFile.Name]
 			if updateFile {
-				// this is our file, unpack it
-				fpath := path.Join(tmpDir, archFile.Name)
-				file, createErr := os.Create(fpath)
-				if createErr != nil {
-					return chkitErrors.Wrap(ErrUnpack, createErr)
-				}
-
 				rc, openErr := archFile.Open()
 				if openErr != nil {
 					return chkitErrors.Wrap(ErrUnpack, openErr)
 				}
 
-				if _, copyErr := io.Copy(file, rc); copyErr != nil {
+				buf := bytes.NewBuffer(make([]byte, archFile.UncompressedSize64))
+
+				if _, copyErr := io.Copy(buf, rc); copyErr != nil {
 					return chkitErrors.Wrap(ErrUnpack, copyErr)
 				}
 
-				retVal.Field(field).SetString(fpath)
+				retVal.Field(field).Set(reflect.ValueOf(io.Reader(buf)))
 
 				rc.Close()
-				file.Close()
 			}
 		}
 	}
