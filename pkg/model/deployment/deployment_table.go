@@ -20,10 +20,12 @@ func (_ *Deployment) TableHeaders() []string {
 }
 
 func (depl *Deployment) TableRows() [][]string {
-	containers := make([]string, len(depl.Containers))
+	containers := make([]string, 0, len(depl.Containers))
 	for _, container := range depl.Containers {
 		containers = append(containers,
-			fmt.Sprintf("%s", container.String()))
+			fmt.Sprintf("%s [%s]",
+				container.Name,
+				container.Image))
 	}
 	return [][]string{{
 		depl.Name,
