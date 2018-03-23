@@ -17,6 +17,7 @@ type TableRenderer interface {
 func RenderTable(renderer TableItem) string {
 	buf := &bytes.Buffer{}
 	table := tablewriter.NewWriter(buf)
+	table.SetAutoWrapText(false)
 	table.SetHeader(renderer.TableHeaders())
 	table.AppendBulk(renderer.TableRows())
 	table.Render()
