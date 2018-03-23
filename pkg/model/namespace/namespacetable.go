@@ -1,6 +1,8 @@
 package namespace
 
 import (
+	"fmt"
+
 	"github.com/containerum/chkit/pkg/model"
 )
 
@@ -9,13 +11,13 @@ var (
 )
 
 func (_ Namespace) TableHeaders() []string {
-	return []string{"Label", "Created" /* "Access",*/, "Volumes"}
+	return []string{"Label", "Created", "Limits"}
 }
 
 func (namespace Namespace) TableRows() [][]string {
 	creationTime := ""
 	if namespace.CreatedAt != nil {
-		creationTime = namespace.CreatedAt.Format(model.CreationTimeFormat)
+		creationTime = model.TimestampFormat(*namespace.CreatedAt)
 	}
 	volumes := ""
 	for i, volume := range namespace.Volumes {
@@ -27,8 +29,9 @@ func (namespace Namespace) TableRows() [][]string {
 	return [][]string{{
 		namespace.Label,
 		creationTime,
-		//namespace.Access,
-		volumes,
+		fmt.Sprintf("CPU: %s; MEM %s",
+			namespace.Resources.Hard.CPU,
+			namespace.Resources.Hard.Memory),
 	}}
 }
 

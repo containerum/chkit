@@ -14,14 +14,16 @@ type Namespace struct {
 	Label     string
 	Access    string
 	Volumes   []volume.Volume
+	Resources kubeModel.Resources
 	origin    kubeModel.Namespace
 }
 
 func NamespaceFromKube(kubeNameSpace kubeModel.Namespace) Namespace {
 	ns := Namespace{
-		Label:  kubeNameSpace.Label,
-		Access: kubeNameSpace.Access,
-		origin: kubeNameSpace,
+		Label:     kubeNameSpace.Label,
+		Access:    kubeNameSpace.Access,
+		Resources: kubeNameSpace.Resources,
+		origin:    kubeNameSpace,
 	}
 	if kubeNameSpace.CreatedAt != nil {
 		createdAt := time.Unix(*kubeNameSpace.CreatedAt, 0)
