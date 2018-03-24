@@ -14,7 +14,7 @@ import (
 	cli "gopkg.in/urfave/cli.v2"
 )
 
-const (
+var (
 	Version        = "3.0.0-alpha"
 	FlagConfigFile = "config"
 	FlagAPIaddr    = "apiaddr"
