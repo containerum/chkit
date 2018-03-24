@@ -13,6 +13,8 @@ import (
 
 	"strings"
 
+	"encoding/base64"
+
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
@@ -21,12 +23,7 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
-var PublicKey = `
------BEGIN PUBLIC KEY-----
-MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEtrVmBxQvheRArXjg2vG1xIprWGuCyESx
-MMY8pjmjepSy2kuz+nl9aFLqmr+rDNdYvEBqQaZrYMc6k29gjvoQnQ==
------END PUBLIC KEY-----
-`
+var PublicKeyB64 = "cHVibGljIGtleQo="
 
 const (
 	ErrUpdateApply  = chkitErrors.Err("update apply failed")
@@ -50,7 +47,11 @@ func verifiedUpdate(upd *Package) error {
 		Verifier:  update.NewECDSAVerifier(),
 		Hash:      crypto.SHA256,
 	}
-	err = opts.SetPublicKeyPEM([]byte(PublicKey))
+	publicKey, err := base64.StdEncoding.DecodeString(PublicKeyB64)
+	if err != nil {
+		return chkitErrors.Wrap(ErrUpdateApply, err)
+	}
+	err = opts.SetPublicKeyPEM(publicKey)
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
