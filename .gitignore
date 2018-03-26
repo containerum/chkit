@@ -1,5 +1,6 @@
 chkit
 chkit-v2*
 build
+*.exe
 !build/*
 .idea
