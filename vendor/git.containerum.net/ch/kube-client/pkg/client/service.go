@@ -18,7 +18,7 @@ func (client *Client) GetService(namespace, serviceName string) (model.Service, 
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &service,
 		URL: rest.URL{
-			Path: client.APIurl + servicePath,
+			Path: servicePath,
 			Params: rest.P{
 				"namespace": namespace,
 				"service":   serviceName,
@@ -38,7 +38,7 @@ func (client *Client) GetServiceList(namespace string) ([]model.Service, error) 
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &jsonAdaptor,
 		URL: rest.URL{
-			Path: client.APIurl + servicesPath,
+			Path: servicesPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -55,7 +55,7 @@ func (client *Client) CreateService(namespace string, service model.Service) (mo
 		Body:   service,
 		Result: &gainedService,
 		URL: rest.URL{
-			Path: client.APIurl + servicesPath,
+			Path: servicesPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -69,7 +69,7 @@ func (client *Client) CreateService(namespace string, service model.Service) (mo
 func (client *Client) DeleteService(namespace, serviceName string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: client.APIurl + servicePath,
+			Path: servicePath,
 			Params: rest.P{
 				"namespace": namespace,
 				"service":   serviceName,
@@ -86,7 +86,7 @@ func (client *Client) UpdateService(namespace string, service model.Service) (mo
 		Body:   service,
 		Result: &gainedService,
 		URL: rest.URL{
-			Path: client.APIurl + servicePath,
+			Path: servicePath,
 			Params: rest.P{
 				"namespace": namespace,
 				"service":   service.Name,

@@ -18,7 +18,7 @@ func (client *Client) GetProfileInfo() (model.User, error) {
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &user,
 		URL: rest.URL{
-			Path:   client.APIurl + userInfoPath,
+			Path:   userInfoPath,
 			Params: rest.P{},
 		},
 	})
@@ -31,7 +31,7 @@ func (client *Client) ChangePassword(currentPassword, newPassword string) (model
 	err := client.RestAPI.Put(rest.Rq{
 		Result: &tokens,
 		URL: rest.URL{
-			Path:   client.APIurl + userPasswordChangePath,
+			Path:   userPasswordChangePath,
 			Params: rest.P{},
 		},
 	})
@@ -45,7 +45,7 @@ func (client *Client) Login(login model.Login) (model.Tokens, error) {
 		Body:   login,
 		Result: &tokens,
 		URL: rest.URL{
-			Path:   client.APIurl + userLoginPath,
+			Path:   userLoginPath,
 			Params: rest.P{},
 		},
 	})

@@ -22,7 +22,7 @@ func (client *Client) GetDeployment(namespace, deployment string) (model.Deploym
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &depl,
 		URL: rest.URL{
-			Path: client.APIurl + kubeAPIdeploymentPath,
+			Path: kubeAPIdeploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -42,7 +42,7 @@ func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, e
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &jsonAdaptor,
 		URL: rest.URL{
-			Path: client.APIurl + kubeAPIdeploymentsPath,
+			Path: kubeAPIdeploymentsPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -56,7 +56,7 @@ func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, e
 func (client *Client) DeleteDeployment(namespace, deployment string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: client.APIurl + resourceDeploymentPath,
+			Path: resourceDeploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -71,7 +71,7 @@ func (client *Client) CreateDeployment(namespace string, deployment model.Deploy
 	return client.RestAPI.Post(rest.Rq{
 		Body: deployment,
 		URL: rest.URL{
-			Path: client.APIurl + resourceDeploymentRootPath,
+			Path: resourceDeploymentRootPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -85,7 +85,7 @@ func (client *Client) SetContainerImage(namespace, deployment string, updateImag
 	return client.RestAPI.Put(rest.Rq{
 		Body: updateImage,
 		URL: rest.URL{
-			Path: client.APIurl + resourceImagePath,
+			Path: resourceImagePath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -99,7 +99,7 @@ func (client *Client) ReplaceDeployment(namespace string, deployment model.Deplo
 	return client.RestAPI.Put(rest.Rq{
 		Body: deployment,
 		URL: rest.URL{
-			Path: client.APIurl + resourceDeploymentPath,
+			Path: resourceDeploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment.Name,
@@ -115,7 +115,7 @@ func (client *Client) SetReplicas(namespace, deployment string, replicas int) er
 			Replicas: replicas,
 		},
 		URL: rest.URL{
-			Path: client.APIurl + resourceReplicasPath,
+			Path: resourceReplicasPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,

@@ -17,7 +17,7 @@ const (
 func (client *Client) DeleteVolume(volumeName string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: client.APIurl + resourceVolumePath,
+			Path: resourceVolumePath,
 			Params: rest.P{
 				"volume": volumeName,
 			},
@@ -32,7 +32,7 @@ func (client *Client) GetVolume(volumeName string) (model.Volume, error) {
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &volume,
 		URL: rest.URL{
-			Path: client.APIurl + resourceVolumePath,
+			Path: resourceVolumePath,
 			Params: rest.P{
 				"volume": volumeName,
 			},
@@ -54,7 +54,7 @@ func (client *Client) GetVolumeList(filter *string) ([]model.Volume, error) {
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &volumeList,
 		URL: rest.URL{
-			Path:   client.APIurl + resourceVolumeRootPath,
+			Path:   resourceVolumeRootPath,
 			Params: rest.P{},
 		},
 	})
@@ -68,7 +68,7 @@ func (client *Client) RenameVolume(volumeName, newName string) error {
 			Label: newName,
 		},
 		URL: rest.URL{
-			Path: client.APIurl + resourceVolumeNamePath,
+			Path: resourceVolumeNamePath,
 			Params: rest.P{
 				"volume": volumeName,
 			},
@@ -81,7 +81,7 @@ func (client *Client) SetVolumeAccess(volumeName string, accessData model.Resour
 	return client.RestAPI.Post(rest.Rq{
 		Body: accessData,
 		URL: rest.URL{
-			Path: client.APIurl + resourceVolumeAccessPath,
+			Path: resourceVolumeAccessPath,
 			Params: rest.P{
 				"volume": volumeName,
 			},
@@ -96,7 +96,7 @@ func (client *Client) DeleteAccess(volumeName, username string) error {
 			Username: username,
 		},
 		URL: rest.URL{
-			Path: client.APIurl + resourceVolumeAccessPath,
+			Path: resourceVolumeAccessPath,
 			Params: rest.P{
 				"volume": volumeName,
 			},

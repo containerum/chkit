@@ -20,7 +20,7 @@ func (client *Client) CheckToken(token string) (model.CheckTokenResponse, error)
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &tokenResponse,
 		URL: rest.URL{
-			Path: client.APIurl + getCheckToken,
+			Path: getCheckToken,
 			Params: rest.P{
 				"access_token": token,
 			},
@@ -37,7 +37,7 @@ func (client *Client) ExtendToken(refreshToken string) (model.Tokens, error) {
 	err := client.RestAPI.Put(rest.Rq{
 		Result: &tokens,
 		URL: rest.URL{
-			Path: client.APIurl + getExtendToken,
+			Path: getExtendToken,
 			Params: rest.P{
 				"refresh_token": refreshToken,
 			},

@@ -16,8 +16,8 @@
     "pkg/rest/remock",
     "pkg/rest/remock/ermockerr"
   ]
-  revision = "ecf5ddce42d2d81eb3517babd5fe427eceb898cc"
-  version = "v0.2.6"
+  revision = "da6ccd3458173262d3f250d519d5a9cc2b430927"
+  version = "v0.3.0"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -402,6 +402,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "428473f6b1d97fdb34e045177e4fbd1dfaf89a670bf41a3e1aa1f1768839d241"
+  inputs-digest = "dd5f878c52fc4abb38fd72b5453beb966f42a65540db40ca22a29cd1892ea778"
   solver-name = "gps-cdcl"
   solver-version = 1

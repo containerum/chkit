@@ -17,7 +17,7 @@ func (client *Client) AddIngress(namespace string, ingress model.Ingress) error 
 	return client.RestAPI.Post(rest.Rq{
 		Body: ingress,
 		URL: rest.URL{
-			Path: client.APIurl + resourceIngressRootPath,
+			Path: resourceIngressRootPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -42,7 +42,7 @@ func (client *Client) GetIngressList(namespace string, page, perPage *uint64) ([
 			"per_page": strconv.FormatUint(*perPage, 10),
 		},
 		URL: rest.URL{
-			Path: client.APIurl + resourceIngressRootPath,
+			Path: resourceIngressRootPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -56,7 +56,7 @@ func (client *Client) UpdateIngress(namespace, domain string, ingress model.Ingr
 	return client.RestAPI.Put(rest.Rq{
 		Body: ingress,
 		URL: rest.URL{
-			Path: client.APIurl + resourceIngressPath,
+			Path: resourceIngressPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"domain":    domain,
@@ -69,7 +69,7 @@ func (client *Client) UpdateIngress(namespace, domain string, ingress model.Ingr
 func (client *Client) DeleteIngress(namespace, domain string) error {
 	return client.RestAPI.Put(rest.Rq{
 		URL: rest.URL{
-			Path: client.APIurl + resourceIngressPath,
+			Path: resourceIngressPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"domain":    domain,
