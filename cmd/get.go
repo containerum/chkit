@@ -27,6 +27,8 @@ var commandGet = &cli.Command{
 	},
 	After: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
+		log := util.GetLog(ctx)
+		log.Debugf("tokens: %+v", client.Tokens)
 		return util.SaveTokens(ctx, client.Tokens)
 	},
 	Subcommands: []*cli.Command{
