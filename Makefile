@@ -23,7 +23,7 @@ genkey:
 	@echo "Generating private/public ECDSA keys to sign"
 	@mkdir -p $(SIGNING_KEY_DIR)
 	@openssl ecparam -genkey -name prime256v1 -out $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
-	@openssl ec -in $(TEMP) -pubout -out $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE)
+	@openssl ec -in $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE) -pubout -out $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE)
 	@echo "Keys stored in $(SIGNING_KEY_DIR)"
 
 # go has build artifacts caching so soruce tracking not needed
