@@ -2,6 +2,7 @@ package re
 
 import (
 	"crypto/tls"
+	"io"
 	"net/http"
 
 	"git.containerum.net/ch/kube-client/pkg/cherry"
@@ -22,7 +23,9 @@ type Resty struct {
 // NewResty -- Resty constuctor
 func NewResty(configs ...func(*Resty)) *Resty {
 	re := &Resty{
-		client: resty.New(),
+		client: resty.New().
+			SetRESTMode().
+			SetHeader("User-Agent", "kube-client"),
 	}
 	for _, config := range configs {
 		config(re)
@@ -35,6 +38,15 @@ func WithHost(addr string) func(re *Resty) {
 		re.client.SetHostURL(addr)
 	}
 }
+
+func WithLogger(wr io.Writer) func(re *Resty) {
+	return func(re *Resty) {
+		re.client.SetDebug(true)
+		re.client.SetLogger(wr)
+		re.client.Log.Println("rest client in debug mode")
+	}
+}
+
 func SkipTLSVerify(re *Resty) {
 	re.client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 }

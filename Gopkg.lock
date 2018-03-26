@@ -16,8 +16,8 @@
     "pkg/rest/remock",
     "pkg/rest/remock/ermockerr"
   ]
-  revision = "da6ccd3458173262d3f250d519d5a9cc2b430927"
-  version = "v0.3.0"
+  revision = "71af0d6313bebf8b9aa8a969a72f4ba928c41691"
+  version = "v0.3.1"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
