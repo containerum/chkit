@@ -49,6 +49,7 @@ func Run(args []string) error {
 		Commands: []*cli.Command{
 			commandLogin,
 			commandGet,
+			commandUpdate,
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
