@@ -35,7 +35,9 @@ func WithCommonAPI(config model.Config) (*kubeClient.Client, error) {
 
 // WithTestAPI -- creates kube-client for test api
 func WithTestAPI(config model.Config) (*kubeClient.Client, error) {
-	newRestAPI := re.NewResty(re.WithHost(config.APIaddr), re.SkipTLSVerify)
+	newRestAPI := re.NewResty(
+		re.WithHost(config.APIaddr),
+		re.SkipTLSVerify)
 	newRestAPI.SetFingerprint(config.Fingerprint)
 	newRestAPI.SetToken(config.Tokens.AccessToken)
 	client, err := kubeClient.NewClient(kubeClient.Config{
