@@ -34,6 +34,7 @@ func setupClient(ctx *cli.Context) error {
 		client, err = chClient.NewClient(config, chClient.WithMock)
 	case "api":
 		log.Debugf("Using test API: %q", config.APIaddr)
+		config.Log = log.WriterLevel(logrus.DebugLevel)
 		client, err = chClient.NewClient(config, chClient.WithTestAPI)
 	default:
 		client, err = chClient.NewClient(config, chClient.WithCommonAPI)

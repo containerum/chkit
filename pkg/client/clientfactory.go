@@ -1,6 +1,8 @@
 package chClient
 
 import (
+	"os"
+
 	kubeClient "git.containerum.net/ch/kube-client/pkg/client"
 	"git.containerum.net/ch/kube-client/pkg/rest/re"
 	"git.containerum.net/ch/kube-client/pkg/rest/remock"
@@ -35,7 +37,11 @@ func WithCommonAPI(config model.Config) (*kubeClient.Client, error) {
 
 // WithTestAPI -- creates kube-client for test api
 func WithTestAPI(config model.Config) (*kubeClient.Client, error) {
+	if config.Log == nil {
+		config.Log = os.Stdout
+	}
 	newRestAPI := re.NewResty(
+		re.WithLogger(config.Log),
 		re.WithHost(config.APIaddr),
 		re.SkipTLSVerify)
 	newRestAPI.SetFingerprint(config.Fingerprint)
