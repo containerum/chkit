@@ -12,6 +12,7 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/update"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -37,7 +38,26 @@ func Run(args []string) error {
 		Name:    "chkit",
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
-		Action:  runAction,
+		Before: func(ctx *cli.Context) error {
+			var updater update.LatestCheckerDownloader
+			currVersion := semver.MustParse(Version)
+			updater = update.NewGithubLatestCheckerDownloader(ctx, "containerum", "chkit")
+			version, err := updater.LatestVersion()
+			if err != nil {
+				return err
+			}
+			if currVersion.LE(version) {
+				if yes, err := update.AskForUpdate(ctx, version); err != nil {
+					return err
+				} else if yes {
+					if err := update.Update(ctx, updater, true); err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		},
+		Action: runAction,
 		Metadata: map[string]interface{}{
 			"client":     chClient.Client{},
 			"configPath": confDir.ConfigDir(),
