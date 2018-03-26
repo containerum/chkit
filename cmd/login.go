@@ -55,6 +55,9 @@ var commandLogin = &cli.Command{
 		if err := util.SaveTokens(ctx, client.Tokens); err != nil {
 			return err
 		}
+		if err := persist(ctx); err != nil {
+			return err
+		}
 		return mainActivity(ctx)
 	},
 	Flags: []cli.Flag{
