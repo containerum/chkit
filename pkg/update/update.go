@@ -96,23 +96,6 @@ func AskForUpdate(ctx *cli.Context, latestVersion semver.Version) (bool, error) 
 }
 
 func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter bool) error {
-	latestVersion, err := downloader.LatestVersion()
-	if err != nil {
-		return err
-	}
-
-	if latestVersion.LE(util.GetVersion(ctx)) {
-		return nil
-	}
-
-	doUpdate, err := AskForUpdate(ctx, latestVersion)
-	if err != nil {
-		return err
-	}
-	if !doUpdate {
-		return nil
-	}
-
 	archive, err := downloader.LatestDownload()
 	if err != nil {
 		return err
