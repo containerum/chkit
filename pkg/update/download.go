@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/blang/semver"
 	"github.com/cheggaaa/pb"
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
@@ -22,7 +23,7 @@ import (
 )
 
 type LatestChecker interface {
-	LatestVersion() (string, error)
+	LatestVersion() (semver.Version, error)
 }
 
 type LatestDownloader interface {
@@ -43,7 +44,7 @@ const (
 	MaxFileSize = 50 * (1 << 20) // 50 megabytes
 )
 
-func DownloadFileName(version string) string {
+func DownloadFileName(version semver.Version) string {
 	extension := "tar.gz"
 	if runtime.GOOS == "windows" {
 		extension = "zip"
@@ -70,16 +71,16 @@ func NewGithubLatestCheckerDownloader(ctx *cli.Context, owner, repo string) *Git
 	}
 }
 
-func (gh *GithubLatestCheckerDownloader) LatestVersion() (string, error) {
+func (gh *GithubLatestCheckerDownloader) LatestVersion() (semver.Version, error) {
 	gh.log.Debug("get latest version from github")
 
 	var latestVersionResp struct {
-		LatestVersion string `json:"tag_name"`
+		LatestVersion semver.Version `json:"tag_name"`
 	}
 
 	_, err := gh.client.R().SetResult(&latestVersionResp).Get("/latest")
 	if err != nil {
-		return "0.0.1-alpha", chkitErrors.Wrap(ErrUpdateCheck, err)
+		return semver.MustParse("0.0.1-alpha"), chkitErrors.Wrap(ErrUpdateCheck, err)
 	}
 
 	return latestVersionResp.LatestVersion, nil
@@ -117,21 +118,26 @@ func NewFileSystemLatestCheckerDownloader(ctx *cli.Context, baseDir string) *Fil
 	}
 }
 
-func (fs *FileSystemLatestCheckerDownloader) LatestVersion() (string, error) {
+func (fs *FileSystemLatestCheckerDownloader) LatestVersion() (semver.Version, error) {
 	fs.log.Debug("get latest version from filesystem")
 
 	verFile, err := os.Open(path.Join(fs.baseDir, "version"))
 	if err != nil {
-		return "0.0.1-alpha", chkitErrors.Wrap(ErrUpdateCheck, err)
+		return semver.MustParse("0.0.1-alpha"), chkitErrors.Wrap(ErrUpdateCheck, err)
 	}
 	defer verFile.Close()
 
 	ver, err := ioutil.ReadAll(verFile)
 	if err != nil {
-		return "0.0.1-alpha", chkitErrors.Wrap(ErrUpdateCheck, err)
+		return semver.MustParse("0.0.1-alpha"), chkitErrors.Wrap(ErrUpdateCheck, err)
 	}
 
-	return string(ver), nil
+	sv, err := semver.ParseTolerant(string(ver))
+	if err != nil {
+		return semver.MustParse("0.0.1-alpha"), chkitErrors.Wrap(ErrUpdateCheck, err)
+	}
+
+	return sv, nil
 }
 
 func (fs *FileSystemLatestCheckerDownloader) LatestDownload() (io.ReadCloser, error) {

@@ -15,7 +15,6 @@ import (
 
 	"encoding/base64"
 
-	"github.com/blang/semver"
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/inconshreveable/go-update"
@@ -26,8 +25,7 @@ import (
 var PublicKeyB64 = "cHVibGljIGtleQo="
 
 const (
-	ErrUpdateApply  = chkitErrors.Err("update apply failed")
-	ErrVersionParse = chkitErrors.Err("version parse failed")
+	ErrUpdateApply = chkitErrors.Err("update apply failed")
 )
 
 func verifiedUpdate(upd *Package) error {
@@ -70,12 +68,7 @@ func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter b
 		return err
 	}
 
-	latestVersionSemver, err := semver.ParseTolerant(latestVersion)
-	if err != nil {
-		return chkitErrors.Wrap(ErrVersionParse, err)
-	}
-
-	if latestVersionSemver.LE(util.GetVersion(ctx)) {
+	if latestVersion.LE(util.GetVersion(ctx)) {
 		return nil
 	}
 
@@ -86,7 +79,7 @@ func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter b
 		colorEnd = "\x1b[0m"
 	}
 	fmt.Printf("%sYou are using version %s, however version %s is available%s\n",
-		colorStart, util.GetVersion(ctx), latestVersionSemver, colorEnd)
+		colorStart, util.GetVersion(ctx), latestVersion, colorEnd)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanWords)
