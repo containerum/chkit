@@ -17,7 +17,7 @@ func unarchive(rd io.Reader, update *Package) error {
 	fmap := update.getFileMap()
 	retVal := reflect.ValueOf(update)
 
-	gzf, err := gzip.NewReader(rd)
+	gzf, err := gzip.NewReader(io.LimitReader(rd, MaxFileSize))
 	if err != nil {
 		return chkitErrors.Wrap(ErrUnpack, err)
 	}
