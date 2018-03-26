@@ -5,5 +5,5 @@ import (
 )
 
 var (
-	ConfigDir = path.Join("Library", "containerum")
+	configDir = path.Join("Library", "containerum")
 )

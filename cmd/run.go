@@ -4,6 +4,8 @@ import (
 	"path"
 	"time"
 
+	"github.com/containerum/chkit/cmd/config_dir"
+
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/cmd/util"
@@ -31,12 +33,6 @@ func Run(args []string) error {
 		FullTimestamp:   true,
 		TimestampFormat: time.RFC1123,
 	}
-	configPath, err := configPath()
-	if err != nil {
-		log.WithError(err).
-			Errorf("error while getting homedir path")
-		return err
-	}
 	var App = &cli.App{
 		Name:    "chkit",
 		Usage:   "containerum cli",
@@ -44,7 +40,7 @@ func Run(args []string) error {
 		Action:  runAction,
 		Metadata: map[string]interface{}{
 			"client":     chClient.Client{},
-			"configPath": configPath,
+			"configPath": confDir.ConfigDir(),
 			"log":        log,
 			"config":     model.Config{},
 			"tokens":     kubeClientModels.Tokens{},
@@ -59,7 +55,7 @@ func Run(args []string) error {
 				Name:    "config",
 				Usage:   "config file",
 				Aliases: []string{"c"},
-				Value:   path.Join(configPath, "config.toml"),
+				Value:   path.Join(confDir.ConfigDir(), "config.toml"),
 			},
 			&cli.StringFlag{
 				Name:    "api",
