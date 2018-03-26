@@ -15,6 +15,7 @@ import (
 
 	"encoding/base64"
 
+	"github.com/blang/semver"
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/inconshreveable/go-update"
@@ -62,16 +63,7 @@ func verifiedUpdate(upd *Package) error {
 	return nil
 }
 
-func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter bool) error {
-	latestVersion, err := downloader.LatestVersion()
-	if err != nil {
-		return err
-	}
-
-	if latestVersion.LE(util.GetVersion(ctx)) {
-		return nil
-	}
-
+func AskForUpdate(ctx *cli.Context, latestVersion semver.Version) (bool, error) {
 	// check if we have terminal supports escape sequences
 	var colorStart, colorEnd string
 	if terminal.IsTerminal(int(os.Stdout.Fd())) {
@@ -83,24 +75,42 @@ func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter b
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanWords)
-askLoop:
 	for {
 		fmt.Println("Do you want to update [Y/n]: ")
 		for !scanner.Scan() {
 			break
 		}
-		if scanner.Err() != nil {
+		if err := scanner.Err(); err != nil {
 			util.GetLog(ctx).WithError(err).Error("scan failed")
-			continue
+			return false, err
 		}
 		switch strings.ToLower(scanner.Text()) {
 		case "", "y":
-			break askLoop
+			return true, nil
 		case "n":
-			return nil
+			return false, nil
 		default:
 			continue
 		}
+	}
+}
+
+func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter bool) error {
+	latestVersion, err := downloader.LatestVersion()
+	if err != nil {
+		return err
+	}
+
+	if latestVersion.LE(util.GetVersion(ctx)) {
+		return nil
+	}
+
+	doUpdate, err := AskForUpdate(ctx, latestVersion)
+	if err != nil {
+		return err
+	}
+	if !doUpdate {
+		return nil
 	}
 
 	archive, err := downloader.LatestDownload()
