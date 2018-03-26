@@ -48,6 +48,7 @@ var commandLogin = &cli.Command{
 			return err
 		}
 		client := util.GetClient(ctx)
+		client.Tokens = model.Tokens{}
 		if err := client.Auth(); err != nil {
 			return err
 		}
