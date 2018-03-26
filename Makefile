@@ -3,7 +3,7 @@
 #get current package, assuming it`s in GOPATH sources
 PACKAGE := $(PWD:$(GOPATH)/src/%=%)
 
-SIGNING_KEY_DIR:=~/.chkit-sign
+SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
 PUBLIC_KEY_FILE:=pubkey.pem
 
