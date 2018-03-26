@@ -3,6 +3,7 @@ package cmd
 import (
 	"path"
 
+	"github.com/containerum/chkit/cmd/config_dir"
 	homedir "github.com/mitchellh/go-homedir"
 )
 
@@ -11,5 +12,5 @@ func configPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Join(home, configDir), nil
+	return path.Join(home, confDir.ConfigDir), nil
 }
