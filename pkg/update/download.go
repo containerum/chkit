@@ -75,15 +75,18 @@ func (gh *GithubLatestCheckerDownloader) LatestVersion() (semver.Version, error)
 	gh.log.Debug("get latest version from github")
 
 	var latestVersionResp struct {
-		LatestVersion semver.Version `json:"tag_name"`
+		LatestVersion string `json:"tag_name"`
 	}
 
 	_, err := gh.client.R().SetResult(&latestVersionResp).Get("/latest")
 	if err != nil {
 		return semver.MustParse("0.0.1-alpha"), chkitErrors.Wrap(ErrUpdateCheck, err)
 	}
-
-	return latestVersionResp.LatestVersion, nil
+	vers, err := semver.ParseTolerant(latestVersionResp.LatestVersion)
+	if err != nil {
+		return semver.MustParse("0.0.1-alpha"), chkitErrors.Wrap(ErrUpdateCheck, err)
+	}
+	return vers, nil
 }
 
 func (gh *GithubLatestCheckerDownloader) LatestDownload() (io.ReadCloser, error) {
