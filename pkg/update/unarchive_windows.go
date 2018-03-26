@@ -18,7 +18,7 @@ func unarchive(rd io.Reader, update *Package) error {
 	retVal := reflect.ValueOf(update)
 
 	// zip file requires random access so before start we read all "rd" contents to buffer
-	content, err := ioutil.ReadAll(rd)
+	content, err := ioutil.ReadAll(io.LimitReader(rd, MaxFileSize))
 	if err != nil {
 		return chkitErrors.Wrap(ErrUnpack, err)
 	}

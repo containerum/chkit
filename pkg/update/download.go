@@ -39,6 +39,10 @@ const (
 	ErrUpdateDownload = chkitErrors.Err("unable to download latest version")
 )
 
+const (
+	MaxFileSize = 50 * (1 << 20) // 50 megabytes
+)
+
 func DownloadFileName(version string) string {
 	extension := "tar.gz"
 	if runtime.GOOS == "windows" {
