@@ -11,7 +11,7 @@ var (
 )
 
 func (_ Namespace) TableHeaders() []string {
-	return []string{"Label", "Created", "Limits"}
+	return []string{"Label", "Age", "CPU", "MEM"}
 }
 
 func (namespace Namespace) TableRows() [][]string {
@@ -29,8 +29,11 @@ func (namespace Namespace) TableRows() [][]string {
 	return [][]string{{
 		namespace.Label,
 		creationTime,
-		fmt.Sprintf("CPU: %s; MEM %s",
-			namespace.Resources.Hard.CPU,
+		fmt.Sprintf("%s/%s",
+			namespace.Resources.Used.CPU,
+			namespace.Resources.Hard.CPU),
+		fmt.Sprintf("%s/%s",
+			namespace.Resources.Used.Memory,
 			namespace.Resources.Hard.Memory),
 	}}
 }
