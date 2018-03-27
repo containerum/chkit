@@ -18,7 +18,7 @@ var GetPodAction = &cli.Command{
 		defer func() {
 			log := util.GetLog(ctx)
 			util.SetClient(ctx, client)
-			log.Debugf("writing tokens to disk %s", client.Tokens)
+			log.Debugf("writing tokens to disk")
 			err := util.SaveTokens(ctx, client.Tokens)
 			if err != nil {
 				log.Debugf("error while saving tokens: %v", err)
