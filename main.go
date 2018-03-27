@@ -12,7 +12,11 @@ import (
 func main() {
 	defer func() {
 		recoverData := recover()
-		if recoverData != nil {
+		switch recoverData := recoverData.(type) {
+		case nil:
+		case error:
+			fmt.Printf("[FATAL] %v", recoverData)
+		default:
 			fmt.Printf("[FATAL] %v\n%s", recoverData, string(debug.Stack()))
 		}
 	}()
