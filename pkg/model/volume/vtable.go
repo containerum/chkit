@@ -11,7 +11,7 @@ var (
 )
 
 func (_ *Volume) TableHeaders() []string {
-	return []string{"Label", "Created", "Access", "Replicas", "Storage, GB"}
+	return []string{"Label", "Age", "Access", "Replicas", "Storage, GB"}
 }
 
 func (volume *Volume) TableRows() [][]string {

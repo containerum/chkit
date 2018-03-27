@@ -16,7 +16,7 @@ func (pod *Pod) RenderTable() string {
 }
 
 func (_ *Pod) TableHeaders() []string {
-	return []string{"Name", "Host", "Phase", "Restarts", "StartedAt", "Containers"}
+	return []string{"Name", "Host", "Phase", "Restarts", "Age", "Containers"}
 }
 
 func (pod *Pod) TableRows() [][]string {

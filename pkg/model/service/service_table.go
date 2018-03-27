@@ -16,7 +16,7 @@ func (serv Service) RenderTable() string {
 }
 
 func (_ *Service) TableHeaders() []string {
-	return []string{"Name", "Creation time", "Deploy", "IPs", "Domain", "Ports"}
+	return []string{"Name", "Age", "Deploy", "IPs", "Domain", "Ports"}
 }
 
 func (serv *Service) TableRows() [][]string {
@@ -25,13 +25,13 @@ func (serv *Service) TableRows() [][]string {
 		ports = append(ports,
 			fmt.Sprintf("%d %s", port.TargetPort, port.Protocol))
 	}
-	createdAt := "none"
+	age := "none"
 	if serv.CreatedAt != nil {
-		createdAt = model.TimestampFormat(*serv.CreatedAt)
+		age = model.TimestampFormat(*serv.CreatedAt)
 	}
 	return [][]string{{
 		serv.Name,
-		createdAt,
+		age,
 		serv.Deploy,
 		strings.Join(serv.IPs, "\n"),
 		serv.Domain,
