@@ -12,12 +12,13 @@ const (
 func TimestampFormat(timestamp time.Time) string {
 	age := time.Now().Sub(timestamp)
 	ageString := age.String()
+	const year = 365 * 24
 	switch {
-	case age.Hours() > 365*24:
-		years := uint64(age.Hours()) / (365 * 24)
-		days := uint64(age.Hours()) % (365 * 24)
-		ageString = fmt.Sprintf("%dy-%03d", years, days)
-	case age.Hours() > 24:
+	case age.Hours() > year:
+		years := uint64(age.Hours()) / year
+		days := uint64(age.Hours()) % year
+		ageString = fmt.Sprintf("%dy-%03dd", years, days)
+	case age.Hours() > 24 && age.Hours() < 365*24:
 		days := uint64(age.Hours()) / 24
 		hours := uint64(age.Hours()) % 24
 		ageString = fmt.Sprintf("%dd-%02dh", days, hours)
