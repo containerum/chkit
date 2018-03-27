@@ -20,13 +20,17 @@ func (_ *Pod) TableHeaders() []string {
 }
 
 func (pod *Pod) TableRows() [][]string {
+	age := "unknown"
+	if pod.Status.StartedAt.Unix() != 0 {
+		age = model.TimestampFormat(pod.Status.StartedAt)
+	}
 	return [][]string{
 		{
 			pod.Name,
 			pod.Hostname,
 			pod.Status.Phase,
 			strconv.Itoa(pod.Status.RestartCount),
-			model.TimestampFormat(pod.Status.StartedAt),
+			age,
 			strings.Join(pod.Containers, "\n"),
 		},
 	}
