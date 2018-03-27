@@ -20,7 +20,7 @@ func TimestampFormat(timestamp time.Time) string {
 	case age.Hours() > 24:
 		days := uint64(age.Hours()) / 24
 		hours := uint64(age.Hours()) % 24
-		ageString = fmt.Sprintf("%03dd-%02dh", days, hours)
+		ageString = fmt.Sprintf("%dd-%02dh", days, hours)
 	case age.Hours() <= 24 && age.Hours() > 1:
 		hours := uint64(age.Hours())
 		minutes := uint64(age.Minutes()) % 60
