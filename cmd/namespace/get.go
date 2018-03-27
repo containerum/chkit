@@ -24,7 +24,10 @@ var GetNamespace = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		log := util.GetLog(ctx)
 		client := util.GetClient(ctx)
-		defer util.SetClient(ctx, client)
+		defer func() {
+			log.Debugf("TOKEN %s", client.AccessToken)
+			util.SetClient(ctx, client)
+		}()
 		var showItem model.Renderer
 		var err error
 		switch ctx.NArg() {
