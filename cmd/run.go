@@ -13,7 +13,6 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/containerum/chkit/pkg/update"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -47,7 +46,7 @@ func Run(args []string) error {
 		Name:    "chkit",
 		Usage:   "containerum cli",
 		Version: semver.MustParse(Version).String(),
-		Before: func(ctx *cli.Context) error {
+		/*Before: func(ctx *cli.Context) error {
 			var updater update.LatestCheckerDownloader
 			currVersion := semver.MustParse(Version)
 			updater = update.NewGithubLatestCheckerDownloader(ctx, "containerum", "chkit")
@@ -65,7 +64,7 @@ func Run(args []string) error {
 				}
 			}
 			return nil
-		},
+		},*/
 		Action: runAction,
 		Metadata: map[string]interface{}{
 			"client":     chClient.Client{},
@@ -152,8 +151,13 @@ func runAction(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	util.SetConfig(ctx, config)
 	if err := persist(ctx); err != nil {
 		logrus.Fatalf("%v", err)
+	}
+	// re-setup client to save default namespace
+	if err := setupClient(ctx); err != nil {
+		return err
 	}
 	clientConfig := client.Config
 	logrus.Infof("Hello, %q!", clientConfig.Username)

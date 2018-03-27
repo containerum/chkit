@@ -28,6 +28,6 @@ func GetFirstClientNamespace(ctx *cli.Context) (string, error) {
 		return "", ErrNoNamespaces
 	}
 	selectedNS := nsList[0].Label
-	logrus.Debugf("Selected namespace %s", selectedNS)
+	logrus.Debugf("Selected namespace \"%s\"", selectedNS)
 	return nsList[0].Label, nil
 }

@@ -27,27 +27,17 @@ var GetDeployment = &cli.Command{
 		var show model.Renderer
 		switch ctx.NArg() {
 		case 0:
-			cli.ShowCommandHelpAndExit(ctx, "deployment", 2)
-		case 1:
-			namespace := ctx.Args().First()
+			namespace := util.GetNamespace(ctx)
 			logrus.Debugf("getting deployment from %q", namespace)
 			list, err := client.GetDeploymentList(namespace)
 			if err != nil {
 				return err
 			}
 			show = list
-		case 2:
-			namespace := ctx.Args().First()
-			deplName := ctx.Args().Slice()[1]
-			depl, err := client.GetDeployment(namespace, deplName)
-			if err != nil {
-				return err
-			}
-			show = depl
 		default:
-			namespace := ctx.Args().First()
-			deplNames := newSet(ctx.Args().Tail())
-			var showList deployment.DeploymentList = make([]deployment.Deployment, len(deplNames))
+			namespace := util.GetNamespace(ctx)
+			deplNames := newSet(ctx.Args().Slice())
+			var showList deployment.DeploymentList = make([]deployment.Deployment, 0) // prevents panic
 			list, err := client.GetDeploymentList(namespace)
 			if err != nil {
 				return err

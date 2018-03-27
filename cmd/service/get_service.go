@@ -1,8 +1,6 @@
 package cliserv
 
 import (
-	"fmt"
-
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
@@ -19,18 +17,15 @@ var GetService = &cli.Command{
 
 		switch ctx.NArg() {
 		case 0:
-			fmt.Println(ctx.Command.Usage)
-			return nil
-		case 1:
-			namespace := ctx.Args().First()
+			namespace := util.GetNamespace(ctx)
 			list, err := client.GetServiceList(namespace)
 			if err != nil {
 				return err
 			}
 			show = list
 		default:
-			namespace := ctx.Args().First()
-			servicesNames := ctx.Args().Tail()
+			namespace := util.GetNamespace(ctx)
+			servicesNames := ctx.Args().Slice()
 			var list service.ServiceList
 			for _, servName := range servicesNames {
 				serv, err := client.GetService(namespace, servName)

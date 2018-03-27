@@ -1,8 +1,6 @@
 package clipod
 
 import (
-	"fmt"
-
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/pod"
@@ -21,10 +19,7 @@ var GetPodAction = &cli.Command{
 
 		switch ctx.NArg() {
 		case 0:
-			fmt.Println(ctx.Command.UsageText)
-			return nil
-		case 1:
-			namespaceLabel := ctx.Args().First()
+			namespaceLabel := util.GetNamespace(ctx)
 			logrus.Debugf("getting pod list from %q", namespaceLabel)
 			showItem, err = client.GetPodList(namespaceLabel)
 			if err != nil {
@@ -33,9 +28,9 @@ var GetPodAction = &cli.Command{
 		default:
 			var list pod.PodList
 			var gainedPod pod.Pod
-			namespaceLabel := ctx.Args().First()
+			namespaceLabel := util.GetNamespace(ctx)
 			logrus.Debugf("getting pods")
-			for _, podName := range ctx.Args().Tail() {
+			for _, podName := range ctx.Args().Slice() {
 				logrus.Debugf("getting %q", podName)
 				gainedPod, err = client.GetPod(namespaceLabel, podName)
 				if err != nil {
