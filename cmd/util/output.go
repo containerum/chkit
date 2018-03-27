@@ -12,13 +12,10 @@ import (
 func WriteData(ctx *cli.Context, renderer model.Renderer) error {
 	var err error
 	var data string
-	output := "stdout"
-	switch {
-	case ctx.IsSet("json"):
-		output = ctx.String("json")
+	switch ctx.String("output") {
+	case "json":
 		data, err = renderer.RenderJSON()
-	case ctx.IsSet("yaml"):
-		output = ctx.String("yaml")
+	case "yaml":
 		data, err = renderer.RenderYAML()
 	default:
 		data = renderer.RenderTable()
@@ -26,9 +23,9 @@ func WriteData(ctx *cli.Context, renderer model.Renderer) error {
 	if err != nil {
 		return err
 	}
-	if output == "stdout" {
+	if !ctx.IsSet("file") {
 		fmt.Println(data)
 		return nil
 	}
-	return ioutil.WriteFile(output, []byte(data), os.ModePerm)
+	return ioutil.WriteFile(ctx.String("file"), []byte(data), os.ModePerm)
 }

@@ -14,18 +14,9 @@ var (
 )
 var GetDeployment = &cli.Command{
 	Name:      "deployment",
+	Aliases:   []string{"depl", "deployments"},
 	Usage:     "shows deployment data",
 	ArgsUsage: "namespace [deployment_names ...]",
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "json",
-			Usage: "writes json data to file. If filename is \"stdout\" then prints straight to std output",
-		},
-		&cli.StringFlag{
-			Name:  "yaml",
-			Usage: "writes yaml data to file. If filename is \"stdout\" then prints straight to std output",
-		},
-	},
 	Action: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)
@@ -77,6 +68,16 @@ var GetDeployment = &cli.Command{
 			show = showList
 		}
 		return util.WriteData(ctx, show)
+	},
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "file",
+			Aliases: []string{"f"},
+		},
+		&cli.StringFlag{
+			Name:    "output",
+			Aliases: []string{"o"},
+		},
 	},
 }
 

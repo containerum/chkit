@@ -11,17 +11,10 @@ import (
 
 // GetNamespace -- commmand 'get' entity data
 var GetNamespace = &cli.Command{
-	Name:        "ns",
+	Name:        "namespace",
+	Aliases:     []string{"ns", "namespaces"},
 	Description: `show namespace or namespace list`,
 	Usage:       `Shows namespace data or namespace list`,
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name: "json",
-		},
-		&cli.StringFlag{
-			Name: "yaml",
-		},
-	},
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		defer func() {
@@ -59,5 +52,15 @@ var GetNamespace = &cli.Command{
 			logrus.Debugf("fatal error: %v", err)
 		}
 		return err
+	},
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "file",
+			Aliases: []string{"f"},
+		},
+		&cli.StringFlag{
+			Name:    "output",
+			Aliases: []string{"o"},
+		},
 	},
 }

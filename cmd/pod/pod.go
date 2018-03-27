@@ -11,7 +11,8 @@ import (
 )
 
 var GetPodAction = &cli.Command{
-	Name: "pod",
+	Name:    "pod",
+	Aliases: []string{"po", "pods"},
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		defer func() {
@@ -60,10 +61,12 @@ var GetPodAction = &cli.Command{
 	},
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name: "json",
+			Name:    "file",
+			Aliases: []string{"f"},
 		},
 		&cli.StringFlag{
-			Name: "yaml",
+			Name:    "output",
+			Aliases: []string{"o"},
 		},
 	},
 }

@@ -11,7 +11,8 @@ import (
 )
 
 var GetService = &cli.Command{
-	Name: "service",
+	Name:    "service",
+	Aliases: []string{"srv"},
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		defer func() {
@@ -51,17 +52,14 @@ var GetService = &cli.Command{
 		}
 		return util.WriteData(ctx, show)
 	},
-	After: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		logrus.Debugf("writing tokens to disk")
-		return util.SaveTokens(ctx, client.Tokens)
-	},
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name: "json",
+			Name:    "file",
+			Aliases: []string{"f"},
 		},
 		&cli.StringFlag{
-			Name: "yaml",
+			Name:    "output",
+			Aliases: []string{"o"},
 		},
 	},
 }
