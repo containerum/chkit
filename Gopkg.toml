@@ -61,11 +61,6 @@
   branch = "v2"
   name = "gopkg.in/urfave/cli.v2"
 
-
-[[constraint]]
-  name = "github.com/ninedraft/delog"
-  version = "0.1.0"
-
 [[constraint]]
   name = "gopkg.in/yaml.v2"
   version = "2.1.1"
@@ -75,5 +70,5 @@
   version = "2.0.6"
 
 [[constraint]]
-  branch = "master"
+  revision = "8152e7eb6ccf8679a64582a66b78519688d156ad"
   name = "github.com/inconshreveable/go-update"

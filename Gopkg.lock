@@ -69,7 +69,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/inconshreveable/go-update"
   packages = [
     ".",
@@ -127,12 +126,6 @@
   revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
 
 [[projects]]
-  name = "github.com/ninedraft/delog"
-  packages = ["."]
-  revision = "12025bf7709a8fa8b15c468f135fc27c703f12f0"
-  version = "v0.1.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
@@ -155,6 +148,12 @@
   packages = ["."]
   revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
   version = "v1.0.5"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/skratchdot/open-golang"
+  packages = ["open"]
+  revision = "75fb7ed4208cf72d323d7d02fd1a5964a7a9073c"
 
 [[projects]]
   name = "github.com/spf13/pflag"
@@ -402,6 +401,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dd5f878c52fc4abb38fd72b5453beb966f42a65540db40ca22a29cd1892ea778"
+  inputs-digest = "84afb7ee4deccb6bb0705db81e8c2083057ab4fd73d68991d5c742da5b171dd4"
   solver-name = "gps-cdcl"
   solver-version = 1
