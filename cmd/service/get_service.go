@@ -6,26 +6,17 @@ import (
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
 var GetService = &cli.Command{
 	Name:    "service",
-	Aliases: []string{"srv"},
+	Aliases: []string{"srv", "services", "svc"},
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
-		defer func() {
-			util.SetClient(ctx, client)
-			logrus.Debugf("writing tokens to disk")
-			err := util.SaveTokens(ctx, client.Tokens)
-			if err != nil {
-				logrus.Debugf("error while saving tokens: %v", err)
-				panic(err)
-			}
-		}()
-
+		defer util.StoreClient(ctx, client)
 		var show model.Renderer
+
 		switch ctx.NArg() {
 		case 0:
 			fmt.Println(ctx.Command.Usage)

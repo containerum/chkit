@@ -22,15 +22,7 @@ var GetDeployment = &cli.Command{
 			return cli.ShowSubcommandHelp(ctx)
 		}
 		client := util.GetClient(ctx)
-		defer func() {
-			util.SetClient(ctx, client)
-			logrus.Debugf("writing tokens to disk")
-			err := util.SaveTokens(ctx, client.Tokens)
-			if err != nil {
-				logrus.Debugf("error while saving tokens: %v", err)
-				panic(err)
-			}
-		}()
+		defer util.StoreClient(ctx, client)
 
 		var show model.Renderer
 		switch ctx.NArg() {

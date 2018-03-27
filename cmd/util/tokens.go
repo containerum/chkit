@@ -5,6 +5,9 @@ import (
 	"os"
 	"path"
 
+	"github.com/containerum/chkit/pkg/client"
+	"github.com/sirupsen/logrus"
+
 	"github.com/containerum/chkit/pkg/model"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -38,4 +41,14 @@ func LoadTokens(ctx *cli.Context) (model.Tokens, error) {
 		return tokens, nil
 	}
 	return tokens, json.NewDecoder(file).Decode(&tokens)
+}
+
+func StoreClient(ctx *cli.Context, client *chClient.Client) {
+	SetClient(ctx, client)
+	logrus.Debugf("writing tokens to disk")
+	err := SaveTokens(ctx, client.Tokens)
+	if err != nil {
+		logrus.Debugf("error while saving tokens: %v", err)
+		panic(err)
+	}
 }

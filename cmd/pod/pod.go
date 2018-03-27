@@ -15,18 +15,10 @@ var GetPodAction = &cli.Command{
 	Aliases: []string{"po", "pods"},
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
-		defer func() {
-			util.SetClient(ctx, client)
-			logrus.Debugf("writing tokens to disk")
-			err := util.SaveTokens(ctx, client.Tokens)
-			if err != nil {
-				logrus.Debugf("error while saving tokens: %v", err)
-				panic(err)
-			}
-		}()
-
+		defer util.StoreClient(ctx, client)
 		var showItem model.Renderer
 		var err error
+
 		switch ctx.NArg() {
 		case 0:
 			fmt.Println(ctx.Command.UsageText)
