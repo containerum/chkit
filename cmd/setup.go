@@ -40,7 +40,7 @@ func setupClient(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	util.SetClient(ctx, *client)
+	util.SetClient(ctx, client)
 	return nil
 }
 

@@ -70,5 +70,6 @@ func (client *Client) Extend() error {
 		return err
 	}
 	client.Tokens = model.Tokens(tokens)
+	client.kubeAPIClient.SetToken(tokens.AccessToken)
 	return nil
 }
