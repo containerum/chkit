@@ -31,7 +31,8 @@ func (client *Client) Auth() error {
 			return nil
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
 			return client.Login()
 		case cherry.In(err, gatewayErrors.ErrInternal()):
 			return ErrInternalError
