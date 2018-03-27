@@ -14,7 +14,7 @@ var (
 )
 var GetDeployment = &cli.Command{
 	Name:      "deployment",
-	Aliases:   []string{"depl", "deployments"},
+	Aliases:   []string{"depl", "deployments", "deploy"},
 	Usage:     "shows deployment data",
 	ArgsUsage: "namespace [deployment_names ...]",
 	Action: func(ctx *cli.Context) error {
