@@ -14,13 +14,11 @@ import (
 )
 
 const (
-	ErrUnableToLoadConfig       chkitErrors.Err = "unable to load config"
-	ErrInvalidUserInfo          chkitErrors.Err = "invalid user info"
-	ErrInvalidAPIurl            chkitErrors.Err = "invalid API url"
-	ErrUnableToLoadTokens       chkitErrors.Err = "unable to load tokens"
-	ErrUnableToSaveTokens       chkitErrors.Err = "unable to save tokens"
-	ErrUnableToCreateConfigDir  chkitErrors.Err = "unable to create config dir"
-	ErrUnableToCreateConfigFile chkitErrors.Err = "unable to create config file"
+	ErrUnableToLoadConfig chkitErrors.Err = "unable to load config"
+	ErrInvalidUserInfo    chkitErrors.Err = "invalid user info"
+	ErrInvalidAPIurl      chkitErrors.Err = "invalid API url"
+	ErrUnableToLoadTokens chkitErrors.Err = "unable to load tokens"
+	ErrUnableToSaveTokens chkitErrors.Err = "unable to save tokens"
 )
 
 func setupClient(ctx *cli.Context) error {
@@ -88,26 +86,7 @@ func persist(ctx *cli.Context) error {
 func loadConfig(ctx *cli.Context) error {
 	//log := util.GetLog(ctx)
 	config := util.GetConfig(ctx)
-
-	err := os.MkdirAll(util.GetConfigPath(ctx), os.ModePerm)
-	if err != nil && !os.IsExist(err) {
-		return ErrUnableToCreateConfigDir.Wrap(err)
-	}
-
-	_, err = os.Stat(ctx.String("config"))
-	if err != nil && os.IsNotExist(err) {
-		file, err := os.Create(ctx.String("config"))
-		if err != nil {
-			return ErrUnableToCreateConfigFile.Wrap(err)
-		}
-		if err = file.Close(); err != nil {
-			return ErrUnableToCreateConfigDir.Wrap(err)
-		}
-	} else if err != nil {
-		return ErrUnableToCreateConfigDir.Wrap(err)
-	}
-
-	err = util.LoadConfig(ctx.String("config"), &config)
+	err := util.LoadConfig(ctx.String("config"), &config)
 	if err != nil {
 		return ErrUnableToLoadConfig.Wrap(err)
 	}
