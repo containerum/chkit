@@ -52,6 +52,11 @@ var commandLogin = &cli.Command{
 		if err := util.SaveTokens(ctx, client.Tokens); err != nil {
 			return err
 		}
+		config.DefaultNamespace, err = util.GetFirstClientNamespace(ctx)
+		if err != nil {
+			return err
+		}
+		util.SetConfig(ctx, config)
 		if err := persist(ctx); err != nil {
 			return err
 		}

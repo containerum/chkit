@@ -106,6 +106,11 @@ func Run(args []string) error {
 				Name:  "pass",
 				Usage: "password to system",
 			},
+			&cli.StringFlag{
+				Name:    "namespace",
+				Aliases: []string{"n"},
+				Usage:   "namespace to use",
+			},
 		},
 	}
 	return App.Run(args)
@@ -139,12 +144,16 @@ func runAction(ctx *cli.Context) error {
 	if err := setupClient(ctx); err != nil {
 		return err
 	}
-	if err := persist(ctx); err != nil {
-		logrus.Fatalf("%v", err)
-	}
 	client := util.GetClient(ctx)
 	if err := util.SaveTokens(ctx, client.Tokens); err != nil {
 		return chkitErrors.NewExitCoder(err)
+	}
+	config.DefaultNamespace, err = util.GetFirstClientNamespace(ctx)
+	if err != nil {
+		return err
+	}
+	if err := persist(ctx); err != nil {
+		logrus.Fatalf("%v", err)
 	}
 	clientConfig := client.Config
 	logrus.Infof("Hello, %q!", clientConfig.Username)
