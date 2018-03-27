@@ -11,7 +11,7 @@ func main() {
 	defer angel()
 	switch err := cmd.Run(os.Args).(type) {
 	case nil:
-		err.Error()
+		// pass
 	default:
 		logrus.Fatalf("Something bad happend: %v", err)
 	}
