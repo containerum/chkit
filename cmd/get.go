@@ -14,9 +14,6 @@ var commandGet = &cli.Command{
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)
 		}
-		if err := setupLog(ctx); err != nil {
-			return err
-		}
 		return setupAll(ctx)
 	},
 	ArgsUsage: `get ns [namespace_name] --> show namespace data

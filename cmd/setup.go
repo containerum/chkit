@@ -8,7 +8,6 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/ninedraft/delog"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -22,21 +21,23 @@ const (
 )
 
 func setupClient(ctx *cli.Context) error {
-	log := util.GetLog(ctx)
 	config := util.GetConfig(ctx)
 	var client *chClient.Client
 	var err error
-	switch ctx.String("test") {
-	case "mock":
-		log.Infof("Using mock API")
-		client, err = chClient.NewClient(config, chClient.WithMock)
-	case "api":
-		log.Debugf("Using test API: %q", config.APIaddr)
+	config.APIaddr = API_ADDR
+
+	if DEBUG && !MOCK {
+		logrus.Debugf("Using test API: %q", config.APIaddr)
 		if ctx.Bool("debug-requests") {
-			config.Log = log.WriterLevel(logrus.DebugLevel)
+			logrus.Debugf("verbose requests logs")
+			config.Log = logrus.StandardLogger().WriterLevel(logrus.DebugLevel)
 		}
 		client, err = chClient.NewClient(config, chClient.WithTestAPI)
-	default:
+	} else if DEBUG && MOCK {
+		logrus.Debugf("Using mock API")
+		client, err = chClient.NewClient(config, chClient.WithMock)
+	} else {
+		logrus.Debugf("Using production API: %v", config.APIaddr)
 		client, err = chClient.NewClient(config, chClient.WithCommonAPI)
 	}
 	if err != nil {
@@ -48,8 +49,7 @@ func setupClient(ctx *cli.Context) error {
 
 func setupConfig(ctx *cli.Context) error {
 	config := util.GetConfig(ctx)
-	log := util.GetLog(ctx)
-	log.Debugf("test: %q", ctx.String("test"))
+	logrus.Debugf("test: %q", ctx.String("test"))
 	config.Fingerprint = Fingerprint()
 	tokens, err := util.LoadTokens(ctx)
 	if err != nil && !os.IsNotExist(err) {
@@ -62,15 +62,15 @@ func setupConfig(ctx *cli.Context) error {
 	config.Tokens = tokens
 	if ctx.IsSet("test") {
 		testAPIurl := os.Getenv("CONTAINERUM_API")
-		log.Debugf("using test api %q", testAPIurl)
+		logrus.Debugf("using test api %q", testAPIurl)
 		config.APIaddr = testAPIurl
 	}
 	if _, err := url.Parse(config.APIaddr); err != nil {
-		log.Debugf("invalid API url: %q", config.APIaddr)
+		logrus.Debugf("invalid API url: %q", config.APIaddr)
 		return ErrInvalidAPIurl.Wrap(err)
 	}
 	if config.Password == "" || config.Username == "" {
-		log.Debugf("invalid username or pass")
+		logrus.Debugf("invalid username or pass")
 		util.SetConfig(ctx, config)
 		return ErrInvalidUserInfo
 	}
@@ -97,29 +97,18 @@ func loadConfig(ctx *cli.Context) error {
 }
 
 func setupAll(ctx *cli.Context) error {
-	log := util.GetLog(ctx)
-	log.Debugf("setuping config")
+	logrus.Debugf("setuping config")
 	if err := loadConfig(ctx); err != nil {
 		return err
 	}
 	if err := setupConfig(ctx); err != nil {
 		return err
 	}
-	log.Debugf("setuping client")
+	logrus.Debugf("setuping client")
 	if err := setupClient(ctx); err != nil {
 		return err
 	}
 	client := util.GetClient(ctx)
-	log.Debugf("API: %q", client.APIaddr)
-	return nil
-}
-
-func setupLog(ctx *cli.Context) error {
-	log := util.GetLog(ctx)
-	if ctx.IsSet("test") {
-		log.Formatter = delog.NewFormatter(log.Formatter)
-		log.SetLevel(logrus.DebugLevel)
-		log.Debug("debug mode on")
-	}
+	logrus.Debugf("API: %q", client.APIaddr)
 	return nil
 }

@@ -6,22 +6,20 @@ import (
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/pod"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
 var GetPodAction = &cli.Command{
 	Name: "pod",
 	Action: func(ctx *cli.Context) error {
-		log := util.GetLog(ctx)
 		client := util.GetClient(ctx)
-
 		defer func() {
-			log := util.GetLog(ctx)
 			util.SetClient(ctx, client)
-			log.Debugf("writing tokens to disk")
+			logrus.Debugf("writing tokens to disk")
 			err := util.SaveTokens(ctx, client.Tokens)
 			if err != nil {
-				log.Debugf("error while saving tokens: %v", err)
+				logrus.Debugf("error while saving tokens: %v", err)
 				panic(err)
 			}
 		}()
@@ -34,7 +32,7 @@ var GetPodAction = &cli.Command{
 			return nil
 		case 1:
 			namespaceLabel := ctx.Args().First()
-			log.Debugf("getting pod list from %q", namespaceLabel)
+			logrus.Debugf("getting pod list from %q", namespaceLabel)
 			showItem, err = client.GetPodList(namespaceLabel)
 			if err != nil {
 				return err
@@ -43,9 +41,9 @@ var GetPodAction = &cli.Command{
 			var list pod.PodList
 			var gainedPod pod.Pod
 			namespaceLabel := ctx.Args().First()
-			log.Debugf("getting pods")
+			logrus.Debugf("getting pods")
 			for _, podName := range ctx.Args().Tail() {
-				log.Debugf("getting %q", podName)
+				logrus.Debugf("getting %q", podName)
 				gainedPod, err = client.GetPod(namespaceLabel, podName)
 				if err != nil {
 					return err
@@ -56,7 +54,7 @@ var GetPodAction = &cli.Command{
 		}
 		err = util.WriteData(ctx, showItem)
 		if err != nil {
-			log.Debugf("fatal error: %v", err)
+			logrus.Debugf("fatal error: %v", err)
 		}
 		return err
 	},

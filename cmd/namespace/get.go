@@ -2,6 +2,7 @@ package clinamespace
 
 import (
 	"github.com/containerum/chkit/pkg/model/namespace"
+	"github.com/sirupsen/logrus"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
@@ -22,15 +23,13 @@ var GetNamespace = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		log := util.GetLog(ctx)
 		client := util.GetClient(ctx)
 		defer func() {
-			log := util.GetLog(ctx)
 			util.SetClient(ctx, client)
-			log.Debugf("writing tokens to disk")
+			logrus.Debugf("writing tokens to disk")
 			err := util.SaveTokens(ctx, client.Tokens)
 			if err != nil {
-				log.Debugf("error while saving tokens: %v", err)
+				logrus.Debugf("error while saving tokens: %v", err)
 				panic(err)
 			}
 		}()
@@ -39,25 +38,25 @@ var GetNamespace = &cli.Command{
 		switch ctx.NArg() {
 		case 1:
 			namespaceLabel := ctx.Args().First()
-			log.Debugf("getting namespace %q", namespaceLabel)
+			logrus.Debugf("getting namespace %q", namespaceLabel)
 			showItem, err = client.GetNamespace(namespaceLabel)
 			if err != nil {
-				log.Debugf("fatal error: %v", err)
+				logrus.Debugf("fatal error: %v", err)
 				return err
 			}
 		default:
 			var list namespace.NamespaceList
-			log.Debugf("getting namespace list")
+			logrus.Debugf("getting namespace list")
 			list, err := client.GetNamespaceList()
 			if err != nil {
-				log.Debugf("fatal error: %v", err)
+				logrus.Debugf("fatal error: %v", err)
 				return err
 			}
 			showItem = list
 		}
 		err = util.WriteData(ctx, showItem)
 		if err != nil {
-			log.Debugf("fatal error: %v", err)
+			logrus.Debugf("fatal error: %v", err)
 		}
 		return err
 	},

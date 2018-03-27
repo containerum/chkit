@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -19,6 +19,6 @@ func gracefulRestart(ctx *cli.Context) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Start(); err != nil {
-		util.GetLog(ctx).WithError(err).Error("graceful restart failed")
+		logrus.WithError(err).Error("graceful restart failed")
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -30,15 +31,12 @@ var GetDeployment = &cli.Command{
 			return cli.ShowSubcommandHelp(ctx)
 		}
 		client := util.GetClient(ctx)
-		log := util.GetLog(ctx)
-
 		defer func() {
-			log := util.GetLog(ctx)
 			util.SetClient(ctx, client)
-			log.Debugf("writing tokens to disk")
+			logrus.Debugf("writing tokens to disk")
 			err := util.SaveTokens(ctx, client.Tokens)
 			if err != nil {
-				log.Debugf("error while saving tokens: %v", err)
+				logrus.Debugf("error while saving tokens: %v", err)
 				panic(err)
 			}
 		}()
@@ -49,7 +47,7 @@ var GetDeployment = &cli.Command{
 			cli.ShowCommandHelpAndExit(ctx, "deployment", 2)
 		case 1:
 			namespace := ctx.Args().First()
-			log.Debugf("getting deployment from %q", namespace)
+			logrus.Debugf("getting deployment from %q", namespace)
 			list, err := client.GetDeploymentList(namespace)
 			if err != nil {
 				return err

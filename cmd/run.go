@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"path"
 	"time"
 
@@ -28,11 +29,19 @@ var (
 )
 
 func Run(args []string) error {
-	log := logrus.New()
-	log.SetLevel(logrus.InfoLevel)
-	log.Formatter = &logrus.TextFormatter{
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp:   true,
 		TimestampFormat: time.RFC1123,
+	})
+
+	if !DEBUG {
+		logFile := path.Join(confDir.ConfigDir(), util.LogFileName())
+		file, err := os.OpenFile(logFile, os.O_CREATE|os.O_RDWR, os.ModePerm)
+		if err != nil {
+			logrus.Fatalf("error while creating log file: %v", err)
+		}
+		logrus.SetOutput(file)
 	}
 	var App = &cli.App{
 		Name:    "chkit",
@@ -61,7 +70,6 @@ func Run(args []string) error {
 		Metadata: map[string]interface{}{
 			"client":     chClient.Client{},
 			"configPath": confDir.ConfigDir(),
-			"log":        log,
 			"config":     model.Config{},
 			"tokens":     kubeClientModels.Tokens{},
 			"version":    semver.MustParse(Version),
@@ -87,15 +95,9 @@ func Run(args []string) error {
 			},
 			&cli.BoolFlag{
 				Name:   "debug-requests",
+				Value:  false,
 				Hidden: true,
 			},
-			&cli.StringFlag{
-				Name:   "test",
-				Usage:  "test presets",
-				Value:  "",
-				Hidden: true,
-			},
-
 			&cli.StringFlag{
 				Name:  "username",
 				Usage: "your account email",
@@ -110,23 +112,19 @@ func Run(args []string) error {
 }
 
 func runAction(ctx *cli.Context) error {
-	if err := setupLog(ctx); err != nil {
-		return err
-	}
-	log := util.GetLog(ctx)
-	log.Debugf("loading config")
+	logrus.Debugf("loading config")
 	if err := loadConfig(ctx); err != nil {
 		return err
 	}
-	log.Debugf("running setup")
+	logrus.Debugf("running setup")
 	err := setupConfig(ctx)
 	config := util.GetConfig(ctx)
 	switch {
 	case err == nil:
 		// pass
 	case ErrInvalidUserInfo.Match(err):
-		log.Debugf("invalid user information")
-		log.Debugf("running login")
+		logrus.Debugf("invalid user information")
+		logrus.Debugf("running login")
 		user, err := login(ctx)
 		if err != nil {
 			return err
@@ -134,24 +132,24 @@ func runAction(ctx *cli.Context) error {
 		config.UserInfo = user
 		util.SetConfig(ctx, config)
 	default:
-		log.Debugf("fatal error")
+		logrus.Debugf("fatal error")
 		return ErrFatalError.Wrap(err)
 	}
-	log.Debugf("client initialisation")
+	logrus.Debugf("client initialisation")
 	if err := setupClient(ctx); err != nil {
 		return err
 	}
 	if err := persist(ctx); err != nil {
-		log.Fatalf("%v", err)
+		logrus.Fatalf("%v", err)
 	}
 	client := util.GetClient(ctx)
 	if err := util.SaveTokens(ctx, client.Tokens); err != nil {
 		return chkitErrors.NewExitCoder(err)
 	}
 	clientConfig := client.Config
-	log.Infof("Hello, %q!", clientConfig.Username)
+	logrus.Infof("Hello, %q!", clientConfig.Username)
 	if err := mainActivity(ctx); err != nil {
-		log.Fatalf("error in main activity: %v", err)
+		logrus.Fatalf("error in main activity: %v", err)
 	}
 	return nil
 }

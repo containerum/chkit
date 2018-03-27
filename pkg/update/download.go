@@ -1,21 +1,16 @@
 package update
 
 import (
-	"io"
-
 	"fmt"
-
-	"runtime"
-
-	"net/http"
-
+	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path"
+	"runtime"
 
 	"github.com/blang/semver"
 	"github.com/cheggaaa/pb"
-	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/resty.v1"
@@ -54,25 +49,30 @@ func DownloadFileName(version semver.Version) string {
 
 type GithubLatestCheckerDownloader struct {
 	client      *resty.Client
-	log         *logrus.Logger
 	ctx         *cli.Context
 	downloadUrl string
 }
 
 func NewGithubLatestCheckerDownloader(ctx *cli.Context, owner, repo string) *GithubLatestCheckerDownloader {
+	re := resty.New().
+		SetHostURL(
+			fmt.Sprintf("https://api.github.com/repos/%s/%s/releases",
+				owner,
+				repo))
+	if ctx.Bool("debug-requests") {
+		re.SetLogger(logrus.StandardLogger().
+			WriterLevel(logrus.DebugLevel)).
+			SetDebug(true)
+	}
 	return &GithubLatestCheckerDownloader{
-		ctx: ctx,
-		log: util.GetLog(ctx),
-		client: resty.New().
-			SetHostURL(fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", owner, repo)).
-			SetDebug(true).
-			SetLogger(util.GetLog(ctx).WriterLevel(logrus.DebugLevel)),
+		ctx:         ctx,
+		client:      re,
 		downloadUrl: fmt.Sprintf("https://github.com/%s/%s/releases/download", owner, repo),
 	}
 }
 
 func (gh *GithubLatestCheckerDownloader) LatestVersion() (semver.Version, error) {
-	gh.log.Debug("get latest version from github")
+	logrus.Debug("get latest version from github")
 
 	var latestVersionResp struct {
 		LatestVersion string `json:"tag_name"`
@@ -90,7 +90,7 @@ func (gh *GithubLatestCheckerDownloader) LatestVersion() (semver.Version, error)
 }
 
 func (gh *GithubLatestCheckerDownloader) LatestDownload() (io.ReadCloser, error) {
-	gh.log.Debug("download update")
+	logrus.Debug("download update")
 
 	latestVersion, err := gh.LatestVersion()
 	if err != nil {
@@ -117,7 +117,6 @@ func NewFileSystemLatestCheckerDownloader(ctx *cli.Context, baseDir string) *Fil
 	return &FileSystemLatestCheckerDownloader{
 		baseDir: baseDir,
 		ctx:     ctx,
-		log:     util.GetLog(ctx),
 	}
 }
 

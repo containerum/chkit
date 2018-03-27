@@ -19,6 +19,7 @@ import (
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/inconshreveable/go-update"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -81,7 +82,7 @@ func AskForUpdate(ctx *cli.Context, latestVersion semver.Version) (bool, error) 
 			break
 		}
 		if err := scanner.Err(); err != nil {
-			util.GetLog(ctx).WithError(err).Error("scan failed")
+			logrus.WithError(err).Error("scan failed")
 			return false, err
 		}
 		switch strings.ToLower(scanner.Text()) {

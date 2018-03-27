@@ -10,6 +10,7 @@ import (
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/sirupsen/logrus"
 
 	"golang.org/x/crypto/ssh/terminal"
 	cli "gopkg.in/urfave/cli.v2"
@@ -25,18 +26,14 @@ var (
 var commandLogin = &cli.Command{
 	Name:  "login",
 	Usage: "login your in the system",
-	Before: func(ctx *cli.Context) error {
-		return setupLog(ctx)
-	},
 	Action: func(ctx *cli.Context) error {
-		log := util.GetLog(ctx)
 		err := setupConfig(ctx)
 		config := util.GetConfig(ctx)
 		switch err {
 		case nil, ErrInvalidUserInfo:
 			userInfo, err := login(ctx)
 			if err != nil {
-				log.Debugf("fatal error: %v", err)
+				logrus.Debugf("fatal error: %v", err)
 				return err
 			}
 			config.UserInfo = userInfo
