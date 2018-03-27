@@ -13,6 +13,18 @@ var GetService = &cli.Command{
 	Name: "service",
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
+
+		defer func() {
+			log := util.GetLog(ctx)
+			util.SetClient(ctx, client)
+			log.Debugf("writing tokens to disk %s", client.Tokens)
+			err := util.SaveTokens(ctx, client.Tokens)
+			if err != nil {
+				log.Debugf("error while saving tokens: %v", err)
+				panic(err)
+			}
+		}()
+
 		var show model.Renderer
 		switch ctx.NArg() {
 		case 0:
@@ -39,6 +51,12 @@ var GetService = &cli.Command{
 			show = list
 		}
 		return util.WriteData(ctx, show)
+	},
+	After: func(ctx *cli.Context) error {
+		client := util.GetClient(ctx)
+		log := util.GetLog(ctx)
+		log.Debugf("writing tokens to disk")
+		return util.SaveTokens(ctx, client.Tokens)
 	},
 	Flags: []cli.Flag{
 		&cli.StringFlag{

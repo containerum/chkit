@@ -5,7 +5,6 @@ import (
 	"github.com/containerum/chkit/cmd/namespace"
 	"github.com/containerum/chkit/cmd/pod"
 	"github.com/containerum/chkit/cmd/service"
-	"github.com/containerum/chkit/cmd/util"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -23,13 +22,8 @@ var commandGet = &cli.Command{
 	ArgsUsage: `get ns [namespace_name] --> show namespace data
 	         get ns                  --> show namespace list`,
 	Action: func(ctx *cli.Context) error {
-		return ctx.App.Command("help").Run(ctx)
-	},
-	After: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		log := util.GetLog(ctx)
-		log.Debugf("tokens: %+v", client.Tokens)
-		return util.SaveTokens(ctx, client.Tokens)
+		cli.ShowCommandHelpAndExit(ctx, "get", 0)
+		return nil
 	},
 	Subcommands: []*cli.Command{
 		clinamespace.GetNamespace,

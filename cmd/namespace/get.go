@@ -25,8 +25,14 @@ var GetNamespace = &cli.Command{
 		log := util.GetLog(ctx)
 		client := util.GetClient(ctx)
 		defer func() {
-			log.Debugf("TOKEN %s", client.AccessToken)
+			log := util.GetLog(ctx)
 			util.SetClient(ctx, client)
+			log.Debugf("writing tokens to disk %s", client.Tokens)
+			err := util.SaveTokens(ctx, client.Tokens)
+			if err != nil {
+				log.Debugf("error while saving tokens: %v", err)
+				panic(err)
+			}
 		}()
 		var showItem model.Renderer
 		var err error

@@ -31,6 +31,18 @@ var GetDeployment = &cli.Command{
 		}
 		client := util.GetClient(ctx)
 		log := util.GetLog(ctx)
+
+		defer func() {
+			log := util.GetLog(ctx)
+			util.SetClient(ctx, client)
+			log.Debugf("writing tokens to disk %s", client.Tokens)
+			err := util.SaveTokens(ctx, client.Tokens)
+			if err != nil {
+				log.Debugf("error while saving tokens: %v", err)
+				panic(err)
+			}
+		}()
+
 		var show model.Renderer
 		switch ctx.NArg() {
 		case 0:
