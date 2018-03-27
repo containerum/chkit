@@ -85,6 +85,10 @@ func Run(args []string) error {
 				Hidden:  true,
 				EnvVars: []string{"CONTAINERUM_API"},
 			},
+			&cli.BoolFlag{
+				Name:   "debug-requests",
+				Hidden: true,
+			},
 			&cli.StringFlag{
 				Name:   "test",
 				Usage:  "test presets",
