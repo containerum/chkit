@@ -11,13 +11,13 @@ var (
 )
 
 func (_ Namespace) TableHeaders() []string {
-	return []string{"Label", "Age", "CPU", "MEM"}
+	return []string{"Label", "CPU", "MEM", "Age"}
 }
 
 func (namespace Namespace) TableRows() [][]string {
-	creationTime := ""
+	age := ""
 	if namespace.CreatedAt != nil {
-		creationTime = model.TimestampFormat(*namespace.CreatedAt)
+		age = model.TimestampFormat(*namespace.CreatedAt)
 	}
 	volumes := ""
 	for i, volume := range namespace.Volumes {
@@ -28,13 +28,13 @@ func (namespace Namespace) TableRows() [][]string {
 	}
 	return [][]string{{
 		namespace.Label,
-		creationTime,
 		fmt.Sprintf("%s/%s",
 			namespace.Resources.Used.CPU,
 			namespace.Resources.Hard.CPU),
 		fmt.Sprintf("%s/%s",
 			namespace.Resources.Used.Memory,
 			namespace.Resources.Hard.Memory),
+		age,
 	}}
 }
 

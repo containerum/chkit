@@ -16,7 +16,7 @@ func (depl Deployment) RenderTable() string {
 }
 
 func (_ *Deployment) TableHeaders() []string {
-	return []string{"Name", "Age", "Replicas", "Containers"}
+	return []string{"Name", "Replicas", "Containers", "Age"}
 }
 
 func (depl *Deployment) TableRows() [][]string {
@@ -29,8 +29,8 @@ func (depl *Deployment) TableRows() [][]string {
 	}
 	return [][]string{{
 		depl.Name,
-		model.TimestampFormat(depl.Status.UpdatedAt),
 		depl.Status.ColumnReplicas(),
 		strings.Join(containers, "\n"),
+		model.TimestampFormat(depl.Status.UpdatedAt),
 	}}
 }

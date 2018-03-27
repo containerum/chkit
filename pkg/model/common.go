@@ -16,20 +16,16 @@ func TimestampFormat(timestamp time.Time) string {
 	switch {
 	case age.Hours() > year:
 		years := uint64(age.Hours()) / year
-		days := uint64(age.Hours()) % year
-		ageString = fmt.Sprintf("%dy-%03dd", years, days)
+		ageString = fmt.Sprintf("%dy", years)
 	case age.Hours() > 24 && age.Hours() < 365*24:
 		days := uint64(age.Hours()) / 24
-		hours := uint64(age.Hours()) % 24
-		ageString = fmt.Sprintf("%dd-%02dh", days, hours)
+		ageString = fmt.Sprintf("%dd", days)
 	case age.Hours() <= 24 && age.Hours() > 1:
 		hours := uint64(age.Hours())
-		minutes := uint64(age.Minutes()) % 60
-		ageString = fmt.Sprintf("%dh-%02dm", hours, minutes)
+		ageString = fmt.Sprintf("%dh", hours)
 	case age.Hours() < 1 && age.Minutes() > 1:
 		minutes := uint64(age.Minutes())
-		seconds := uint64(age.Seconds()) % 60
-		ageString = fmt.Sprintf("%dm-%02ds", minutes, seconds)
+		ageString = fmt.Sprintf("%dm", minutes)
 	default:
 		seconds := uint64(age.Seconds())
 		ageString = fmt.Sprintf("%ds", seconds)

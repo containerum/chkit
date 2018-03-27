@@ -16,14 +16,18 @@ func (serv Service) RenderTable() string {
 }
 
 func (_ *Service) TableHeaders() []string {
-	return []string{"Name", "Age", "Deploy", "IPs", "Domain", "Ports"}
+	return []string{"Name", "Deploy", "IPs", "Domain", "Ports", "Age"}
 }
 
 func (serv *Service) TableRows() [][]string {
 	ports := make([]string, 0, len(serv.Ports))
 	for _, port := range serv.Ports {
+		optPort := port.TargetPort
+		if port.Port != nil {
+			optPort = *port.Port
+		}
 		ports = append(ports,
-			fmt.Sprintf("%d %s", port.TargetPort, port.Protocol))
+			fmt.Sprintf("%d:%d/%s", optPort, port.TargetPort, port.Protocol))
 	}
 	age := "none"
 	if serv.CreatedAt != nil {
@@ -31,10 +35,10 @@ func (serv *Service) TableRows() [][]string {
 	}
 	return [][]string{{
 		serv.Name,
-		age,
 		serv.Deploy,
 		strings.Join(serv.IPs, "\n"),
 		serv.Domain,
 		strings.Join(ports, "\n"),
+		age,
 	}}
 }

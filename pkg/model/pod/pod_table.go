@@ -2,7 +2,6 @@ package pod
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/model"
 )
@@ -16,7 +15,7 @@ func (pod *Pod) RenderTable() string {
 }
 
 func (_ *Pod) TableHeaders() []string {
-	return []string{"Name", "Host", "Phase", "Restarts", "Age", "Containers"}
+	return []string{"Name", "Host", "Status", "Restarts", "Age"}
 }
 
 func (pod *Pod) TableRows() [][]string {
@@ -31,7 +30,6 @@ func (pod *Pod) TableRows() [][]string {
 			pod.Status.Phase,
 			strconv.Itoa(pod.Status.RestartCount),
 			age,
-			strings.Join(pod.Containers, "\n"),
 		},
 	}
 }
