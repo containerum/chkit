@@ -9,10 +9,10 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
-	"time"
 
 	"github.com/containerum/chkit/cmd"
 	"github.com/containerum/chkit/cmd/config_dir"
+	"github.com/containerum/chkit/cmd/util"
 	"github.com/skratchdot/open-golang/open"
 )
 
@@ -33,7 +33,7 @@ func angel() {
 		report += fmt.Sprintf("[FATAL] %v\n%s", recoverData, string(debug.Stack()))
 	}
 	configDir := confDir.ConfigDir()
-	logFileName := time.Now().Format("2006-Jan-2") + ".log"
+	logFileName := util.LogFileName()
 	logFilePath := path.Join(configDir, logFileName)
 	reportFile := path.Join(configDir, "report.txt")
 
