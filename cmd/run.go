@@ -77,6 +77,7 @@ func Run(args []string) error {
 			commandLogin,
 			commandGet,
 			commandUpdate,
+			commandLogs,
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
