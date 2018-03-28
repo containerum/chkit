@@ -9,8 +9,10 @@ import (
 )
 
 var GetPodAction = &cli.Command{
-	Name:    "pod",
-	Aliases: []string{"po", "pods"},
+	Name:        "pod",
+	Usage:       "shows pod info",
+	Description: "show pod info. Aliases: po, pods",
+	Aliases:     []string{"po", "pods"},
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		defer util.StoreClient(ctx, client)
