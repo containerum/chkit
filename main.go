@@ -1,18 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/containerum/chkit/cmd"
-	"github.com/sirupsen/logrus"
+	"github.com/containerum/chkit/pkg/chkitErrors"
 )
 
 func main() {
-	defer angel()
+	if !cmd.DEBUG {
+		defer angel(recover())
+	}
 	switch err := cmd.Run(os.Args).(type) {
 	case nil:
 		// pass
+	case chkitErrors.Err:
+		fmt.Println(err)
 	default:
-		logrus.Fatalf("Something bad happend: %v", err)
+		angel(err)
 	}
 }

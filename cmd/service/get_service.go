@@ -14,7 +14,7 @@ var GetService = &cli.Command{
 		client := util.GetClient(ctx)
 		defer util.StoreClient(ctx, client)
 		var show model.Renderer
-
+		var err error
 		switch ctx.NArg() {
 		case 0:
 			namespace := util.GetNamespace(ctx)
@@ -23,16 +23,24 @@ var GetService = &cli.Command{
 				return err
 			}
 			show = list
+		case 1:
+			namespace := util.GetNamespace(ctx)
+			show, err = client.GetService(namespace, ctx.Args().First())
+			if err != nil {
+				return err
+			}
 		default:
 			namespace := util.GetNamespace(ctx)
-			servicesNames := ctx.Args().Slice()
+			servicesNames := util.NewSet(ctx.Args().Slice())
+			gainedList, err := client.GetServiceList(namespace)
+			if err != nil {
+				return err
+			}
 			var list service.ServiceList
-			for _, servName := range servicesNames {
-				serv, err := client.GetService(namespace, servName)
-				if err != nil {
-					return err
+			for _, serv := range gainedList {
+				if servicesNames.Have(serv.Name) {
+					list = append(list, serv)
 				}
-				list = append(list, serv)
 			}
 			show = list
 		}
@@ -41,10 +49,12 @@ var GetService = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "file",
+			Usage:   "file to write output",
 			Aliases: []string{"f"},
 		},
 		&cli.StringFlag{
 			Name:    "output",
+			Usage:   "define output formats: yaml, json",
 			Aliases: []string{"o"},
 		},
 	},

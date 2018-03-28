@@ -36,14 +36,14 @@ var GetDeployment = &cli.Command{
 			show = list
 		default:
 			namespace := util.GetNamespace(ctx)
-			deplNames := newSet(ctx.Args().Slice())
+			deplNames := util.NewSet(ctx.Args().Slice())
 			var showList deployment.DeploymentList = make([]deployment.Deployment, 0) // prevents panic
 			list, err := client.GetDeploymentList(namespace)
 			if err != nil {
 				return err
 			}
 			for _, depl := range list {
-				if deplNames.Contain(depl.Name) {
+				if deplNames.Have(depl.Name) {
 					showList = append(showList, depl)
 				}
 			}
@@ -54,25 +54,13 @@ var GetDeployment = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "file",
+			Usage:   "file to write output",
 			Aliases: []string{"f"},
 		},
 		&cli.StringFlag{
 			Name:    "output",
+			Usage:   "define output formats: yaml, json",
 			Aliases: []string{"o"},
 		},
 	},
-}
-
-type set map[string]struct{}
-
-func newSet(vals []string) set {
-	var s set = make(map[string]struct{}, len(vals))
-	for _, str := range vals {
-		s[str] = struct{}{}
-	}
-	return s
-}
-func (s set) Contain(v string) bool {
-	_, ok := s[v]
-	return ok
 }

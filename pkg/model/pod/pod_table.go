@@ -10,15 +10,15 @@ var (
 	_ model.TableRenderer = new(Pod)
 )
 
-func (pod *Pod) RenderTable() string {
+func (pod Pod) RenderTable() string {
 	return model.RenderTable(pod)
 }
 
-func (_ *Pod) TableHeaders() []string {
+func (_ Pod) TableHeaders() []string {
 	return []string{"Name", "Host", "Status", "Restarts", "Age"}
 }
 
-func (pod *Pod) TableRows() [][]string {
+func (pod Pod) TableRows() [][]string {
 	age := "unknown"
 	if pod.Status.StartedAt.Unix() != 0 {
 		age = model.TimestampFormat(pod.Status.StartedAt)
