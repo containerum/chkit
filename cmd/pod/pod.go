@@ -25,18 +25,24 @@ var GetPodAction = &cli.Command{
 			if err != nil {
 				return err
 			}
-		default:
-			var list pod.PodList
-			var gainedPod pod.Pod
+		case 1:
 			namespaceLabel := util.GetNamespace(ctx)
+			showItem, err = client.GetPod(namespaceLabel, ctx.Args().First())
+			if err != nil {
+				return err
+			}
+		default:
 			logrus.Debugf("getting pods")
-			for _, podName := range ctx.Args().Slice() {
-				logrus.Debugf("getting %q", podName)
-				gainedPod, err = client.GetPod(namespaceLabel, podName)
-				if err != nil {
-					return err
+			gainedList, err := client.GetPodList(util.GetNamespace(ctx))
+			var list pod.PodList
+			if err != nil {
+				return err
+			}
+			podNames := util.NewSet(ctx.Args().Slice())
+			for _, pod := range gainedList {
+				if podNames.Have(pod.Name) {
+					list = append(list, pod)
 				}
-				list = append(list, gainedPod)
 			}
 			showItem = list
 		}
@@ -49,10 +55,12 @@ var GetPodAction = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "file",
+			Usage:   "file to write output",
 			Aliases: []string{"f"},
 		},
 		&cli.StringFlag{
 			Name:    "output",
+			Usage:   "define output formats: yaml, json",
 			Aliases: []string{"o"},
 		},
 	},
