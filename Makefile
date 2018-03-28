@@ -80,3 +80,9 @@ release:
 
 single_release:
 	$(call build_release,$(OS),$(ARCH))
+
+dev:
+	@go build -v --tags="dev"
+
+mock:
+	@go build -v --tags="dev mock"
