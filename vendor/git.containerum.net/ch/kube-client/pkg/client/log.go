@@ -1,7 +1,6 @@
 package client
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -32,20 +31,18 @@ type GetPodLogsParams struct {
 	Tail                      int
 }
 
-func (client *Client) GetPodLogs(ctx context.Context, params GetPodLogsParams, output io.Writer) error {
+func (client *Client) GetPodLogs(params GetPodLogsParams) (*io.PipeReader, error) {
 	logUrl, err := client.podLogUrl(params)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
 	conn, err := client.newWebsocketConnection(logUrl)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	go client.logStream(ctx, conn, output)
-
-	return nil
+	re, wr := io.Pipe()
+	go client.logStream(conn, wr)
+	return re, nil
 }
 
 func (client *Client) podLogUrl(params GetPodLogsParams) (*url.URL, error) {
@@ -87,35 +84,24 @@ func (client *Client) newWebsocketConnection(url *url.URL) (*websocket.Conn, err
 	return conn, nil
 }
 
-func (client *Client) logStream(ctx context.Context, conn *websocket.Conn, out io.Writer) {
+func (client *Client) logStream(conn *websocket.Conn, out *io.PipeWriter) {
 	defer conn.Close()
 	conn.SetReadLimit(maxMessageSize)
-	dataCh := make(chan []byte)
-
-	go func() {
-		defer close(dataCh)
-		for {
-			mtype, data, err := conn.ReadMessage()
-			if err != nil {
-				return
-			}
-			switch mtype {
-			case websocket.TextMessage, websocket.BinaryMessage:
-				dataCh <- data
-			default:
-				continue
-			}
-		}
-	}()
-
 	for {
-		select {
-		case data := <-dataCh:
-			if _, err := out.Write(data); err != nil {
+		mtype, data, err := conn.ReadMessage()
+		if err != nil {
+			out.CloseWithError(err)
+		}
+		switch mtype {
+		case websocket.TextMessage, websocket.BinaryMessage:
+			_, err := out.Write(data)
+			if err != nil && err != io.ErrClosedPipe {
+				out.CloseWithError(err)
+			} else if err == io.ErrClosedPipe {
 				return
 			}
-		case <-ctx.Done():
-			return
+		default:
+			continue
 		}
 	}
 }
