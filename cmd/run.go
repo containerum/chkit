@@ -148,7 +148,7 @@ func runAction(ctx *cli.Context) error {
 	if err := util.SaveTokens(ctx, client.Tokens); err != nil {
 		return chkitErrors.NewExitCoder(err)
 	}
-	config.DefaultNamespace, err = util.GetFirstClientNamespace(ctx)
+	client.Config.DefaultNamespace, err = util.GetFirstClientNamespace(ctx)
 	if err != nil {
 		return err
 	}
@@ -156,12 +156,7 @@ func runAction(ctx *cli.Context) error {
 	if err := persist(ctx); err != nil {
 		logrus.Fatalf("%v", err)
 	}
-	// re-setup client to save default namespace
-	if err := setupClient(ctx); err != nil {
-		return err
-	}
-	clientConfig := client.Config
-	logrus.Infof("Hello, %q!", clientConfig.Username)
+	logrus.Infof("Hello, %q!", client.Config.Username)
 	if err := mainActivity(ctx); err != nil {
 		logrus.Fatalf("error in main activity: %v", err)
 	}
