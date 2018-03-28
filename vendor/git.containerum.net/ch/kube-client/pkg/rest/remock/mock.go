@@ -10,13 +10,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+//go:generate -t errors.toml
+
 var (
 	_ rest.REST = &Mock{}
 )
 
 type Mock struct {
-	log  *logrus.Logger
-	rand *rand.Rand
+	log                *logrus.Logger
+	rand               *rand.Rand
+	token, fingerprint string
 }
 
 func NewMock() *Mock {
@@ -70,11 +73,19 @@ func (mock *Mock) Delete(req rest.Rq) error {
 }
 
 func (mock *Mock) SetToken(token string) {
-
+	mock.token = token
 }
 
 func (mock *Mock) SetFingerprint(fingerprint string) {
+	mock.fingerprint = fingerprint
+}
 
+func (mock *Mock) GetToken() string {
+	return mock.token
+}
+
+func (mock *Mock) GetFingerprint() string {
+	return mock.fingerprint
 }
 
 type RqValidator struct {
