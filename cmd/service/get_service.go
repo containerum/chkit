@@ -9,6 +9,7 @@ import (
 
 var GetService = &cli.Command{
 	Name:        "service",
+	Usage:       "shwos service info",
 	Description: "shows service info. Aliases: srv, services, svc",
 	Aliases:     []string{"srv", "services", "svc"},
 	Action: func(ctx *cli.Context) error {
