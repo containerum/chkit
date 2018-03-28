@@ -18,6 +18,8 @@ func main() {
 	case chkitErrors.Err:
 		fmt.Println(err)
 	default:
-		angel(err)
+		if !cmd.DEBUG {
+			angel(err)
+		}
 	}
 }
