@@ -17,6 +17,6 @@ func (pod Pod) RenderJSON() (string, error) {
 }
 
 func (pod Pod) MarshalJSON() ([]byte, error) {
-	data, err := json.MarshalIndent(pod.origin, "", "    ")
+	data, err := json.MarshalIndent(pod.origin, "", model.Indent)
 	return data, err
 }

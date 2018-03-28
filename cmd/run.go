@@ -36,7 +36,7 @@ func Run(args []string) error {
 
 	if !DEBUG {
 		logFile := path.Join(confDir.ConfigDir(), util.LogFileName())
-		file, err := os.OpenFile(logFile, os.O_CREATE|os.O_RDWR, os.ModePerm)
+		file, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND, os.ModePerm)
 		if err != nil {
 			logrus.Fatalf("error while creating log file: %v", err)
 		}

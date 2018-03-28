@@ -17,6 +17,6 @@ func (serv Service) RenderJSON() (string, error) {
 }
 
 func (serv Service) MarshalJSON() ([]byte, error) {
-	data, err := json.MarshalIndent(serv.origin, "", "    ")
+	data, err := json.MarshalIndent(serv.origin, "", model.Indent)
 	return data, err
 }
