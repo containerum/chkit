@@ -19,11 +19,13 @@ type UpdateReplicas struct {
 
 // Deployment --
 type Deployment struct {
-	Status     *DeploymentStatus `json:"status,omitempty"`
-	Containers []Container       `json:"containers"`
-	Labels     map[string]string `json:"labels,omitempty"`
-	Name       string            `json:"name"`
-	Replicas   int               `json:"replicas"`
+	Status      *DeploymentStatus `json:"status,omitempty"`
+	Containers  []Container       `json:"containers"`
+	Labels      map[string]string `json:"labels,omitempty"`
+	Name        string            `json:"name"`
+	Replicas    int               `json:"replicas"`
+	TotalCPU    string            `json:"total_cpu,omitempty"`
+	TotalMemory string            `json:"total_memory,omitempty"`
 }
 
 // Container --

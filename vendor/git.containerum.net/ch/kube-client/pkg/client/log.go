@@ -91,6 +91,7 @@ func (client *Client) logStream(conn *websocket.Conn, out *io.PipeWriter) {
 		mtype, data, err := conn.ReadMessage()
 		if err != nil {
 			out.CloseWithError(err)
+			return
 		}
 		switch mtype {
 		case websocket.TextMessage, websocket.BinaryMessage:
