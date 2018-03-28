@@ -4,6 +4,7 @@ import (
 	"net/url"
 
 	"git.containerum.net/ch/kube-client/pkg/rest"
+	"github.com/gorilla/websocket"
 )
 
 //TODO: Make Interface
@@ -22,9 +23,10 @@ type User struct {
 // If APIurl or ResourceAddr is void,
 // trys to get them from envvars
 type Config struct {
-	User    User
-	APIurl  string
-	RestAPI rest.REST
+	User     User
+	APIurl   string
+	RestAPI  rest.REST
+	WSDialer *websocket.Dialer
 }
 
 //NewClient -
