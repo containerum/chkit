@@ -22,9 +22,9 @@ version: %s
 os: %s %s
 `, cmd.Version, runtime.GOOS, runtime.GOARCH)
 
-func angel() {
+func angel(sin interface{}) {
 	report := reportPreambula
-	switch recoverData := recover().(type) {
+	switch recoverData := sin.(type) {
 	case nil:
 		return
 	case error:
