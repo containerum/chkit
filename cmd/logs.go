@@ -64,6 +64,7 @@ var commandLogs = &cli.Command{
 		&cli.StringFlag{
 			Name:    "prev",
 			Aliases: []string{"p"},
+			Usage:   `show logs from previous instance (useful for crashes debugging)`,
 		},
 		&cli.IntFlag{
 			Name:    "tail",
