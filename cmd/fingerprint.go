@@ -5,15 +5,26 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"net"
+	"os/user"
+	"runtime"
 
 	"github.com/matishsiao/goInfo"
 )
 
 func Fingerprint() string {
-	userData := goInfo.GetInfo().String()
+	userData := goInfo.GetInfo().String() +
+		runtime.GOOS +
+		runtime.GOARCH +
+		runtime.Version() +
+		runtime.Compiler
+	user, err := user.Current()
+	if err != nil {
+		panic("[chkit-cmd] unable to get user data for fingerpint:\n" + err.Error())
+	}
+	userData += user.Username
 	interfaces, err := net.Interfaces()
 	if err != nil {
-		panic("[chkit-cmd] unable to get net interfaces " +
+		panic("[chkit-cmd] unable to get net interfaces:\n" +
 			err.Error())
 	}
 	for _, netInterface := range interfaces {
