@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"os"
+	"io"
 
-	"context"
-	"os/signal"
-	"syscall"
+	"os"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/client"
@@ -47,16 +45,13 @@ var commandLogs = &cli.Command{
 			Previous:  ctx.Bool("previous"),
 			Tail:      ctx.Int("tail"),
 		}
-		reqCtx, cancelFunc := context.WithCancel(context.Background())
-		defer cancelFunc()
-		err := client.GetPodLogs(reqCtx, params, os.Stdout)
+		rc, err := client.GetPodLogs(params)
 		if err != nil {
 			return err
 		}
+		defer rc.Close()
 
-		sigch := make(chan os.Signal)
-		signal.Notify(sigch, syscall.SIGTERM)
-		<-sigch
+		io.Copy(os.Stdout, rc)
 
 		return nil
 	},

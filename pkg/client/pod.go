@@ -1,7 +1,6 @@
 package chClient
 
 import (
-	"context"
 	"io"
 
 	"git.containerum.net/ch/kube-client/pkg/cherry"
@@ -52,10 +51,12 @@ func (client *Client) GetPodList(ns string) (pod.PodList, error) {
 
 type GetPodLogsParams = client.GetPodLogsParams
 
-func (client *Client) GetPodLogs(ctx context.Context, params client.GetPodLogsParams, out io.Writer) error {
+func (client *Client) GetPodLogs(params client.GetPodLogsParams) (io.ReadCloser, error) {
+	var rc io.ReadCloser
 	err := retry(4, func() (bool, error) {
-		getErr := client.kubeAPIClient.GetPodLogs(ctx, params, out)
+		var getErr error
+		rc, getErr = client.kubeAPIClient.GetPodLogs(params)
 		return false, getErr
 	})
-	return err
+	return rc, err
 }
