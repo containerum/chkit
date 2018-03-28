@@ -11,6 +11,6 @@ var (
 )
 
 func (list VolumeList) RenderJSON() (string, error) {
-	data, err := json.MarshalIndent(list, "", "    ")
+	data, err := json.MarshalIndent(list, "", model.Indent)
 	return string(data), err
 }

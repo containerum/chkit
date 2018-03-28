@@ -11,6 +11,6 @@ var (
 )
 
 func (list NamespaceList) RenderJSON() (string, error) {
-	data, err := json.MarshalIndent(list, "", indent)
+	data, err := json.MarshalIndent(list, "", model.Indent)
 	return string(data), err
 }

@@ -7,6 +7,7 @@ import (
 
 const (
 	CreationTimeFormat = time.RFC822
+	Indent             = "  "
 )
 
 func TimestampFormat(timestamp time.Time) string {
