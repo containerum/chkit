@@ -7,11 +7,13 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
+var aliases = []string{"srv", "services", "svc"}
+
 var GetService = &cli.Command{
 	Name:        "service",
 	Usage:       "shows service info",
 	Description: "shows service info. Aliases: srv, services, svc",
-	Aliases:     []string{"srv", "services", "svc"},
+	Aliases:     aliases,
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		defer util.StoreClient(ctx, client)

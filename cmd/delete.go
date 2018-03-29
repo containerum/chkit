@@ -4,6 +4,7 @@ import (
 	"github.com/containerum/chkit/cmd/deployment"
 	"github.com/containerum/chkit/cmd/namespace"
 	"github.com/containerum/chkit/cmd/pod"
+	"github.com/containerum/chkit/cmd/service"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -22,5 +23,6 @@ var commandDelete = &cli.Command{
 		clideployment.DeleteDeployment,
 		clinamespace.Delete,
 		clipod.Delete,
+		cliserv.Delete,
 	},
 }
