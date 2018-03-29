@@ -16,10 +16,8 @@ var commandGet = &cli.Command{
 		}
 		return setupAll(ctx)
 	},
-	ArgsUsage: `get ns [namespace_name] --> show namespace data
-	         get ns                  --> show namespace list`,
 	Action: func(ctx *cli.Context) error {
-		cli.ShowCommandHelpAndExit(ctx, "get", 0)
+		cli.ShowSubcommandHelp(ctx)
 		return nil
 	},
 	Subcommands: []*cli.Command{
