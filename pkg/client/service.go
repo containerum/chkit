@@ -4,7 +4,9 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
 	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
+	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
 	"github.com/containerum/chkit/pkg/model/service"
+	"github.com/sirupsen/logrus"
 )
 
 func (client *Client) GetService(namespace, serviceName string) (service.Service, error) {
@@ -49,4 +51,37 @@ func (client *Client) GetServiceList(namespace string) (service.ServiceList, err
 		}
 	})
 	return gainedList, err
+}
+
+func (client *Client) DeleteService(namespace, service string) error {
+	return retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.DeleteService(namespace, service)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			logrus.WithError(ErrResourceNotExists.Wrap(err)).
+				Debugf("error while deleting service %q", service)
+			return false, ErrResourceNotExists.Comment()
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
+				Debugf("error while deleting service %q", service)
+			return false, ErrYouDoNotHaveAccessToResource
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			if err != nil {
+				logrus.WithError(err).
+					Debugf("error while deleting service %q", service)
+			}
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
 }
