@@ -40,6 +40,9 @@ func (err Err) Wrap(errs ...error) *Wrapper {
 	return Wrap(err, errs...)
 }
 
+func (err Err) Comment(comments ...string) *Wrapper {
+	return Wrap(err).Comment(comments...)
+}
 func (err Err) Match(errs ...error) bool {
 	for _, er := range errs {
 		switch er := er.(type) {
@@ -59,9 +62,14 @@ func (err Err) Match(errs ...error) bool {
 type Wrapper struct {
 	main          error
 	reasons       []error
+	comments      []string
 	cachedMessage string
 }
 
+func (wrapper *Wrapper) Comment(comments ...string) *Wrapper {
+	wrapper.comments = append(wrapper.comments, comments...)
+	return wrapper
+}
 func Wrap(err error, reasons ...error) *Wrapper {
 	return &Wrapper{
 		main:    err,
