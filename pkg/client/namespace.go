@@ -82,7 +82,8 @@ func (client *Client) DeleteNamespace(namespace string) error {
 			return false, ErrResourceNotExists
 		case cherry.In(err,
 			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists()):
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while deleting namespace %q", namespace)
 			return false, ErrYouDoNotHaveAccessToResource
