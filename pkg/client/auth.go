@@ -35,14 +35,16 @@ func (client *Client) Auth() error {
 			autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound(),
 			autherr.ErrTokenNotOwnedBySender()):
-			logrus.Debugf("invalid token, trying to login")
+			logrus.WithError(err).Debugf("invalid token, trying to login")
 			return client.Login()
 		case cherry.In(err, gatewayErrors.ErrInternal()):
-			logrus.Debugf("internal gateway error")
+			logrus.WithError(ErrInternalError.Wrap(err)).
+				Debugf("internal gateway error")
 			return ErrInternalError
 		default:
-			logrus.Debugf("fatal auth error")
-			return ErrUnableToRefreshToken.Wrap(err)
+			logrus.WithError(ErrUnableToRefreshToken.Wrap(err)).
+				Debugf("fatal auth error")
+			return ErrUnableToRefreshToken
 		}
 	}
 	return client.Login()
