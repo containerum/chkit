@@ -15,7 +15,9 @@
     "pkg/rest",
     "pkg/rest/re",
     "pkg/rest/remock",
-    "pkg/rest/remock/ermockerr"
+    "pkg/rest/remock/ermockerr",
+    "pkg/websocket/wsmock",
+    "pkg/websocket/wsmock/errwsmock"
   ]
   revision = "b6119ce7df7aed5e0037a985155f48c32fc09f7c"
   version = "v0.6.5"
@@ -408,6 +410,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "93cd8ace376a6e651c4f8a9e293cab25d387f5e15fa6145fd8d591b3a0c5bf10"
+  inputs-digest = "fa3e434c9afeeedf9db09b0c22e4e71b809737cb4e3a27e5d9e80e520cb2190a"
   solver-name = "gps-cdcl"
   solver-version = 1
