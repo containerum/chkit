@@ -3,6 +3,7 @@ package chClient
 import (
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
+	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
 	"github.com/containerum/chkit/pkg/model/pod"
 )
 
@@ -17,7 +18,8 @@ func (client *Client) GetPod(ns, podname string) (pod.Pod, error) {
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound(),
-			autherr.ErrTokenNotOwnedBySender()):
+			autherr.ErrTokenNotOwnedBySender(),
+			kubeErrors.ErrAccessError()):
 			return true, client.Auth()
 		default:
 			return true, ErrFatalError.Wrap(err)
