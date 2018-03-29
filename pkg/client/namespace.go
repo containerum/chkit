@@ -87,7 +87,8 @@ func (client *Client) DeleteNamespace(namespace string) error {
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while deleting namespace %q", namespace)
 			return false, ErrYouDoNotHaveAccessToResource
-		case cherry.In(err, autherr.ErrInvalidToken(),
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
 			err = client.Auth()
 			if err != nil {

@@ -4,7 +4,9 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
 	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
+	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
 	"github.com/containerum/chkit/pkg/model/pod"
+	"github.com/sirupsen/logrus"
 )
 
 func (client *Client) GetPod(ns, podname string) (pod.Pod, error) {
@@ -46,4 +48,37 @@ func (client *Client) GetPodList(ns string) (pod.PodList, error) {
 		}
 	})
 	return gainedList, err
+}
+
+func (client *Client) DeletePod(namespace, pod string) error {
+	return retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.DeletePod(namespace, pod)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			logrus.WithError(ErrResourceNotExists.Wrap(err)).
+				Debugf("error while deleting pod %q", pod)
+			return false, ErrResourceNotExists
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
+				Debugf("error while deleting pod %q", pod)
+			return false, ErrYouDoNotHaveAccessToResource
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			if err != nil {
+				logrus.WithError(err).
+					Debugf("error while deleting pod %q", pod)
+			}
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
 }

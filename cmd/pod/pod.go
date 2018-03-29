@@ -8,11 +8,12 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
+var aliases = []string{"po", "pods"}
 var GetPodAction = &cli.Command{
 	Name:        "pod",
 	Usage:       "shows pod info",
 	Description: "show pod info. Aliases: po, pods",
-	Aliases:     []string{"po", "pods"},
+	Aliases:     aliases,
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		defer util.StoreClient(ctx, client)
