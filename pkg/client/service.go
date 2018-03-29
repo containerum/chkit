@@ -63,14 +63,16 @@ func (client *Client) DeleteService(namespace, service string) error {
 			rserrors.ErrResourceNotExists()):
 			logrus.WithError(ErrResourceNotExists.Wrap(err)).
 				Debugf("error while deleting service %q", service)
-			return false, ErrResourceNotExists.Comment()
+			return false, ErrResourceNotExists.
+				CommentF("service %q not found in %q", service, namespace)
 		case cherry.In(err,
 			rserrors.ErrResourceNotOwned(),
 			rserrors.ErrAccessRecordNotExists(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while deleting service %q", service)
-			return false, ErrYouDoNotHaveAccessToResource
+			return false, ErrYouDoNotHaveAccessToResource.
+				CommentF("you don't have delete access to service %q", service)
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
