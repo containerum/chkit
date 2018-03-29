@@ -8,6 +8,7 @@ import (
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -25,6 +26,7 @@ const (
 // Auth -- refreshes tokens, on invalid token uses Login method to get new tokens
 func (client *Client) Auth() error {
 	if client.Tokens.RefreshToken != "" {
+		logrus.Debugf("trying to extend token")
 		err := client.Extend()
 		switch {
 		case err == nil:
@@ -33,11 +35,16 @@ func (client *Client) Auth() error {
 			autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound(),
 			autherr.ErrTokenNotOwnedBySender()):
+			logrus.WithError(err).Debugf("invalid token, trying to login")
 			return client.Login()
 		case cherry.In(err, gatewayErrors.ErrInternal()):
+			logrus.WithError(ErrInternalError.Wrap(err)).
+				Debugf("internal gateway error")
 			return ErrInternalError
 		default:
-			return ErrUnableToRefreshToken.Wrap(err)
+			logrus.WithError(ErrUnableToRefreshToken.Wrap(err)).
+				Debugf("fatal auth error")
+			return ErrUnableToRefreshToken
 		}
 	}
 	return client.Login()
@@ -45,6 +52,7 @@ func (client *Client) Auth() error {
 
 // Login -- client login method. Updates tokens
 func (client *Client) Login() error {
+	logrus.Debugf("start login")
 	tokens, err := client.kubeAPIClient.Login(kubeClientModels.Login{
 		Login:    client.Config.Username,
 		Password: client.Config.Password,
@@ -52,10 +60,13 @@ func (client *Client) Login() error {
 	switch {
 	case err == nil:
 	case cherry.Equals(err, umErrors.ErrInvalidLogin()):
+		logrus.Debugf("invalid password login combination")
 		return ErrWrongPasswordLoginCombination
 	case cherry.Equals(err, umErrors.ErrUserNotExist()):
+		logrus.Debugf("user does not exist")
 		return ErrUserNotExist
 	default:
+		logrus.Debugf("fatal login error")
 		return ErrUnableToLogin.Wrap(err)
 	}
 	client.kubeAPIClient.SetToken(tokens.AccessToken)
@@ -65,9 +76,11 @@ func (client *Client) Login() error {
 
 // Extend -- refreshes tokens, invalidates old
 func (client *Client) Extend() error {
+	logrus.Debugf("extending tokens")
 	tokens, err := client.kubeAPIClient.
 		ExtendToken(client.Tokens.RefreshToken)
 	if err != nil {
+		logrus.Debugf("error while extending tokens")
 		return err
 	}
 	client.Tokens = model.Tokens(tokens)

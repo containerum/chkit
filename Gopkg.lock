@@ -8,6 +8,7 @@
     "pkg/cherry/api-gateway",
     "pkg/cherry/auth",
     "pkg/cherry/kube-api",
+    "pkg/cherry/resource-service",
     "pkg/cherry/user-manager",
     "pkg/client",
     "pkg/model",
@@ -18,8 +19,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "f0c6fbfbff5e69f9b75486ceb0b599c1d8ea914e"
-  version = "v0.6.2"
+  revision = "b6119ce7df7aed5e0037a985155f48c32fc09f7c"
+  version = "v0.6.5"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -409,6 +410,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "00c4107204e37aed0c2b213679c6670c7619f86d348a0fb3911444e0dad83368"
+  inputs-digest = "93cd8ace376a6e651c4f8a9e293cab25d387f5e15fa6145fd8d591b3a0c5bf10"
   solver-name = "gps-cdcl"
   solver-version = 1

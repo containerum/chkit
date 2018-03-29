@@ -5,25 +5,24 @@ import (
 	"github.com/containerum/chkit/cmd/namespace"
 	"github.com/containerum/chkit/cmd/pod"
 	"github.com/containerum/chkit/cmd/service"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
-var commandGet = &cli.Command{
-	Name: "get",
+var commandDelete = &cli.Command{
+	Name: "delete",
 	Before: func(ctx *cli.Context) error {
-		if ctx.Bool("help") {
-			return cli.ShowSubcommandHelp(ctx)
-		}
+		logrus.Debugf("start delete action")
 		return setupAll(ctx)
 	},
 	Action: func(ctx *cli.Context) error {
-		cli.ShowSubcommandHelp(ctx)
-		return nil
+		logrus.Debugf("delete main action")
+		return cli.ShowSubcommandHelp(ctx)
 	},
 	Subcommands: []*cli.Command{
-		clinamespace.GetNamespace,
-		clipod.GetPodAction,
-		cliserv.GetService,
-		clideployment.GetDeployment,
+		clideployment.DeleteDeployment,
+		clinamespace.Delete,
+		clipod.Delete,
+		cliserv.Delete,
 	},
 }

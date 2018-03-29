@@ -100,7 +100,7 @@ func (re *Resty) Post(reqconfig rest.Rq) error {
 // Delete -- http delete method
 func (re *Resty) Delete(reqconfig rest.Rq) error {
 	resp, err := ToResty(reqconfig, re.client.R()).
-		Post(reqconfig.URL.Build())
+		Delete(reqconfig.URL.Build())
 	return rest.MapErrors(resp, err,
 		http.StatusOK,
 		http.StatusAccepted,

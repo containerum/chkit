@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"time"
@@ -74,8 +75,19 @@ func Run(args []string) error {
 			"version":    semver.MustParse(Version),
 		},
 		Commands: []*cli.Command{
+			&cli.Command{
+				Name:        "version",
+				Usage:       "prints chkit version",
+				Description: "prints chkit version. Aliases: vers, vs, v",
+				Aliases:     []string{"vers", "vs", "v"},
+				Action: func(ctx *cli.Context) error {
+					fmt.Println(Version)
+					return nil
+				},
+			},
 			commandLogin,
 			commandGet,
+			commandDelete,
 			commandUpdate,
 			commandLogs,
 		},

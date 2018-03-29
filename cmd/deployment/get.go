@@ -13,10 +13,11 @@ var (
 	ErrNoNamespaceSpecified chkitErrors.Err = "no namespace specified"
 )
 var GetDeployment = &cli.Command{
-	Name:      "deployment",
-	Aliases:   []string{"depl", "deployments", "deploy"},
-	Usage:     "shows deployment data",
-	ArgsUsage: "namespace [deployment_names ...]",
+	Name:        "deployment",
+	Aliases:     []string{"depl", "deployments", "deploy"},
+	Usage:       "shows deployment data",
+	Description: "shows deployment data. Aliases: depl, deployments, deploy",
+	ArgsUsage:   "namespace [deployment_names ...]",
 	Action: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)

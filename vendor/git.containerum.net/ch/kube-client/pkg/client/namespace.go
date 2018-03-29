@@ -141,7 +141,7 @@ func (client *Client) DeleteNamespaceAccess(namespace, username string) error {
 func (client *Client) DeleteNamespace(namespace string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: getNamespace,
+			Path: resourceNamespacePath,
 			Params: rest.P{
 				"namespace": namespace,
 			},

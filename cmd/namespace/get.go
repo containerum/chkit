@@ -9,12 +9,14 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
+var aliases = []string{"ns", "namespaces"}
+
 // GetNamespace -- commmand 'get' entity data
 var GetNamespace = &cli.Command{
 	Name:        "namespace",
-	Aliases:     []string{"ns", "namespaces"},
-	Description: `show namespace or namespace list`,
-	Usage:       `Shows namespace data or namespace list`,
+	Aliases:     aliases,
+	Description: `shows namespace data or namespace list. Aliases: ns, namespaces`,
+	Usage:       `shows namespace data or namespace list`,
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		defer util.StoreClient(ctx, client)
