@@ -32,7 +32,7 @@ type GetPodLogsParams struct {
 }
 
 func (client *Client) GetPodLogs(params GetPodLogsParams) (*io.PipeReader, error) {
-	logUrl, err := client.podLogUrl(params)
+	logUrl, err := client.podLogURL(params)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (client *Client) GetPodLogs(params GetPodLogsParams) (*io.PipeReader, error
 	return re, nil
 }
 
-func (client *Client) podLogUrl(params GetPodLogsParams) (*url.URL, error) {
+func (client *Client) podLogURL(params GetPodLogsParams) (*url.URL, error) {
 	queryUrl, err := url.Parse(client.APIurl)
 	if err != nil {
 		return nil, err
@@ -57,10 +57,12 @@ func (client *Client) podLogUrl(params GetPodLogsParams) (*url.URL, error) {
 		queryUrl.Scheme = "wss"
 	}
 	queryUrl.Path = fmt.Sprintf("/namespaces/%s/pods/%s/log", params.Namespace, params.Pod)
-	queryUrl.Query().Set(followParam, strconv.FormatBool(params.Follow))
-	queryUrl.Query().Set(previousParam, strconv.FormatBool(params.Previous))
-	queryUrl.Query().Set(tailParam, strconv.Itoa(params.Tail))
-	queryUrl.Query().Set(containerParam, params.Container)
+	queryParams := queryUrl.Query()
+	queryParams.Set(followParam, strconv.FormatBool(params.Follow))
+	queryParams.Set(previousParam, strconv.FormatBool(params.Previous))
+	queryParams.Set(tailParam, strconv.Itoa(params.Tail))
+	queryParams.Set(containerParam, params.Container)
+	queryUrl.RawQuery = queryParams.Encode()
 	return queryUrl, nil
 }
 
@@ -91,6 +93,7 @@ func (client *Client) logStream(conn *websocket.Conn, out *io.PipeWriter) {
 		mtype, data, err := conn.ReadMessage()
 		if err != nil {
 			out.CloseWithError(err)
+			return
 		}
 		switch mtype {
 		case websocket.TextMessage, websocket.BinaryMessage:
