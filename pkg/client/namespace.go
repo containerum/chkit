@@ -4,8 +4,10 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
 	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
+	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/namespace"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -65,4 +67,35 @@ func (client *Client) GetNamespaceList() (namespace.NamespaceList, error) {
 		}
 	})
 	return list, err
+}
+
+func (client *Client) DeleteNamespace(namespace string) error {
+	return retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.DeleteNamespace(namespace)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			logrus.WithError(ErrResourceNotExists.Wrap(err)).
+				Debugf("error while deleting namespace %q", namespace)
+			return false, ErrResourceNotExists
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists()):
+			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
+				Debugf("error while deleting namespace %q", namespace)
+			return false, ErrYouDoNotHaveAccessToResource
+		case cherry.In(err, autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			if err != nil {
+				logrus.WithError(err).
+					Debugf("error while deleting namespace %q", namespace)
+			}
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
 }
