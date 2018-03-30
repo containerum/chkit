@@ -12,9 +12,12 @@ import (
 var (
 	ErrNoNamespaceSpecified chkitErrors.Err = "no namespace specified"
 )
+
+var aliases = []string{"depl", "deployments", "deploy"}
+
 var GetDeployment = &cli.Command{
 	Name:        "deployment",
-	Aliases:     []string{"depl", "deployments", "deploy"},
+	Aliases:     aliases,
 	Usage:       "shows deployment data",
 	Description: "shows deployment data. Aliases: depl, deployments, deploy",
 	ArgsUsage:   "namespace [deployment_names ...]",
@@ -52,16 +55,5 @@ var GetDeployment = &cli.Command{
 		}
 		return util.WriteData(ctx, show)
 	},
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:    "file",
-			Usage:   "file to write output",
-			Aliases: []string{"f"},
-		},
-		&cli.StringFlag{
-			Name:    "output",
-			Usage:   "define output formats: yaml, json",
-			Aliases: []string{"o"},
-		},
-	},
+	Flags: util.GetFlags,
 }

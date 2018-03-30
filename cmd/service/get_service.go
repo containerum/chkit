@@ -50,16 +50,5 @@ var GetService = &cli.Command{
 		}
 		return util.WriteData(ctx, show)
 	},
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:    "file",
-			Usage:   "file to write output",
-			Aliases: []string{"f"},
-		},
-		&cli.StringFlag{
-			Name:    "output",
-			Usage:   "define output formats: yaml, json",
-			Aliases: []string{"o"},
-		},
-	},
+	Flags: util.GetFlags,
 }
