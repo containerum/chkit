@@ -3,6 +3,8 @@ package namespace
 import (
 	"testing"
 	"time"
+
+	"github.com/containerum/chkit/pkg/model/volume"
 )
 
 func TestNamespaceRenderToTable(test *testing.T) {
@@ -11,7 +13,7 @@ func TestNamespaceRenderToTable(test *testing.T) {
 		Label:     "mushrooms",
 		Access:    "r-only",
 		CreatedAt: &creationTime,
-		Volumes: []Volume{
+		Volumes: []volume.Volume{
 			{
 				Label:     "newton",
 				CreatedAt: time.Now(),
