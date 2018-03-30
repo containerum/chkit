@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TimestampFormat = time.RFC822
+	TimestampFormat = time.RFC3339
 	Indent          = "  "
 )
 
@@ -15,7 +15,7 @@ func Age(timestamp time.Time) string {
 		return "unknown"
 	}
 	age := time.Now().Sub(timestamp)
-	ageString := age.String()
+	var ageString string
 	const year = 365 * 24
 	switch {
 	case age.Hours() > year:
