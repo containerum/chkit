@@ -7,8 +7,11 @@ import (
 )
 
 var DeleteDeployment = &cli.Command{
-	Name:    "deployment",
-	Aliases: []string{"depl", "deployments"},
+	Name:      "deployment",
+	Usage:     "call to delete deployment in specific namespcae",
+	UsageText: "",
+	Aliases:   aliases,
+	Flags:     util.DeleteFlags,
 	Action: func(ctx *cli.Context) error {
 		logrus.Debugf("running command delete deployment")
 		client := util.GetClient(ctx)

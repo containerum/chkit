@@ -125,11 +125,6 @@ func Run(args []string) error {
 				Name:  "pass",
 				Usage: "password to system",
 			},
-			&cli.StringFlag{
-				Name:    "namespace",
-				Aliases: []string{"n"},
-				Usage:   "namespace to use",
-			},
 		},
 	}
 	return App.Run(args)

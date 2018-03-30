@@ -7,8 +7,12 @@ import (
 )
 
 var Delete = &cli.Command{
-	Name:    "namespace",
-	Aliases: aliases,
+	Name:        "namespace",
+	Usage:       "call to delete namespace",
+	Description: "delete namespace deletes namespace with name, provided by first arg",
+	UsageText:   "chkit delete <namespace_name>",
+	Aliases:     aliases,
+	Flags:       util.DeleteFlags,
 	Action: func(ctx *cli.Context) error {
 		logrus.Debugf("running command delete namespace")
 		client := util.GetClient(ctx)

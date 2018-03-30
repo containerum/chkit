@@ -9,6 +9,7 @@ import (
 var Delete = &cli.Command{
 	Name:    "pod",
 	Aliases: aliases,
+	Flags:   util.DeleteFlags,
 	Action: func(ctx *cli.Context) error {
 		logrus.Debugf("running command delete pod")
 		client := util.GetClient(ctx)
