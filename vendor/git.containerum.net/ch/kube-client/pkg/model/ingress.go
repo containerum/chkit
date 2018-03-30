@@ -2,9 +2,9 @@ package model
 
 // Ingress --
 type Ingress struct {
-	Name      string `json:"name"`
-	CreatedAt *int64 `json:"created_at,omitempty"`
-	Rules     []Rule `json:"rules"`
+	Name      string  `json:"name"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Rules     []Rule  `json:"rules"`
 }
 
 // Rule --

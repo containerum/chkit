@@ -22,7 +22,7 @@ type UpdateNamespaceName struct {
 // provided by resource-service
 // https://ch.pages.containerum.net/api-docs/modules/resource-service/index.html#get-namespace
 type Namespace struct {
-	CreatedAt     *int64    `json:"created_at,omitempty"`
+	CreatedAt     *string   `json:"created_at,omitempty"`
 	Label         string    `json:"label,omitempty"`
 	Access        string    `json:"access,omitempty"`
 	MaxExtService *uint     `json:"max_ext_service,omitempty"`

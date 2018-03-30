@@ -16,7 +16,7 @@ const (
 // Service --
 type Service struct {
 	Name      string        `json:"name"`
-	CreatedAt *int64        `json:"created_at,omitempty"`
+	CreatedAt *string       `json:"created_at,omitempty"`
 	Deploy    string        `json:"deploy,omitempty"`
 	IPs       []string      `json:"ips,omitempty"`
 	Domain    string        `json:"domain,omitempty"`

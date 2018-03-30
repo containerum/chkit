@@ -7,13 +7,16 @@ type Pod struct {
 	ImagePullSecret *map[string]string `json:"image_pull_secret,omitempty"`
 	Status          *PodStatus         `json:"status,omitempty"`
 	Hostname        *string            `json:"hostname,omitempty"`
+	Deploy          *string            `json:"deploy,omitempty"`
+	TotalCPU         string            `json:"total_cpu,omitempty"`
+	TotalMemory      string            `json:"total_memory,omitempty"`
 }
 
 // PodStatus --
 type PodStatus struct {
 	Phase        string `json:"phase"`
 	RestartCount int    `json:"restart_count"`
-	StartAt      int64  `json:"start_at"`
+	StartAt      string `json:"start_at"`
 }
 
 // UpdateImage --

@@ -3,13 +3,13 @@ package model
 // DeploymentStatus -- represents deployment status
 // CreatedAt and UpdatedAt -- Unix timestamps
 type DeploymentStatus struct {
-	CreatedAt           int64 `json:"created_at"`
-	UpdatedAt           int64 `json:"updated_at"`
-	Replicas            int   `json:"replicas"`
-	ReadyReplicas       int   `json:"ready_replicas"`
-	AvailableReplicas   int   `json:"available_replicas"`
-	UnavailableReplicas int   `json:"unavailable_replicas"`
-	UpdatedReplicas     int   `json:"updated_replicas"`
+	CreatedAt           string `json:"created_at"`
+	UpdatedAt           string `json:"updated_at"`
+	Replicas            int    `json:"replicas"`
+	ReadyReplicas       int    `json:"ready_replicas"`
+	AvailableReplicas   int    `json:"available_replicas"`
+	UnavailableReplicas int    `json:"unavailable_replicas"`
+	UpdatedReplicas     int    `json:"updated_replicas"`
 }
 
 // UpdateReplicas -- contains new number of replicas
