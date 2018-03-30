@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"time"
@@ -42,14 +43,16 @@ func Run(args []string) error {
 		FullTimestamp:   true,
 		TimestampFormat: time.RFC1123,
 	})
-
+	logFile := path.Join(confDir.LogDir(), util.LogFileName())
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+	if err != nil {
+		logrus.Fatalf("error while creating log file: %v", err)
+	}
 	if !DEBUG {
-		logFile := path.Join(confDir.ConfigDir(), util.LogFileName())
-		file, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND, os.ModePerm)
-		if err != nil {
-			logrus.Fatalf("error while creating log file: %v", err)
-		}
 		logrus.SetOutput(file)
+	} else {
+		logWriter := io.MultiWriter(os.Stdout, file)
+		logrus.SetOutput(logWriter)
 	}
 	var App = &cli.App{
 		Name:    "chkit",
