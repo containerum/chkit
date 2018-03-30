@@ -43,18 +43,19 @@ func angel(sin interface{}) {
 		fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", logFilePath)
 		return
 	}
+	/*
+		logTail, err := readLogTail(logFilePath)
+		if err != nil {
+			fmt.Printf("[FATAL] something completely wrong.\n")
+			fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", configDir)
+			return
+		}
 
-	logTail, err := readLogTail(logFilePath)
-	if err != nil {
-		fmt.Printf("[FATAL] something completely wrong.\n")
-		fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", configDir)
-		return
-	}
-
-	report = report + logTail
-	if err := openSupportPageWithReport(report); err != nil {
-		fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", configDir)
-	}
+		report = report + logTail
+		if err := openSupportPageWithReport(report); err != nil {
+	*/
+	fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", configDir)
+	//	}
 }
 
 func appendOrCreate(filepath string, data string) error {
@@ -90,6 +91,9 @@ func readLogTail(logPath string) (string, error) {
 
 	buf := make([]byte, tailLen)
 	n, err := logFile.ReadAt(buf, size-tailLen)
+	if err != nil {
+		return "", err
+	}
 	buf = buf[:n]
 	lines := strings.SplitN(string(buf), "\n", 2)
 	if len(lines) == 2 {
