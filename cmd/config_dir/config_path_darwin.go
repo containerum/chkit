@@ -5,6 +5,6 @@ import (
 )
 
 var (
-	configDir = path.Join("Library","Application Support", "containerum")
-	logDir := path.Join("Library", "Logs")
+	configDir = path.Join("Library", "Application Support", "containerum")
+	logDir    = path.Join("Library", "Logs")
 )
