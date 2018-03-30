@@ -21,7 +21,7 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 	}
 	containers := make([]container.Container, 0, len(kubeDeployment.Containers))
 	for _, kubeContainer := range kubeDeployment.Containers {
-		containers = append(containers, container.Container{kubeContainer})
+		containers = append(containers, container.Container{Container: kubeContainer})
 	}
 	return Deployment{
 		Name:       kubeDeployment.Name,
