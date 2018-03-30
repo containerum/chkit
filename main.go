@@ -11,9 +11,7 @@ import (
 )
 
 func main() {
-	if !cmd.DEBUG {
-		defer angel(recover())
-	}
+	defer angel(recover())
 	switch err := cmd.Run(os.Args).(type) {
 	case nil:
 		// pass
@@ -22,8 +20,6 @@ func main() {
 	case cli.ExitCoder:
 		fmt.Println(err)
 	default:
-		if !cmd.DEBUG {
-			angel(err)
-		}
+		angel(err)
 	}
 }
