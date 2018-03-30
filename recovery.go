@@ -32,10 +32,10 @@ func angel(sin interface{}) {
 	default:
 		report += fmt.Sprintf("[FATAL] %v\n%s", recoverData, string(debug.Stack()))
 	}
-	configDir := confDir.ConfigDir()
+	logDir := confDir.LogDir()
 	logFileName := util.LogFileName()
-	logFilePath := path.Join(configDir, logFileName)
-	reportFile := path.Join(configDir, "report.txt")
+	logFilePath := path.Join(logDir, logFileName)
+	reportFile := path.Join(logDir, "report.txt")
 
 	err := ioutil.WriteFile(reportFile, []byte(report), os.ModePerm)
 	if err != nil {
@@ -54,7 +54,7 @@ func angel(sin interface{}) {
 		report = report + logTail
 		if err := openSupportPageWithReport(report); err != nil {
 	*/
-	fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", configDir)
+	fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", logDir)
 	//	}
 }
 

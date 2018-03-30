@@ -6,4 +6,5 @@ import (
 
 var (
 	configDir = path.Join("AppData", "Local", "containerum")
+	logDir    = path.Join(configDir, "support")
 )

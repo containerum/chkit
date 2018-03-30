@@ -23,6 +23,15 @@ func ConfigDir() string {
 	return path.Join(home, configDir)
 }
 
+func LogDir() string {
+	home, err := homedir.Dir()
+	if err != nil {
+		panic("[config_dir LogDir] " + err.Error())
+	}
+	home = filepath.ToSlash(home)
+	return path.Join(home, logDir)
+}
+
 func init() {
 	pathToConfigDir := ConfigDir()
 	err := os.MkdirAll(pathToConfigDir, os.ModePerm)
@@ -30,17 +39,17 @@ func init() {
 		panic(ErrUnableToCreateConfigDir.Wrap(err))
 	}
 
+	err = os.MkdirAll(LogDir(), os.ModePerm)
+	if err != nil && !os.IsExist(err) {
+		panic(ErrUnableToCreateConfigDir.Wrap(err))
+	}
+
 	pathToConfigFile := path.Join(pathToConfigDir, "config.toml")
-	_, err = os.Stat(pathToConfigFile)
-	if err != nil && os.IsNotExist(err) {
-		file, err := os.Create(pathToConfigFile)
-		if err != nil {
-			panic(ErrUnableToCreateConfigFile.Wrap(err))
-		}
-		if err = file.Close(); err != nil {
-			panic(ErrUnableToCreateConfigFile.Wrap(err))
-		}
-	} else if err != nil {
+	file, err := os.OpenFile(pathToConfigFile, os.O_CREATE, os.ModePerm)
+	switch {
+	case err == nil || os.IsExist(err):
+		file.Close()
+	default:
 		panic(ErrUnableToCreateConfigFile.Wrap(err))
 	}
 }
