@@ -21,7 +21,7 @@ func Age(timestamp time.Time) string {
 	case age.Hours() > year:
 		years := uint64(age.Hours()) / year
 		ageString = fmt.Sprintf("%dy", years)
-	case age.Hours() > 24 && age.Hours() < 365*24:
+	case age.Hours() > 24 && age.Hours() < year:
 		days := uint64(age.Hours()) / 24
 		ageString = fmt.Sprintf("%dd", days)
 	case age.Hours() <= 24 && age.Hours() > 1:
