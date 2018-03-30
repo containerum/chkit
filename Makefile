@@ -1,7 +1,7 @@
-.PHONY: genkey genkey build test clean release single_release
+.PHONY: genkey build test clean release single_release
 
 #get current package, assuming it`s in GOPATH sources
-PACKAGE := $(PWD:$(GOPATH)/src/%=%)
+PACKAGE := $(shell go list -f '{{.ImportPath}}')
 
 SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
@@ -16,7 +16,8 @@ VERSION?=$(LATEST_TAG:v%=%)
 # make directory and store path to variable
 BUILDS_DIR:=$(PWD)/build
 EXECUTABLE:=chkit
-LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
+DEV_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION)
+RELEASE_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
 	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell base64 -w 0 $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'
 
 genkey:
@@ -29,7 +30,7 @@ genkey:
 # go has build artifacts caching so soruce tracking not needed
 build:
 	@echo "Building chkit for current OS/architecture, without signing"
-	@go build -v -ldflags="$(LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE)
+	@go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE)
 
 test:
 	@echo "Running tests"
@@ -39,7 +40,7 @@ clean:
 	@rm -rf $(BUILDS_DIR)
 
 install:
-	@go install -ldflags="$(LDFLAGS)"
+	@go install -ldflags="$(RELEASE_LDFLAGS)"
 
 # lambda to generate build dir name using os,arch,version
 temp_dir_name=$(EXECUTABLE)_$(1)_$(2)_v$(3)
@@ -59,7 +60,7 @@ $(eval ifeq ($(1),windows)
 else
 	temp_executable=$(temp_build_dir)/$(EXECUTABLE)
 endif)
-@GOOS=$(1) GOARCH=$(2) go build -ldflags="$(LDFLAGS)" -v -o $(temp_executable)
+@GOOS=$(1) GOARCH=$(2) go build -ldflags="$(RELEASE_LDFLAGS)" -v -o $(temp_executable)
 @$(call create_checksum,$(temp_executable))
 @$(call create_signature,$(temp_executable))
 $(eval ifeq ($(1),windows)
@@ -80,3 +81,11 @@ release:
 
 single_release:
 	$(call build_release,$(OS),$(ARCH))
+
+dev:
+	$(eval VERSION=$(LATEST_TAG:v%=%)+dev)
+	@go build -v --tags="dev" -ldflags="$(DEV_LDFLAGS)"
+
+mock:
+	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)
+	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)"

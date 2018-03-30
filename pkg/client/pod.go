@@ -1,10 +1,13 @@
 package chClient
 
 import (
+	"io"
+
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
 	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
 	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
+	"git.containerum.net/ch/kube-client/pkg/client"
 	"github.com/containerum/chkit/pkg/model/pod"
 	"github.com/sirupsen/logrus"
 )
@@ -81,4 +84,16 @@ func (client *Client) DeletePod(namespace, pod string) error {
 			return true, ErrFatalError.Wrap(err)
 		}
 	})
+}
+
+type GetPodLogsParams = client.GetPodLogsParams
+
+func (client *Client) GetPodLogs(params client.GetPodLogsParams) (io.ReadCloser, error) {
+	var rc io.ReadCloser
+	err := retry(4, func() (bool, error) {
+		var getErr error
+		rc, getErr = client.kubeAPIClient.GetPodLogs(params)
+		return false, getErr
+	})
+	return rc, err
 }
