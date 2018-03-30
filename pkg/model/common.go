@@ -11,6 +11,9 @@ const (
 )
 
 func TimestampFormat(timestamp time.Time) string {
+	if timestamp.Equal(time.Unix(0, 0)) {
+		return "unknown"
+	}
 	age := time.Now().Sub(timestamp)
 	ageString := age.String()
 	const year = 365 * 24
