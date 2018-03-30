@@ -3,8 +3,9 @@ package service
 import (
 	"time"
 
-	"git.containerum.net/ch/kube-client/pkg/model"
 	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/containerum/chkit/pkg/model"
+	"github.com/sirupsen/logrus"
 )
 
 type Service struct {
@@ -17,15 +18,19 @@ type Service struct {
 	origin    kubeModels.Service
 }
 
-func ServiceFromKube(kubeService model.Service) Service {
+func ServiceFromKube(kubeService kubeModels.Service) Service {
 	ports := make([]Port, 0, len(kubeService.Ports))
 	for _, kubePort := range kubeService.Ports {
 		ports = append(ports, PortFromKube(kubePort))
 	}
 	var createdAt *time.Time
 	if kubeService.CreatedAt != nil {
-		t := time.Unix(*kubeService.CreatedAt, 0)
-		createdAt = &t
+		t, err := time.Parse(model.CreationTimeFormat, *kubeService.CreatedAt)
+		if err != nil {
+			logrus.WithError(err).Debugf("invalid created_at timestamp")
+		} else {
+			createdAt = &t
+		}
 	}
 	return Service{
 		Name:      kubeService.Name,

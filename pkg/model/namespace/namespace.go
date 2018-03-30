@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/volume"
 	"github.com/olekukonko/tablewriter"
 )
@@ -26,8 +29,12 @@ func NamespaceFromKube(kubeNameSpace kubeModel.Namespace) Namespace {
 		origin:    kubeNameSpace,
 	}
 	if kubeNameSpace.CreatedAt != nil {
-		createdAt := time.Unix(*kubeNameSpace.CreatedAt, 0)
-		ns.CreatedAt = &createdAt
+		createdAt, err := time.Parse(model.CreationTimeFormat, *kubeNameSpace.CreatedAt)
+		if err != nil {
+			logrus.WithError(err).Debugf("invalid created_at timestamp")
+		} else {
+			ns.CreatedAt = &createdAt
+		}
 	}
 	ns.Volumes = make([]volume.Volume, 0, len(kubeNameSpace.Volumes))
 	for _, kubeVolume := range kubeNameSpace.Volumes {
