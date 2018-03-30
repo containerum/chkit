@@ -29,8 +29,8 @@ var commandLogin = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		err := setupConfig(ctx)
 		config := util.GetConfig(ctx)
-		switch err {
-		case nil, ErrInvalidUserInfo:
+		switch {
+		case err == nil || ErrInvalidUserInfo.Match(err) || ErrUnableToLoadTokens.Match(err):
 			userInfo, err := login(ctx)
 			if err != nil {
 				logrus.Debugf("fatal error: %v", err)
