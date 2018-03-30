@@ -2,6 +2,12 @@ package util
 
 import cli "gopkg.in/urfave/cli.v2"
 
+var NamespaceFlag = &cli.StringFlag{
+	Name:    "namespace",
+	Aliases: []string{"n", "ns"},
+	Usage:   "namespace to use",
+}
+
 var GetFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:    "file",
@@ -13,17 +19,9 @@ var GetFlags = []cli.Flag{
 		Usage:   "define output formats: yaml, json",
 		Aliases: []string{"o"},
 	},
-	&cli.StringFlag{
-		Name:    "namespace",
-		Aliases: []string{"n", "ns"},
-		Usage:   "namespace to use",
-	},
+	NamespaceFlag,
 }
 
 var DeleteFlags = []cli.Flag{
-	&cli.StringFlag{
-		Name:    "namespace",
-		Aliases: []string{"n", "ns"},
-		Usage:   "namespace to use",
-	},
+	NamespaceFlag,
 }

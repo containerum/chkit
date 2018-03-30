@@ -71,5 +71,6 @@ var commandLogs = &cli.Command{
 			Aliases: []string{"t"},
 			Usage:   `print last <value> log lines`,
 		},
+		util.NamespaceFlag,
 	},
 }
