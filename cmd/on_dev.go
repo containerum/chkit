@@ -6,4 +6,4 @@ package cmd
 const DEBUG = true
 const MOCK = false
 
-var API_ADDR = "https://192.168.88.200:8082"
+var API_ADDR = ""

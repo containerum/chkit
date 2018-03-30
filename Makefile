@@ -16,9 +16,11 @@ VERSION?=$(LATEST_TAG:v%=%)
 # make directory and store path to variable
 BUILDS_DIR:=$(PWD)/build
 EXECUTABLE:=chkit
-DEV_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION)
+DEV_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
+	-X $(PACKAGE)/cmd.API_ADDR=$(CONTAINERUM_API)
 RELEASE_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
-	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell base64 -w 0 $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'
+	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell base64 -w 0 $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'\
+	-X $(PACKAGE)/cmd.API_ADDR=$(CONTAINERUM_API)
 
 genkey:
 	@echo "Generating private/public ECDSA keys to sign"

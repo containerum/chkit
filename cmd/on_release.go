@@ -10,4 +10,4 @@ const DEBUG = false
 const MOCK = false
 
 // API_ADDR -- gateway API addr
-var API_ADDR = "https://192.168.88.200:8082"
+var API_ADDR = ""
