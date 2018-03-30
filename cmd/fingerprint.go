@@ -11,6 +11,8 @@ import (
 	"github.com/matishsiao/goInfo"
 )
 
+// Fingerprint -- generates user computer fingerprint.
+// Panics on error
 func Fingerprint() string {
 	userData := goInfo.GetInfo().String() +
 		runtime.GOOS +

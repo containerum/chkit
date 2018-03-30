@@ -19,15 +19,23 @@ import (
 )
 
 var (
-	Version        = "3.0.0-alpha"
+	// Version -- chkit version
+	Version = "3.0.0-alpha"
+)
+
+const (
+	// FlagConfigFile -- context config data key
 	FlagConfigFile = "config"
-	FlagAPIaddr    = "apiaddr"
+	// FlagAPIaddr -- API address context key
+	FlagAPIaddr = "apiaddr"
 )
 
 var (
+	// ErrFatalError -- unrecoverable fatal error
 	ErrFatalError chkitErrors.Err = "fatal error"
 )
 
+// Run -- root action
 func Run(args []string) error {
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{

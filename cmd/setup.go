@@ -13,10 +13,15 @@ import (
 )
 
 const (
+	// ErrUnableToLoadConfig -- unable to load config
 	ErrUnableToLoadConfig chkitErrors.Err = "unable to load config"
-	ErrInvalidUserInfo    chkitErrors.Err = "invalid user info"
-	ErrInvalidAPIurl      chkitErrors.Err = "invalid API url"
+	// ErrInvalidUserInfo -- invalid user info"
+	ErrInvalidUserInfo chkitErrors.Err = "invalid user info"
+	// ErrInvalidAPIurl -- invalid API url
+	ErrInvalidAPIurl chkitErrors.Err = "invalid API url"
+	// ErrUnableToLoadTokens -- unable to load tokens
 	ErrUnableToLoadTokens chkitErrors.Err = "unable to load tokens"
+	// ErrUnableToSaveTokens -- unable to save tokens
 	ErrUnableToSaveTokens chkitErrors.Err = "unable to save tokens"
 )
 
