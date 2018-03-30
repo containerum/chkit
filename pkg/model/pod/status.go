@@ -16,7 +16,7 @@ type Status struct {
 }
 
 func StatusFromKube(status kubeModels.PodStatus) Status {
-	startedAt, err := time.Parse(status.StartAt, model.CreationTimeFormat)
+	startedAt, err := time.Parse(status.StartAt, model.TimestampFormat)
 	if err != nil {
 		logrus.WithError(err).Debugf("invalid started_at timestamp")
 		startedAt = time.Unix(0, 0)

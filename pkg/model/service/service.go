@@ -25,7 +25,7 @@ func ServiceFromKube(kubeService kubeModels.Service) Service {
 	}
 	var createdAt *time.Time
 	if kubeService.CreatedAt != nil {
-		t, err := time.Parse(model.CreationTimeFormat, *kubeService.CreatedAt)
+		t, err := time.Parse(model.TimestampFormat, *kubeService.CreatedAt)
 		if err != nil {
 			logrus.WithError(err).Debugf("invalid created_at timestamp")
 		} else {

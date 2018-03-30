@@ -31,7 +31,7 @@ func (serv *Service) TableRows() [][]string {
 	}
 	age := "none"
 	if serv.CreatedAt != nil {
-		age = model.TimestampFormat(*serv.CreatedAt)
+		age = model.Age(*serv.CreatedAt)
 	}
 	return [][]string{{
 		serv.Name,

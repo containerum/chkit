@@ -31,6 +31,6 @@ func (depl *Deployment) TableRows() [][]string {
 		depl.Name,
 		depl.Status.ColumnReplicas(),
 		strings.Join(containers, "\n"),
-		model.TimestampFormat(depl.Status.UpdatedAt),
+		model.Age(depl.Status.UpdatedAt),
 	}}
 }

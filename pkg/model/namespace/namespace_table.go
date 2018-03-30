@@ -17,7 +17,7 @@ func (_ Namespace) TableHeaders() []string {
 func (namespace Namespace) TableRows() [][]string {
 	age := ""
 	if namespace.CreatedAt != nil {
-		age = model.TimestampFormat(*namespace.CreatedAt)
+		age = model.Age(*namespace.CreatedAt)
 	}
 	volumes := ""
 	for i, volume := range namespace.Volumes {

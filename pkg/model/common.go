@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	CreationTimeFormat = time.RFC822
-	Indent             = "  "
+	TimestampFormat = time.RFC822
+	Indent          = "  "
 )
 
-func TimestampFormat(timestamp time.Time) string {
+func Age(timestamp time.Time) string {
 	if timestamp.Equal(time.Unix(0, 0)) {
 		return "unknown"
 	}

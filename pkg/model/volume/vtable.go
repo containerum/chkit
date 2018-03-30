@@ -17,7 +17,7 @@ func (_ *Volume) TableHeaders() []string {
 func (volume *Volume) TableRows() [][]string {
 	return [][]string{{
 		volume.Label,
-		model.TimestampFormat(volume.CreatedAt),
+		model.Age(volume.CreatedAt),
 		volume.Access,
 		fmt.Sprintf("%d", volume.Replicas),
 		fmt.Sprintf("%d", volume.Storage),

@@ -29,7 +29,7 @@ func NamespaceFromKube(kubeNameSpace kubeModel.Namespace) Namespace {
 		origin:    kubeNameSpace,
 	}
 	if kubeNameSpace.CreatedAt != nil {
-		createdAt, err := time.Parse(model.CreationTimeFormat, *kubeNameSpace.CreatedAt)
+		createdAt, err := time.Parse(model.TimestampFormat, *kubeNameSpace.CreatedAt)
 		if err != nil {
 			logrus.WithError(err).Debugf("invalid created_at timestamp")
 		} else {

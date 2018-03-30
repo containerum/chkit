@@ -56,7 +56,7 @@ func (status *Status) ColumnWhen() string {
 		return "unknown"
 	}
 	return strings.Join([]string{
-		"Created: " + model.TimestampFormat(status.CreatedAt),
-		"Updated: " + model.TimestampFormat(status.UpdatedAt),
+		"Created: " + model.Age(status.CreatedAt),
+		"Updated: " + model.Age(status.UpdatedAt),
 	}, "\n")
 }
