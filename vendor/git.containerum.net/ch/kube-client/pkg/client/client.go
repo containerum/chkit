@@ -1,10 +1,8 @@
 package client
 
 import (
-	"net/url"
-
 	"git.containerum.net/ch/kube-client/pkg/rest"
-	"github.com/gorilla/websocket"
+	"git.containerum.net/ch/kube-client/pkg/websocket/gorilla"
 )
 
 //TODO: Make Interface
@@ -24,23 +22,12 @@ type User struct {
 // trys to get them from envvars
 type Config struct {
 	User     User
-	APIurl   string
 	RestAPI  rest.REST
-	WSDialer *websocket.Dialer
+	WSDialer *gorilla.Dialer
 }
 
 //NewClient -
 func NewClient(config Config) (*Client, error) {
-	var APIurl *url.URL
-	var err error
-	APIurl, err = url.Parse(config.APIurl)
-	if err != nil {
-		return nil, err
-	}
-	config.APIurl = APIurl.String()
-	if config.RestAPI == nil {
-		panic("[kube-client] undefined RestAPI in config")
-	}
 	client := &Client{
 		config,
 	}

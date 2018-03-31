@@ -11,16 +11,18 @@
     "pkg/cherry/resource-service",
     "pkg/cherry/user-manager",
     "pkg/client",
+    "pkg/identity",
     "pkg/model",
     "pkg/rest",
     "pkg/rest/re",
     "pkg/rest/remock",
     "pkg/rest/remock/ermockerr",
+    "pkg/websocket/gorilla",
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "ee63238440a7f4051f8c93417603918326bf10dc"
-  version = "v0.7.0"
+  revision = "d2f84b3681f0682b0273eb5a4087c0eb4b957f93"
+  version = "v0.8.0"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -410,6 +412,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fa3e434c9afeeedf9db09b0c22e4e71b809737cb4e3a27e5d9e80e520cb2190a"
+  inputs-digest = "eccfb41e8bd39680c000010805d2879d286b4e9cb9912bd1c011bdc9bdbcf8f7"
   solver-name = "gps-cdcl"
   solver-version = 1

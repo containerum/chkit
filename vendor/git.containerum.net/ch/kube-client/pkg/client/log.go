@@ -1,15 +1,11 @@
 package client
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"strconv"
 
-	"git.containerum.net/ch/kube-client/pkg/cherry"
-	"git.containerum.net/ch/kube-client/pkg/rest"
 	"github.com/gorilla/websocket"
 )
 
@@ -32,11 +28,11 @@ type GetPodLogsParams struct {
 }
 
 func (client *Client) GetPodLogs(params GetPodLogsParams) (*io.PipeReader, error) {
-	logUrl, err := client.podLogURL(params)
+	logUrl, err := client.podLogPath(params)
 	if err != nil {
 		return nil, err
 	}
-	conn, err := client.newWebsocketConnection(logUrl)
+	conn, err := client.WSDialer.Dial(logUrl, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,66 +41,42 @@ func (client *Client) GetPodLogs(params GetPodLogsParams) (*io.PipeReader, error
 	return re, nil
 }
 
-func (client *Client) podLogURL(params GetPodLogsParams) (*url.URL, error) {
-	queryUrl, err := url.Parse(client.APIurl)
+func (client *Client) podLogPath(params GetPodLogsParams) (string, error) {
+	queryUrl, err := url.Parse(fmt.Sprintf("/namespaces/%s/pods/%s/log", params.Namespace, params.Pod))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	switch queryUrl.Scheme {
-	case "http":
-		queryUrl.Scheme = "ws"
-	case "https":
-		queryUrl.Scheme = "wss"
-	}
-	queryUrl.Path = fmt.Sprintf("/namespaces/%s/pods/%s/log", params.Namespace, params.Pod)
 	queryParams := queryUrl.Query()
 	queryParams.Set(followParam, strconv.FormatBool(params.Follow))
 	queryParams.Set(previousParam, strconv.FormatBool(params.Previous))
 	queryParams.Set(tailParam, strconv.Itoa(params.Tail))
 	queryParams.Set(containerParam, params.Container)
 	queryUrl.RawQuery = queryParams.Encode()
-	return queryUrl, nil
-}
-
-func (client *Client) newWebsocketConnection(url *url.URL) (*websocket.Conn, error) {
-	conn, httpResp, err := client.WSDialer.Dial(url.String(), http.Header{
-		rest.HeaderUserFingerprint: {client.RestAPI.GetFingerprint()},
-		rest.HeaderUserToken:       {client.RestAPI.GetToken()},
-	})
-	if err != nil {
-		return nil, err
-	}
-	defer httpResp.Body.Close()
-	if httpResp.StatusCode >= 400 {
-		var cherr cherry.Err
-		if err := json.NewDecoder(httpResp.Body).Decode(&cherr); err != nil {
-			return nil, err
-		}
-		return nil, &cherr
-	}
-
-	return conn, nil
+	return queryUrl.String(), nil
 }
 
 func (client *Client) logStream(conn *websocket.Conn, out *io.PipeWriter) {
 	defer conn.Close()
 	conn.SetReadLimit(maxMessageSize)
 	for {
-		mtype, data, err := conn.ReadMessage()
+		mtype, data, err := conn.NextReader()
 		if err != nil {
 			out.CloseWithError(err)
 			return
 		}
-		switch mtype {
-		case websocket.TextMessage, websocket.BinaryMessage:
-			_, err := out.Write(data)
-			if err != nil && err != io.ErrClosedPipe {
-				out.CloseWithError(err)
-			} else if err == io.ErrClosedPipe {
-				return
-			}
-		default:
+		if mtype != websocket.TextMessage && mtype != websocket.BinaryMessage {
 			continue
+		}
+
+		_, err = io.Copy(out, data)
+		switch err {
+		case nil:
+			// pass
+		case io.ErrClosedPipe:
+			return
+		default:
+			out.CloseWithError(err)
+			return
 		}
 	}
 }

@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"git.containerum.net/ch/kube-client/pkg/cherry"
+	"git.containerum.net/ch/kube-client/pkg/identity"
 	"git.containerum.net/ch/kube-client/pkg/rest"
-	resty "github.com/go-resty/resty"
+	"github.com/go-resty/resty"
 )
 
 var (
@@ -17,8 +18,7 @@ var (
 // Resty -- resty client,
 // implements REST interface
 type Resty struct {
-	token, fingerprint string
-	client             *resty.Client
+	client *resty.Client
 }
 
 // NewResty -- Resty constuctor
@@ -42,14 +42,24 @@ func WithHost(addr string) func(re *Resty) {
 
 func WithLogger(wr io.Writer) func(re *Resty) {
 	return func(re *Resty) {
-		re.client.SetDebug(true)
-		re.client.SetLogger(wr)
-		re.client.Log.Println("rest client in debug mode")
+		if wr != nil {
+			re.client.SetDebug(true)
+			re.client.SetLogger(wr)
+			re.client.Log.Println("rest client in debug mode")
+		}
 	}
 }
 
 func SkipTLSVerify(re *Resty) {
 	re.client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+}
+
+func (re *Resty) SetToken(token string) {
+	re.client.SetHeader(identity.HeaderUserToken, token)
+}
+
+func (re *Resty) SetFingerprint(fingerprint string) {
+	re.client.SetHeader(identity.HeaderUserFingerprint, fingerprint)
 }
 
 // Get -- http get method
@@ -105,24 +115,6 @@ func (re *Resty) Delete(reqconfig rest.Rq) error {
 		http.StatusOK,
 		http.StatusAccepted,
 		http.StatusNoContent)
-}
-
-func (re *Resty) SetToken(token string) {
-	re.client.SetHeader(rest.HeaderUserToken, token)
-	re.token = token
-}
-
-func (re *Resty) SetFingerprint(fingerprint string) {
-	re.client.SetHeader(rest.HeaderUserFingerprint, fingerprint)
-	re.fingerprint = fingerprint
-}
-
-func (re *Resty) GetToken() string {
-	return re.token
-}
-
-func (re *Resty) GetFingerprint() string {
-	return re.fingerprint
 }
 
 // ToResty -- maps Rq data to resty request

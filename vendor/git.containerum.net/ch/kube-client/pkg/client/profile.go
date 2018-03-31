@@ -55,4 +55,5 @@ func (client *Client) Login(login model.Login) (model.Tokens, error) {
 // SetFingerprint -- sets fingerprint
 func (client *Client) SetFingerprint(fingerprint string) {
 	client.RestAPI.SetFingerprint(fingerprint)
+	client.WSDialer.SetFingerprint(fingerprint)
 }

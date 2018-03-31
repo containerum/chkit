@@ -80,14 +80,6 @@ func (mock *Mock) SetFingerprint(fingerprint string) {
 	mock.fingerprint = fingerprint
 }
 
-func (mock *Mock) GetToken() string {
-	return mock.token
-}
-
-func (mock *Mock) GetFingerprint() string {
-	return mock.fingerprint
-}
-
 type RqValidator struct {
 	rest.Rq
 }

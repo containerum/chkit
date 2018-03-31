@@ -1,10 +1,9 @@
 package rest
 
-import "strings"
+import (
+	"strings"
 
-const (
-	HeaderUserToken       = "User-Token"
-	HeaderUserFingerprint = "User-Client"
+	"git.containerum.net/ch/kube-client/pkg/identity"
 )
 
 // P -- URL path params
@@ -38,10 +37,7 @@ type Rq struct {
 
 // REST -- rest client interface
 type REST interface {
-	SetToken(string)
-	SetFingerprint(string)
-	GetToken() string
-	GetFingerprint() string
+	identity.Changer
 	Get(Rq) error
 	Put(Rq) error
 	Post(Rq) error

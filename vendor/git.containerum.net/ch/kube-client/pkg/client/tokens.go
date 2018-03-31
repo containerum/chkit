@@ -49,4 +49,5 @@ func (client *Client) ExtendToken(refreshToken string) (model.Tokens, error) {
 // SetToken -- sets access token
 func (client *Client) SetToken(token string) {
 	client.RestAPI.SetToken(token)
+	client.WSDialer.SetToken(token)
 }
