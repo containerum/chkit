@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"io"
+	"strings"
 
 	"os"
 
@@ -10,11 +11,13 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
+var logsCommandAliases = []string{"log"}
 var commandLogs = &cli.Command{
 	Name:        "logs",
+	Aliases:     logsCommandAliases,
 	Description: `View pod logs`,
-	Usage:       `view pod logs`,
-	UsageText:   `logs [command options] <pod name> [container name]`,
+	Usage:       `view pod logs. Aliases: ` + strings.Join(logsCommandAliases, ", "),
+	UsageText:   `logs pod_label [container] [--follow] [--prev] [--tail n]`,
 	Before: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)
@@ -61,7 +64,7 @@ var commandLogs = &cli.Command{
 			Aliases: []string{"f"},
 			Usage:   `follow pod logs`,
 		},
-		&cli.StringFlag{
+		&cli.BoolFlag{
 			Name:    "prev",
 			Aliases: []string{"p"},
 			Usage:   `show logs from previous instance (useful for crashes debugging)`,
@@ -69,6 +72,7 @@ var commandLogs = &cli.Command{
 		&cli.IntFlag{
 			Name:    "tail",
 			Aliases: []string{"t"},
+			Value:   100,
 			Usage:   `print last <value> log lines`,
 		},
 		util.NamespaceFlag,
