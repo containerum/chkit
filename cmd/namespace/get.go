@@ -1,6 +1,8 @@
 package clinamespace
 
 import (
+	"strings"
+
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/sirupsen/logrus"
 
@@ -15,8 +17,9 @@ var aliases = []string{"ns", "namespaces"}
 var GetNamespace = &cli.Command{
 	Name:        "namespace",
 	Aliases:     aliases,
-	Description: `shows namespace data or namespace list. Aliases: ns, namespaces`,
+	Description: `shows namespace data or namespace list. Aliases: ` + strings.Join(aliases, ", "),
 	Usage:       `shows namespace data or namespace list`,
+	UsageText:   "chkit get namespace_name... [-o yaml/json] [-f output_file]",
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)
 		defer util.StoreClient(ctx, client)

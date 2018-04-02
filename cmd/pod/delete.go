@@ -1,15 +1,20 @@
 package clipod
 
 import (
+	"strings"
+
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
 var Delete = &cli.Command{
-	Name:    "pod",
-	Aliases: aliases,
-	Flags:   util.DeleteFlags,
+	Name:        "pod",
+	Usage:       "call to delete pod in specific namespace",
+	UsageText:   "chkit delete pod pod_name [-n namespace]",
+	Description: "deletes pods. Aliases: " + strings.Join(aliases, ", "),
+	Aliases:     aliases,
+	Flags:       util.DeleteFlags,
 	Action: func(ctx *cli.Context) error {
 		logrus.Debugf("running command delete pod")
 		client := util.GetClient(ctx)

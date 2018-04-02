@@ -1,6 +1,8 @@
 package cliserv
 
 import (
+	"strings"
+
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
@@ -12,7 +14,8 @@ var aliases = []string{"srv", "services", "svc"}
 var GetService = &cli.Command{
 	Name:        "service",
 	Usage:       "shows service info",
-	Description: "shows service info. Aliases: srv, services, svc",
+	UsageText:   "chkit get service service_label [-o yaml/json] [-f output_file]",
+	Description: "shows service info. Aliases: " + strings.Join(aliases, ", "),
 	Aliases:     aliases,
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)

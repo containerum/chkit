@@ -1,6 +1,8 @@
 package clideployment
 
 import (
+	"strings"
+
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
@@ -19,8 +21,8 @@ var GetDeployment = &cli.Command{
 	Name:        "deployment",
 	Aliases:     aliases,
 	Usage:       "shows deployment data",
-	Description: "shows deployment data. Aliases: depl, deployments, deploy",
-	ArgsUsage:   "namespace [deployment_names ...]",
+	Description: "shows deployment data. Aliases: " + strings.Join(aliases, ", "),
+	UsageText:   "namespace deployment_names... [-n namespace_label]",
 	Action: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)

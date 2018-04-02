@@ -1,6 +1,8 @@
 package clipod
 
 import (
+	"strings"
+
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/pod"
@@ -12,7 +14,8 @@ var aliases = []string{"po", "pods"}
 var GetPodAction = &cli.Command{
 	Name:        "pod",
 	Usage:       "shows pod info",
-	Description: "show pod info. Aliases: po, pods",
+	UsageText:   "chkit get pod pod_label [-o yaml/json] [-f output_file]",
+	Description: "shows pod info. Aliases: " + strings.Join(aliases, ", "),
 	Aliases:     aliases,
 	Action: func(ctx *cli.Context) error {
 		client := util.GetClient(ctx)

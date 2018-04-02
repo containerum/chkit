@@ -1,6 +1,8 @@
 package clinamespace
 
 import (
+	"strings"
+
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
@@ -9,8 +11,8 @@ import (
 var Delete = &cli.Command{
 	Name:        "namespace",
 	Usage:       "call to delete namespace",
-	Description: "delete namespace deletes namespace with name, provided by first arg",
-	UsageText:   "chkit delete <namespace_name>",
+	Description: "delete namespace deletes namespace with name, provided by first arg. Aliases: " + strings.Join(aliases, ", "),
+	UsageText:   "chkit delete namespace",
 	Aliases:     aliases,
 	Flags:       util.DeleteFlags,
 	Action: func(ctx *cli.Context) error {

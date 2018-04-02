@@ -1,15 +1,20 @@
 package cliserv
 
 import (
+	"strings"
+
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
 var Delete = &cli.Command{
-	Name:    "service",
-	Aliases: aliases,
-	Flags:   util.DeleteFlags,
+	Name:        "service",
+	Usage:       "call to delete service in specific namespace",
+	UsageText:   "chkit delete service service_label [-n namespace]",
+	Description: "deletes service in namespace. Aliases: " + strings.Join(aliases, ", "),
+	Aliases:     aliases,
+	Flags:       util.DeleteFlags,
 	Action: func(ctx *cli.Context) error {
 		logrus.Debugf("running command delete service")
 		client := util.GetClient(ctx)
