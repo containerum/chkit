@@ -56,6 +56,7 @@ var commandLogs = &cli.Command{
 		}
 		rc, err := client.GetPodLogs(params)
 		if err != nil {
+			logrus.WithError(err).Errorf("error while getting logs")
 			return err
 		}
 		defer rc.Close()
