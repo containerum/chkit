@@ -1,14 +1,20 @@
 package cmd
 
 import (
-	"io"
+	"bufio"
+	"fmt"
 	"strings"
 
-	"os"
+	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/client"
 	"gopkg.in/urfave/cli.v2"
+)
+
+const (
+	ErrUnableToReadLogs chkitErrors.Err = "unable to read logs"
 )
 
 var logsCommandAliases = []string{"log"}
@@ -17,7 +23,7 @@ var commandLogs = &cli.Command{
 	Aliases:     logsCommandAliases,
 	Description: `View pod logs`,
 	Usage:       `view pod logs. Aliases: ` + strings.Join(logsCommandAliases, ", "),
-	UsageText:   `logs pod_label [container] [--follow] [--prev] [--tail n]`,
+	UsageText:   `logs pod_label [container] [--follow] [--prev] [--tail n] [--quiet]`,
 	Before: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)
@@ -54,11 +60,27 @@ var commandLogs = &cli.Command{
 		}
 		defer rc.Close()
 
-		io.Copy(os.Stdout, rc)
-
+		scanner := bufio.NewScanner(rc)
+		var nLines uint64
+		for scanner.Scan() {
+			if err := scanner.Err(); err != nil {
+				err = ErrUnableToReadLogs.Wrap(err)
+				logrus.WithError(err).Errorf("unable to scan logs byte stream")
+				return err
+			}
+			fmt.Println(scanner.Text())
+			nLines++
+		}
+		fmt.Printf("%d lines of logs read\n", nLines)
 		return nil
 	},
 	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:    "quiet",
+			Aliases: []string{"q"},
+			Usage:   "print only logs and errors",
+			Value:   false,
+		},
 		&cli.BoolFlag{
 			Name:    "follow",
 			Aliases: []string{"f"},
