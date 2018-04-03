@@ -12,14 +12,14 @@ import (
 func isStop(word string) bool {
 	word = strings.TrimSpace(strings.ToLower(word))
 	switch word {
-	case "n", "no", "nope", "stop", "q", "quit", "exit", "e":
+	case "n", "no", "nope", "stop", "q", "quit", "exit", "e", "-":
 		return true
 	default:
 		return false
 	}
 }
 
-func withPromt(promt string) (string, bool) {
+func askLine(promt string) (string, bool) {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Printf("%s", promt)
 	var input string
@@ -42,22 +42,25 @@ func yes(message string) (bool, string) {
 }
 
 func askWord(message string) (string, bool) {
-	fmt.Printf("%s : ", message)
+	fmt.Printf("%s", message)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanWords)
+	var input string
 	for scanner.Scan() {
-		return scanner.Text(), true
+		input = scanner.Text()
+		break
 	}
-	return "", false
+	return input, scanner.Err() == io.EOF
 }
 
 func askFieldToChange(fields []string) (int, bool) {
+	fmt.Println("")
 	for i, field := range fields {
 		fmt.Printf("%d) %s\n", i+1, field)
 	}
 	for {
-		answer, ok := askWord(fmt.Sprintf("Which field do you want to change? (print no to stop)"))
-		if !ok {
+		answer, exit := askLine(fmt.Sprintf("Which field do you want to change? (print no to stop): "))
+		if exit || isStop(answer) {
 			return -1, false
 		}
 		switch strings.ToLower(answer) {
@@ -66,8 +69,7 @@ func askFieldToChange(fields []string) (int, bool) {
 		}
 		field, err := strconv.Atoi(answer)
 		if err != nil {
-			fmt.Printf("Please, type number!\n")
-			continue
+			return -1, false
 		}
 		if field < 1 || field > len(fields) {
 			fmt.Printf("Please, value have to be in range 1-%d\n", len(fields))
