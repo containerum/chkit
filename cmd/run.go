@@ -101,6 +101,7 @@ func Run(args []string) error {
 			commandDelete,
 			commandUpdate,
 			commandLogs,
+			CommandCreate,
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
