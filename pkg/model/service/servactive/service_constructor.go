@@ -68,6 +68,11 @@ func fillServiceField() (service.Service, error) {
 			}
 			serv.Ports = ports
 		case domain:
+			domain, err := getDomain()
+			if err != nil {
+				return serv, err
+			}
+			serv.Domain = domain
 		case ips:
 			IPs, err := getIPs()
 			if err != nil {
@@ -75,19 +80,23 @@ func fillServiceField() (service.Service, error) {
 			}
 			serv.IPs = IPs
 		case deploy:
+			deploy, err := getDeploy()
+			if err != nil {
+				return serv, err
+			}
+			serv.Deploy = deploy
 		default:
 			panic("[service interactive constructor] unreacheable state in field selection func")
 		}
 	}
-	return serv, nil
 }
 
 func defaultService() service.Service {
 	return service.Service{
 		Name:   namegen.ColoredPhysics(),
-		Domain: defaultString,
+		Domain: "undefined (optional)",
 		IPs:    nil,
 		Ports:  nil,
-		Deploy: defaultString,
+		Deploy: "undefined (required)",
 	}
 }
