@@ -4,25 +4,25 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/containerum/chkit/pkg/util/namegen"
-
 	"github.com/containerum/chkit/pkg/model/service"
+	"github.com/containerum/chkit/pkg/util/namegen"
 )
 
 func getName(defaultName string) (string, error) {
 	for {
-		name, ok := askWord(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
+		name, _ := askLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
 			defaultName))
-		if !ok {
-			return "", ErrUserStoppedSession
-		}
 		if isStop(name) {
 			fmt.Printf("OK :(\n")
 			return "", ErrUserStoppedSession
+		}
+		if name == "" {
+			return defaultName, nil
 		}
 		if err := validateLabel(name); err != nil {
 			fmt.Printf("\nError: %v\nPrint new one: ", err)
@@ -107,7 +107,7 @@ func getPort() (service.Port, error) {
 func getPortName() (string, error) {
 	for {
 		defaultName := namegen.Aster()
-		name, _ := withPromt(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
+		name, _ := askLine(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
 		if isStop(name) {
 			return name, ErrUserStoppedSession
 		}
@@ -124,7 +124,7 @@ func getPortName() (string, error) {
 
 func getPortProtocol(name string) (string, error) {
 	for {
-		proto, _ := withPromt(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
+		proto, _ := askLine(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
 		if isStop(proto) {
 			return proto, ErrUserStoppedSession
 		}
@@ -144,7 +144,7 @@ func getPortProtocol(name string) (string, error) {
 
 func getTargetPort(name string) (int, error) {
 	for {
-		target_port_str, exit := withPromt(fmt.Sprintf("%s::target_port > ", name))
+		target_port_str, exit := askLine(fmt.Sprintf("%s::target_port > ", name))
 		if exit || isStop(target_port_str) {
 			return -1, ErrUserStoppedSession
 		}
@@ -159,7 +159,7 @@ func getTargetPort(name string) (int, error) {
 
 func getOptionalPort(name string) (*int, error) {
 	for {
-		optional_port_str, exit := withPromt(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
+		optional_port_str, exit := askLine(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
 		if exit || isStop(optional_port_str) {
 			return nil, ErrUserStoppedSession
 		}
@@ -191,4 +191,33 @@ func parsePort(text string) (service.Port, error) {
 		input.Port = tokens[3]
 	}
 	return service.Port{}, nil
+}
+
+func getDomain() (string, error) {
+	for {
+		domain, _ := askWord("Print domain (hit Ctrl+D or Enter to skip): ")
+		if domain == "" {
+			return "", nil
+		}
+		_, err := url.Parse(domain)
+		if err != nil {
+			fmt.Printf("Invalid domain %q. Try again.\n", domain)
+			continue
+		}
+		return domain, nil
+	}
+}
+
+func getDeploy() (string, error) {
+	for {
+		domain, exit := askWord("print deploy (hit Ctrl+D or Enter to skip): ")
+		if exit {
+			return "", ErrUserStoppedSession
+		}
+		if err := validateLabel(domain); err != nil {
+			fmt.Printf("Invalid domain name! Try again.\n")
+			continue
+		}
+		return domain, nil
+	}
 }
