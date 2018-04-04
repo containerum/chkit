@@ -15,6 +15,10 @@ func ColoredPhysics() string {
 	return Colors[i] + "-" + Physicists[j]
 }
 
+func Color() string {
+	return Colors[rnd.Intn(len(Colors))]
+}
+
 func Aster() string {
 	return Asteroids[rnd.Intn(len(Asteroids))]
 }
