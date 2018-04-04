@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/service"
+	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
@@ -23,58 +24,63 @@ type ConstructorConfig struct {
 func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, error) {
 	fmt.Printf("Hi there!\n")
 	if !config.Force {
-		ok, _ := Yes("Do you want to create service?")
+		ok, _ := activeToolkit.Yes("Do you want to create service?")
 		if !ok {
 			return nil, ErrUserStoppedSession
 		}
-		fmt.Printf("OK\n")
+		fmt.Printf("OK")
 	}
 	var list service.ServiceList
-	serv, err := fillServiceField()
-	switch err {
-	case ErrUserStoppedSession:
-		// pass
-	default:
-		return nil, err
-	}
-	list = append(list, serv)
-	fmt.Printf("Service %q added to list\n", serv.Name)
+	serv := defaultService()
+	var err error
 	for {
-		ok, _ := Yes("Dou you want to create another service?")
-		if !ok {
-			break
-		}
-		serv, err = fillServiceField()
+		serv, err = fillServiceField(serv)
 		switch err {
 		case nil:
 			list = append(list, serv)
 		case ErrUserStoppedSession:
-			continue
+			ok, _ := activeToolkit.Yes("Do you want to exit")
+			if !ok {
+				return list, ErrUserStoppedSession
+			}
+			fmt.Printf("OK")
 		default:
 			return list, err
 		}
+		if err = validateService(serv); err != nil {
+			fmt.Println(err)
+			ok, _ := activeToolkit.Yes("Do you want to fix service?")
+			if ok {
+				continue
+			}
+		}
+		ok, _ := activeToolkit.Yes("Do you want to create service?")
+		if !ok {
+			return list, ErrUserStoppedSession
+		}
+		fmt.Printf("OK")
+		serv = defaultService()
 	}
 	return list, nil
 }
 
-func fillServiceField() (service.Service, error) {
+func fillServiceField(serv service.Service) (service.Service, error) {
 	const (
 		name = iota
+		deploy
 		domain
 		ips
 		ports
-		deploy
 	)
-	serv := defaultService()
 	for {
 		fields := []string{
 			fmt.Sprintf("Name  : %s", serv.Name),
+			fmt.Sprintf("Deploy: %s", serv.Deploy),
 			fmt.Sprintf("Domain: %s", serv.Domain),
 			fmt.Sprintf("IPs   : [%s]", strings.Join(serv.IPs, ", ")),
 			fmt.Sprintf("Ports : %v", service.PortList(serv.Ports)),
-			fmt.Sprintf("Deploy: %s", serv.Deploy),
 		}
-		field, ok := AskFieldToChange(fields)
+		field, ok := activeToolkit.AskFieldToChange(fields)
 		if !ok {
 			return serv, ErrUserStoppedSession
 		}

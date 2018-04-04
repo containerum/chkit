@@ -9,15 +9,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/containerum/chkit/pkg/util/activeToolkit"
+
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/namegen"
 )
 
 func getName(defaultName string) (string, error) {
 	for {
-		name, _ := AskLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
+		name, _ := activeToolkit.AskLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
 			defaultName))
-		if IsStop(name) {
+		if activeToolkit.IsStop(name) {
 			fmt.Printf("OK :(\n")
 			return "", ErrUserStoppedSession
 		}
@@ -40,7 +42,7 @@ func getIPs() ([]string, error) {
 	IPs := make([]string, 0, 4)
 	for scanner.Scan() {
 		text := scanner.Text()
-		if IsStop(text) {
+		if activeToolkit.IsStop(text) {
 			break
 		}
 		if net.ParseIP(text) == nil {
@@ -65,7 +67,7 @@ func getPorts() ([]service.Port, error) {
 			return nil, err
 		}
 		fmt.Printf("OK, port %q is added\n", port.Name)
-		ok, _ := Yes("Continue creating ports?")
+		ok, _ := activeToolkit.Yes("Continue creating ports?")
 		if !ok {
 			break
 		}
@@ -107,8 +109,8 @@ func getPort() (service.Port, error) {
 func getPortName() (string, error) {
 	for {
 		defaultName := namegen.Aster()
-		name, _ := AskLine(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
-		if IsStop(name) {
+		name, _ := activeToolkit.AskLine(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
+		if activeToolkit.IsStop(name) {
 			return name, ErrUserStoppedSession
 		}
 		if name == "" {
@@ -124,8 +126,8 @@ func getPortName() (string, error) {
 
 func getPortProtocol(name string) (string, error) {
 	for {
-		proto, _ := AskLine(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
-		if IsStop(proto) {
+		proto, _ := activeToolkit.AskLine(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
+		if activeToolkit.IsStop(proto) {
 			return proto, ErrUserStoppedSession
 		}
 		switch strings.ToLower(proto) {
@@ -144,34 +146,34 @@ func getPortProtocol(name string) (string, error) {
 
 func getTargetPort(name string) (int, error) {
 	for {
-		target_port_str, exit := AskLine(fmt.Sprintf("%s::target_port > ", name))
-		if exit || IsStop(target_port_str) {
+		targetPortStr, exit := activeToolkit.AskLine(fmt.Sprintf("%s::target_port > ", name))
+		if exit || activeToolkit.IsStop(targetPortStr) {
 			return -1, ErrUserStoppedSession
 		}
-		target_port, err := strconv.Atoi(target_port_str)
+		targePort, err := strconv.Atoi(targetPortStr)
 		if err != nil {
 			fmt.Printf("Target port can be only number! Try again:\n")
 			continue
 		}
-		return target_port, nil
+		return targePort, nil
 	}
 }
 
 func getOptionalPort(name string) (*int, error) {
 	for {
-		optional_port_str, exit := AskLine(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
-		if exit || IsStop(optional_port_str) {
+		optionalPortStr, exit := activeToolkit.AskLine(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
+		if exit || activeToolkit.IsStop(optionalPortStr) {
 			return nil, ErrUserStoppedSession
 		}
-		if optional_port_str == "" {
+		if optionalPortStr == "" {
 			return nil, nil
 		}
-		optional_port, err := strconv.Atoi(optional_port_str)
+		optionalPort, err := strconv.Atoi(optionalPortStr)
 		if err != nil {
 			fmt.Printf("Port can be only number! Try again:\n")
 			continue
 		}
-		return &optional_port, nil
+		return &optionalPort, nil
 	}
 }
 
@@ -195,7 +197,7 @@ func parsePort(text string) (service.Port, error) {
 
 func getDomain() (string, error) {
 	for {
-		domain, _ := AskWord("Print domain (hit Ctrl+D or Enter to skip): ")
+		domain, _ := activeToolkit.AskWord("Print domain (hit Ctrl+D or Enter to skip): ")
 		if domain == "" {
 			return "", nil
 		}
@@ -210,7 +212,7 @@ func getDomain() (string, error) {
 
 func getDeploy() (string, error) {
 	for {
-		domain, exit := AskWord("print deploy (hit Ctrl+D or Enter to skip): ")
+		domain, exit := activeToolkit.AskWord("print deploy (hit Ctrl+D or Enter to skip): ")
 		if exit {
 			return "", ErrUserStoppedSession
 		}

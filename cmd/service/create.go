@@ -12,14 +12,14 @@ var Create = &cli.Command{
 	Name:    "service",
 	Aliases: aliases,
 	Action: func(ctx *cli.Context) error {
-		serv, err := servactive.RunInteractveConstructor(servactive.ConstructorConfig{
+		list, err := servactive.RunInteractveConstructor(servactive.ConstructorConfig{
 			Force: ctx.Bool("force"),
 		})
 		if err != nil {
 			logrus.WithError(err).Debugf("error while constructing service")
 			return err
 		}
-		fmt.Println(serv.RenderTable())
+		fmt.Println(list.RenderTable())
 		return nil
 	},
 	Flags: []cli.Flag{
