@@ -16,5 +16,5 @@ func (container *Container) String() string {
 		container.Name,
 		fmt.Sprintf("CPU %s", container.Limits.CPU),
 		fmt.Sprintf("MEM %s", container.Limits.Memory),
-	}, ", ")
+	}, " ") + "; "
 }
