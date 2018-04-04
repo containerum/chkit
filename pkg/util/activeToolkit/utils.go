@@ -54,26 +54,38 @@ func AskWord(message string) (string, bool) {
 }
 
 func AskFieldToChange(fields []string) (int, bool) {
-	fmt.Println("")
-	for i, field := range fields {
-		fmt.Printf("%d) %s\n", i+1, field)
+	_, n, exit := Options("Which field do you want to change? (print no to stop): ",
+		true,
+		fields...)
+	return n, !exit
+}
+
+func Options(msg string, withStop bool, options ...string) (string, int, bool) {
+	fmt.Printf("%s\n", msg)
+	for i, opt := range options {
+		fmt.Printf("%d) %s\n", i+1, opt)
 	}
 	for {
-		answer, exit := AskLine(fmt.Sprintf("Which field do you want to change? (print no to stop): "))
-		if exit || IsStop(answer) {
-			return -1, false
+		nStr, exit := AskLine("Choose wisely: ")
+		if exit {
+			return "", -1, exit
 		}
-		switch strings.ToLower(answer) {
-		case "no", "n", "-", "skip", "exit", "q", "quit":
-			return -1, false
+		if withStop && IsStop(nStr) {
+			return "", -1, true
 		}
-		field, err := strconv.Atoi(answer)
-		if err != nil {
-			return -1, false
+		if n, err := strconv.Atoi(nStr); err != nil {
+			for i, opt := range options {
+				if opt == strings.TrimSpace(nStr) {
+					return opt, i, false
+				}
+			}
+			fmt.Printf("Option %q not found :( Try again.\n", nStr)
+			continue
+		} else if n > 0 && n <= len(options) {
+			return options[n-1], n - 1, false
+		} else {
+			fmt.Printf("Option %d not found :( Try again.\n", n)
+			continue
 		}
-		if field < 1 || field > len(fields) {
-			fmt.Printf("Please, value have to be in range 1-%d\n", len(fields))
-		}
-		return field - 1, true
 	}
 }
