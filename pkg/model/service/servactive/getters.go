@@ -15,9 +15,9 @@ import (
 
 func getName(defaultName string) (string, error) {
 	for {
-		name, _ := askLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
+		name, _ := AskLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
 			defaultName))
-		if isStop(name) {
+		if IsStop(name) {
 			fmt.Printf("OK :(\n")
 			return "", ErrUserStoppedSession
 		}
@@ -40,7 +40,7 @@ func getIPs() ([]string, error) {
 	IPs := make([]string, 0, 4)
 	for scanner.Scan() {
 		text := scanner.Text()
-		if isStop(text) {
+		if IsStop(text) {
 			break
 		}
 		if net.ParseIP(text) == nil {
@@ -65,7 +65,7 @@ func getPorts() ([]service.Port, error) {
 			return nil, err
 		}
 		fmt.Printf("OK, port %q is added\n", port.Name)
-		ok, _ := yes("Continue creating ports?")
+		ok, _ := Yes("Continue creating ports?")
 		if !ok {
 			break
 		}
@@ -107,8 +107,8 @@ func getPort() (service.Port, error) {
 func getPortName() (string, error) {
 	for {
 		defaultName := namegen.Aster()
-		name, _ := askLine(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
-		if isStop(name) {
+		name, _ := AskLine(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
+		if IsStop(name) {
 			return name, ErrUserStoppedSession
 		}
 		if name == "" {
@@ -124,8 +124,8 @@ func getPortName() (string, error) {
 
 func getPortProtocol(name string) (string, error) {
 	for {
-		proto, _ := askLine(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
-		if isStop(proto) {
+		proto, _ := AskLine(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
+		if IsStop(proto) {
 			return proto, ErrUserStoppedSession
 		}
 		switch strings.ToLower(proto) {
@@ -144,8 +144,8 @@ func getPortProtocol(name string) (string, error) {
 
 func getTargetPort(name string) (int, error) {
 	for {
-		target_port_str, exit := askLine(fmt.Sprintf("%s::target_port > ", name))
-		if exit || isStop(target_port_str) {
+		target_port_str, exit := AskLine(fmt.Sprintf("%s::target_port > ", name))
+		if exit || IsStop(target_port_str) {
 			return -1, ErrUserStoppedSession
 		}
 		target_port, err := strconv.Atoi(target_port_str)
@@ -159,8 +159,8 @@ func getTargetPort(name string) (int, error) {
 
 func getOptionalPort(name string) (*int, error) {
 	for {
-		optional_port_str, exit := askLine(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
-		if exit || isStop(optional_port_str) {
+		optional_port_str, exit := AskLine(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
+		if exit || IsStop(optional_port_str) {
 			return nil, ErrUserStoppedSession
 		}
 		if optional_port_str == "" {
@@ -195,7 +195,7 @@ func parsePort(text string) (service.Port, error) {
 
 func getDomain() (string, error) {
 	for {
-		domain, _ := askWord("Print domain (hit Ctrl+D or Enter to skip): ")
+		domain, _ := AskWord("Print domain (hit Ctrl+D or Enter to skip): ")
 		if domain == "" {
 			return "", nil
 		}
@@ -210,7 +210,7 @@ func getDomain() (string, error) {
 
 func getDeploy() (string, error) {
 	for {
-		domain, exit := askWord("print deploy (hit Ctrl+D or Enter to skip): ")
+		domain, exit := AskWord("print deploy (hit Ctrl+D or Enter to skip): ")
 		if exit {
 			return "", ErrUserStoppedSession
 		}

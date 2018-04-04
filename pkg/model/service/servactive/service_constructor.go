@@ -20,17 +20,41 @@ type ConstructorConfig struct {
 	Force bool
 }
 
-func RunInteractveConstructor(config ConstructorConfig) (service.Service, error) {
+func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, error) {
 	fmt.Printf("Hi there!\n")
 	if !config.Force {
-		ok, _ := yes("Do you want to create service?")
+		ok, _ := Yes("Do you want to create service?")
 		if !ok {
-			return service.Service{}, ErrUserStoppedSession
+			return nil, ErrUserStoppedSession
+		}
+		fmt.Printf("OK\n")
+	}
+	var list service.ServiceList
+	serv, err := fillServiceField()
+	switch err {
+	case ErrUserStoppedSession:
+		// pass
+	default:
+		return nil, err
+	}
+	list = append(list, serv)
+	fmt.Printf("Service %q added to list\n", serv.Name)
+	for {
+		ok, _ := Yes("Dou you want to create another service?")
+		if !ok {
+			break
+		}
+		serv, err = fillServiceField()
+		switch err {
+		case nil:
+			list = append(list, serv)
+		case ErrUserStoppedSession:
+			continue
+		default:
+			return list, err
 		}
 	}
-	fmt.Printf("OK\n")
-	serv, err := fillServiceField()
-	return serv, err
+	return list, nil
 }
 
 func fillServiceField() (service.Service, error) {
@@ -50,7 +74,7 @@ func fillServiceField() (service.Service, error) {
 			fmt.Sprintf("Ports : %v", service.PortList(serv.Ports)),
 			fmt.Sprintf("Deploy: %s", serv.Deploy),
 		}
-		field, ok := askFieldToChange(fields)
+		field, ok := AskFieldToChange(fields)
 		if !ok {
 			return serv, ErrUserStoppedSession
 		}

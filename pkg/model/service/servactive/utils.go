@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func isStop(word string) bool {
+func IsStop(word string) bool {
 	word = strings.TrimSpace(strings.ToLower(word))
 	switch word {
 	case "n", "no", "nope", "stop", "q", "quit", "exit", "e", "-":
@@ -19,7 +19,7 @@ func isStop(word string) bool {
 	}
 }
 
-func askLine(promt string) (string, bool) {
+func AskLine(promt string) (string, bool) {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Printf("%s", promt)
 	var input string
@@ -30,7 +30,7 @@ func askLine(promt string) (string, bool) {
 	return input, scanner.Err() == io.EOF
 }
 
-func yes(message string) (bool, string) {
+func Yes(message string) (bool, string) {
 	fmt.Printf("%s [Y/N]: ", message)
 	scanner := bufio.NewScanner(os.Stdin)
 	answer := "N"
@@ -41,7 +41,7 @@ func yes(message string) (bool, string) {
 	return strings.ToLower(answer) == "y", answer
 }
 
-func askWord(message string) (string, bool) {
+func AskWord(message string) (string, bool) {
 	fmt.Printf("%s", message)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanWords)
@@ -53,14 +53,14 @@ func askWord(message string) (string, bool) {
 	return input, scanner.Err() == io.EOF
 }
 
-func askFieldToChange(fields []string) (int, bool) {
+func AskFieldToChange(fields []string) (int, bool) {
 	fmt.Println("")
 	for i, field := range fields {
 		fmt.Printf("%d) %s\n", i+1, field)
 	}
 	for {
-		answer, exit := askLine(fmt.Sprintf("Which field do you want to change? (print no to stop): "))
-		if exit || isStop(answer) {
+		answer, exit := AskLine(fmt.Sprintf("Which field do you want to change? (print no to stop): "))
+		if exit || IsStop(answer) {
 			return -1, false
 		}
 		switch strings.ToLower(answer) {
