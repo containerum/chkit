@@ -28,7 +28,13 @@ func constructDeployment(config Config) (deployment.Deployment, error) {
 		_, n, _ := activeToolkit.Options("Whats't next?", false,
 			fmt.Sprintf("Set name     : %s", depl.Name),
 			fmt.Sprintf("Set replicas : %d", depl.Replicas),
-			fmt.Sprintf("Set containers: %v", depl.Containers),
+			fmt.Sprintf("Set containers: %v", func() string {
+				if len(depl.Containers) == 0 {
+					return "none (required)"
+				} else {
+					return fmt.Sprintf("%v", depl.Containers)
+				}
+			}()),
 			"Confirm",
 			"Exit")
 		switch n {

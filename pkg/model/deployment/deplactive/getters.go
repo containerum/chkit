@@ -4,6 +4,12 @@ import (
 	"fmt"
 	"strings"
 
+	"git.containerum.net/ch/kube-client/pkg/model"
+
+	"github.com/containerum/chkit/pkg/util/namegen"
+
+	"github.com/containerum/chkit/pkg/model/container"
+
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/containerum/chkit/pkg/util/validation"
@@ -39,5 +45,24 @@ func getReplicas(defaultReplicas uint) uint {
 			continue
 		}
 		return replicas
+	}
+}
+
+func getContainers() []container.Container {
+	return nil
+}
+
+func getContainer() container.Container {
+	con := container.Container{
+		model.Container{
+			Name:  namegen.Aster() + "-" + namegen.Color(),
+			Image: "unknown (required)",
+		},
+	}
+	fmt.Printf("Ok, the hard part. Let's create a container\n")
+	for {
+		activeToolkit.Options("What's next?", false,
+			fmt.Sprintf("Name : %q", con.Name),
+			fmt.Sprintf("Image : %q", con.Image))
 	}
 }
