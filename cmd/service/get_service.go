@@ -51,7 +51,7 @@ var GetService = &cli.Command{
 			}
 			show = list
 		}
-		return util.WriteData(ctx, show)
+		return util.ExportDataCommand(ctx, show)
 	},
 	Flags: util.GetFlags,
 }

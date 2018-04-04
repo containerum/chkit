@@ -9,13 +9,27 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
-func WriteData(ctx *cli.Context, renderer model.Renderer) error {
-	var err error
+const (
+	JSON = "json"
+	YAML = "yaml"
+)
+
+func ExportDataCommand(ctx *cli.Context, renderer model.Renderer) error {
+	var outputFile *string
+	if ctx.IsSet("file") {
+		f := ctx.String("file")
+		outputFile = &f
+	}
+	return ExportData(ctx.String("output"), outputFile, renderer)
+}
+
+func ExportData(format string, outputFile *string, renderer model.Renderer) error {
 	var data string
-	switch ctx.String("output") {
-	case "json":
+	var err error
+	switch format {
+	case JSON:
 		data, err = renderer.RenderJSON()
-	case "yaml":
+	case YAML:
 		data, err = renderer.RenderYAML()
 	default:
 		data = renderer.RenderTable()
@@ -23,9 +37,9 @@ func WriteData(ctx *cli.Context, renderer model.Renderer) error {
 	if err != nil {
 		return err
 	}
-	if !ctx.IsSet("file") {
+	if outputFile == nil {
 		fmt.Println(data)
 		return nil
 	}
-	return ioutil.WriteFile(ctx.String("file"), []byte(data), os.ModePerm)
+	return ioutil.WriteFile(*outputFile, []byte(data), os.ModePerm)
 }

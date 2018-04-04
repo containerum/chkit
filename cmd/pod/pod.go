@@ -52,7 +52,7 @@ var GetPodAction = &cli.Command{
 			}
 			showItem = list
 		}
-		err = util.WriteData(ctx, showItem)
+		err = util.ExportDataCommand(ctx, showItem)
 		if err != nil {
 			logrus.Debugf("fatal error: %v", err)
 		}
