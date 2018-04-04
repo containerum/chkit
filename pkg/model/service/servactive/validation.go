@@ -3,22 +3,17 @@ package servactive
 import (
 	"bytes"
 	"net/url"
-	"regexp"
+
+	"github.com/containerum/chkit/pkg/util/validation"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-
 	"github.com/containerum/chkit/pkg/model/service"
 )
 
 const (
-	ErrInvalidLabel          chkitErrors.Err = "invalid label"
 	ErrInvalidServiceName    chkitErrors.Err = "invalid service name"
 	ErrInvalidServiceDomain  chkitErrors.Err = "invalid service domain"
 	ErrInvalidDeploymentName chkitErrors.Err = "invalid deployment name"
-)
-
-var (
-	labelRe = regexp.MustCompile("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$")
 )
 
 type ListErr []error
@@ -35,7 +30,7 @@ func (list ListErr) Error() string {
 
 func validateService(service service.Service) error {
 	var errs ListErr
-	if err := validateLabel(service.Name); err != nil {
+	if err := validation.ValidateLabel(service.Name); err != nil {
 		errs = append(errs, ErrInvalidServiceName)
 	}
 	if service.Domain != "" {
@@ -43,18 +38,11 @@ func validateService(service service.Service) error {
 			errs = append(errs, ErrInvalidServiceDomain.Wrap(err))
 		}
 	}
-	if err := validateLabel(service.Deploy); err != nil {
+	if err := validation.ValidateLabel(service.Deploy); err != nil {
 		errs = append(errs, ErrInvalidDeploymentName)
 	}
 	if len(errs) == 0 {
 		return nil
 	}
 	return errs
-}
-
-func validateLabel(label string) error {
-	if !labelRe.MatchString(label) {
-		return ErrInvalidLabel
-	}
-	return nil
 }

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/validation"
 
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/namegen"
@@ -26,7 +27,7 @@ func getName(defaultName string) (string, error) {
 		if name == "" {
 			return defaultName, nil
 		}
-		if err := validateLabel(name); err != nil {
+		if err := validation.ValidateLabel(name); err != nil {
 			fmt.Printf("\nError: %v\nPrint new one: ", err)
 			continue
 		}
@@ -116,7 +117,7 @@ func getPortName() (string, error) {
 		if name == "" {
 			name = defaultName
 		}
-		if err := validateLabel(name); err != nil {
+		if err := validation.ValidateLabel(name); err != nil {
 			fmt.Printf("%v. Try again:\n", err)
 			continue
 		}

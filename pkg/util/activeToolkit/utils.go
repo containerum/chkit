@@ -67,10 +67,7 @@ func Options(msg string, withStop bool, options ...string) (string, int, bool) {
 	}
 	for {
 		nStr, exit := AskLine("Choose wisely: ")
-		if exit {
-			return "", -1, exit
-		}
-		if withStop && IsStop(nStr) {
+		if exit || (withStop && IsStop(nStr)) {
 			return "", -1, true
 		}
 		if n, err := strconv.Atoi(nStr); err != nil {
