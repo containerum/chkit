@@ -151,8 +151,8 @@ func getTargetPort(name string) (int, error) {
 			return -1, ErrUserStoppedSession
 		}
 		targePort, err := strconv.Atoi(targetPortStr)
-		if err != nil {
-			fmt.Printf("Target port can be only number! Try again:\n")
+		if err != nil || targePort < 1 || targePort > 65535 {
+			fmt.Printf("Target port can be only number 1..65535! Try again:\n")
 			continue
 		}
 		return targePort, nil
@@ -169,8 +169,8 @@ func getOptionalPort(name string) (*int, error) {
 			return nil, nil
 		}
 		optionalPort, err := strconv.Atoi(optionalPortStr)
-		if err != nil {
-			fmt.Printf("Port can be only number! Try again:\n")
+		if err != nil || optionalPort < 11000 || optionalPort > 65535 {
+			fmt.Printf("Port can be only number 11000..65535! Try again:\n")
 			continue
 		}
 		return &optionalPort, nil
