@@ -3,7 +3,10 @@ package cliserv
 import (
 	"fmt"
 
+	"github.com/containerum/chkit/cmd/util"
+
 	"github.com/containerum/chkit/pkg/model/service/servactive"
+	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -12,14 +15,40 @@ var Create = &cli.Command{
 	Name:    "service",
 	Aliases: aliases,
 	Action: func(ctx *cli.Context) error {
-		list, err := servactive.RunInteractveConstructor(servactive.ConstructorConfig{
-			Force: ctx.Bool("force"),
-		})
+		client := util.GetClient(ctx)
+		ns := util.GetNamespace(ctx)
+		deplList, err := client.GetDeploymentList(ns)
 		if err != nil {
+			logrus.WithError(err).Errorf("error while gettin deployment list")
+			return err
+		}
+		if len(deplList) == 0 {
+			fmt.Printf("You have no deployments to create service :(")
+			return nil
+		}
+		deployments := make([]string, 0, len(deplList))
+		for _, depl := range deplList {
+			deployments = append(deployments, depl.Name)
+		}
+		list, err := servactive.RunInteractveConstructor(servactive.ConstructorConfig{
+			Force:       ctx.Bool("force"),
+			Deployments: deployments,
+		})
+		switch err {
+		case servactive.ErrUserStoppedSession, nil:
+			// pass
+		default:
 			logrus.WithError(err).Debugf("error while constructing service")
 			return err
 		}
+		if len(list) == 0 {
+			fmt.Printf("You didn't create any services\n")
+			return nil
+		}
 		fmt.Println(list.RenderTable())
+		if yes, _ := activeToolkit.Yes("Do you want to push services to server?"); yes {
+			fmt.Printf("Pushing the limits...")
+		}
 		return nil
 	},
 	Flags: []cli.Flag{

@@ -210,16 +210,12 @@ func getDomain() (string, error) {
 	}
 }
 
-func getDeploy() (string, error) {
+func getDeploy(deployments []string) (string, error) {
 	for {
-		domain, exit := activeToolkit.AskWord("print deploy (hit Ctrl+D or Enter to skip): ")
+		deployment, _, exit := activeToolkit.Options("Choose deployment (print stop to exit):", true, deployments...)
 		if exit {
 			return "", ErrUserStoppedSession
 		}
-		if err := validateLabel(domain); err != nil {
-			fmt.Printf("Invalid domain name! Try again.\n")
-			continue
-		}
-		return domain, nil
+		return deployment, nil
 	}
 }

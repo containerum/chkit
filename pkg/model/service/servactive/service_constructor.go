@@ -4,21 +4,22 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/containerum/chkit/pkg/util/namegen"
-
-	"github.com/containerum/chkit/pkg/chkitErrors"
 )
 
 const (
+	ErrUserExit             chkitErrors.Err = "user exit"
 	ErrUserStoppedSession   chkitErrors.Err = "user stopped session"
 	ErrInvalidSymbolInLabel chkitErrors.Err = "invalid symbol in label"
 	defaultString                           = "undefined"
 )
 
 type ConstructorConfig struct {
-	Force bool
+	Force       bool
+	Deployments []string
 }
 
 func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, error) {
@@ -26,7 +27,7 @@ func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, er
 	if !config.Force {
 		ok, _ := activeToolkit.Yes("Do you want to create service?")
 		if !ok {
-			return nil, ErrUserStoppedSession
+			return nil, ErrUserExit
 		}
 		fmt.Printf("OK")
 	}
@@ -34,56 +35,68 @@ func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, er
 	serv := defaultService()
 	var err error
 	for {
-		serv, err = fillServiceField(serv)
+		serv, err = fillServiceField(config, serv)
 		switch err {
 		case nil:
-			list = append(list, serv)
+			// pass
 		case ErrUserStoppedSession:
-			ok, _ := activeToolkit.Yes("Do you want to exit")
-			if !ok {
-				return list, ErrUserStoppedSession
-			}
-			fmt.Printf("OK")
+			return list, err
+		case ErrUserExit:
+			return list, nil
 		default:
 			return list, err
 		}
 		if err = validateService(serv); err != nil {
-			fmt.Println(err)
-			ok, _ := activeToolkit.Yes("Do you want to fix service?")
-			if ok {
+			fmt.Printf("Error: %v", err)
+			_, res, _ := activeToolkit.Options("What's next?",
+				true,
+				"fix service",
+				"create new service",
+				"exit")
+			switch {
+			case res == 0:
 				continue
+			case res == 1:
+				serv = defaultService()
+				continue
+			default:
+				return list, ErrUserExit
 			}
 		}
-		ok, _ := activeToolkit.Yes("Do you want to create service?")
+		if yes, _ := activeToolkit.Yes(fmt.Sprintf("Add %q to list?", serv.Name)); yes {
+			list = append(list, serv)
+			fmt.Printf("Service %q added to list\n", serv.Name)
+		}
+		ok, _ := activeToolkit.Yes("Do you want to create another service?")
 		if !ok {
 			return list, ErrUserStoppedSession
 		}
 		fmt.Printf("OK")
 		serv = defaultService()
 	}
-	return list, nil
 }
 
-func fillServiceField(serv service.Service) (service.Service, error) {
+func fillServiceField(config ConstructorConfig, serv service.Service) (service.Service, error) {
 	const (
 		name = iota
 		deploy
 		domain
 		ips
 		ports
+		pushServ
+		exit
 	)
 	for {
 		fields := []string{
-			fmt.Sprintf("Name  : %s", serv.Name),
-			fmt.Sprintf("Deploy: %s", serv.Deploy),
-			fmt.Sprintf("Domain: %s", serv.Domain),
-			fmt.Sprintf("IPs   : [%s]", strings.Join(serv.IPs, ", ")),
-			fmt.Sprintf("Ports : %v", service.PortList(serv.Ports)),
+			fmt.Sprintf("Set name  : %s", serv.Name),
+			fmt.Sprintf("Set deploy: %s", serv.Deploy),
+			fmt.Sprintf("Set domain: %s", serv.Domain),
+			fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
+			fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
+			"Push to list",
+			"Exit",
 		}
-		field, ok := activeToolkit.AskFieldToChange(fields)
-		if !ok {
-			return serv, ErrUserStoppedSession
-		}
+		_, field, _ := activeToolkit.Options("What's next?", false, fields...)
 		switch field {
 		case name:
 			name, err := getName(serv.Name)
@@ -110,11 +123,15 @@ func fillServiceField(serv service.Service) (service.Service, error) {
 			}
 			serv.IPs = IPs
 		case deploy:
-			deploy, err := getDeploy()
+			deploy, err := getDeploy(config.Deployments)
 			if err != nil {
 				return serv, err
 			}
 			serv.Deploy = deploy
+		case pushServ:
+			return serv, nil
+		case exit:
+			return serv, ErrUserExit
 		default:
 			panic("[service interactive constructor] unreacheable state in field selection func")
 		}
