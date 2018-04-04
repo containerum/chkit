@@ -87,3 +87,37 @@ func (client *Client) DeleteService(namespace, service string) error {
 		}
 	})
 }
+
+func (client *Client) CreateService(ns string, serv service.Service) error {
+	return retry(4, func() (bool, error) {
+		_, err := client.kubeAPIClient.CreateService(ns, serv.ToKube())
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			logrus.WithError(ErrResourceNotExists.Wrap(err)).
+				Debugf("error while creating service %q", serv.Name)
+			return false, ErrResourceNotExists.CommentF("namespace %q doesn't exist", ns)
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
+				Debugf("error while creating service %q", serv.Name)
+			return false, ErrYouDoNotHaveAccessToResource.
+				CommentF("you don't have create access to namespace %q", ns)
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			if err != nil {
+				logrus.WithError(err).
+					Debugf("error while creating service %q", serv.Name)
+			}
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+}

@@ -47,7 +47,12 @@ var Create = &cli.Command{
 		}
 		fmt.Println(list.RenderTable())
 		if yes, _ := activeToolkit.Yes("Do you want to push services to server?"); yes {
-			fmt.Printf("Pushing the limits...")
+			for _, serv := range list {
+				if err := client.CreateService(ns, serv); err != nil {
+					logrus.WithError(err).Errorf("unable to create service %q", serv.Name)
+					return err
+				}
+			}
 		}
 		return nil
 	},
