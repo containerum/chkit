@@ -32,7 +32,7 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 	}
 }
 
-func (depl Deployment) ToKube() model.Deployment {
+func (depl *Deployment) ToKube() model.Deployment {
 	if depl.origin != nil {
 		return *depl.origin
 	}
