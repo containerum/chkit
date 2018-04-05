@@ -2,6 +2,9 @@ package clideployment
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
@@ -24,13 +27,38 @@ var Create = &cli.Command{
 		}
 		fmt.Println(depl.RenderTable())
 		yes, _ := activeToolkit.Yes("Do you want to push deployment to server?")
-		if !yes {
-			return nil
+		if yes {
+			err = client.CreateDeployment(namespace, depl)
+			if err != nil {
+				logrus.WithError(err).Error("unable to create deployment")
+				fmt.Println(err)
+			}
 		}
-		err = client.CreateDeployment(namespace, depl)
-		if err != nil {
-			logrus.WithError(err).Error("unable to create deployment")
-			return err
+		_, option, _ := activeToolkit.Options("Do you want to dump deploymnent?", false,
+			"Yes, to file",
+			"Yes, to stdout",
+			"No")
+
+		switch option {
+		case 0:
+			filename, _ := activeToolkit.AskLine("Print filename > ")
+			if strings.TrimSpace(filename) == "" {
+				return nil
+			}
+			depl.ToKube()
+			data, _ := depl.MarshalJSON()
+			err := ioutil.WriteFile(filename, data, os.ModePerm)
+			if err != nil {
+				logrus.WithError(err).Error("unable to write deployment to file")
+				fmt.Println(err)
+				return nil
+			}
+		case 1:
+			data, _ := depl.RenderYAML()
+			fmt.Println(data)
+			return nil
+		default:
+			return nil
 		}
 		return nil
 	},
