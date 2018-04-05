@@ -34,6 +34,10 @@
   name = "git.containerum.net/ch/kube-client"
 
 [[constraint]]
+  name = "k8s.io/apimachinery"
+  version = "kubernetes-1.9.3"
+
+[[constraint]]
   branch = "master"
   name = "github.com/containerum/solutions"
 
