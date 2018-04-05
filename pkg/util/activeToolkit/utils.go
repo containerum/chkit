@@ -86,3 +86,24 @@ func Options(msg string, withStop bool, options ...string) (string, int, bool) {
 		}
 	}
 }
+
+func OrString(str, def string) string {
+	if strings.TrimSpace(str) == "" {
+		return def
+	}
+	return str
+}
+
+func OrStringer(str fmt.Stringer, def string) string {
+	if str == nil {
+		return def
+	}
+	return str.String()
+}
+
+func OrValue(val interface{}, def string) string {
+	if val == nil {
+		return def
+	}
+	return fmt.Sprintf("%v", val)
+}
