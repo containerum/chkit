@@ -6,6 +6,7 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
 	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/sirupsen/logrus"
 )
 
 func (client *Client) GetDeployment(namespace, deplName string) (deployment.Deployment, error) {
@@ -70,6 +71,40 @@ func (client *Client) DeleteDeployment(namespace, deplName string) error {
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
 			return true, client.Auth()
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+}
+
+func (client *Client) CreateDeployment(ns string, depl deployment.Deployment) error {
+	return retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.CreateDeployment(ns, depl.ToKube())
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			logrus.WithError(ErrResourceNotExists.Wrap(err)).
+				Debugf("error while creating service %q", depl.Name)
+			return false, ErrResourceNotExists.CommentF("namespace %q doesn't exist", ns)
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
+				Debugf("error while creating service %q", depl.Name)
+			return false, ErrYouDoNotHaveAccessToResource.
+				CommentF("you don't have create access to namespace %q", ns)
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			if err != nil {
+				logrus.WithError(err).
+					Debugf("error while creating service %q", depl.Name)
+			}
+			return true, err
 		default:
 			return true, ErrFatalError.Wrap(err)
 		}
