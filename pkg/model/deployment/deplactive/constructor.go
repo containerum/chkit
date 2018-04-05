@@ -2,6 +2,7 @@ package deplactive
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
@@ -32,6 +33,7 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 			fmt.Sprintf("Set name     : %s", depl.Name),
 			fmt.Sprintf("Set replicas : %d", depl.Replicas),
 			fmt.Sprintf("Set containers: %v", activeToolkit.OrValue(depl.Containers, "none (required)")),
+			"From file",
 			"Confirm",
 			"Exit")
 		switch n {
@@ -42,6 +44,18 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 		case 2:
 			depl.Containers = getContainers()
 		case 3:
+			if filename, _ := activeToolkit.AskLine("print filename > "); strings.TrimSpace(filename) == "" {
+				fmt.Printf("No file chosen\n")
+				continue
+			} else {
+				var err error
+				depl, err = fromFile(filename)
+				if err != nil {
+					return depl, err
+				}
+				continue
+			}
+		case 4:
 			return depl, nil
 		default:
 			return depl, ErrUserStopped
