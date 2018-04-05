@@ -38,7 +38,7 @@ func getReplicas(defaultReplicas uint) uint {
 		if strings.TrimSpace(replicasStr) == "" {
 			return defaultReplicas
 		}
-		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas > 15 {
+		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas == 0 || replicas > 15 {
 			fmt.Printf("Expected number 1..15! Try again.\n")
 			continue
 		}
@@ -168,7 +168,7 @@ func getCPU() string {
 		if cpuStr == "" {
 			return ""
 		}
-		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil {
+		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil || cpu <= 0 {
 			fmt.Printf("CPU must be number > 0. Try again.\n")
 			continue
 		}
