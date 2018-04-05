@@ -10,7 +10,7 @@ type Deployment struct {
 	Replicas   uint
 	Status     *Status
 	Containers []container.Container
-	origin     model.Deployment
+	origin     *model.Deployment
 }
 
 func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
@@ -28,6 +28,23 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 		Replicas:   uint(kubeDeployment.Replicas),
 		Status:     status,
 		Containers: containers,
-		origin:     kubeDeployment,
+		origin:     &kubeDeployment,
 	}
+}
+
+func (depl Deployment) ToKube() model.Deployment {
+	if depl.origin != nil {
+		return *depl.origin
+	}
+	containers := make([]model.Container, 0, len(depl.Containers))
+	for _, cont := range depl.Containers {
+		containers = append(containers, cont.Container)
+	}
+	kubeDepl := model.Deployment{
+		Name:       depl.Name,
+		Replicas:   int(depl.Replicas),
+		Containers: containers,
+	}
+	depl.origin = &kubeDepl
+	return kubeDepl
 }
