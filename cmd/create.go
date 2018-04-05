@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/containerum/chkit/cmd/deployment"
 	"github.com/containerum/chkit/cmd/service"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
@@ -17,5 +18,6 @@ var CommandCreate = &cli.Command{
 	},
 	Subcommands: []*cli.Command{
 		cliserv.Create,
+		clideployment.Create,
 	},
 }
