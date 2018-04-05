@@ -11,7 +11,7 @@ type Container struct {
 	kubeModels.Container
 }
 
-func (container *Container) String() string {
+func (container Container) String() string {
 	return strings.Join([]string{
 		container.Name,
 		fmt.Sprintf("CPU %s", container.Limits.CPU),
