@@ -188,6 +188,30 @@ func ErrPortsExhausted(params ...func(*cherry.Err)) *cherry.Err {
 	}
 	return err
 }
+
+func ErrDownResizeNotAllowed(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Resize with decreasing quota not allowed", StatusHTTP: 400, ID: cherry.ErrID{SID: 0x3, Kind: 0x10}, Details: []string(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrQuotaExceeded(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Resource quota exceeded", StatusHTTP: 400, ID: cherry.ErrID{SID: 0x3, Kind: 0x11}, Details: []string(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
 func renderTemplate(templText string) string {
 	buf := &bytes.Buffer{}
 	templ, err := template.New("").Parse(templText)

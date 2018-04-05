@@ -10,8 +10,8 @@ const (
 	servicePath  = "/namespaces/{namespace}/services/{service}"
 	servicesPath = "/namespaces/{namespace}/services"
 
-	serviceResourcePath  = "/namespace/{namespace}/service"
-	servicesResourcePath = serviceResourcePath + "/{service}"
+	serviceRootResourcePath = "/namespace/{namespace}/service"
+	serviceResourcePath     = serviceRootResourcePath + "/{service}"
 )
 
 // GetService -- consume a namespace id and a service name
@@ -58,7 +58,7 @@ func (client *Client) CreateService(namespace string, service model.Service) (mo
 		Body:   service,
 		Result: &gainedService,
 		URL: rest.URL{
-			Path: servicesResourcePath,
+			Path: serviceRootResourcePath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -72,7 +72,7 @@ func (client *Client) CreateService(namespace string, service model.Service) (mo
 func (client *Client) DeleteService(namespace, serviceName string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: servicesResourcePath,
+			Path: serviceResourcePath,
 			Params: rest.P{
 				"namespace": namespace,
 				"service":   serviceName,

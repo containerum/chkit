@@ -21,8 +21,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "50257c985a1dc51300fc4ad3f0fd161fbf61aaa9"
-  version = "v0.8.3"
+  revision = "92f5700590d13b3e162d62e367a4c30701b20749"
+  version = "v0.8.6"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
