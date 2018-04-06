@@ -2,15 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path"
 	"time"
 
-	"github.com/containerum/chkit/cmd/config_dir"
-
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/blang/semver"
+	"github.com/containerum/chkit/cmd/config_dir"
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
@@ -48,12 +46,9 @@ func Run(args []string) error {
 	if err != nil {
 		logrus.Fatalf("error while creating log file: %v", err)
 	}
-	if !DEBUG {
-		logrus.SetOutput(file)
-	} else {
-		logWriter := io.MultiWriter(os.Stdout, file)
-		logrus.SetOutput(logWriter)
-	}
+	logrus.SetOutput(file)
+	//logWriter := io.MultiWriter(os.Stdout, file)
+	//logrus.SetOutput(logWriter)
 	var App = &cli.App{
 		Name:    "chkit",
 		Usage:   "containerum cli",
