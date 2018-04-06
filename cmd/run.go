@@ -1,71 +1,178 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"path"
+	"time"
 
-	"github.com/containerum/chkit/chlib"
-	"github.com/spf13/cobra"
+	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/blang/semver"
+	"github.com/containerum/chkit/cmd/config_dir"
+	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/client"
+	"github.com/containerum/chkit/pkg/model"
+	"github.com/sirupsen/logrus"
+	cli "gopkg.in/urfave/cli.v2"
 )
 
-var runCmdName string
+var (
+	// Version -- chkit version
+	Version = "3.0.0-alpha"
+)
 
-var runCmd = &cobra.Command{
-	Use:   "run NAME (--image -i IMAGE | --configure)",
-	Short: "Run deployment NAME and generate json file",
-	PreRun: func(cmd *cobra.Command, args []string) {
-		if len(args) < 1 {
-			np.FEEDBACK.Println("NAME must be specified")
-			cmd.Usage()
-			os.Exit(1)
-		}
-		if !chlib.ObjectNameRegex.MatchString(args[0]) {
-			np.FEEDBACK.Println("Invalid deployment name")
-			cmd.Usage()
-			os.Exit(1)
-		}
-		runCmdName = args[0]
-		if !cmd.Flag("image").Changed && !cmd.Flag("configure").Changed {
-			np.FEEDBACK.Println("Image or configure parameter must be specified")
-			cmd.Usage()
-			os.Exit(1)
-		}
-		if cmd.Flag("image").Changed && cmd.Flag("configure").Changed {
-			np.FEEDBACK.Println("Only image or configured must be specified")
-			cmd.Usage()
-			os.Exit(1)
-		}
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		var params chlib.ConfigureParams
-		if cmd.Flag("configure").Changed {
-			params = chlib.PromptParams(np)
-		} else {
-			params = chlib.ParamsFromArgs(np, cmd.Flags())
-		}
-		ns, _ := cmd.Flags().GetString("namespace")
-		np.FEEDBACK.Print("run...")
-		_, err := client.Run(runCmdName, params, ns)
-		if err != nil {
-			np.FEEDBACK.Println("ERROR")
-			np.ERROR.Println(err)
-		} else {
-			np.FEEDBACK.Println("OK")
-		}
-	},
+const (
+	// FlagConfigFile -- context config data key
+	FlagConfigFile = "config"
+	// FlagAPIaddr -- API address context key
+	FlagAPIaddr = "apiaddr"
+)
+
+var (
+	// ErrFatalError -- unrecoverable fatal error
+	ErrFatalError chkitErrors.Err = "fatal error"
+)
+
+// Run -- root action
+func Run(args []string) error {
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp:   true,
+		TimestampFormat: time.RFC1123,
+	})
+	logFile := path.Join(confDir.LogDir(), util.LogFileName())
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+	if err != nil {
+		logrus.Fatalf("error while creating log file: %v", err)
+	}
+	logrus.SetOutput(file)
+	//logWriter := io.MultiWriter(os.Stdout, file)
+	//logrus.SetOutput(logWriter)
+	var App = &cli.App{
+		Name:    "chkit",
+		Usage:   "containerum cli",
+		Version: semver.MustParse(Version).String(),
+		/*Before: func(ctx *cli.Context) error {
+			var updater update.LatestCheckerDownloader
+			currVersion := semver.MustParse(Version)
+			updater = update.NewGithubLatestCheckerDownloader(ctx, "containerum", "chkit")
+			version, err := updater.LatestVersion()
+			if err != nil {
+				return err
+			}
+			if currVersion.LE(version) {
+				if yes, err := update.AskForUpdate(ctx, version); err != nil {
+					return err
+				} else if yes {
+					if err := update.Update(ctx, updater, true); err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		},*/
+		Action: runAction,
+		Metadata: map[string]interface{}{
+			"client":     chClient.Client{},
+			"configPath": confDir.ConfigDir(),
+			"config":     model.Config{},
+			"tokens":     kubeClientModels.Tokens{},
+			"version":    semver.MustParse(Version),
+		},
+		Commands: []*cli.Command{
+			&cli.Command{
+				Name:        "version",
+				Usage:       "prints chkit version",
+				Description: "prints chkit version. Aliases: vers, vs, v",
+				Aliases:     []string{"vers", "vs", "v"},
+				Action: func(ctx *cli.Context) error {
+					fmt.Println(Version)
+					return nil
+				},
+			},
+			commandLogin,
+			commandGet,
+			commandDelete,
+			commandUpdate,
+			commandLogs,
+			CommandCreate,
+		},
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "config",
+				Usage:   "config file",
+				Aliases: []string{"c"},
+				Value:   path.Join(confDir.ConfigDir(), "config.toml"),
+			},
+			&cli.StringFlag{
+				Name:    "api",
+				Usage:   "API address",
+				Value:   "",
+				Hidden:  true,
+				EnvVars: []string{"CONTAINERUM_API"},
+			},
+			&cli.BoolFlag{
+				Name:   "debug-requests",
+				Value:  false,
+				Hidden: true,
+			},
+			&cli.StringFlag{
+				Name:  "username",
+				Usage: "your account email",
+			},
+			&cli.StringFlag{
+				Name:  "pass",
+				Usage: "password to system",
+			},
+		},
+	}
+	return App.Run(args)
 }
 
-func init() {
-	runCmd.PersistentFlags().Bool("configure", false, "Run interactive configurator")
-	runCmd.PersistentFlags().StringP("image", "i", "", "Image name")
-	runCmd.PersistentFlags().IntSliceP("port", "p", []int{}, "Ports which will be opened.Format: 8080 ... 4556")
-	runCmd.PersistentFlags().StringSliceP("labels", "l", []string{}, "Tags for deployment. Format: key1=value1 ... keyN=valueN")
-	runCmd.PersistentFlags().StringSliceP("commands", "C", []string{}, "Commands executed on container start. Format: command1 ... commandN")
-	runCmd.PersistentFlags().StringSliceP("env", "e", []string{}, "Environment variables. Format: key1=value1 ... keyN=valueN")
-	runCmd.PersistentFlags().StringSliceP("volumes", "v", []string{}, "Volumes: Format: volumeLabel1[/subPath1]=/mountPath1 ... volumeLabelN[/subPathN]=/mountPathN")
-	runCmd.PersistentFlags().StringP("cpu", "c", chlib.DefaultCPURequest, "CPU cores. Format: (number)[m]")
-	runCmd.PersistentFlags().StringP("memory", "m", chlib.DefaultMemoryRequest, "Memory size. Format: (number)[Mi|Gi]")
-	runCmd.PersistentFlags().IntP("replicas", "r", chlib.DefaultReplicas, "Replicas count")
-	runCmd.PersistentFlags().StringP("namespace", "n", "", "Namespace")
-	cobra.MarkFlagCustom(runCmd.PersistentFlags(), "namespace", "__chkit_namespaces_list")
-	RootCmd.AddCommand(runCmd)
+func runAction(ctx *cli.Context) error {
+	logrus.Debugf("loading config")
+	if err := loadConfig(ctx); err != nil {
+		return err
+	}
+	logrus.Debugf("running setup")
+	err := setupConfig(ctx)
+	config := util.GetConfig(ctx)
+	switch {
+	case err == nil:
+		// pass
+	case ErrInvalidUserInfo.Match(err):
+		logrus.Debugf("invalid user information")
+		logrus.Debugf("running login")
+		user, err := login(ctx)
+		if err != nil {
+			return err
+		}
+		config.UserInfo = user
+		util.SetConfig(ctx, config)
+	default:
+		logrus.Debugf("fatal error")
+		return ErrFatalError.Wrap(err)
+	}
+	logrus.Debugf("client initialisation")
+	if err := setupClient(ctx); err != nil {
+		return err
+	}
+	client := util.GetClient(ctx)
+	if err := util.SaveTokens(ctx, client.Tokens); err != nil {
+		return chkitErrors.NewExitCoder(err)
+	}
+	client.Config.DefaultNamespace, err = util.GetFirstClientNamespace(ctx)
+	if err != nil {
+		return err
+	}
+	util.SetConfig(ctx, config)
+	if err := persist(ctx); err != nil {
+		logrus.Fatalf("%v", err)
+	}
+	logrus.Infof("Hello, %q!", client.Config.Username)
+	if err := mainActivity(ctx); err != nil {
+		logrus.Fatalf("error in main activity: %v", err)
+	}
+	return nil
 }

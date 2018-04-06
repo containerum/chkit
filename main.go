@@ -4,18 +4,22 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/containerum/chkit/chlib"
+	"gopkg.in/urfave/cli.v2"
+
 	"github.com/containerum/chkit/cmd"
+	"github.com/containerum/chkit/pkg/chkitErrors"
 )
 
 func main() {
-	if _, err := os.Stat(chlib.ConfigDir); os.IsNotExist(err) {
-		os.MkdirAll(chlib.ConfigDir, os.ModePerm)
-		os.MkdirAll(chlib.TemplatesDir, os.ModePerm)
-		os.MkdirAll(chlib.SrcFolder, os.ModePerm)
-	}
-	if err := cmd.RootCmd.Execute(); err != nil {
+	defer angel(recover())
+	switch err := cmd.Run(os.Args).(type) {
+	case nil:
+		// pass
+	case chkitErrors.Err:
 		fmt.Println(err)
-		os.Exit(1)
+	case cli.ExitCoder:
+		fmt.Println(err)
+	default:
+		angel(err)
 	}
 }

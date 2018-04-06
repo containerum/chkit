@@ -64,18 +64,18 @@ func fetchFiles(name, branch, destDir string, files []string) error {
 	return nil
 }
 
-func DownloadSolution(name, solutionPath, branch string) error {
+func DownloadSolution(name, solutionPath, branch, solutionConfigFile string) error {
 	if err := os.MkdirAll(solutionPath, os.ModePerm); err != nil {
 		return err
 	}
 
 	// download config
-	if err := fetchFiles(name, branch, solutionPath, []string{solutions.SolutionConfigFile}); err != nil {
+	if err := fetchFiles(name, branch, solutionPath, []string{solutionConfigFile}); err != nil {
 		return err
 	}
 
 	// parse and download template files
-	cfgFile, err := ioutil.ReadFile(path.Join(solutionPath, solutions.SolutionConfigFile))
+	cfgFile, err := ioutil.ReadFile(path.Join(solutionPath, solutionConfigFile))
 	if err != nil {
 		return err
 	}
