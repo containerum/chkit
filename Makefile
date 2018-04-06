@@ -62,7 +62,8 @@ $(eval ifeq ($(1),windows)
 else
 	temp_executable=$(temp_build_dir)/$(EXECUTABLE)
 endif)
-@GOOS=$(1) GOARCH=$(2) go build -ldflags="$(RELEASE_LDFLAGS)" -v -o $(temp_executable)
+@echo go build -tags="dev" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable)
+@GOOS=$(1) GOARCH=$(2) go build -tags="dev" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable)
 @$(call create_checksum,$(temp_executable))
 @$(call create_signature,$(temp_executable))
 $(eval ifeq ($(1),windows)
@@ -90,4 +91,4 @@ dev:
 
 mock:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)
-	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)"
+	@go build -v -tags="dev mock" -ldflags="$(DEV_LDFLAGS)"
