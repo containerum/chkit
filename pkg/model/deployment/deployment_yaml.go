@@ -11,7 +11,7 @@ var (
 )
 
 func (depl Deployment) RenderYAML() (string, error) {
-	data, err := yaml.Marshal(depl.origin)
+	data, err := yaml.Marshal(depl.ToKube())
 	return string(data), err
 }
 

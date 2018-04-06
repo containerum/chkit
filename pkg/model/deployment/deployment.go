@@ -33,9 +33,6 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 }
 
 func (depl *Deployment) ToKube() model.Deployment {
-	if depl.origin != nil {
-		return *depl.origin
-	}
 	containers := make([]model.Container, 0, len(depl.Containers))
 	for _, cont := range depl.Containers {
 		containers = append(containers, cont.Container)
