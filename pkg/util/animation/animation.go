@@ -50,7 +50,7 @@ func FramesFromString(frames string) *sliceFrames {
 }
 
 type Animation struct {
-	Framerate      uint
+	Framerate      float64
 	Source         FrameSource
 	Output         io.Writer
 	ClearLastFrame bool
@@ -102,7 +102,9 @@ func (animation *Animation) Run() {
 }
 
 func (animation *Animation) Stop() {
-	animation.stop()
+	if animation.stop != nil {
+		animation.stop()
+	}
 	<-animation.done
 }
 
@@ -120,7 +122,7 @@ func (animation *Animation) initAnimation() {
 		animation.done = make(chan struct{})
 		close(animation.done)
 	}
-	animation.duration = time.Second / time.Duration(animation.Framerate)
+	animation.duration = time.Duration(float64(time.Second) / animation.Framerate)
 }
 
 func UTF8stringWidth(str string) int {
