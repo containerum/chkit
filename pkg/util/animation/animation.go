@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -57,17 +58,17 @@ type Animation struct {
 	WaitUntilDone  func()
 	duration       time.Duration
 	init           sync.Once
-	stop           func()
+	isInitialised  bool
 	done           chan struct{}
+	stop           func()
 }
 
 func (animation *Animation) Run() {
-	animation.init.Do(func() { animation.initAnimation() })
 	ctx, stop := context.WithCancel(context.Background())
-	animation.done = make(chan struct{})
-	defer func() { close(animation.done) }()
+	defer func() { close(animation.done); stop() }()
 	animation.stop = stop
-	defer stop()
+
+	animation.initAnimation()
 	source := animation.Source
 	var prevFrame string
 	if animation.ClearLastFrame {
@@ -102,13 +103,15 @@ func (animation *Animation) Run() {
 }
 
 func (animation *Animation) Stop() {
-	if animation.stop != nil {
-		animation.stop()
+	for !animation.isInitialised {
+		runtime.Gosched()
 	}
+	animation.stop()
 	<-animation.done
 }
 
 func (animation *Animation) initAnimation() {
+	defer func() { animation.isInitialised = true }()
 	if animation.Output == nil {
 		animation.Output = os.Stdout
 	}
