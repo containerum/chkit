@@ -7,7 +7,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment"
 )
 
-func fromFile(filename string) (deployment.Deployment, error) {
+func FromFile(filename string) (deployment.Deployment, error) {
 	depl := deployment.Deployment{}
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
