@@ -59,8 +59,9 @@ var GetNamespace = &cli.Command{
 			}
 			showItem = list
 		}
-
+		logrus.Debugf("stopping animation")
 		anime.Stop()
+		logrus.Debugf("List recieved")
 		err = util.ExportDataCommand(ctx, showItem)
 		if err != nil {
 			logrus.Debugf("fatal error: %v", err)
