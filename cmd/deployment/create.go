@@ -57,7 +57,7 @@ var Create = &cli.Command{
 			switch option {
 			case 0:
 				anime := &animation.Animation{
-					Framerate:      0.5,
+					Framerate:      0.3,
 					ClearLastFrame: true,
 					Source:         trasher.NewSilly(),
 				}
@@ -70,7 +70,7 @@ var Create = &cli.Command{
 				anime.Stop()
 				if err != nil {
 					logrus.WithError(err).Error("unable to create deployment")
-					fmt.Println(err)
+					fmt.Printf("\n%v\n", err)
 				}
 			case 1:
 				data, _ := depl.RenderYAML()
