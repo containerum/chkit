@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -46,14 +47,22 @@ var Create = &cli.Command{
 		}
 		fmt.Println(depl.RenderTable())
 		for {
-			_, option, _ := activeToolkit.Options("What do you want to do?", false,
+			_, option, _ := activeToolkit.Options("What do you want to do with deployment?", false,
 				"Push to server",
 				"Print to terminal",
 				"Dump to file",
 				"Exit")
 			switch option {
 			case 0:
+				frames := []string{"| pushing.", "/ pushing..", "— pushing...", "\\ pushing"}
+				anime := &animation.Animation{
+					Framerate:      4,
+					ClearLastFrame: true,
+					Source:         animation.FramesFromSlice(frames),
+				}
+				go anime.Run()
 				err = client.CreateDeployment(namespace, depl)
+				anime.Stop()
 				if err != nil {
 					logrus.WithError(err).Error("unable to create deployment")
 					fmt.Println(err)
