@@ -18,16 +18,17 @@ const (
 )
 
 type Config struct {
-	Force bool
-}
-
-func RunInteractveConstructor(config Config) (deployment.DeploymentList, error) {
-
-	return nil, nil
+	Force      bool
+	Deployment *deployment.Deployment
 }
 
 func ConstructDeployment(config Config) (deployment.Deployment, error) {
-	depl := defaultDeployment()
+	var depl deployment.Deployment
+	if config.Deployment == nil {
+		depl = defaultDeployment()
+	} else {
+		depl = *config.Deployment
+	}
 	for {
 		_, n, _ := activeToolkit.Options("Whats't next?", false,
 			fmt.Sprintf("Set name     : %s", depl.Name),
@@ -49,7 +50,7 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 				continue
 			} else {
 				var err error
-				depl, err = fromFile(filename)
+				depl, err = FromFile(filename)
 				if err != nil {
 					return depl, err
 				}
