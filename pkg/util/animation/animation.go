@@ -1,7 +1,6 @@
 package animation
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -60,44 +59,50 @@ type Animation struct {
 	init           sync.Once
 	isInitialised  bool
 	done           chan struct{}
-	stop           func()
+	stop           chan struct{}
 }
 
 func (animation *Animation) Run() {
-	ctx, stop := context.WithCancel(context.Background())
-	defer func() { close(animation.done); stop() }()
-	animation.stop = stop
-
+	//ctx, stop := context.WithCancel(context.Background())
+	animation.stop = make(chan struct{})
+	animation.done = make(chan struct{})
 	animation.initAnimation()
 	source := animation.Source
 	var prevFrame string
 	if animation.ClearLastFrame {
 		defer func(prevFrame *string) {
-			fmt.Fprintf(animation.Output, "\r%s\r", strings.Repeat(" ", UTF8stringWidth(*prevFrame)))
+			fmt.Printf("\r%s\r", strings.Repeat(" ", UTF8stringWidth(*prevFrame)))
+			select {
+			case <-animation.done:
+			default:
+				close(animation.done)
+			}
 		}(&prevFrame)
 	}
 	if animation.WaitUntilDone != nil {
 		go func() {
 			animation.WaitUntilDone()
-			stop()
+			select {
+			case <-animation.stop:
+			default:
+				close(animation.stop)
+			}
 		}()
 	}
 	ticker := time.NewTicker(animation.duration)
 	defer ticker.Stop()
-	for i := 0; true; i++ {
+	for {
 		select {
-		case <-ctx.Done():
+		case <-animation.stop:
 			return
-		case <-ticker.C:
+		default:
 			if !source.Next() {
 				return
 			}
-			if i != 0 {
-				fmt.Printf("\r%s\r", strings.Repeat(" ", UTF8stringWidth(prevFrame)))
-			}
 			frame := source.Frame()
-			fmt.Printf("%s", frame)
+			fmt.Printf("\r%s\r%s", strings.Repeat(" ", UTF8stringWidth(prevFrame)), frame)
 			prevFrame = frame
+			time.Sleep(animation.duration)
 		}
 	}
 }
@@ -106,8 +111,12 @@ func (animation *Animation) Stop() {
 	for !animation.isInitialised {
 		runtime.Gosched()
 	}
-	animation.stop()
-	<-animation.done
+	close(animation.stop)
+	select {
+	case <-animation.done:
+	default:
+		close(animation.done)
+	}
 }
 
 func (animation *Animation) initAnimation() {
@@ -117,13 +126,6 @@ func (animation *Animation) initAnimation() {
 	}
 	if animation.Framerate == 0 {
 		animation.Framerate = 5
-	}
-	if animation.stop == nil {
-		animation.stop = func() {}
-	}
-	if animation.done == nil {
-		animation.done = make(chan struct{})
-		close(animation.done)
 	}
 	animation.duration = time.Duration(float64(time.Second) / animation.Framerate)
 }
