@@ -2,10 +2,13 @@ package clipod
 
 import (
 	"strings"
+	"time"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/pod"
+	"github.com/containerum/chkit/pkg/util/animation"
+	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -23,18 +26,30 @@ var GetPodAction = &cli.Command{
 		var showItem model.Renderer
 		var err error
 
+		anime := &animation.Animation{
+			Framerate:      0.5,
+			ClearLastFrame: true,
+			Source:         trasher.NewSilly(),
+		}
+		go func() {
+			time.Sleep(time.Second)
+			anime.Run()
+		}()
+
 		switch ctx.NArg() {
 		case 0:
 			namespaceLabel := util.GetNamespace(ctx)
 			logrus.Debugf("getting pod list from %q", namespaceLabel)
 			showItem, err = client.GetPodList(namespaceLabel)
 			if err != nil {
+				anime.Stop()
 				return err
 			}
 		case 1:
 			namespaceLabel := util.GetNamespace(ctx)
 			showItem, err = client.GetPod(namespaceLabel, ctx.Args().First())
 			if err != nil {
+				anime.Stop()
 				return err
 			}
 		default:
@@ -42,6 +57,7 @@ var GetPodAction = &cli.Command{
 			gainedList, err := client.GetPodList(util.GetNamespace(ctx))
 			var list pod.PodList
 			if err != nil {
+				anime.Stop()
 				return err
 			}
 			podNames := util.NewSet(ctx.Args().Slice())
@@ -52,6 +68,7 @@ var GetPodAction = &cli.Command{
 			}
 			showItem = list
 		}
+		anime.Stop()
 		err = util.ExportDataCommand(ctx, showItem)
 		if err != nil {
 			logrus.Debugf("fatal error: %v", err)

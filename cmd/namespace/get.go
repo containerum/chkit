@@ -2,8 +2,11 @@ package clinamespace
 
 import (
 	"strings"
+	"time"
 
 	"github.com/containerum/chkit/pkg/model/namespace"
+	"github.com/containerum/chkit/pkg/util/animation"
+	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 
 	"github.com/containerum/chkit/cmd/util"
@@ -26,6 +29,15 @@ var GetNamespace = &cli.Command{
 		var showItem model.Renderer
 		var err error
 
+		anime := &animation.Animation{
+			Framerate:      0.2,
+			ClearLastFrame: true,
+			Source:         trasher.NewSilly(),
+		}
+		go func() {
+			time.Sleep(time.Second)
+			anime.Run()
+		}()
 		switch ctx.NArg() {
 		case 1:
 			namespaceLabel := ctx.Args().First()
@@ -33,6 +45,7 @@ var GetNamespace = &cli.Command{
 			showItem, err = client.GetNamespace(namespaceLabel)
 			if err != nil {
 				logrus.Debugf("fatal error: %v", err)
+				anime.Stop()
 				return err
 			}
 		default:
@@ -41,10 +54,13 @@ var GetNamespace = &cli.Command{
 			list, err := client.GetNamespaceList()
 			if err != nil {
 				logrus.Debugf("fatal error: %v", err)
+				anime.Stop()
 				return err
 			}
 			showItem = list
 		}
+
+		anime.Stop()
 		err = util.ExportDataCommand(ctx, showItem)
 		if err != nil {
 			logrus.Debugf("fatal error: %v", err)

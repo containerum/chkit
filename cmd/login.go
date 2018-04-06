@@ -7,6 +7,9 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containerum/chkit/pkg/util/animation"
+	"github.com/containerum/chkit/pkg/util/trasher"
+
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
@@ -50,9 +53,19 @@ var commandLogin = &cli.Command{
 		}
 		client := util.GetClient(ctx)
 		client.Tokens = model.Tokens{}
+
+		anim := &animation.Animation{
+			Framerate:      0.5,
+			Source:         trasher.NewSilly(),
+			ClearLastFrame: true,
+		}
+		go anim.Run()
 		if err := client.Auth(); err != nil {
+			anim.Stop()
+			fmt.Println(err)
 			return err
 		}
+		anim.Stop()
 		if err := util.SaveTokens(ctx, client.Tokens); err != nil {
 			return err
 		}

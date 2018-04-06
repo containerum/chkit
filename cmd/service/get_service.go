@@ -2,10 +2,13 @@ package cliserv
 
 import (
 	"strings"
+	"time"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
+	"github.com/containerum/chkit/pkg/util/animation"
+	"github.com/containerum/chkit/pkg/util/trasher"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -22,11 +25,23 @@ var GetService = &cli.Command{
 		defer util.StoreClient(ctx, client)
 		var show model.Renderer
 		var err error
+
+		anime := &animation.Animation{
+			Framerate:      0.5,
+			ClearLastFrame: true,
+			Source:         trasher.NewSilly(),
+		}
+		go func() {
+			time.Sleep(time.Second)
+			anime.Run()
+		}()
+
 		switch ctx.NArg() {
 		case 0:
 			namespace := util.GetNamespace(ctx)
 			list, err := client.GetServiceList(namespace)
 			if err != nil {
+				anime.Stop()
 				return err
 			}
 			show = list
@@ -34,6 +49,7 @@ var GetService = &cli.Command{
 			namespace := util.GetNamespace(ctx)
 			show, err = client.GetService(namespace, ctx.Args().First())
 			if err != nil {
+				anime.Stop()
 				return err
 			}
 		default:
@@ -41,6 +57,7 @@ var GetService = &cli.Command{
 			servicesNames := util.NewSet(ctx.Args().Slice())
 			gainedList, err := client.GetServiceList(namespace)
 			if err != nil {
+				anime.Stop()
 				return err
 			}
 			var list service.ServiceList
@@ -51,6 +68,7 @@ var GetService = &cli.Command{
 			}
 			show = list
 		}
+		anime.Stop()
 		return util.ExportDataCommand(ctx, show)
 	},
 	Flags: util.GetFlags,

@@ -5,11 +5,13 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/containerum/chkit/pkg/util/animation"
+	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -54,12 +56,15 @@ var Create = &cli.Command{
 				"Exit")
 			switch option {
 			case 0:
-				frames := []string{"| pushing.", "/ pushing..", "— pushing...", "\\ pushing"}
 				anime := &animation.Animation{
-					Framerate:      4,
+					Framerate:      0.5,
 					ClearLastFrame: true,
-					Source:         animation.FramesFromSlice(frames),
+					Source:         trasher.NewSilly(),
 				}
+				go func() {
+					time.Sleep(time.Second)
+					anime.Run()
+				}()
 				go anime.Run()
 				err = client.CreateDeployment(namespace, depl)
 				anime.Stop()
