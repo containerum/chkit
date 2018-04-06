@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
@@ -46,34 +48,66 @@ func getReplicas(defaultReplicas uint) uint {
 	}
 }
 
-func getContainers() []container.Container {
-	containers := []container.Container{}
+func getContainers(containers []container.Container) []container.Container {
 	for {
-		cont, ok := getContainer()
-		if ok {
-			containers = append(containers, cont)
-			fmt.Printf("Container %q added to list\n", cont.Name)
+		containerNames := make([]string, 0, len(containers))
+		for _, cont := range containers {
+			containerNames = append(containerNames,
+				fmt.Sprintf("Edit container %q", cont.Name))
 		}
-		yes, _ := activeToolkit.Yes("Add another container?")
-		if !yes {
+		containersOptions := append(containerNames,
+			"Add new container",
+			"Delete container",
+			"Exit")
+		_, option, _ := activeToolkit.Options("What do you want?", false,
+			containersOptions...)
+		logrus.Debugf("option %d in %d %+v", option, len(containersOptions), containersOptions)
+	containerMenu:
+		switch option {
+		case len(containersOptions) - 1: // Exit
+			logrus.Debugf("exit container menu")
 			return containers
+		case len(containersOptions) - 2: // Delete container
+			logrus.Debugf("delete container menu")
+			_, option, _ := activeToolkit.Options("Which container do you want to delete?", false,
+				append(containerNames, "Exit")...)
+			switch option {
+			case len(containerNames): // exit
+				break containerMenu
+			default:
+				if len(containers) > 0 {
+					logrus.Debugf("delete container %q", containerNames[option])
+					containers = append(containers[:option], containers[option+1:]...)
+				}
+			}
+		case len(containersOptions) - 3: // Add container
+			logrus.Debugf("add container")
+			cont, ok := getContainer(container.Container{
+				model.Container{
+					Name:  namegen.Aster() + "-" + namegen.Color(),
+					Image: "unknown (required)",
+					Limits: model.Resource{
+						Memory: "",
+						CPU:    "",
+					},
+					Ports: []model.ContainerPort(nil),
+				},
+			})
+			if ok {
+				containers = append(containers, cont)
+				fmt.Printf("Container %q added to list\n", cont.Name)
+			}
+		default: // edit container
+			logrus.Debugf("editing container %q", containerNames[option])
+			edited, ok := getContainer(containers[option])
+			if ok {
+				containers[option] = edited
+			}
 		}
 	}
 }
 
-func getContainer() (container.Container, bool) {
-	con := container.Container{
-		model.Container{
-			Name:  namegen.Aster() + "-" + namegen.Color(),
-			Image: "unknown (required)",
-			Limits: model.Resource{
-				Memory: "",
-				CPU:    "",
-			},
-			Ports: []model.ContainerPort(nil),
-		},
-	}
-	fmt.Printf("Ok, the hard part. Let's create a container\n")
+func getContainer(con container.Container) (container.Container, bool) {
 	for {
 		_, option, _ := activeToolkit.Options("Choose option: ", false,
 			fmt.Sprintf("Set name         : %s", con.Name),

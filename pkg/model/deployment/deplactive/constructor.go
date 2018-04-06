@@ -43,7 +43,7 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 		case 1:
 			depl.Replicas = getReplicas(depl.Replicas)
 		case 2:
-			depl.Containers = getContainers()
+			depl.Containers = getContainers(depl.Containers)
 		case 3:
 			if filename, _ := activeToolkit.AskLine("print filename > "); strings.TrimSpace(filename) == "" {
 				fmt.Printf("No file chosen\n")
