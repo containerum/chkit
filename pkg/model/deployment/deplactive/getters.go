@@ -156,7 +156,7 @@ func getMemory() string {
 			fmt.Printf("Memory must be interger number > 0. Try again.\n")
 			continue
 		}
-		return resource.NewMilliQuantity(int64(mem), resource.BinarySI).String()
+		return resource.NewQuantity(int64(mem*(1<<20)), resource.BinarySI).String()
 	}
 }
 
@@ -172,6 +172,8 @@ func getCPU() string {
 			fmt.Printf("CPU must be number > 0. Try again.\n")
 			continue
 		}
-		return resource.NewMilliQuantity(int64(1000*cpu), resource.BinarySI).String()
+		cpuQ := resource.NewScaledQuantity(int64(1000*cpu), resource.Milli)
+		cpuQ.Format = resource.BinarySI
+		return cpuQ.String()
 	}
 }
