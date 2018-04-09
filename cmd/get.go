@@ -9,7 +9,9 @@ import (
 )
 
 var commandGet = &cli.Command{
-	Name: "get",
+	Name:      "get",
+	Usage:     "get resource data",
+	UsageText: `chkit get namespace|deployment|pod|service [-o yaml|json] [-f output_file] [label]`,
 	Before: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)

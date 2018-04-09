@@ -6,7 +6,9 @@ import (
 )
 
 var commandUpdate = &cli.Command{
-	Name: "update",
+	Name:      "update",
+	Usage:     "update chkit client",
+	UsageText: "chkit update [from github|dir]",
 	Action: func(ctx *cli.Context) error {
 		return updateFromGithub(ctx)
 	},

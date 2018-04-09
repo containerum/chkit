@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
@@ -156,23 +157,29 @@ func runAction(ctx *cli.Context) error {
 	}
 	logrus.Debugf("client initialisation")
 	if err := setupClient(ctx); err != nil {
+		logrus.WithError(err).Error("unable to setup client")
+		fmt.Printf("Unable to setup client: %v", err)
 		return err
 	}
 	client := cmdutil.GetClient(ctx)
 	if err := cmdutil.SaveTokens(ctx, client.Tokens); err != nil {
+		fmt.Printf("Unable to save access tokens to disk: %v\n", err)
+		logrus.WithError(err).Errorf("unable to save access tokens to disk")
 		return chkitErrors.NewExitCoder(err)
 	}
 	client.Config.DefaultNamespace, err = cmdutil.GetFirstClientNamespace(ctx)
 	if err != nil {
+		fmt.Printf("Unable to get default namespace\n")
 		return err
 	}
 	cmdutil.SetConfig(ctx, config)
 	if err := persist(ctx); err != nil {
 		logrus.Fatalf("%v", err)
+		return err
 	}
-	logrus.Infof("Hello, %q!", client.Config.Username)
-	if err := mainActivity(ctx); err != nil {
-		logrus.Fatalf("error in main activity: %v", err)
-	}
-	return nil
+	greetings := fmt.Sprintf("|> Hello, %s! <|", client.Config.UserInfo.Username)
+	border := strings.Repeat("-", len(greetings))
+	fmt.Printf("%s\n%s\n%s\n", border, greetings, border)
+
+	return cli.ShowAppHelp(ctx)
 }

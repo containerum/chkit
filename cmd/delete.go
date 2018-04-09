@@ -10,7 +10,9 @@ import (
 )
 
 var commandDelete = &cli.Command{
-	Name: "delete",
+	Name:      "delete",
+	Usage:     "delete resource",
+	UsageText: `chkit delete namespace|deployment|pod|service label`,
 	Before: func(ctx *cli.Context) error {
 		logrus.Debugf("start delete action")
 		return setupAll(ctx)

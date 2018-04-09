@@ -8,7 +8,9 @@ import (
 )
 
 var CommandCreate = &cli.Command{
-	Name: "create",
+	Name:      "create",
+	Usage:     "create deployments and services",
+	UsageText: `chkit create deployment|service`,
 	Before: func(ctx *cli.Context) error {
 		logrus.Debugf("start create action")
 		return setupAll(ctx)
