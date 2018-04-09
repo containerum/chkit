@@ -1,16 +1,16 @@
 package clinamespace
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
+	"github.com/containerum/chkit/cmd/cmdutil"
+	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
-
-	"github.com/containerum/chkit/cmd/cmdutil"
-	"github.com/containerum/chkit/pkg/model"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -30,37 +30,44 @@ var GetNamespace = &cli.Command{
 		var err error
 
 		anime := &animation.Animation{
-			Framerate:      0.2,
+			Framerate:      0.5,
 			ClearLastFrame: true,
 			Source:         trasher.NewSilly(),
 		}
 		go func() {
-			time.Sleep(time.Second)
+			time.Sleep(4 * time.Second)
 			anime.Run()
 		}()
-		switch ctx.NArg() {
-		case 1:
-			namespaceLabel := ctx.Args().First()
-			logrus.Debugf("getting namespace %q", namespaceLabel)
-			showItem, err = client.GetNamespace(namespaceLabel)
-			if err != nil {
-				logrus.Debugf("fatal error: %v", err)
-				anime.Stop()
-				return err
+
+		err = func() error {
+			defer anime.Stop()
+			switch ctx.NArg() {
+			case 1:
+				namespaceLabel := ctx.Args().First()
+				logrus.Debugf("getting namespace %q", namespaceLabel)
+				showItem, err = client.GetNamespace(namespaceLabel)
+				if err != nil {
+					logrus.WithError(err).Errorf("unable to get namespace %q", namespaceLabel)
+					fmt.Printf("Error hile getting namespace %q: %v\n", namespaceLabel, err)
+					return err
+				}
+			default:
+				var list namespace.NamespaceList
+				logrus.Debugf("getting namespace list")
+				list, err := client.GetNamespaceList()
+				if err != nil {
+					logrus.WithError(err).Errorf("unable to get namespace list")
+					return err
+				}
+				defaultNamespace := cmdutil.GetNamespace(ctx)
+				fmt.Printf("Using %q as default namespace\n", defaultNamespace)
+				showItem = list
 			}
-		default:
-			var list namespace.NamespaceList
-			logrus.Debugf("getting namespace list")
-			list, err := client.GetNamespaceList()
-			if err != nil {
-				logrus.Debugf("fatal error: %v", err)
-				anime.Stop()
-				return err
-			}
-			showItem = list
+			return nil
+		}()
+		if err != nil {
+			return err
 		}
-		logrus.Debugf("stopping animation")
-		anime.Stop()
 		logrus.Debugf("List recieved")
 		err = cmdutil.ExportDataCommand(ctx, showItem)
 		if err != nil {
