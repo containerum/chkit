@@ -8,8 +8,8 @@ import (
 
 	kubeClientModels "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/blang/semver"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/cmd/config_dir"
-	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
@@ -41,7 +41,7 @@ func Run(args []string) error {
 		FullTimestamp:   true,
 		TimestampFormat: time.RFC1123,
 	})
-	logFile := path.Join(confDir.LogDir(), util.LogFileName())
+	logFile := path.Join(confDir.LogDir(), cmdutil.LogFileName())
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		logrus.Fatalf("error while creating log file: %v", err)
@@ -137,7 +137,7 @@ func runAction(ctx *cli.Context) error {
 	}
 	logrus.Debugf("running setup")
 	err := setupConfig(ctx)
-	config := util.GetConfig(ctx)
+	config := cmdutil.GetConfig(ctx)
 	switch {
 	case err == nil:
 		// pass
@@ -149,7 +149,7 @@ func runAction(ctx *cli.Context) error {
 			return err
 		}
 		config.UserInfo = user
-		util.SetConfig(ctx, config)
+		cmdutil.SetConfig(ctx, config)
 	default:
 		logrus.Debugf("fatal error")
 		return ErrFatalError.Wrap(err)
@@ -158,15 +158,15 @@ func runAction(ctx *cli.Context) error {
 	if err := setupClient(ctx); err != nil {
 		return err
 	}
-	client := util.GetClient(ctx)
-	if err := util.SaveTokens(ctx, client.Tokens); err != nil {
+	client := cmdutil.GetClient(ctx)
+	if err := cmdutil.SaveTokens(ctx, client.Tokens); err != nil {
 		return chkitErrors.NewExitCoder(err)
 	}
-	client.Config.DefaultNamespace, err = util.GetFirstClientNamespace(ctx)
+	client.Config.DefaultNamespace, err = cmdutil.GetFirstClientNamespace(ctx)
 	if err != nil {
 		return err
 	}
-	util.SetConfig(ctx, config)
+	cmdutil.SetConfig(ctx, config)
 	if err := persist(ctx); err != nil {
 		logrus.Fatalf("%v", err)
 	}

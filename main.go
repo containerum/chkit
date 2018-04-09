@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
-
-	"gopkg.in/urfave/cli.v2"
 
 	"github.com/containerum/chkit/cmd"
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/urfave/cli.v2"
 )
 
 func main() {
@@ -15,10 +14,8 @@ func main() {
 	switch err := cmd.Run(os.Args).(type) {
 	case nil:
 		// pass
-	case chkitErrors.Err:
-		fmt.Println(err)
-	case cli.ExitCoder:
-		fmt.Println(err)
+	case chkitErrors.Err, cli.ExitCoder:
+		logrus.WithError(err).Error("fatal error")
 	default:
 		angel(err)
 	}

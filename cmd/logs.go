@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/sirupsen/logrus"
-
-	"github.com/containerum/chkit/cmd/util"
 	"github.com/containerum/chkit/pkg/client"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -31,8 +30,8 @@ var commandLogs = &cli.Command{
 		return setupAll(ctx)
 	},
 	Action: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		defer util.StoreClient(ctx, client)
+		client := cmdutil.GetClient(ctx)
+		defer cmdutil.StoreClient(ctx, client)
 		var podName string
 		var containerName string
 		switch ctx.NArg() {
@@ -47,7 +46,7 @@ var commandLogs = &cli.Command{
 		}
 
 		params := chClient.GetPodLogsParams{
-			Namespace: util.GetNamespace(ctx),
+			Namespace: cmdutil.GetNamespace(ctx),
 			Pod:       podName,
 			Container: containerName,
 			Follow:    ctx.Bool("follow"),
@@ -98,6 +97,6 @@ var commandLogs = &cli.Command{
 			Value:   100,
 			Usage:   `print last <value> log lines`,
 		},
-		util.NamespaceFlag,
+		cmdutil.NamespaceFlag,
 	},
 }

@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
@@ -26,7 +26,7 @@ const (
 )
 
 func setupClient(ctx *cli.Context) error {
-	config := util.GetConfig(ctx)
+	config := cmdutil.GetConfig(ctx)
 	var client *chClient.Client
 	var err error
 	config.APIaddr = API_ADDR
@@ -48,19 +48,19 @@ func setupClient(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	util.SetClient(ctx, client)
+	cmdutil.SetClient(ctx, client)
 	return nil
 }
 
 func setupConfig(ctx *cli.Context) error {
-	config := util.GetConfig(ctx)
+	config := cmdutil.GetConfig(ctx)
 	logrus.Debugf("test: %q", ctx.String("test"))
 	config.Fingerprint = Fingerprint()
-	tokens, err := util.LoadTokens(ctx)
+	tokens, err := cmdutil.LoadTokens(ctx)
 	if err != nil && !os.IsNotExist(err) {
 		return ErrUnableToLoadTokens.Wrap(err)
 	} else if os.IsNotExist(err) {
-		if err = util.SaveTokens(ctx, model.Tokens{}); err != nil {
+		if err = cmdutil.SaveTokens(ctx, model.Tokens{}); err != nil {
 			return ErrUnableToSaveTokens.Wrap(err)
 		}
 	}
@@ -76,28 +76,28 @@ func setupConfig(ctx *cli.Context) error {
 	}
 	if config.Password == "" || config.Username == "" {
 		logrus.Debugf("invalid username or pass")
-		util.SetConfig(ctx, config)
+		cmdutil.SetConfig(ctx, config)
 		return ErrInvalidUserInfo
 	}
-	util.SetConfig(ctx, config)
+	cmdutil.SetConfig(ctx, config)
 	return nil
 }
 
 func persist(ctx *cli.Context) error {
 	if !ctx.IsSet("config") {
-		return util.SaveConfig(ctx)
+		return cmdutil.SaveConfig(ctx)
 	}
 	return nil
 }
 
 func loadConfig(ctx *cli.Context) error {
-	//log := util.GetLog(ctx)
-	config := util.GetConfig(ctx)
-	err := util.LoadConfig(ctx.String("config"), &config)
+	//log := cmdutil.GetLog(ctx)
+	config := cmdutil.GetConfig(ctx)
+	err := cmdutil.LoadConfig(ctx.String("config"), &config)
 	if err != nil {
 		return ErrUnableToLoadConfig.Wrap(err)
 	}
-	util.SetConfig(ctx, config)
+	cmdutil.SetConfig(ctx, config)
 	return nil
 }
 
@@ -113,7 +113,7 @@ func setupAll(ctx *cli.Context) error {
 	if err := setupClient(ctx); err != nil {
 		return err
 	}
-	client := util.GetClient(ctx)
+	client := cmdutil.GetClient(ctx)
 	logrus.Debugf("API: %q", client.APIaddr)
 	return nil
 }

@@ -6,15 +6,13 @@ import (
 	"os"
 	"strings"
 	"syscall"
+	"time"
 
-	"github.com/containerum/chkit/pkg/util/animation"
-	"github.com/containerum/chkit/pkg/util/trasher"
-
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/sirupsen/logrus"
-
 	"golang.org/x/crypto/ssh/terminal"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -35,7 +33,7 @@ var commandLogin = &cli.Command{
 	Usage: "login your in the system",
 	Action: func(ctx *cli.Context) error {
 		err := setupConfig(ctx)
-		config := util.GetConfig(ctx)
+		config := cmdutil.GetConfig(ctx)
 		switch {
 		case err == nil || ErrInvalidUserInfo.Match(err) || ErrUnableToLoadTokens.Match(err):
 			userInfo, err := login(ctx)
@@ -44,39 +42,51 @@ var commandLogin = &cli.Command{
 				return err
 			}
 			config.UserInfo = userInfo
-			util.SetConfig(ctx, config)
+			cmdutil.SetConfig(ctx, config)
 		default:
 			return err
 		}
 		if err := setupClient(ctx); err != nil {
 			return err
 		}
-		client := util.GetClient(ctx)
+		client := cmdutil.GetClient(ctx)
 		client.Tokens = model.Tokens{}
-
+		frames := []string{
+			"|  loading",
+			"/  loading.",
+			"-- loading..",
+			"\\ loading...",
+		}
 		anim := &animation.Animation{
-			Framerate:      0.5,
-			Source:         trasher.NewSilly(),
+			Framerate:      3,
+			Source:         animation.FramesFromSlice(frames),
 			ClearLastFrame: true,
 		}
-		go anim.Run()
-		if err := client.Auth(); err != nil {
-			anim.Stop()
+		go func() {
+			time.Sleep(3 * time.Second)
+			anim.Run()
+		}()
+		err = func() error {
+			defer anim.Stop()
+			if err := client.Auth(); err != nil {
+				return err
+			}
+			if err := cmdutil.SaveTokens(ctx, client.Tokens); err != nil {
+				return err
+			}
+			config.DefaultNamespace, err = cmdutil.GetFirstClientNamespace(ctx)
+			if err != nil {
+				return err
+			}
+			cmdutil.SetConfig(ctx, config)
+			return persist(ctx)
+		}()
+		if err != nil {
+			logrus.WithError(err).Error("unable to login")
 			fmt.Println(err)
 			return err
 		}
-		anim.Stop()
-		if err := util.SaveTokens(ctx, client.Tokens); err != nil {
-			return err
-		}
-		config.DefaultNamespace, err = util.GetFirstClientNamespace(ctx)
-		if err != nil {
-			return err
-		}
-		util.SetConfig(ctx, config)
-		if err := persist(ctx); err != nil {
-			return err
-		}
+		fmt.Printf("Successfuly logged in!\n")
 		return mainActivity(ctx)
 	},
 	Flags: []cli.Flag{

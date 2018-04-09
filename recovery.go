@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/cmd"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/cmd/config_dir"
-	"github.com/containerum/chkit/cmd/util"
 	"github.com/skratchdot/open-golang/open"
 )
 
@@ -33,7 +33,7 @@ func angel(sin interface{}) {
 		report += fmt.Sprintf("[FATAL] %v\n%s", recoverData, string(debug.Stack()))
 	}
 	logDir := confDir.LogDir()
-	logFileName := util.LogFileName()
+	logFileName := cmdutil.LogFileName()
 	logFilePath := path.Join(logDir, logFileName)
 	reportFile := path.Join(logDir, "report.txt")
 
