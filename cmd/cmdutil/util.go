@@ -1,10 +1,9 @@
-package util
+package cmdutil
 
 import (
 	"os"
 
 	"github.com/blang/semver"
-
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"

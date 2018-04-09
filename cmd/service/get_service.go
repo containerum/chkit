@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/animation"
@@ -21,8 +21,8 @@ var GetService = &cli.Command{
 	Description: "shows service info. Aliases: " + strings.Join(aliases, ", "),
 	Aliases:     aliases,
 	Action: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		defer util.StoreClient(ctx, client)
+		client := cmdutil.GetClient(ctx)
+		defer cmdutil.StoreClient(ctx, client)
 		var show model.Renderer
 		var err error
 
@@ -38,7 +38,7 @@ var GetService = &cli.Command{
 
 		switch ctx.NArg() {
 		case 0:
-			namespace := util.GetNamespace(ctx)
+			namespace := cmdutil.GetNamespace(ctx)
 			list, err := client.GetServiceList(namespace)
 			if err != nil {
 				anime.Stop()
@@ -46,15 +46,15 @@ var GetService = &cli.Command{
 			}
 			show = list
 		case 1:
-			namespace := util.GetNamespace(ctx)
+			namespace := cmdutil.GetNamespace(ctx)
 			show, err = client.GetService(namespace, ctx.Args().First())
 			if err != nil {
 				anime.Stop()
 				return err
 			}
 		default:
-			namespace := util.GetNamespace(ctx)
-			servicesNames := util.NewSet(ctx.Args().Slice())
+			namespace := cmdutil.GetNamespace(ctx)
+			servicesNames := cmdutil.NewSet(ctx.Args().Slice())
 			gainedList, err := client.GetServiceList(namespace)
 			if err != nil {
 				anime.Stop()
@@ -69,7 +69,7 @@ var GetService = &cli.Command{
 			show = list
 		}
 		anime.Stop()
-		return util.ExportDataCommand(ctx, show)
+		return cmdutil.ExportDataCommand(ctx, show)
 	},
-	Flags: util.GetFlags,
+	Flags: cmdutil.GetFlags,
 }

@@ -1,4 +1,4 @@
-package util
+package cmdutil
 
 import (
 	"github.com/containerum/chkit/pkg/chkitErrors"

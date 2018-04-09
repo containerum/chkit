@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/pod"
 	"github.com/containerum/chkit/pkg/util/animation"
@@ -21,8 +21,8 @@ var GetPodAction = &cli.Command{
 	Description: "shows pod info. Aliases: " + strings.Join(aliases, ", "),
 	Aliases:     aliases,
 	Action: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		defer util.StoreClient(ctx, client)
+		client := cmdutil.GetClient(ctx)
+		defer cmdutil.StoreClient(ctx, client)
 		var showItem model.Renderer
 		var err error
 
@@ -38,7 +38,7 @@ var GetPodAction = &cli.Command{
 
 		switch ctx.NArg() {
 		case 0:
-			namespaceLabel := util.GetNamespace(ctx)
+			namespaceLabel := cmdutil.GetNamespace(ctx)
 			logrus.Debugf("getting pod list from %q", namespaceLabel)
 			showItem, err = client.GetPodList(namespaceLabel)
 			if err != nil {
@@ -46,7 +46,7 @@ var GetPodAction = &cli.Command{
 				return err
 			}
 		case 1:
-			namespaceLabel := util.GetNamespace(ctx)
+			namespaceLabel := cmdutil.GetNamespace(ctx)
 			showItem, err = client.GetPod(namespaceLabel, ctx.Args().First())
 			if err != nil {
 				anime.Stop()
@@ -54,13 +54,13 @@ var GetPodAction = &cli.Command{
 			}
 		default:
 			logrus.Debugf("getting pods")
-			gainedList, err := client.GetPodList(util.GetNamespace(ctx))
+			gainedList, err := client.GetPodList(cmdutil.GetNamespace(ctx))
 			var list pod.PodList
 			if err != nil {
 				anime.Stop()
 				return err
 			}
-			podNames := util.NewSet(ctx.Args().Slice())
+			podNames := cmdutil.NewSet(ctx.Args().Slice())
 			for _, pod := range gainedList {
 				if podNames.Have(pod.Name) {
 					list = append(list, pod)
@@ -69,11 +69,11 @@ var GetPodAction = &cli.Command{
 			showItem = list
 		}
 		anime.Stop()
-		err = util.ExportDataCommand(ctx, showItem)
+		err = cmdutil.ExportDataCommand(ctx, showItem)
 		if err != nil {
 			logrus.Debugf("fatal error: %v", err)
 		}
 		return err
 	},
-	Flags: util.GetFlags,
+	Flags: cmdutil.GetFlags,
 }

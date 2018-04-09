@@ -1,4 +1,4 @@
-package util
+package cmdutil
 
 type Set map[string]struct{}
 

@@ -3,8 +3,7 @@ package cliserv
 import (
 	"fmt"
 
-	"github.com/containerum/chkit/cmd/util"
-
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/model/service/servactive"
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/sirupsen/logrus"
@@ -15,8 +14,8 @@ var Create = &cli.Command{
 	Name:    "service",
 	Aliases: aliases,
 	Action: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		ns := util.GetNamespace(ctx)
+		client := cmdutil.GetClient(ctx)
+		ns := cmdutil.GetNamespace(ctx)
 		deplList, err := client.GetDeploymentList(ns)
 		if err != nil {
 			logrus.WithError(err).Errorf("error while gettin deployment list")

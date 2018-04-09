@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/containerum/chkit/pkg/util/animation"
@@ -27,8 +27,8 @@ var Create = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		namespace := util.GetNamespace(ctx)
+		client := cmdutil.GetClient(ctx)
+		namespace := cmdutil.GetNamespace(ctx)
 		deplConfig := deplactive.Config{}
 		if ctx.IsSet("file") {
 			deploymentFile := ctx.String("file")

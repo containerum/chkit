@@ -3,7 +3,7 @@ package clideployment
 import (
 	"strings"
 
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -27,13 +27,13 @@ var GetDeployment = &cli.Command{
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)
 		}
-		client := util.GetClient(ctx)
-		defer util.StoreClient(ctx, client)
+		client := cmdutil.GetClient(ctx)
+		defer cmdutil.StoreClient(ctx, client)
 
 		var show model.Renderer
 		switch ctx.NArg() {
 		case 0:
-			namespace := util.GetNamespace(ctx)
+			namespace := cmdutil.GetNamespace(ctx)
 			logrus.Debugf("getting deployment from %q", namespace)
 			list, err := client.GetDeploymentList(namespace)
 			if err != nil {
@@ -41,8 +41,8 @@ var GetDeployment = &cli.Command{
 			}
 			show = list
 		default:
-			namespace := util.GetNamespace(ctx)
-			deplNames := util.NewSet(ctx.Args().Slice())
+			namespace := cmdutil.GetNamespace(ctx)
+			deplNames := cmdutil.NewSet(ctx.Args().Slice())
 			var showList deployment.DeploymentList = make([]deployment.Deployment, 0) // prevents panic
 			list, err := client.GetDeploymentList(namespace)
 			if err != nil {
@@ -55,7 +55,7 @@ var GetDeployment = &cli.Command{
 			}
 			show = showList
 		}
-		return util.ExportDataCommand(ctx, show)
+		return cmdutil.ExportDataCommand(ctx, show)
 	},
-	Flags: util.GetFlags,
+	Flags: cmdutil.GetFlags,
 }

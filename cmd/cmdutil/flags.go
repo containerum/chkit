@@ -1,4 +1,4 @@
-package util
+package cmdutil
 
 import cli "gopkg.in/urfave/cli.v2"
 

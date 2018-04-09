@@ -9,7 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/containerum/chkit/pkg/model"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -24,8 +24,8 @@ var GetNamespace = &cli.Command{
 	Usage:       `shows namespace data or namespace list`,
 	UsageText:   "chkit get namespace_name... [-o yaml/json] [-f output_file]",
 	Action: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		defer util.StoreClient(ctx, client)
+		client := cmdutil.GetClient(ctx)
+		defer cmdutil.StoreClient(ctx, client)
 		var showItem model.Renderer
 		var err error
 
@@ -62,11 +62,11 @@ var GetNamespace = &cli.Command{
 		logrus.Debugf("stopping animation")
 		anime.Stop()
 		logrus.Debugf("List recieved")
-		err = util.ExportDataCommand(ctx, showItem)
+		err = cmdutil.ExportDataCommand(ctx, showItem)
 		if err != nil {
 			logrus.Debugf("fatal error: %v", err)
 		}
 		return err
 	},
-	Flags: util.GetFlags,
+	Flags: cmdutil.GetFlags,
 }

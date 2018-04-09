@@ -3,7 +3,7 @@ package clinamespace
 import (
 	"strings"
 
-	"github.com/containerum/chkit/cmd/util"
+	"github.com/containerum/chkit/cmd/cmdutil"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -14,10 +14,10 @@ var Delete = &cli.Command{
 	Description: "delete namespace deletes namespace with name, provided by first arg. Aliases: " + strings.Join(aliases, ", "),
 	UsageText:   "chkit delete namespace",
 	Aliases:     aliases,
-	Flags:       util.DeleteFlags,
+	Flags:       cmdutil.DeleteFlags,
 	Action: func(ctx *cli.Context) error {
 		logrus.Debugf("running command delete namespace")
-		client := util.GetClient(ctx)
+		client := cmdutil.GetClient(ctx)
 		if ctx.NArg() == 0 {
 			logrus.Debugf("show help")
 			return cli.ShowSubcommandHelp(ctx)

@@ -1,4 +1,4 @@
-package util
+package cmdutil
 
 import (
 	"encoding/json"
@@ -6,9 +6,8 @@ import (
 	"path"
 
 	"github.com/containerum/chkit/pkg/client"
-	"github.com/sirupsen/logrus"
-
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v2"
 )
 
