@@ -23,7 +23,10 @@ func (fstop *futuristicStop) Stop() {
 	for !atomic.CompareAndSwapUint64(&fstop.isInitialised, 1, 1) {
 		runtime.Gosched()
 	}
-	close(fstop.stop)
+	// close channel only once
+	if atomic.CompareAndSwapUint64(&fstop.isStopped, 0, 0) {
+		close(fstop.stop)
+	}
 	for !atomic.CompareAndSwapUint64(&fstop.isStopped, 1, 1) {
 		runtime.Gosched()
 	}
