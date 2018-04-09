@@ -32,9 +32,9 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 	}
 	for {
 		_, n, _ := activeToolkit.Options("Whats't next?", false,
-			fmt.Sprintf("Set   name     : %s", depl.Name),
-			fmt.Sprintf("Set   replicas : %d", depl.Replicas),
-			fmt.Sprintf("Edit  containers: %v", activeToolkit.OrValue(depl.Containers, "none (required)")),
+			fmt.Sprintf("Set  name     : %s", depl.Name),
+			fmt.Sprintf("Set  replicas : %d", depl.Replicas),
+			fmt.Sprintf("Edit containers: %v", activeToolkit.OrValue(depl.Containers, "none (required)")),
 			"From file",
 			"Confirm",
 			"Exit")
@@ -90,6 +90,9 @@ func validateDeployment(depl deployment.Deployment) error {
 		if conterr != nil {
 			errs = append(errs, fmt.Errorf("invalid container %q: %v", cont.Name, conterr))
 		}
+	}
+	if len(errs) == 0 {
+		return nil
 	}
 	return ErrInvalidDeployment.Wrap(errs...)
 }
