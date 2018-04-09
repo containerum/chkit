@@ -62,12 +62,13 @@ var Create = &cli.Command{
 					Source:         trasher.NewSilly(),
 				}
 				go func() {
-					time.Sleep(time.Second)
+					time.Sleep(4 * time.Second)
 					anime.Run()
 				}()
-				go anime.Run()
-				err = client.CreateDeployment(namespace, depl)
-				anime.Stop()
+				func() {
+					defer anime.Stop()
+					err = client.CreateDeployment(namespace, depl)
+				}()
 				if err != nil {
 					logrus.WithError(err).Error("unable to create deployment")
 					fmt.Printf("\n%v\n", err)
