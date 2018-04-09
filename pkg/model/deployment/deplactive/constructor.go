@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	ErrUserStopped      chkitErrors.Err = "user stopped"
-	ErrInvalidContainer chkitErrors.Err = "invalid container"
+	ErrUserStopped       chkitErrors.Err = "user stopped"
+	ErrInvalidDeployment chkitErrors.Err = "invalid deployment"
+	ErrInvalidContainer  chkitErrors.Err = "invalid container"
 )
 
 type Config struct {
@@ -31,9 +32,9 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 	}
 	for {
 		_, n, _ := activeToolkit.Options("Whats't next?", false,
-			fmt.Sprintf("Set name     : %s", depl.Name),
-			fmt.Sprintf("Set replicas : %d", depl.Replicas),
-			fmt.Sprintf("Set containers: %v", activeToolkit.OrValue(depl.Containers, "none (required)")),
+			fmt.Sprintf("Set   name     : %s", depl.Name),
+			fmt.Sprintf("Set   replicas : %d", depl.Replicas),
+			fmt.Sprintf("Edit  containers: %v", activeToolkit.OrValue(depl.Containers, "none (required)")),
 			"From file",
 			"Confirm",
 			"Exit")
@@ -57,6 +58,10 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 				continue
 			}
 		case 4:
+			if err := validateDeployment(depl); err != nil {
+				fmt.Printf("\n%v\n", err)
+				continue
+			}
 			return depl, nil
 		default:
 			return depl, ErrUserStopped
@@ -70,6 +75,23 @@ func defaultDeployment() deployment.Deployment {
 		Replicas:   1,
 		Containers: nil,
 	}
+}
+
+func validateDeployment(depl deployment.Deployment) error {
+	var errs []error
+	if err := validation.ValidateLabel(depl.Name); err != nil {
+		errs = append(errs, err)
+	}
+	if depl.Replicas < 1 || depl.Replicas > 15 {
+		errs = append(errs, fmt.Errorf("invalid number of replicas %d: must be in 1..15", depl.Replicas))
+	}
+	for _, cont := range depl.Containers {
+		conterr := validateContainer(cont)
+		if conterr != nil {
+			errs = append(errs, fmt.Errorf("invalid container %q: %v", cont.Name, conterr))
+		}
+	}
+	return ErrInvalidDeployment.Wrap(errs...)
 }
 
 func validateContainer(cont container.Container) error {
