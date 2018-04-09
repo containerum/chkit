@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sirupsen/logrus"
-
 	"git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/validation"
+	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
@@ -58,7 +57,7 @@ func getContainers(containers []container.Container) []container.Container {
 		containersOptions := append(containerNames,
 			"Add new container",
 			"Delete container",
-			"Exit")
+			"Return to deployment menu")
 		_, option, _ := activeToolkit.Options("What do you want?", false,
 			containersOptions...)
 		logrus.Debugf("option %d in %d %+v", option, len(containersOptions), containersOptions)
@@ -87,8 +86,8 @@ func getContainers(containers []container.Container) []container.Container {
 					Name:  namegen.Aster() + "-" + namegen.Color(),
 					Image: "unknown (required)",
 					Limits: model.Resource{
-						Memory: "",
-						CPU:    "",
+						Memory: "256Mi",
+						CPU:    "200m",
 					},
 					Ports: []model.ContainerPort(nil),
 				},
