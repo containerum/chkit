@@ -1,9 +1,9 @@
 // +build dev
-// +build mock
+// +build !mock
 
-package cli
+package mode
 
 const DEBUG = true
-const MOCK = true
+const MOCK = false
 
 var API_ADDR = ""

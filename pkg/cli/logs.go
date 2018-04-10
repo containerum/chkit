@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/client"
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
@@ -27,7 +28,8 @@ var commandLogs = &cli.Command{
 		if ctx.Bool("help") {
 			return cli.ShowSubcommandHelp(ctx)
 		}
-		return setupAll(ctx)
+		clisetup.SetupAll()
+		return nil
 	},
 	Action: func(ctx *cli.Context) error {
 		var podName string

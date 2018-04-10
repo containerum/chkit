@@ -6,6 +6,10 @@ import (
 	"path"
 	"time"
 
+	"github.com/containerum/chkit/pkg/cli/clisetup"
+	"github.com/containerum/chkit/pkg/cli/login"
+	"github.com/containerum/chkit/pkg/cli/mode"
+
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/configuration"
@@ -38,9 +42,7 @@ var runContext = struct {
 	Username      string
 	Pass          string
 	DebugRequests bool
-}{
-	APIaddr: API_ADDR,
-}
+}{}
 
 var Root = &cobra.Command{
 	Use:     "chkit",
@@ -67,27 +69,26 @@ var Root = &cobra.Command{
 			return
 		}
 		logrus.Debugf("running setup")
-		err := setupConfig()
+		err := clisetup.SetupConfig()
 		switch {
 		case err == nil:
 			// pass
-		case ErrInvalidUserInfo.Match(err):
+		case clisetup.ErrInvalidUserInfo.Match(err):
 			logrus.Debugf("invalid user information")
 			logrus.Debugf("running login")
-			user, err := login()
-			if err != nil {
+
+			if err := login.Login(); err != nil {
 				logrus.WithError(err).Errorf("unable to login")
 				fmt.Printf("Unable to login: %v", err)
 				return
 			}
-			Context.ClientConfig.UserInfo = user
 		default:
 			logrus.WithError(ErrFatalError.Wrap(err)).Errorf("fatal erorr while login")
 			angel.Angel(err)
 			return
 		}
 		logrus.Debugf("client initialisation")
-		if err := setupClient(); err != nil {
+		if err := clisetup.SetupClient(); err != nil {
 			logrus.WithError(err).Errorf("unable to init client")
 			angel.Angel(err)
 		}
@@ -107,7 +108,7 @@ var Root = &cobra.Command{
 		if len(list) == 0 {
 			fmt.Printf("You have no namespaces!\n")
 		}
-		logrus.Infof("Hello, %q!", Context.ClientConfig.Username)
+		logrus.Infof("Hello, %q!", Context.Client.Username)
 		if err := mainActivity(); err != nil {
 			logrus.Fatalf("error in main activity: %v", err)
 		}
@@ -115,8 +116,9 @@ var Root = &cobra.Command{
 }
 
 func init() {
-	Context.APIaddr = API_ADDR
+	Context.Client.APIaddr = mode.API_ADDR
 	Root.AddCommand(
-		commandLogin,
+		login.Command,
 	)
+	Root.PersistentFlags().StringVarP(&Context.Namespace, "namespace", "n", Context.Namespace, "")
 }

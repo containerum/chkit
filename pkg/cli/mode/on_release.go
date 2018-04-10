@@ -1,7 +1,7 @@
 // +build !dev
 // +build !mock
 
-package cli
+package mode
 
 // DEBUG -- true if dev version
 const DEBUG = false

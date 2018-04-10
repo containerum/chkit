@@ -17,7 +17,7 @@ const (
 
 // LoadConfig -- loads config from fs
 func LoadConfig() error {
-	_, err := toml.DecodeFile(Context.ConfigPath, &Context.ClientConfig.StorableConfig)
+	_, err := toml.DecodeFile(Context.ConfigPath, &Context.Client.StorableConfig)
 	if err != nil {
 		return ErrUnableToLoadConfig.Wrap(err)
 	}
@@ -34,7 +34,7 @@ func SaveConfig() error {
 	if err != nil {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
-	if err := toml.NewEncoder(file).Encode(Context.ClientConfig.StorableConfig); err != nil {
+	if err := toml.NewEncoder(file).Encode(Context.Client.StorableConfig); err != nil {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
 	return nil

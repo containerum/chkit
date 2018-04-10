@@ -10,15 +10,14 @@ import (
 )
 
 var Context = struct {
-	Version      string
-	ConfigPath   string
-	ConfigDir    string
-	APIaddr      string
-	Fingerprint  string
-	Namespace    string
-	Tokens       model.Tokens
-	ClientConfig model.Config
-	Client       *chClient.Client
+	Version     string
+	ConfigPath  string
+	ConfigDir   string
+	APIaddr     string
+	Fingerprint string
+	Namespace   string
+	Tokens      model.Tokens
+	Client      chClient.Client
 }{
 	Version:    semver.MustParse("3.0.1-alpha").String(),
 	ConfigDir:  configdir.ConfigDir(),

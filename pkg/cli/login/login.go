@@ -1,23 +1,18 @@
-package cli
+package login
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
-	"syscall"
 	"time"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/util/activeToolkit"
 	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -29,25 +24,26 @@ var (
 	ErrInvalidPassword chkitErrors.Err = "invalid password"
 	// ErrInvalidUsername -- invalid username
 	ErrInvalidUsername chkitErrors.Err = "invalid username"
+	// ErrFatalError -- unrecoverable fatal error
+	ErrFatalError chkitErrors.Err = "fatal error"
 )
 
-var commandLogin = &cobra.Command{
+var Command = &cobra.Command{
 	Use: "login",
 	Run: func(command *cobra.Command, args []string) {
-		err := setupConfig()
+		err := clisetup.SetupConfig()
 		switch {
-		case err == nil || ErrInvalidUserInfo.Match(err) || ErrUnableToLoadTokens.Match(err):
-			userInfo, err := login()
+		case err == nil || clisetup.ErrInvalidUserInfo.Match(err) || clisetup.ErrUnableToLoadTokens.Match(err):
+			err := Login()
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to setup config")
 				fmt.Printf("Unable to setup config :(\n")
 				return
 			}
-			Context.Client.UserInfo = userInfo
 		default:
 			panic(ErrFatalError.Wrap(err))
 		}
-		if err := setupClient(); err != nil {
+		if err := clisetup.SetupClient(); err != nil {
 			logrus.WithError(err).Errorf("unable to setup client")
 			panic(err)
 		}
@@ -87,55 +83,5 @@ var commandLogin = &cobra.Command{
 				// pass
 			}
 		}
-		mainActivity()
 	},
-}
-
-func login() (model.UserInfo, error) {
-	user := model.UserInfo{}
-	var err error
-	if strings.TrimSpace(runContext.Username) != "" {
-		user.Username = runContext.Username
-	} else {
-		user.Username, err = readLogin()
-		if err != nil {
-			return user, err
-		}
-	}
-	if strings.TrimSpace(user.Username) == "" {
-		return user, ErrInvalidUsername
-	}
-
-	if strings.TrimSpace(runContext.Pass) != "" {
-		user.Password = runContext.Pass
-	} else {
-		user.Password, err = readPassword()
-		if err != nil {
-			return user, err
-		}
-	}
-	if strings.TrimSpace(user.Password) == "" {
-		return user, ErrInvalidPassword
-	}
-	return user, nil
-}
-
-func readLogin() (string, error) {
-	fmt.Print("Enter your email: ")
-	email, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	email = strings.TrimRight(email, "\r\n")
-	if err != nil {
-		return "", ErrUnableToReadUsername.Wrap(err)
-	}
-	return email, nil
-}
-
-func readPassword() (string, error) {
-	fmt.Print("Enter your password: ")
-	passwordB, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return "", ErrUnableToReadPassword.Wrap(err)
-	}
-	fmt.Println("")
-	return string(passwordB), nil
 }

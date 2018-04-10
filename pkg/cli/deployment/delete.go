@@ -3,8 +3,7 @@ package clideployment
 import (
 	"strings"
 
-	. "github.com/containerum/chkit/cmd/context"
-	"github.com/containerum/chkit/cmd/util"
+	. "github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -15,10 +14,9 @@ var DeleteDeployment = &cli.Command{
 	UsageText:   "chkit delete deployment deployment_label [-n namespace]",
 	Description: "deletes deployment. Aliases: " + strings.Join(aliases, ", "),
 	Aliases:     aliases,
-	Flags:       util.DeleteFlags,
 	Action: func(ctx *cli.Context) error {
 		logrus.Debugf("running command delete deployment")
-		client := util.GetClient(ctx)
+		client := Context.Client
 		if ctx.NArg() == 0 {
 			logrus.Debugf("show help")
 			return cli.ShowSubcommandHelp(ctx)
