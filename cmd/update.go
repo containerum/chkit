@@ -12,6 +12,12 @@ var commandUpdate = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		return updateFromGithub(ctx)
 	},
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:   "debug-requests",
+			Hidden: true,
+		},
+	},
 	Subcommands: []*cli.Command{
 		&cli.Command{
 			Name: "from",
