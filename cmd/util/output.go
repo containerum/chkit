@@ -6,27 +6,25 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/model"
-	"gopkg.in/urfave/cli.v2"
 )
+
+type ExportFormat string
 
 const (
-	JSON = "json"
-	YAML = "yaml"
+	PRETTY ExportFormat = ""
+	JSON   ExportFormat = "json"
+	YAML   ExportFormat = "yaml"
 )
 
-func ExportDataCommand(ctx *cli.Context, renderer model.Renderer) error {
-	var outputFile *string
-	if ctx.IsSet("file") {
-		f := ctx.String("file")
-		outputFile = &f
-	}
-	return ExportData(ctx.String("output"), outputFile, renderer)
+type ExportConfig struct {
+	Filename *string
+	Format   ExportFormat
 }
 
-func ExportData(format string, outputFile *string, renderer model.Renderer) error {
+func ExportData(renderer model.Renderer, config ExportConfig) error {
 	var data string
 	var err error
-	switch format {
+	switch config.Format {
 	case JSON:
 		data, err = renderer.RenderJSON()
 	case YAML:
@@ -37,9 +35,9 @@ func ExportData(format string, outputFile *string, renderer model.Renderer) erro
 	if err != nil {
 		return err
 	}
-	if outputFile == nil {
+	if config.Filename == nil {
 		fmt.Println(data)
 		return nil
 	}
-	return ioutil.WriteFile(*outputFile, []byte(data), os.ModePerm)
+	return ioutil.WriteFile(*config.Filename, []byte(data), os.ModePerm)
 }
