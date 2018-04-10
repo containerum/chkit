@@ -80,10 +80,13 @@ func (gh *GithubLatestCheckerDownloader) LatestVersion() (semver.Version, error)
 
 	_, err := gh.client.R().SetResult(&latestVersionResp).Get("/latest")
 	if err != nil {
+		logrus.WithError(err).Errorf("error while getting latest version from github")
 		return semver.MustParse("0.0.1-alpha"), chkitErrors.Wrap(ErrUpdateCheck, err)
 	}
+
 	vers, err := semver.ParseTolerant(latestVersionResp.LatestVersion)
 	if err != nil {
+		logrus.WithError(err).Errorf("error while parsing latest version tag")
 		return semver.MustParse("0.0.1-alpha"), chkitErrors.Wrap(ErrUpdateCheck, err)
 	}
 	return vers, nil
