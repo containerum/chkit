@@ -1,19 +1,13 @@
 package update
 
 import (
-	"io/ioutil"
-
-	"crypto"
-
-	"fmt"
-
-	"os"
-
 	"bufio"
-
-	"strings"
-
+	"crypto"
 	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/cmd/cmdutil"
