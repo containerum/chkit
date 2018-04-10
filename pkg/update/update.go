@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/blang/semver"
-	. "github.com/containerum/chkit/cmd/context"
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	. "github.com/containerum/chkit/pkg/context"
 	"github.com/inconshreveable/go-update"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh/terminal"

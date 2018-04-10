@@ -15,12 +15,13 @@ VERSION?=$(LATEST_TAG:v%=%)
 
 # make directory and store path to variable
 BUILDS_DIR:=$(PWD)/build
+CMD_DIR:=./cmd/chkit
 EXECUTABLE:=chkit
 DEV_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
-	-X $(PACKAGE)/cmd.API_ADDR=$(CONTAINERUM_API)
+	-X $(PACKAGE)/pkg/cli.API_ADDR=$(CONTAINERUM_API)
 RELEASE_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
 	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell base64 -w 0 $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'\
-	-X $(PACKAGE)/cmd.API_ADDR=$(CONTAINERUM_API)
+	-X $(PACKAGE)/pkg/cli.API_ADDR=$(CONTAINERUM_API)
 
 genkey:
 	@echo "Generating private/public ECDSA keys to sign"
@@ -32,7 +33,7 @@ genkey:
 # go has build artifacts caching so soruce tracking not needed
 build:
 	@echo "Building chkit for current OS/architecture, without signing"
-	@go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE)
+	@go build $(CMD_DIR) -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE)
 
 test:
 	@echo "Running tests"
@@ -62,7 +63,7 @@ $(eval ifeq ($(1),windows)
 else
 	temp_executable=$(temp_build_dir)/$(EXECUTABLE)
 endif)
-@GOOS=$(1) GOARCH=$(2) go build -ldflags="$(RELEASE_LDFLAGS)" -v -o $(temp_executable)
+@GOOS=$(1) GOARCH=$(2) go build -ldflags="$(RELEASE_LDFLAGS)" -v -o $(temp_executable) $(CMD_DIR) 
 @$(call create_checksum,$(temp_executable))
 @$(call create_signature,$(temp_executable))
 $(eval ifeq ($(1),windows)
@@ -86,8 +87,8 @@ single_release:
 
 dev:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+dev)
-	@go build -v --tags="dev" -ldflags="$(DEV_LDFLAGS)"
+	@go build -v --tags="dev" -ldflags="$(DEV_LDFLAGS)" $(CMD_DIR) 
 
 mock:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)
-	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)"
+	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)" $(CMD_DIR) 
