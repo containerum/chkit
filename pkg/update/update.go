@@ -1,22 +1,16 @@
 package update
 
 import (
-	"io/ioutil"
-
-	"crypto"
-
-	"fmt"
-
-	"os"
-
 	"bufio"
-
+	"crypto"
+	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 
-	"encoding/base64"
-
 	"github.com/blang/semver"
-	"github.com/containerum/chkit/cmd/util"
+	. "github.com/containerum/chkit/cmd/context"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/inconshreveable/go-update"
 	"github.com/sirupsen/logrus"
@@ -72,7 +66,7 @@ func AskForUpdate(ctx *cli.Context, latestVersion semver.Version) (bool, error) 
 		colorEnd = "\x1b[0m"
 	}
 	fmt.Printf("%sYou are using version %s, however version %s is available%s\n",
-		colorStart, util.GetVersion(ctx), latestVersion, colorEnd)
+		colorStart, Context.Version, latestVersion, colorEnd)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanWords)
