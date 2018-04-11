@@ -14,14 +14,16 @@ import (
 func Login() error {
 	var err error
 	var username, pass string
+
 	if strings.TrimSpace(Context.Client.Username) == "" {
 		username, err = readLogin()
 		if err != nil {
 			return err
 		}
-	}
-	if strings.TrimSpace(username) == "" {
-		return ErrInvalidUsername
+		if strings.TrimSpace(username) == "" {
+			return ErrInvalidUsername
+		}
+		Context.Client.Username = username
 	}
 
 	if strings.TrimSpace(Context.Client.Password) == "" {
@@ -29,12 +31,12 @@ func Login() error {
 		if err != nil {
 			return err
 		}
+		if strings.TrimSpace(pass) == "" {
+			return ErrInvalidPassword
+		}
+		Context.Client.Password = pass
 	}
-	if strings.TrimSpace(Context.Client.Password) == "" {
-		return ErrInvalidPassword
-	}
-	Context.Client.Username = username
-	Context.Client.Password = pass
+
 	return nil
 }
 
