@@ -14,7 +14,12 @@ const (
 // Client -- chkit core client
 type Client struct {
 	model.Config
+	isInitialized bool
 	kubeAPIClient kubeClient.Client
+}
+
+func (client *Client) IsInitialized() bool {
+	return client.isInitialized
 }
 
 func (client *Client) Init(setup KubeAPIclientSetup) error {
@@ -26,5 +31,6 @@ func (client *Client) Init(setup KubeAPIclientSetup) error {
 		return ErrUnableToInitClient.Wrap(err)
 	}
 	client.kubeAPIClient = *kcli
+	client.isInitialized = true
 	return nil
 }
