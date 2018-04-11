@@ -16,6 +16,7 @@ var Context = struct {
 	APIaddr     string
 	Fingerprint string
 	Namespace   string
+	Quiet       bool
 	Tokens      model.Tokens
 	Client      chClient.Client
 }{

@@ -121,4 +121,5 @@ func init() {
 		login.Command,
 	)
 	Root.PersistentFlags().StringVarP(&Context.Namespace, "namespace", "n", Context.Namespace, "")
+	Root.PersistentFlags().BoolVarP(&Context.Quiet, "quiet", "q", Context.Quiet, "quiet mode")
 }

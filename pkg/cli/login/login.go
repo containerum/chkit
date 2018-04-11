@@ -70,18 +70,25 @@ var Command = &cobra.Command{
 			fmt.Printf("Unable to save tokens :(")
 		}
 		Context.Namespace, err = configuration.GetFirstClientNamespace()
+
 		if err != nil {
 			logrus.WithError(err).Error("unable to get default namespace")
-			fmt.Printf("Unable to get default namespace :(\n")
-			_, option, _ := activeToolkit.Options("What's next?", false,
-				"Choose your own namespace",
-				"Exit")
-			switch option {
-			case 0:
-				Context.Namespace, _ = activeToolkit.AskLine("Type namespace: ")
-			default:
-				// pass
+			if !Context.Quiet {
+				fmt.Printf("Unable to get default namespace :(\n")
+				_, option, _ := activeToolkit.Options("What's next?", false,
+					"Choose your own namespace",
+					"Exit")
+				switch option {
+				case 0:
+					Context.Namespace, _ = activeToolkit.AskLine("Type namespace: ")
+				default:
+					// pass
+				}
 			}
+		}
+		if !Context.Quiet {
+			fmt.Printf("Successfuly authenticated as %q ^_^\n", Context.Client.Username)
+			fmt.Printf("Using %q as default namespace\n", Context.Namespace)
 		}
 	},
 }
