@@ -17,7 +17,7 @@ const (
 )
 
 type ExportConfig struct {
-	Filename *string
+	Filename string
 	Format   ExportFormat
 }
 
@@ -35,9 +35,11 @@ func ExportData(renderer model.Renderer, config ExportConfig) error {
 	if err != nil {
 		return err
 	}
-	if config.Filename == nil {
+	switch config.Filename {
+	case "", "-":
 		fmt.Println(data)
 		return nil
+	default:
+		return ioutil.WriteFile(config.Filename, []byte(data), os.ModePerm)
 	}
-	return ioutil.WriteFile(*config.Filename, []byte(data), os.ModePerm)
 }
