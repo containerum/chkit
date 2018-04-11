@@ -76,5 +76,5 @@ func init() {
 	Get.PersistentFlags().
 		StringVarP((*string)(&getDeplDataConfig.Format), "output", "o", "", "output format (yaml/json)")
 	Get.PersistentFlags().
-		StringVarP(getDeplDataConfig.Filename, "file", "f", "", "output file")
+		StringVarP(&getDeplDataConfig.Filename, "file", "f", "", "output file")
 }
