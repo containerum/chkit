@@ -18,10 +18,10 @@ BUILDS_DIR:=$(PWD)/build
 CMD_DIR:=./cmd/chkit
 EXECUTABLE:=chkit
 DEV_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
-	-X $(PACKAGE)/pkg/cli.API_ADDR=$(CONTAINERUM_API)
+	-X $(PACKAGE)/pkg/cli/mode.API_ADDR=$(CONTAINERUM_API)
 RELEASE_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
 	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell base64 -w 0 $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'\
-	-X $(PACKAGE)/pkg/cli.API_ADDR=$(CONTAINERUM_API)
+	-X $(PACKAGE)/pkg/cli/mode.API_ADDR=$(CONTAINERUM_API)
 
 genkey:
 	@echo "Generating private/public ECDSA keys to sign"
