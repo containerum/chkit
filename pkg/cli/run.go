@@ -70,6 +70,7 @@ func init() {
 	Root.AddCommand(
 		login.Command,
 		Get,
+		Delete,
 	)
 	Root.PersistentFlags().StringVarP(&Context.Namespace, "namespace", "n", Context.Namespace, "")
 	Root.PersistentFlags().BoolVarP(&Context.Quiet, "quiet", "q", Context.Quiet, "quiet mode")
