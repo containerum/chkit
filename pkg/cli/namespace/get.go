@@ -1,72 +1,84 @@
 package clinamespace
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
+	"github.com/containerum/chkit/pkg/configuration"
+	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
-
-	"github.com/containerum/chkit/cmd/util"
-	"github.com/containerum/chkit/pkg/model"
-	"gopkg.in/urfave/cli.v2"
+	"github.com/spf13/cobra"
 )
 
 var aliases = []string{"ns", "namespaces"}
+var getNamespaceDataConfig = struct {
+	configuration.ExportConfig
+}{}
 
-// GetNamespace -- commmand 'get' entity data
-var GetNamespace = &cli.Command{
-	Name:        "namespace",
-	Aliases:     aliases,
-	Description: `shows namespace data or namespace list. Aliases: ` + strings.Join(aliases, ", "),
-	Usage:       `shows namespace data or namespace list`,
-	UsageText:   "chkit get namespace_name... [-o yaml/json] [-f output_file]",
-	Action: func(ctx *cli.Context) error {
-		client := util.GetClient(ctx)
-		defer util.StoreClient(ctx, client)
-		var showItem model.Renderer
-		var err error
+var Get = &cobra.Command{
+	Use:     "namespace",
+	Aliases: aliases,
+	Short:   `shows namespace data or namespace list`,
+	Long:    `shows namespace data or namespace list. Aliases: ` + strings.Join(aliases, ", "),
+	Example: "chkit get namespace_name... [-o yaml/json] [-f output_file]",
+	Run: func(command *cobra.Command, args []string) {
+		logrus.WithFields(logrus.Fields{
+			"command": "get namespace",
+		}).Debug("getting namespace data")
 
 		anime := &animation.Animation{
-			Framerate:      0.2,
+			Framerate:      0.5,
 			ClearLastFrame: true,
 			Source:         trasher.NewSilly(),
 		}
 		go func() {
-			time.Sleep(time.Second)
+			time.Sleep(4 * time.Second)
 			anime.Run()
 		}()
-		switch ctx.NArg() {
-		case 1:
-			namespaceLabel := ctx.Args().First()
-			logrus.Debugf("getting namespace %q", namespaceLabel)
-			showItem, err = client.GetNamespace(namespaceLabel)
-			if err != nil {
-				logrus.Debugf("fatal error: %v", err)
-				anime.Stop()
-				return err
+		nsData, err := func() (model.Renderer, error) {
+			defer anime.Stop()
+			switch len(args) {
+			case 1:
+				namespaceLabel := args[0]
+				logrus.Debugf("getting namespace %q", namespaceLabel)
+				ns, err := Context.Client.GetNamespace(namespaceLabel)
+				if err != nil {
+					logrus.WithError(err).Errorf("unable to get namespace %q", namespaceLabel)
+					return nil, err
+				}
+				return ns, nil
+			default:
+				var list namespace.NamespaceList
+				logrus.Debugf("getting namespace list")
+				list, err := Context.Client.GetNamespaceList()
+				if err != nil {
+					logrus.WithError(err).Errorf("unable to get namespace list")
+					return nil, err
+				}
+				return list, nil
 			}
-		default:
-			var list namespace.NamespaceList
-			logrus.Debugf("getting namespace list")
-			list, err := client.GetNamespaceList()
-			if err != nil {
-				logrus.Debugf("fatal error: %v", err)
-				anime.Stop()
-				return err
-			}
-			showItem = list
+		}()
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
 		}
-		logrus.Debugf("stopping animation")
-		anime.Stop()
-		logrus.Debugf("List recieved")
-		err = util.ExportDataCommand(ctx, showItem)
+		err = configuration.ExportData(nsData, getNamespaceDataConfig.ExportConfig)
 		if err != nil {
 			logrus.Debugf("fatal error: %v", err)
+			return
 		}
-		return err
+		logrus.Debugf("OK")
 	},
-	Flags: util.GetFlags,
+}
+
+func init() {
+	Get.PersistentFlags().
+		StringVarP((*string)(&getNamespaceDataConfig.Format), "output", "o", "", "output format (json/yaml)")
+	Get.PersistentFlags().
+		StringVarP(&getNamespaceDataConfig.Filename, "file", "f", "", "output file")
 }
