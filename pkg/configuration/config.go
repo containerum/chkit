@@ -3,6 +3,8 @@ package configuration
 import (
 	"os"
 
+	"github.com/containerum/chkit/pkg/context"
+
 	"github.com/BurntSushi/toml"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	. "github.com/containerum/chkit/pkg/context"
@@ -17,16 +19,18 @@ const (
 
 // LoadConfig -- loads config from fs
 func LoadConfig() error {
-	_, err := toml.DecodeFile(Context.ConfigPath, &Context.Client.StorableConfig)
+	config := context.Storable{}
+	_, err := toml.DecodeFile(Context.ConfigPath, &config)
 	if err != nil {
 		return ErrUnableToLoadConfig.Wrap(err)
 	}
+	Context.SetStorable(config)
 	return nil
 }
 
 // SaveConfig -- writes config from Context to config dir
 func SaveConfig() error {
-	err := os.MkdirAll(Context.ConfigPath, os.ModePerm)
+	err := os.MkdirAll(Context.ConfigDir, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
@@ -34,7 +38,7 @@ func SaveConfig() error {
 	if err != nil {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
-	if err := toml.NewEncoder(file).Encode(Context.Client.StorableConfig); err != nil {
+	if err := toml.NewEncoder(file).Encode(Context.GetStorable()); err != nil {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
 	return nil
