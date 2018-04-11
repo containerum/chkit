@@ -93,11 +93,16 @@ var Command = &cobra.Command{
 		}
 	},
 	PostRun: func(command *cobra.Command, args []string) {
-		if !Context.Changed {
-			return
+		if Context.Changed {
+			if err := configuration.SaveConfig(); err != nil {
+				logrus.WithError(err).Errorf("unable to save config")
+				fmt.Printf("Unable to save config: %v\n", err)
+				return
+			}
 		}
-		if err := configuration.SaveConfig(); err != nil {
-			fmt.Printf("Unable to save config: %v\n", err)
+		if err := configuration.SaveTokens(Context.Client.Tokens); err != nil {
+			logrus.WithError(err).Errorf("unable to save tokens")
+			fmt.Printf("Unable to save tokens: %v\n", err)
 			return
 		}
 	},
