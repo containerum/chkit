@@ -1,4 +1,4 @@
-package configuration
+package strset
 
 type Set map[string]struct{}
 
