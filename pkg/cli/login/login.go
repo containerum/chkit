@@ -40,6 +40,7 @@ var Command = &cobra.Command{
 				fmt.Printf("Unable to setup config :(\n")
 				return
 			}
+			Context.Changed = true
 		default:
 			panic(ErrFatalError.Wrap(err))
 		}
@@ -89,6 +90,15 @@ var Command = &cobra.Command{
 		if !Context.Quiet {
 			fmt.Printf("Successfuly authenticated as %q ^_^\n", Context.Client.Username)
 			fmt.Printf("Using %q as default namespace\n", Context.Namespace)
+		}
+	},
+	PostRun: func(command *cobra.Command, args []string) {
+		if !Context.Changed {
+			return
+		}
+		if err := configuration.SaveConfig(); err != nil {
+			fmt.Printf("Unable to save config: %v\n", err)
+			return
 		}
 	},
 }
