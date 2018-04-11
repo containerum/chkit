@@ -1,7 +1,12 @@
 package cli
 
 import (
+	"fmt"
+
+	"github.com/sirupsen/logrus"
+
 	"github.com/containerum/chkit/pkg/cli/deployment"
+	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
@@ -18,7 +23,16 @@ var Get = &cobra.Command{
 	},
 	PersistentPostRun: func(command *cobra.Command, args []string) {
 		if Context.Changed {
-			configuration.SaveConfig()
+			if err := configuration.SaveConfig(); err != nil {
+				logrus.WithError(err).Errorf("unable to save config")
+				fmt.Printf("Unable to save config: %v\n", err)
+				return
+			}
+		}
+		if err := configuration.SaveTokens(Context.Client.Tokens); err != nil {
+			logrus.WithError(err).Errorf("unable to save tokens")
+			fmt.Printf("Unable to save tokens: %v\n", err)
+			return
 		}
 	},
 }
@@ -26,5 +40,6 @@ var Get = &cobra.Command{
 func init() {
 	Get.AddCommand(
 		clideployment.Get,
+		clinamespace.Get,
 	)
 }
