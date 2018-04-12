@@ -13,13 +13,17 @@ type Menu struct {
 	Title   string
 	Promt   string
 	History []string
-	Items   []MenuItem
+	Items   []*MenuItem
 	once    sync.Once
 }
 
 type MenuItem struct {
-	Name string
-	Hook func() error
+	Name   string
+	Action func() error
+}
+
+func (item *MenuItem) String() string {
+	return item.Name
 }
 
 func (menu *Menu) init() {
@@ -57,7 +61,7 @@ func (menu *Menu) Run() (*MenuItem, error) {
 	for {
 		fmt.Printf("%s\n", menu.Title)
 		for i, item := range menu.Items {
-			fmt.Printf("%d) %s\n", i+1, item)
+			fmt.Printf("%d) %s\n", i+1, item.String())
 		}
 		fmt.Printf("%s", menu.Promt)
 		input, err := menu.scanLine()
@@ -67,19 +71,19 @@ func (menu *Menu) Run() (*MenuItem, error) {
 		input = strings.TrimSpace(input)
 		if ind, ok := optionSet[input]; ok {
 			item := menu.Items[ind]
-			if item.Hook != nil {
-				return &item, item.Hook()
+			if item.Action == nil {
+				return item, nil
 			}
-			return &item, nil
+			return item, item.Action()
 		}
 		ind := 0
-		if _, err = fmt.Sscan(input, &ind); err == nil && (ind < 1 || ind > len(menu.Items)) {
+		if _, err = fmt.Sscan(input, &ind); err == nil && (ind > 0 || ind <= len(menu.Items)) {
 			item := menu.Items[ind-1] // -1 is very important, do not change!
-			if item.Hook != nil {
-				return &item, item.Hook()
+			if item.Action == nil {
+				return item, nil
 			}
-			return &item, nil
+			return item, item.Action()
 		}
-		fmt.Printf("Option %q not found", input)
+		fmt.Printf("Option %q not found\n", input)
 	}
 }
