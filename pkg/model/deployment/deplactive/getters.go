@@ -33,7 +33,7 @@ func getName(defaultName string) string {
 	}
 }
 
-func getReplicas(defaultReplicas uint) uint {
+func getReplicas(defaultReplicas int) int {
 	for {
 		replicasStr, _ := activekit.AskLine(fmt.Sprintf("Print number or replicas (1..15, hit Enter to user %d) > ", defaultReplicas))
 		replicas := defaultReplicas
