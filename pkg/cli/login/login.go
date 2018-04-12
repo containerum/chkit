@@ -8,7 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
@@ -76,12 +76,12 @@ var Command = &cobra.Command{
 			logrus.WithError(err).Error("unable to get default namespace")
 			if !Context.Quiet {
 				fmt.Printf("Unable to get default namespace :(\n")
-				_, option, _ := activeToolkit.Options("What's next?", false,
+				_, option, _ := activekit.Options("What's next?", false,
 					"Choose your own namespace",
 					"Exit")
 				switch option {
 				case 0:
-					Context.Namespace, _ = activeToolkit.AskLine("Type namespace: ")
+					Context.Namespace, _ = activekit.AskLine("Type namespace: ")
 				default:
 					// pass
 				}

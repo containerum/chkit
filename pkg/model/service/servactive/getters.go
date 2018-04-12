@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/validation"
 
 	"github.com/containerum/chkit/pkg/model/service"
@@ -18,9 +18,9 @@ import (
 
 func getName(defaultName string) (string, error) {
 	for {
-		name, _ := activeToolkit.AskLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
+		name, _ := activekit.AskLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
 			defaultName))
-		if activeToolkit.IsStop(name) {
+		if activekit.IsStop(name) {
 			fmt.Printf("OK :(\n")
 			return "", ErrUserStoppedSession
 		}
@@ -43,7 +43,7 @@ func getIPs() ([]string, error) {
 	IPs := make([]string, 0, 4)
 	for scanner.Scan() {
 		text := scanner.Text()
-		if activeToolkit.IsStop(text) {
+		if activekit.IsStop(text) {
 			break
 		}
 		if net.ParseIP(text) == nil {
@@ -68,7 +68,7 @@ func getPorts() ([]service.Port, error) {
 			return nil, err
 		}
 		fmt.Printf("OK, port %q is added\n", port.Name)
-		ok, _ := activeToolkit.Yes("Continue creating ports?")
+		ok, _ := activekit.Yes("Continue creating ports?")
 		if !ok {
 			break
 		}
@@ -110,8 +110,8 @@ func getPort() (service.Port, error) {
 func getPortName() (string, error) {
 	for {
 		defaultName := namegen.Aster()
-		name, _ := activeToolkit.AskLine(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
-		if activeToolkit.IsStop(name) {
+		name, _ := activekit.AskLine(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
+		if activekit.IsStop(name) {
 			return name, ErrUserStoppedSession
 		}
 		if name == "" {
@@ -127,8 +127,8 @@ func getPortName() (string, error) {
 
 func getPortProtocol(name string) (string, error) {
 	for {
-		proto, _ := activeToolkit.AskLine(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
-		if activeToolkit.IsStop(proto) {
+		proto, _ := activekit.AskLine(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
+		if activekit.IsStop(proto) {
 			return proto, ErrUserStoppedSession
 		}
 		switch strings.ToLower(proto) {
@@ -147,8 +147,8 @@ func getPortProtocol(name string) (string, error) {
 
 func getTargetPort(name string) (int, error) {
 	for {
-		targetPortStr, exit := activeToolkit.AskLine(fmt.Sprintf("%s::target_port > ", name))
-		if exit || activeToolkit.IsStop(targetPortStr) {
+		targetPortStr, exit := activekit.AskLine(fmt.Sprintf("%s::target_port > ", name))
+		if exit || activekit.IsStop(targetPortStr) {
 			return -1, ErrUserStoppedSession
 		}
 		targePort, err := strconv.Atoi(targetPortStr)
@@ -162,8 +162,8 @@ func getTargetPort(name string) (int, error) {
 
 func getOptionalPort(name string) (*int, error) {
 	for {
-		optionalPortStr, exit := activeToolkit.AskLine(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
-		if exit || activeToolkit.IsStop(optionalPortStr) {
+		optionalPortStr, exit := activekit.AskLine(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
+		if exit || activekit.IsStop(optionalPortStr) {
 			return nil, ErrUserStoppedSession
 		}
 		if optionalPortStr == "" {
@@ -198,7 +198,7 @@ func parsePort(text string) (service.Port, error) {
 
 func getDomain() (string, error) {
 	for {
-		domain, _ := activeToolkit.AskWord("Print domain (hit Ctrl+D or Enter to skip): ")
+		domain, _ := activekit.AskWord("Print domain (hit Ctrl+D or Enter to skip): ")
 		if domain == "" {
 			return "", nil
 		}
@@ -213,7 +213,7 @@ func getDomain() (string, error) {
 
 func getDeploy(deployments []string) (string, error) {
 	for {
-		deployment, _, exit := activeToolkit.Options("Choose deployment (print stop to exit):", true, deployments...)
+		deployment, _, exit := activekit.Options("Choose deployment (print stop to exit):", true, deployments...)
 		if exit {
 			return "", ErrUserStoppedSession
 		}

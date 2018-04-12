@@ -6,7 +6,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/service"
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 )
 
@@ -25,7 +25,7 @@ type ConstructorConfig struct {
 func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, error) {
 	fmt.Printf("Hi there!\n")
 	if !config.Force {
-		ok, _ := activeToolkit.Yes("Do you want to create service?")
+		ok, _ := activekit.Yes("Do you want to create service?")
 		if !ok {
 			return nil, ErrUserExit
 		}
@@ -48,7 +48,7 @@ func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, er
 		}
 		if err = validateService(serv); err != nil {
 			fmt.Printf("Error: %v", err)
-			_, res, _ := activeToolkit.Options("What's next?",
+			_, res, _ := activekit.Options("What's next?",
 				true,
 				"fix service",
 				"create new service",
@@ -63,11 +63,11 @@ func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, er
 				return list, ErrUserExit
 			}
 		}
-		if yes, _ := activeToolkit.Yes(fmt.Sprintf("Add %q to list?", serv.Name)); yes {
+		if yes, _ := activekit.Yes(fmt.Sprintf("Add %q to list?", serv.Name)); yes {
 			list = append(list, serv)
 			fmt.Printf("Service %q added to list\n", serv.Name)
 		}
-		ok, _ := activeToolkit.Yes("Do you want to create another service?")
+		ok, _ := activekit.Yes("Do you want to create another service?")
 		if !ok {
 			return list, ErrUserStoppedSession
 		}
@@ -96,7 +96,7 @@ func fillServiceField(config ConstructorConfig, serv service.Service) (service.S
 			"Push to list",
 			"Exit",
 		}
-		_, field, _ := activeToolkit.Options("What's next?", false, fields...)
+		_, field, _ := activekit.Options("What's next?", false, fields...)
 		switch field {
 		case name:
 			name, err := getName(serv.Name)

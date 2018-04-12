@@ -7,7 +7,7 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/validation"
 )
@@ -30,10 +30,10 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 		depl = *config.Deployment
 	}
 	for {
-		_, n, _ := activeToolkit.Options("Whats't next?", false,
+		_, n, _ := activekit.Options("Whats't next?", false,
 			fmt.Sprintf("Set name     : %s", depl.Name),
 			fmt.Sprintf("Set replicas : %d", depl.Replicas),
-			fmt.Sprintf("Set containers: %v", activeToolkit.OrValue(depl.Containers, "none (required)")),
+			fmt.Sprintf("Set containers: %v", activekit.OrValue(depl.Containers, "none (required)")),
 			"From file",
 			"Confirm",
 			"Exit")
@@ -45,7 +45,7 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 		case 2:
 			depl.Containers = getContainers(depl.Containers)
 		case 3:
-			if filename, _ := activeToolkit.AskLine("print filename > "); strings.TrimSpace(filename) == "" {
+			if filename, _ := activekit.AskLine("print filename > "); strings.TrimSpace(filename) == "" {
 				fmt.Printf("No file chosen\n")
 				continue
 			} else {

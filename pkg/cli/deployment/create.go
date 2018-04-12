@@ -9,7 +9,7 @@ import (
 
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
@@ -49,7 +49,7 @@ var Create = &cli.Command{
 		}
 		fmt.Println(depl.RenderTable())
 		for {
-			_, option, _ := activeToolkit.Options("What do you want to do with deployment?", false,
+			_, option, _ := activekit.Options("What do you want to do with deployment?", false,
 				"Push to server",
 				"Print to terminal",
 				"Dump to file",
@@ -79,7 +79,7 @@ var Create = &cli.Command{
 				fmt.Println(data)
 				fmt.Println(strings.Repeat("-", w))
 			case 2:
-				filename, _ := activeToolkit.AskLine("Print filename > ")
+				filename, _ := activekit.AskLine("Print filename > ")
 				if strings.TrimSpace(filename) == "" {
 					return nil
 				}

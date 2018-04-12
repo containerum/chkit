@@ -1,4 +1,4 @@
-package activeToolkit
+package activekit
 
 import (
 	"bufio"

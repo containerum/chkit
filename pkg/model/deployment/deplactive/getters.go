@@ -9,7 +9,7 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -21,7 +21,7 @@ const (
 
 func getName(defaultName string) string {
 	for {
-		name, _ := activeToolkit.AskLine(fmt.Sprintf("Print deployment name (or hit Enter to use %q) > ", defaultName))
+		name, _ := activekit.AskLine(fmt.Sprintf("Print deployment name (or hit Enter to use %q) > ", defaultName))
 		if strings.TrimSpace(name) == "" {
 			name = defaultName
 		}
@@ -35,7 +35,7 @@ func getName(defaultName string) string {
 
 func getReplicas(defaultReplicas uint) uint {
 	for {
-		replicasStr, _ := activeToolkit.AskLine(fmt.Sprintf("Print number or replicas (1..15, hit Enter to user %d) > ", defaultReplicas))
+		replicasStr, _ := activekit.AskLine(fmt.Sprintf("Print number or replicas (1..15, hit Enter to user %d) > ", defaultReplicas))
 		replicas := defaultReplicas
 		if strings.TrimSpace(replicasStr) == "" {
 			return defaultReplicas
@@ -59,7 +59,7 @@ func getContainers(containers []container.Container) []container.Container {
 			"Add new container",
 			"Delete container",
 			"Exit")
-		_, option, _ := activeToolkit.Options("What do you want?", false,
+		_, option, _ := activekit.Options("What do you want?", false,
 			containersOptions...)
 		logrus.Debugf("option %d in %d %+v", option, len(containersOptions), containersOptions)
 	containerMenu:
@@ -69,7 +69,7 @@ func getContainers(containers []container.Container) []container.Container {
 			return containers
 		case len(containersOptions) - 2: // Delete container
 			logrus.Debugf("delete container menu")
-			_, option, _ := activeToolkit.Options("Which container do you want to delete?", false,
+			_, option, _ := activekit.Options("Which container do you want to delete?", false,
 				append(containerNames, "Exit")...)
 			switch option {
 			case len(containerNames): // exit
@@ -109,14 +109,14 @@ func getContainers(containers []container.Container) []container.Container {
 
 func getContainer(con container.Container) (container.Container, bool) {
 	for {
-		_, option, _ := activeToolkit.Options("Choose option: ", false,
+		_, option, _ := activekit.Options("Choose option: ", false,
 			fmt.Sprintf("Set name         : %s", con.Name),
 			fmt.Sprintf("Set image        : %s",
-				activeToolkit.OrString(con.Image, "none (required)")),
+				activekit.OrString(con.Image, "none (required)")),
 			fmt.Sprintf("Set memory limit : %s",
-				activeToolkit.OrString(con.Limits.Memory, "none (required)")),
+				activekit.OrString(con.Limits.Memory, "none (required)")),
 			fmt.Sprintf("Set CPU limit    : %s",
-				activeToolkit.OrString(con.Limits.CPU, "none (requied)")),
+				activekit.OrString(con.Limits.CPU, "none (requied)")),
 			"Confirm",
 			"Exit")
 		switch option {
@@ -142,7 +142,7 @@ func getContainer(con container.Container) (container.Container, bool) {
 
 func getContainerName(defaultName string) string {
 	for {
-		name, _ := activeToolkit.AskLine(fmt.Sprintf("Type container name (press Enter to use %q) > ", defaultName))
+		name, _ := activekit.AskLine(fmt.Sprintf("Type container name (press Enter to use %q) > ", defaultName))
 		name = strings.TrimSpace(name)
 		if name == "" {
 			name = defaultName
@@ -158,7 +158,7 @@ func getContainerName(defaultName string) string {
 func getContainerImage() string {
 	fmt.Printf("Which image do you want to use?\n")
 	for {
-		image, _ := activeToolkit.AskLine("> ")
+		image, _ := activekit.AskLine("> ")
 		image = strings.TrimSpace(image)
 		if image == "" {
 			return ""
@@ -180,7 +180,7 @@ func getLimits() model.Resource {
 
 func getMemory() string {
 	for {
-		memStr, _ := activeToolkit.AskLine("Memory (Mb) > ")
+		memStr, _ := activekit.AskLine("Memory (Mb) > ")
 		memStr = strings.TrimSpace(memStr)
 		var mem uint32
 		if memStr == "" {
@@ -196,7 +196,7 @@ func getMemory() string {
 
 func getCPU() string {
 	for {
-		cpuStr, _ := activeToolkit.AskLine("CPU (0.6 of CPU for example) > ")
+		cpuStr, _ := activekit.AskLine("CPU (0.6 of CPU for example) > ")
 		cpuStr = strings.TrimSpace(cpuStr)
 		var cpu float32
 		if cpuStr == "" {
