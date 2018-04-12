@@ -71,6 +71,7 @@ func init() {
 		login.Command,
 		Get,
 		Delete,
+		Create,
 	)
 	Root.PersistentFlags().
 		StringVarP(&Context.Namespace, "namespace", "n", Context.Namespace, "")
