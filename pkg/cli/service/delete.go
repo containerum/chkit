@@ -3,30 +3,70 @@ package cliserv
 import (
 	"strings"
 
-	"github.com/containerum/chkit/cmd/util"
+	"time"
+
+	"fmt"
+
+	"os"
+
+	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/animation"
+	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/urfave/cli.v2"
+	"github.com/spf13/cobra"
 )
 
-var Delete = &cli.Command{
-	Name:        "service",
-	Usage:       "call to delete service in specific namespace",
-	UsageText:   "chkit delete service service_label [-n namespace]",
-	Description: "deletes service in namespace. Aliases: " + strings.Join(aliases, ", "),
-	Aliases:     aliases,
-	Flags:       util.DeleteFlags,
-	Action: func(ctx *cli.Context) error {
+var deleteServiceConfig = struct {
+	Force bool
+}{}
+
+var Delete = &cobra.Command{
+	Use:     "service",
+	Aliases: aliases,
+	Short:   "call to delete service in specific namespace",
+	Long:    "deletes service in namespace. Aliases: " + strings.Join(aliases, ", "),
+	Example: "chkit delete service service_label [-n namespace]",
+	Run: func(cmd *cobra.Command, args []string) {
 		logrus.Debugf("running command delete service")
-		client := util.GetClient(ctx)
-		namespace := util.GetNamespace(ctx)
-		if ctx.NArg() == 0 {
-			logrus.Debugf("show help")
-			return cli.ShowSubcommandHelp(ctx)
+		if len(args) == 0 {
+			logrus.Debugf("showing help")
+			cmd.Help()
+			return
 		}
-		service := ctx.Args().First()
-		logrus.Debugf("deleting service %q from %q", service, namespace)
-		err := client.DeleteService(namespace, service)
-		logrus.WithError(err).Debugf("error while deleting service")
-		return err
+		svcName := args[0]
+
+		if !deleteServiceConfig.Force {
+			if yes, _ := activekit.Yes(fmt.Sprintf("Do you really want delete service %q?", svcName)); !yes {
+				return
+			}
+		}
+
+		logrus.Debugf("deleting service %q from %q", svcName)
+		anime := &animation.Animation{
+			Framerate:      0.4,
+			Source:         trasher.NewSilly(),
+			ClearLastFrame: true,
+		}
+		go func() {
+			time.Sleep(4 * time.Second)
+			anime.Run()
+		}()
+		err := func() error {
+			defer anime.Stop()
+			return Context.Client.DeleteService(Context.Namespace, svcName)
+		}()
+		if err != nil {
+			logrus.WithError(err).Debugf("error while deleting service")
+			fmt.Printf("Unable to delete service %q :(\n%v", err)
+			os.Exit(1)
+		}
+		fmt.Printf("OK\n")
+		return
 	},
+}
+
+func init() {
+	Delete.PersistentFlags().
+		BoolVarP(&deleteServiceConfig.Force, "force", "f", false, "force delete without confirmation")
 }

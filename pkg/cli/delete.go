@@ -5,6 +5,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/prerun"
+	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
@@ -38,5 +39,6 @@ var Delete = &cobra.Command{
 func init() {
 	Delete.AddCommand(
 		clinamespace.Delete,
+		cliserv.Delete,
 	)
 }
