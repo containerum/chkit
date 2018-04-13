@@ -53,7 +53,9 @@ var Create = &cobra.Command{
 						Name: "Create deployment",
 						Action: func() error {
 							anime := &animation.Animation{
-								Source: trasher.NewSilly(),
+								Framerate:      0.4,
+								Source:         trasher.NewSilly(),
+								ClearLastFrame: true,
 							}
 							go func() {
 								time.Sleep(4 * time.Second)
@@ -67,6 +69,7 @@ var Create = &cobra.Command{
 								logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)
 								fmt.Println(err)
 							}
+							fmt.Printf("Congratulations! Deployment %q created!\n", depl.Name)
 							return nil
 						},
 					},
@@ -133,16 +136,6 @@ var Create = &cobra.Command{
 			}
 		}
 	},
-}
-
-func textWidth(text string) int {
-	width := 0
-	for _, line := range strings.Split(text, "\n") {
-		if len(line) > width {
-			width = len(line)
-		}
-	}
-	return width
 }
 
 func init() {
