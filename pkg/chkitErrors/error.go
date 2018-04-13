@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"strings"
+
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -102,6 +104,12 @@ func (wrapper *Wrapper) Error() string {
 		return wrapper.cachedMessage
 	}
 	buf := bytes.NewBufferString(wrapper.main.Error())
+
+	if len(wrapper.comments) > 0 {
+		buf.WriteString(", ")
+	}
+	buf.WriteString(strings.Join(wrapper.comments, ", "))
+
 	if len(wrapper.reasons) > 0 {
 		buf.WriteString(": ")
 	}
