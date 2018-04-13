@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/prerun"
+	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/spf13/cobra"
@@ -41,5 +42,6 @@ func init() {
 	Get.AddCommand(
 		clideployment.Get,
 		clinamespace.Get,
+		cliserv.Get,
 	)
 }
