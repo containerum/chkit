@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
 	"time"
 
 	. "github.com/containerum/chkit/pkg/context"
@@ -12,10 +13,10 @@ import (
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/animation"
+	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"gopkg.in/urfave/cli.v2"
 )
 
 var createDeplConfig = struct {
@@ -37,7 +38,6 @@ var Create = &cobra.Command{
 				os.Exit(1)
 			}
 		}
-
 		depl, err := deplactive.ConstructDeployment(deplactive.Config{
 			Deployment: &depl,
 		})
@@ -52,9 +52,35 @@ var Create = &cobra.Command{
 					{
 						Name: "Create deployment",
 						Action: func() error {
-							if err := Context.Client.CreateDeployment(Context.Namespace, depl); err != nil {
+							anime := &animation.Animation{
+								Source: trasher.NewSilly(),
+							}
+							go func() {
+								time.Sleep(4 * time.Second)
+								anime.Run()
+							}()
+							err := func() error {
+								defer anime.Stop()
+								return Context.Client.CreateDeployment(Context.Namespace, depl)
+							}()
+							if err != nil {
 								logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)
 								fmt.Println(err)
+							}
+							return nil
+						},
+					},
+					{
+						Name: "Edit deployment",
+						Action: func() error {
+							var err error
+							depl, err = deplactive.ConstructDeployment(deplactive.Config{
+								Deployment: &depl,
+							})
+							if err != nil {
+								logrus.WithError(err).Errorf("unable to create deployment")
+								fmt.Println(err)
+								os.Exit(1)
 							}
 							return nil
 						},
@@ -65,7 +91,9 @@ var Create = &cobra.Command{
 							if data, err := depl.RenderYAML(); err != nil {
 								return err
 							} else {
-								fmt.Println(data)
+								upBorders := strings.Repeat("_", text.Width(data))
+								downBorders := strings.Repeat("_", text.Width(data))
+								fmt.Printf("%s\n\n%s\n%s\n", upBorders, data, downBorders)
 							}
 							return nil
 						}),
@@ -90,7 +118,9 @@ var Create = &cobra.Command{
 					{
 						Name: "Exit",
 						Action: func() error {
-							os.Exit(0)
+							if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
+								os.Exit(0)
+							}
 							return nil
 						},
 					},
@@ -100,87 +130,6 @@ var Create = &cobra.Command{
 				logrus.WithError(err).Errorf("error while menu execution")
 				angel.Angel(err)
 				os.Exit(1)
-			}
-		}
-	},
-}
-
-var CreateOld = &cli.Command{
-	Name:    "deployment",
-	Aliases: aliases,
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:    "file",
-			Aliases: []string{"f"},
-			Usage:   "file with deployment data",
-		},
-	},
-	Action: func(ctx *cli.Context) error {
-		client := Context.Client
-		namespace := Context.Namespace
-		deplConfig := deplactive.Config{}
-		if ctx.IsSet("file") {
-			deploymentFile := ctx.String("file")
-			depl, err := deplactive.FromFile(deploymentFile)
-			if err != nil {
-				logrus.WithError(err).
-					Errorf("unable to read deployment data from %q", deploymentFile)
-				fmt.Printf("Unable to read data from %q: %v\n", deploymentFile, err)
-				return err
-			}
-			deplConfig.Deployment = &depl
-		}
-		depl, err := deplactive.ConstructDeployment(deplConfig)
-		if err != nil {
-			logrus.WithError(err).Error("error while creating deployment")
-			fmt.Printf("%v\n", err)
-			return err
-		}
-		fmt.Println(depl.RenderTable())
-		for {
-			_, option, _ := activekit.Options("What do you want to do with deployment?", false,
-				"Push to server",
-				"Print to terminal",
-				"Dump to file",
-				"Exit")
-			switch option {
-			case 0:
-				anime := &animation.Animation{
-					Framerate:      0.3,
-					ClearLastFrame: true,
-					Source:         trasher.NewSilly(),
-				}
-				go func() {
-					time.Sleep(time.Second)
-					anime.Run()
-				}()
-				go anime.Run()
-				err = client.CreateDeployment(namespace, depl)
-				anime.Stop()
-				if err != nil {
-					logrus.WithError(err).Error("unable to create deployment")
-					fmt.Printf("\n%v\n", err)
-				}
-			case 1:
-				data, _ := depl.RenderYAML()
-				w := textWidth(data)
-				fmt.Println(strings.Repeat("-", w))
-				fmt.Println(data)
-				fmt.Println(strings.Repeat("-", w))
-			case 2:
-				filename, _ := activekit.AskLine("Print filename > ")
-				if strings.TrimSpace(filename) == "" {
-					return nil
-				}
-				depl.ToKube()
-				data, _ := depl.MarshalJSON()
-				err := ioutil.WriteFile(filename, data, os.ModePerm)
-				if err != nil {
-					logrus.WithError(err).Error("unable to write deployment to file")
-					fmt.Println(err)
-				}
-			default:
-				return nil
 			}
 		}
 	},
