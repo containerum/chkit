@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"os"
+
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -20,122 +22,99 @@ const (
 type ConstructorConfig struct {
 	Force       bool
 	Deployments []string
+	Service     *service.Service
 }
 
-func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, error) {
-	fmt.Printf("Hi there!\n")
-	if !config.Force {
-		ok, _ := activekit.Yes("Do you want to create service?")
-		if !ok {
-			return nil, ErrUserExit
-		}
-		fmt.Printf("OK")
-	}
-	var list service.ServiceList
-	serv := defaultService()
+func RunInteractveConstructor(config ConstructorConfig) (service.Service, error) {
 	var err error
-	for {
-		serv, err = fillServiceField(config, serv)
-		switch err {
-		case nil:
-			// pass
-		case ErrUserStoppedSession:
-			return list, err
-		case ErrUserExit:
-			return list, nil
-		default:
-			return list, err
-		}
-		if err = validateService(serv); err != nil {
-			fmt.Printf("Error: %v", err)
-			_, res, _ := activekit.Options("What's next?",
-				true,
-				"fix service",
-				"create new service",
-				"exit")
-			switch {
-			case res == 0:
-				continue
-			case res == 1:
-				serv = defaultService()
-				continue
-			default:
-				return list, ErrUserExit
-			}
-		}
-		if yes, _ := activekit.Yes(fmt.Sprintf("Add %q to list?", serv.Name)); yes {
-			list = append(list, serv)
-			fmt.Printf("Service %q added to list\n", serv.Name)
-		}
-		ok, _ := activekit.Yes("Do you want to create another service?")
-		if !ok {
-			return list, ErrUserStoppedSession
-		}
-		fmt.Printf("OK")
+	var serv service.Service
+	if config.Service != nil {
+		serv = *config.Service
+	} else {
 		serv = defaultService()
 	}
-}
-
-func fillServiceField(config ConstructorConfig, serv service.Service) (service.Service, error) {
-	const (
-		name = iota
-		deploy
-		domain
-		ips
-		ports
-		pushServ
-		exit
-	)
-	for {
-		fields := []string{
-			fmt.Sprintf("Set name  : %s", serv.Name),
-			fmt.Sprintf("Set deploy: %s", serv.Deploy),
-			fmt.Sprintf("Set domain: %s", serv.Domain),
-			fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
-			fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
-			"Push to list",
-			"Exit",
-		}
-		_, field, _ := activekit.Options("What's next?", false, fields...)
-		switch field {
-		case name:
-			name, err := getName(serv.Name)
-			if err != nil {
-				return serv, err
-			}
-			serv.Name = name
-		case ports:
-			ports, err := getPorts()
-			if err != nil {
-				return serv, err
-			}
-			serv.Ports = ports
-		case domain:
-			domain, err := getDomain()
-			if err != nil {
-				return serv, err
-			}
-			serv.Domain = domain
-		case ips:
-			IPs, err := getIPs()
-			if err != nil {
-				return serv, err
-			}
-			serv.IPs = IPs
-		case deploy:
-			deploy, err := getDeploy(config.Deployments)
-			if err != nil {
-				return serv, err
-			}
-			serv.Deploy = deploy
-		case pushServ:
-			return serv, nil
-		case exit:
-			return serv, ErrUserExit
-		default:
-			panic("[service interactive constructor] unreacheable state in field selection func")
-		}
+	for exit := false; !exit; {
+		(&activekit.Menu{
+			Items: []*activekit.MenuItem{
+				{
+					Name: fmt.Sprintf("Set name  : %s", serv.Name),
+					Action: func() error {
+						serv.Name = getName(serv.Name)
+						return nil
+					},
+				},
+				{
+					Name: fmt.Sprintf("Set deploy: %s", serv.Deploy),
+					Action: func() error {
+						deploy, err := getDeploy(config.Deployments)
+						if err != nil {
+							fmt.Println(err)
+							return nil
+						}
+						serv.Deploy = deploy
+						return nil
+					},
+				},
+				{
+					Name: fmt.Sprintf("Set domain: %s", serv.Domain),
+					Action: func() error {
+						domain, err := getDomain()
+						if err != nil {
+							fmt.Println(err)
+							return nil
+						}
+						serv.Domain = domain
+						return nil
+					},
+				},
+				{
+					Name: fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
+					Action: func() error {
+						IPs, err := getIPs()
+						if err != nil {
+							fmt.Println(err)
+							return nil
+						}
+						serv.IPs = IPs
+						return nil
+					},
+				},
+				{
+					Name: fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
+					Action: func() error {
+						ports, err := getPorts()
+						if err != nil {
+							fmt.Println(err)
+							return nil
+						}
+						serv.Ports = ports
+						return nil
+					},
+				},
+				{
+					Name: "Confirm",
+					Action: func() error {
+						if err = validateService(serv); err != nil {
+							fmt.Printf("Error: %v", err)
+							return nil
+						}
+						exit = true
+						return nil
+					},
+				},
+				{
+					Name: "Exit",
+					Action: func() error {
+						if yes, _ := activekit.Yes("Do you really want to exit?"); yes {
+							os.Exit(0)
+						}
+						return nil
+					},
+				},
+			},
+		}).Run()
 	}
+	return serv, nil
 }
 
 func defaultService() service.Service {
