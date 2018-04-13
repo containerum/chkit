@@ -46,9 +46,11 @@ func (menu *Menu) scanLine() (string, error) {
 		if err := scanner.Err(); err != nil {
 			return "", err
 		}
+		if scanner.Text() == "" {
+			continue
+		}
 		return scanner.Text(), nil
 	}
-	panic("[activekit Menu.scanLine] unreacheable state")
 	return "", nil
 }
 
@@ -77,7 +79,7 @@ func (menu *Menu) Run() (*MenuItem, error) {
 			return item, item.Action()
 		}
 		ind := 0
-		if _, err = fmt.Sscan(input, &ind); err == nil && (ind > 0 || ind <= len(menu.Items)) {
+		if _, err = fmt.Sscan(input, &ind); err == nil && (ind > 0 && ind <= len(menu.Items)) {
 			item := menu.Items[ind-1] // -1 is very important, do not change!
 			if item.Action == nil {
 				return item, nil
