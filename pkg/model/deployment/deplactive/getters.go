@@ -7,137 +7,167 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"git.containerum.net/ch/kube-client/pkg/model"
-	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
+	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-const (
-	ErrInvalidDeploymentName chkitErrors.Err = "invalid deployment name"
-)
-
-func getName(defaultName string) string {
-	for {
-		name, _ := activekit.AskLine(fmt.Sprintf("Print deployment name (or hit Enter to use %q) > ", defaultName))
-		if strings.TrimSpace(name) == "" {
-			name = defaultName
-		}
-		if err := validation.ValidateLabel(name); err != nil {
-			fmt.Printf("Invalid name %q. Try again\n", name)
-			continue
-		}
-		return name
-	}
-}
-
-func getReplicas(defaultReplicas int) int {
-	for {
-		replicasStr, _ := activekit.AskLine(fmt.Sprintf("Print number or replicas (1..15, hit Enter to user %d) > ", defaultReplicas))
-		replicas := defaultReplicas
-		if strings.TrimSpace(replicasStr) == "" {
-			return defaultReplicas
-		}
-		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas == 0 || replicas > 15 {
-			fmt.Printf("Expected number 1..15! Try again.\n")
-			continue
-		}
-		return replicas
-	}
-}
-
 func getContainers(containers []container.Container) []container.Container {
-	for {
-		containerNames := make([]string, 0, len(containers))
-		for _, cont := range containers {
-			containerNames = append(containerNames,
-				fmt.Sprintf("Edit container %q", cont.Name))
+	for exit := false; !exit; {
+		containerMenuItems := make([]*activekit.MenuItem, 0, len(containers))
+		for i, cont := range containers {
+			containerMenuItems = append(containerMenuItems,
+				&activekit.MenuItem{
+					Name: fmt.Sprintf("Edit container %q", cont.Name),
+					Action: func(i int, cont container.Container) func() error {
+						return func() error {
+							logrus.Debugf("editing container %q", containerMenuItems[i])
+							edited, ok := getContainer(cont)
+							if ok {
+								containers[i] = edited
+							}
+							return nil
+						}
+					}(i, cont),
+				})
 		}
-		containersOptions := append(containerNames,
-			"Add new container",
-			"Delete container",
-			"Exit")
-		_, option, _ := activekit.Options("What do you want?", false,
-			containersOptions...)
-		logrus.Debugf("option %d in %d %+v", option, len(containersOptions), containersOptions)
-	containerMenu:
-		switch option {
-		case len(containersOptions) - 1: // Exit
-			logrus.Debugf("exit container menu")
-			return containers
-		case len(containersOptions) - 2: // Delete container
-			logrus.Debugf("delete container menu")
-			_, option, _ := activekit.Options("Which container do you want to delete?", false,
-				append(containerNames, "Exit")...)
-			switch option {
-			case len(containerNames): // exit
-				break containerMenu
-			default:
-				if len(containers) > 0 {
-					logrus.Debugf("delete container %q", containerNames[option])
-					containers = append(containers[:option], containers[option+1:]...)
-				}
-			}
-		case len(containersOptions) - 3: // Add container
-			logrus.Debugf("add container")
-			cont, ok := getContainer(container.Container{
-				model.Container{
-					Name:  namegen.Aster() + "-" + namegen.Color(),
-					Image: "unknown (required)",
-					Limits: model.Resource{
-						Memory: "",
-						CPU:    "",
+		containerMenuItems = append(containerMenuItems,
+			[]*activekit.MenuItem{
+				{
+					Name: "Add new container",
+					Action: func() error {
+						logrus.Debugf("adding container")
+						cont, ok := getContainer(container.Container{
+							Container: model.Container{
+								Name:  namegen.Aster() + "-" + namegen.Color(),
+								Image: "unknown (required)",
+								Limits: model.Resource{
+									Memory: "256Mi",
+									CPU:    "200m",
+								},
+								Ports: []model.ContainerPort(nil),
+							},
+						})
+						if ok {
+							containers = append(containers, cont)
+							fmt.Printf("Container %q added to list\n", cont.Name)
+						}
+						return nil
 					},
-					Ports: []model.ContainerPort(nil),
 				},
-			})
-			if ok {
-				containers = append(containers, cont)
-				fmt.Printf("Container %q added to list\n", cont.Name)
-			}
-		default: // edit container
-			logrus.Debugf("editing container %q", containerNames[option])
-			edited, ok := getContainer(containers[option])
-			if ok {
-				containers[option] = edited
-			}
+				{
+					Name: "Delete container",
+					Action: func() error {
+						logrus.Debugf("deleting container")
+						var deleteMenu []*activekit.MenuItem
+						for i, name := range getContainersNamesList(containers) {
+							deleteMenu = append(deleteMenu, &activekit.MenuItem{
+								Name: name,
+								Action: func(i int, name string) func() error {
+									return func() error {
+										yes, _ := activekit.Yes(fmt.Sprintf("Are you sure you want to delete the container %q?",
+											name))
+										if yes {
+											containers = append(containers[:i], containers[i+1:]...)
+										}
+										return nil
+									}
+								}(i, name),
+							})
+						}
+						deleteMenu = append(deleteMenu, &activekit.MenuItem{
+							Name: "Return to previous menu",
+						})
+						(&activekit.Menu{
+							Title: "Which container do you want to delete?",
+							Items: deleteMenu,
+						}).Run()
+						return nil
+					},
+				},
+				{
+					Name: "Confirm",
+					Action: func() error {
+						exit = true
+						return nil
+					},
+				},
+			}...)
+		_, err := (&activekit.Menu{
+			Items: containerMenuItems,
+		}).Run()
+		if err != nil {
+			logrus.WithError(err).Errorf("")
+			break
 		}
 	}
+	return containers
 }
 
 func getContainer(con container.Container) (container.Container, bool) {
-	for {
-		_, option, _ := activekit.Options("Choose option: ", false,
-			fmt.Sprintf("Set name         : %s", con.Name),
-			fmt.Sprintf("Set image        : %s",
-				activekit.OrString(con.Image, "none (required)")),
-			fmt.Sprintf("Set memory limit : %s",
-				activekit.OrString(con.Limits.Memory, "none (required)")),
-			fmt.Sprintf("Set CPU limit    : %s",
-				activekit.OrString(con.Limits.CPU, "none (requied)")),
-			"Confirm",
-			"Exit")
-		switch option {
-		case 0:
-			con.Name = getContainerName(con.Name)
-		case 1:
-			con.Image = getContainerImage()
-		case 2:
-			con.Limits.Memory = getMemory()
-		case 3:
-			con.Limits.CPU = getCPU()
-		case 4:
-			if err := validateContainer(con); err != nil {
-				fmt.Printf("Error: %v\n", err)
-				continue
-			}
-			return con, true
-		default:
-			return con, false
-		}
+	ok := true
+	for exit := false; !exit; {
+		(&activekit.Menu{
+			Items: []*activekit.MenuItem{
+				{
+					Name: fmt.Sprintf("Set name         : %s", con.Name),
+					Action: func() error {
+						con.Name = getContainerName(con.Name)
+						return nil
+					},
+				},
+				{
+					Name: fmt.Sprintf("Set image        : %s",
+						activekit.OrString(con.Image, "none (required)")),
+					Action: func() error {
+						con.Image = getContainerImage()
+						return nil
+					},
+				},
+				{
+					Name: fmt.Sprintf("Set memory limit : %s",
+						activekit.OrString(con.Limits.Memory, "none (required)")),
+					Action: func() error {
+						con.Limits.Memory = getMemory()
+						return nil
+					},
+				},
+				{
+					Name: fmt.Sprintf("Set CPU limit    : %s",
+						activekit.OrString(con.Limits.CPU, "none (requied)")),
+					Action: func() error {
+						con.Limits.CPU = getCPU()
+						return nil
+					},
+				},
+				{
+					Name: "Confirm",
+					Action: func() error {
+						if err := validateContainer(con); err != nil {
+							errText := err.Error()
+							attention := strings.Repeat("!", text.Width(errText))
+							fmt.Printf("%s\n%v\n%s\n", attention, errText, attention)
+							return nil
+						}
+						exit = true
+						return nil
+					},
+				},
+				{
+					Name: "Return to previous menu",
+					Action: func() error {
+						ok = false
+						exit = true
+						return nil
+					},
+				},
+			},
+		}).Run()
 	}
+	return con, ok
 }
 
 func getContainerName(defaultName string) string {
@@ -168,13 +198,6 @@ func getContainerImage() string {
 			continue
 		}
 		return image
-	}
-}
-
-func getLimits() model.Resource {
-	return model.Resource{
-		CPU:    getCPU(),
-		Memory: getMemory(),
 	}
 }
 
@@ -210,4 +233,41 @@ func getCPU() string {
 		cpuQ.Format = resource.BinarySI
 		return cpuQ.String()
 	}
+}
+
+func getName(defaultName string) string {
+	for {
+		name, _ := activekit.AskLine(fmt.Sprintf("Print deployment name (or hit Enter to use %q) > ", defaultName))
+		if strings.TrimSpace(name) == "" {
+			name = defaultName
+		}
+		if err := validation.ValidateLabel(name); err != nil {
+			fmt.Printf("Invalid name %q. Try again\n", name)
+			continue
+		}
+		return name
+	}
+}
+
+func getReplicas(defaultReplicas int) int {
+	for {
+		replicasStr, _ := activekit.AskLine(fmt.Sprintf("Print number or replicas (1..15, hit Enter to use %d) > ", defaultReplicas))
+		replicas := defaultReplicas
+		if strings.TrimSpace(replicasStr) == "" {
+			return defaultReplicas
+		}
+		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas == 0 || replicas > 15 {
+			fmt.Printf("Expected number 1..15! Try again.\n")
+			continue
+		}
+		return replicas
+	}
+}
+
+func getContainersNamesList(containers []container.Container) []string {
+	names := make([]string, 0, len(containers))
+	for _, cont := range containers {
+		names = append(names, cont.Name)
+	}
+	return names
 }

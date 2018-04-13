@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	ErrUserStopped       chkitErrors.Err = "user stopped"
 	ErrInvalidContainer  chkitErrors.Err = "invalid container"
 	ErrInvalidDeployment chkitErrors.Err = "invalid deployment"
 )
@@ -32,17 +31,8 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 	} else {
 		depl = *config.Deployment
 	}
-	exit := &activekit.MenuItem{
-		Name: "Exit",
-	}
-	confirm := &activekit.MenuItem{
-		Name: "Confirm",
-		Action: func() error {
-			return validateDeployment(depl)
-		},
-	}
-	for {
-		result, err := (&activekit.Menu{
+	for exit := false; !exit; {
+		_, err := (&activekit.Menu{
 			Items: []*activekit.MenuItem{
 				{
 					Name: fmt.Sprintf("Set name     : %s", depl.Name),
@@ -82,33 +72,41 @@ func ConstructDeployment(config Config) (deployment.Deployment, error) {
 						return nil
 					},
 				},
-				confirm,
-				exit,
+				{
+					Name: "Confirm",
+					Action: func() error {
+						if err := validateDeployment(depl); err != nil {
+							errTxt := err.Error()
+							width := 0
+							for _, line := range strings.Split(errTxt, "\n") {
+								if len(line) > width {
+									width = len(line)
+								}
+							}
+							attention := strings.Repeat("!", width)
+							fmt.Printf("%s\n%v\n%s\n", attention, err, attention)
+							return nil
+						}
+						exit = true
+						return nil
+					},
+				},
+				{
+					Name: "Exit",
+					Action: func() error {
+						if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
+							os.Exit(0)
+						}
+						return nil
+					},
+				},
 			},
 		}).Run()
-		switch result {
-		case exit:
-			os.Exit(0)
-		case confirm:
-			if err != nil {
-				errTxt := err.Error()
-				width := 0
-				for _, line := range strings.Split(errTxt, "\n") {
-					if len(line) > width {
-						width = len(line)
-					}
-				}
-				attention := strings.Repeat("!", width)
-				fmt.Printf("%s\n%v\n%s\n", attention, err, attention)
-				continue
-			}
-			return depl, nil
-		default:
-			if err != nil {
-				return depl, err
-			}
+		if err != nil {
+			return depl, err
 		}
 	}
+	return depl, nil
 }
 
 func DefaultDeployment() deployment.Deployment {
@@ -134,7 +132,7 @@ func validateContainer(cont container.Container) error {
 		errs = append(errs, fmt.Errorf("\n + undefined memory limit"))
 	}
 	if len(errs) > 0 {
-		return ErrInvalidContainer.CommentF("%q", cont.Name).AddReasons(errs...)
+		return ErrInvalidContainer.CommentF("label=%q", cont.Name).AddReasons(errs...)
 	}
 	return nil
 }
@@ -153,7 +151,7 @@ func validateDeployment(depl deployment.Deployment) error {
 		}
 	}
 	if len(errs) > 0 {
-		return ErrInvalidDeployment.Comment("\n").AddReasons(errs...)
+		return ErrInvalidDeployment.CommentF("label=%q", depl.Name).AddReasons(errs...)
 	}
 	return nil
 }
