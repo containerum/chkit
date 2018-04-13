@@ -15,7 +15,10 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-func getContainers(containers []container.Container) []container.Container {
+func getContainers(conts []container.Container) []container.Container {
+	containers := make([]container.Container, len(conts))
+	copy(containers, conts)
+	ok := true
 	for exit := false; !exit; {
 		containerMenuItems := make([]*activekit.MenuItem, 0, len(containers))
 		for i, cont := range containers {
@@ -92,6 +95,15 @@ func getContainers(containers []container.Container) []container.Container {
 					Name: "Confirm",
 					Action: func() error {
 						exit = true
+						ok = true
+						return nil
+					},
+				},
+				{
+					Name: "Return to previous menu, drop all changes",
+					Action: func() error {
+						exit = true
+						ok = false
 						return nil
 					},
 				},
@@ -104,7 +116,10 @@ func getContainers(containers []container.Container) []container.Container {
 			break
 		}
 	}
-	return containers
+	if ok {
+		return containers
+	}
+	return conts
 }
 
 func getContainer(con container.Container) (container.Container, bool) {
@@ -131,7 +146,7 @@ func getContainer(con container.Container) (container.Container, bool) {
 					Name: fmt.Sprintf("Set memory limit : %s",
 						activekit.OrString(con.Limits.Memory, "none (required)")),
 					Action: func() error {
-						con.Limits.Memory = getMemory()
+						con.Limits.Memory = getMemory(con.Limits.Memory)
 						return nil
 					},
 				},
@@ -139,7 +154,7 @@ func getContainer(con container.Container) (container.Container, bool) {
 					Name: fmt.Sprintf("Set CPU limit    : %s",
 						activekit.OrString(con.Limits.CPU, "none (requied)")),
 					Action: func() error {
-						con.Limits.CPU = getCPU()
+						con.Limits.CPU = getCPU(con.Limits.CPU)
 						return nil
 					},
 				},
@@ -201,29 +216,29 @@ func getContainerImage() string {
 	}
 }
 
-func getMemory() string {
+func getMemory(oldValue string) string {
 	for {
-		memStr, _ := activekit.AskLine("Memory (Mb) > ")
+		memStr, _ := activekit.AskLine("Memory (Mb, 1..16000) > ")
 		memStr = strings.TrimSpace(memStr)
 		var mem uint32
 		if memStr == "" {
-			return ""
+			return oldValue
 		}
-		if _, err := fmt.Sscanln(memStr, &mem); err != nil {
-			fmt.Printf("Memory must be interger number > 0. Try again.\n")
+		if _, err := fmt.Sscanln(memStr, &mem); err != nil || mem < 1 || mem > 16000 {
+			fmt.Printf("Memory must be interger number 0..16000. Try again.\n")
 			continue
 		}
 		return resource.NewQuantity(int64(mem*(1<<20)), resource.BinarySI).String()
 	}
 }
 
-func getCPU() string {
+func getCPU(oldValue string) string {
 	for {
-		cpuStr, _ := activekit.AskLine("CPU (0.6 of CPU for example) > ")
+		cpuStr, _ := activekit.AskLine("CPU (0.6 of CPU for example, 0.001..12) > ")
 		cpuStr = strings.TrimSpace(cpuStr)
 		var cpu float32
 		if cpuStr == "" {
-			return ""
+			return oldValue
 		}
 		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil || cpu <= 0 {
 			fmt.Printf("CPU must be number > 0. Try again.\n")
@@ -256,7 +271,7 @@ func getReplicas(defaultReplicas int) int {
 		if strings.TrimSpace(replicasStr) == "" {
 			return defaultReplicas
 		}
-		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas == 0 || replicas > 15 {
+		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas < 0 || replicas > 15 {
 			fmt.Printf("Expected number 1..15! Try again.\n")
 			continue
 		}
