@@ -16,22 +16,18 @@ import (
 	"github.com/containerum/chkit/pkg/util/namegen"
 )
 
-func getName(defaultName string) (string, error) {
+func getName(defaultName string) string {
 	for {
 		name, _ := activekit.AskLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
 			defaultName))
-		if activekit.IsStop(name) {
-			fmt.Printf("OK :(\n")
-			return "", ErrUserStoppedSession
-		}
 		if name == "" {
-			return defaultName, nil
+			return defaultName
 		}
 		if err := validation.ValidateLabel(name); err != nil {
 			fmt.Printf("\nError: %v\nPrint new one: ", err)
 			continue
 		}
-		return name, nil
+		return name
 	}
 
 }
