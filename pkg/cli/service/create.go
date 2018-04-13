@@ -1,12 +1,13 @@
 package cliserv
 
+/*
 import (
 	"fmt"
 
 	"github.com/containerum/chkit/cmd/util"
 
 	"github.com/containerum/chkit/pkg/model/service/servactive"
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -46,7 +47,7 @@ var Create = &cli.Command{
 			return nil
 		}
 		fmt.Println(list.RenderTable())
-		if yes, _ := activeToolkit.Yes("Do you want to push services to server?"); yes {
+		if yes, _ := activekit.Yes("Do you want to push services to server?"); yes {
 			for _, serv := range list {
 				if err := client.CreateService(ns, serv); err != nil {
 					logrus.WithError(err).Errorf("unable to create service %q", serv.Name)
@@ -64,3 +65,4 @@ var Create = &cli.Command{
 		},
 	},
 }
+*/
