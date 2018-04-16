@@ -12,9 +12,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/containerum/chkit/pkg/util/text"
-	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -52,17 +50,11 @@ var Create = &cobra.Command{
 					{
 						Name: "Create deployment",
 						Action: func() error {
-							anime := &animation.Animation{
-								Framerate:      0.4,
-								Source:         trasher.NewSilly(),
-								ClearLastFrame: true,
-							}
 							go func() {
 								time.Sleep(4 * time.Second)
-								anime.Run()
+								fmt.Println("Sorry for the wait, we are doing our best!")
 							}()
 							err := func() error {
-								defer anime.Stop()
 								return Context.Client.CreateDeployment(Context.Namespace, depl)
 							}()
 							if err != nil {
