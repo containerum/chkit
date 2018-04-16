@@ -3,14 +3,11 @@ package clinamespace
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
-	"github.com/containerum/chkit/pkg/util/animation"
-	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -30,18 +27,7 @@ var Get = &cobra.Command{
 		logrus.WithFields(logrus.Fields{
 			"command": "get namespace",
 		}).Debug("getting namespace data")
-
-		anime := &animation.Animation{
-			Framerate:      0.5,
-			ClearLastFrame: true,
-			Source:         trasher.NewSilly(),
-		}
-		go func() {
-			time.Sleep(4 * time.Second)
-			anime.Run()
-		}()
 		nsData, err := func() (model.Renderer, error) {
-			defer anime.Stop()
 			switch len(args) {
 			case 1:
 				namespaceLabel := args[0]
