@@ -1,11 +1,9 @@
 package servactive
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
@@ -18,7 +16,7 @@ import (
 
 func getName(defaultName string) string {
 	for {
-		name, _ := activekit.AskLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
+		name := activekit.Promt(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
 			defaultName))
 		if name == "" {
 			return defaultName
@@ -32,23 +30,57 @@ func getName(defaultName string) string {
 
 }
 
-func getIPs() ([]string, error) {
-	fmt.Printf("Print IP addresses, delimited by spaces or enters.\nPress Ctrl+D or print stop word to end list:\n")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Split(bufio.ScanWords)
-	IPs := make([]string, 0, 4)
-	for scanner.Scan() {
-		text := scanner.Text()
-		if activekit.IsStop(text) {
-			break
+func getIPs(ips []string) []string {
+	oldIPs := make([]string, len(ips))
+	copy(oldIPs, ips)
+	var ok bool
+	for exit := false; !exit; {
+		var menu []*activekit.MenuItem
+		for i, ip := range ips {
+			menu = append(menu, &activekit.MenuItem{
+				Name: fmt.Sprintf("Delete %q", ip),
+				Action: func(i int) func() error {
+					menu = append(menu[:i], menu[i+1:]...)
+					return nil
+				}(i),
+			})
 		}
-		if net.ParseIP(text) == nil {
-			fmt.Printf("\nSorry, but %q is not valid IP address\nPrint new one: ", text)
-			continue
-		}
-		IPs = append(IPs, text)
+		menu = append(menu, []*activekit.MenuItem{
+			{
+				Name: "Add addr",
+				Action: func() error {
+					rawAddr := strings.TrimSpace(activekit.Promt("Type IP : "))
+					ip := net.ParseIP(rawAddr)
+					if ip == nil {
+						fmt.Printf("\nInvalid IP address!\n")
+						return nil
+					}
+					ips = append(ips, ip.String())
+					return nil
+				},
+			},
+			{
+				Name: "Confirm",
+				Action: func() error {
+					exit = true
+					ok = true
+					return nil
+				},
+			},
+			{
+				Name: "Return to previous menu",
+				Action: func() error {
+					ok = false
+					exit = true
+					return nil
+				},
+			},
+		}...)
 	}
-	return IPs, nil
+	if ok {
+		return ips
+	}
+	return oldIPs
 }
 
 func getPorts() ([]service.Port, error) {

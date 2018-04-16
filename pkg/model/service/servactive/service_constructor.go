@@ -67,11 +67,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 				{
 					Name: fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
 					Action: func() error {
-						IPs, err := getIPs()
-						if err != nil {
-							fmt.Println(err)
-							return nil
-						}
+						IPs := getIPs(serv.IPs)
 						serv.IPs = IPs
 						return nil
 					},
