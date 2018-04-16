@@ -10,6 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/cli/set"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -72,6 +73,7 @@ func init() {
 		Get,
 		Delete,
 		Create,
+		set.Set(&context.GlobalContext),
 	)
 	Root.PersistentFlags().
 		StringVarP(&context.GlobalContext.Namespace, "namespace", "n", context.GlobalContext.Namespace, "")

@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var aliases = []string{"srv", "services", "svc"}
+var aliases = []string{"srv", "services", "svc", "serv"}
 
 var getServiceConfig = struct {
 	configuration.ExportConfig

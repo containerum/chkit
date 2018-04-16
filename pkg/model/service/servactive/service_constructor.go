@@ -30,36 +30,34 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 	} else {
 		serv = defaultService()
 	}
+	if len(config.Deployments) == 1 && serv.Deploy == "" {
+		serv.Deploy = config.Deployments[0]
+	}
 	for exit := false; !exit; {
 		(&activekit.Menu{
 			Items: []*activekit.MenuItem{
 				{
-					Name: fmt.Sprintf("Set name  : %s", serv.Name),
+					Name: fmt.Sprintf("Set name  : %s",
+						activekit.OrString(serv.Name, "undefined (required)")),
 					Action: func() error {
 						serv.Name = getName(serv.Name)
 						return nil
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set deploy: %s", serv.Deploy),
+					Name: fmt.Sprintf("Set deploy: %s",
+						activekit.OrString(serv.Deploy, "undefined (required)")),
 					Action: func() error {
-						deploy, err := getDeploy(config.Deployments)
-						if err != nil {
-							fmt.Println(err)
-							return nil
-						}
+						deploy := getDeploy(serv.Deploy, config.Deployments)
 						serv.Deploy = deploy
 						return nil
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set domain: %s", serv.Domain),
+					Name: fmt.Sprintf("Set domain: %s",
+						activekit.OrString(serv.Domain, "undefined (optional)")),
 					Action: func() error {
-						domain, err := getDomain()
-						if err != nil {
-							fmt.Println(err)
-							return nil
-						}
+						domain := getDomain(serv.Domain)
 						serv.Domain = domain
 						return nil
 					},
@@ -75,11 +73,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 				{
 					Name: fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
 					Action: func() error {
-						ports, err := getPorts()
-						if err != nil {
-							fmt.Println(err)
-							return nil
-						}
+						ports := getPorts(serv.Ports)
 						serv.Ports = ports
 						return nil
 					},
@@ -113,9 +107,9 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 func defaultService() service.Service {
 	return service.Service{
 		Name:   namegen.ColoredPhysics(),
-		Domain: "undefined (optional)",
+		Domain: "",
 		IPs:    nil,
 		Ports:  nil,
-		Deploy: "undefined (required)",
+		Deploy: "",
 	}
 }
