@@ -2,10 +2,13 @@ package login
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"time"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/clisetup"
+	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -28,6 +31,19 @@ var (
 
 var Command = &cobra.Command{
 	Use: "login",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		logrus.SetLevel(logrus.DebugLevel)
+		logrus.SetFormatter(&logrus.TextFormatter{
+			FullTimestamp:   true,
+			TimestampFormat: time.RFC1123,
+		})
+		logFile := path.Join(configdir.LogDir(), configuration.LogFileName())
+		file, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+		if err != nil {
+			logrus.Fatalf("error while creating log file: %v", err)
+		}
+		logrus.SetOutput(file)
+	},
 	Run: func(command *cobra.Command, args []string) {
 		err := clisetup.SetupConfig()
 		switch {
@@ -46,10 +62,6 @@ var Command = &cobra.Command{
 			logrus.WithError(err).Errorf("unable to setup client")
 			panic(err)
 		}
-		go func() {
-			time.Sleep(4 * time.Second)
-			fmt.Println("Sorry for the wait, we are doing our best!")
-		}()
 		err = func() error {
 			return Context.Client.Auth()
 		}()
@@ -68,20 +80,29 @@ var Command = &cobra.Command{
 			logrus.WithError(err).Error("unable to get default namespace")
 			if !Context.Quiet {
 				fmt.Printf("Unable to get default namespace :(\n")
-				_, option, _ := activekit.Options("What's next?", false,
-					"Choose your own namespace",
-					"Exit")
-				switch option {
-				case 0:
-					Context.Namespace, _ = activekit.AskLine("Type namespace: ")
-				default:
-					// pass
-				}
+				(&activekit.Menu{
+					Items: []*activekit.MenuItem{
+						{
+							Name: "Choose your own namespace",
+							Action: func() error {
+								Context.Namespace = activekit.Promt("Type namespace label: ")
+								return nil
+							},
+						},
+						{
+							Name: "Exit",
+						},
+					},
+				}).Run()
 			}
 		}
 		if !Context.Quiet {
 			fmt.Printf("Successfuly authenticated as %q ^_^\n", Context.Client.Username)
-			fmt.Printf("Using %q as default namespace\n", Context.Namespace)
+			if Context.Namespace != "" {
+				fmt.Printf("Using %q as default namespace\n", Context.Namespace)
+			} else {
+				fmt.Printf("Default namespace is not defined\n")
+			}
 		}
 	},
 	PostRun: func(command *cobra.Command, args []string) {
