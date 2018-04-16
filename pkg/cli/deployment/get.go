@@ -7,7 +7,7 @@ import (
 	"github.com/containerum/chkit/pkg/configuration"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -39,8 +39,8 @@ var Get = &cobra.Command{
 		deplData, err := func() (model.Renderer, error) {
 			switch len(args) {
 			case 0:
-				logrus.Debugf("getting deployment from %q", Context.Namespace)
-				list, err := Context.Client.GetDeploymentList(Context.Namespace)
+				logrus.Debugf("getting deployment from %q", context.GlobalContext.Namespace)
+				list, err := context.GlobalContext.Client.GetDeploymentList(context.GlobalContext.Namespace)
 				if err != nil {
 					return nil, err
 				}
@@ -48,7 +48,7 @@ var Get = &cobra.Command{
 			default:
 				deplNames := strset.NewSet(args)
 				var showList deployment.DeploymentList = make([]deployment.Deployment, 0) // prevents panic
-				list, err := Context.Client.GetDeploymentList(Context.Namespace)
+				list, err := context.GlobalContext.Client.GetDeploymentList(context.GlobalContext.Namespace)
 				if err != nil {
 					return nil, err
 				}

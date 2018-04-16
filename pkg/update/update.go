@@ -11,7 +11,7 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/inconshreveable/go-update"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh/terminal"
@@ -66,7 +66,7 @@ func AskForUpdate(ctx *cli.Context, latestVersion semver.Version) (bool, error) 
 		colorEnd = "\x1b[0m"
 	}
 	fmt.Printf("%sYou are using version %s, however version %s is available%s\n",
-		colorStart, Context.Version, latestVersion, colorEnd)
+		colorStart, context.GlobalContext.Version, latestVersion, colorEnd)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanWords)

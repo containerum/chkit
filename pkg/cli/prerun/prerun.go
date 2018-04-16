@@ -11,7 +11,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/configuration"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/sirupsen/logrus"
 )
@@ -71,14 +71,14 @@ func PreRun() {
 	}
 
 	logrus.Debugf("saving tokens")
-	if err := configuration.SaveTokens(Context.Client.Tokens); err != nil {
+	if err := configuration.SaveTokens(context.GlobalContext.Client.Tokens); err != nil {
 		logrus.WithError(err).Errorf("unable to save tokens")
 		fmt.Printf("Unable to save tokens!")
 		return
 	}
-	if Context.Namespace == "" {
+	if context.GlobalContext.Namespace == "" {
 		logrus.Debugf("getting user namespaces list")
-		list, err := Context.Client.GetNamespaceList()
+		list, err := context.GlobalContext.Client.GetNamespaceList()
 		if err != nil {
 			logrus.WithError(err).Errorf("unable to get user namespace list")
 			fmt.Printf("Unable to get default namespace\n")
@@ -86,10 +86,10 @@ func PreRun() {
 		if len(list) == 0 {
 			fmt.Printf("You have no namespaces!\n")
 		} else {
-			Context.Changed = true
-			Context.Namespace = list[0].Label
+			context.GlobalContext.Changed = true
+			context.GlobalContext.Namespace = list[0].Label
 		}
 	}
 
-	logrus.Infof("Hello, %q!", Context.Client.Username)
+	logrus.Infof("Hello, %q!", context.GlobalContext.Client.Username)
 }

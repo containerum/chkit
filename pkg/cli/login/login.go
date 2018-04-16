@@ -10,7 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/configuration"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -54,7 +54,7 @@ var Command = &cobra.Command{
 				fmt.Printf("Unable to setup config :(\n")
 				return
 			}
-			Context.Changed = true
+			context.GlobalContext.Changed = true
 		default:
 			panic(ErrFatalError.Wrap(err))
 		}
@@ -63,29 +63,29 @@ var Command = &cobra.Command{
 			panic(err)
 		}
 		err = func() error {
-			return Context.Client.Auth()
+			return context.GlobalContext.Client.Auth()
 		}()
 		if err != nil {
 			logrus.WithError(err).Errorf("unable to auth")
 			fmt.Printf("Unable to authenticate :(")
 			return
 		}
-		if err := configuration.SaveTokens(Context.Client.Tokens); err != nil {
+		if err := configuration.SaveTokens(context.GlobalContext.Client.Tokens); err != nil {
 			logrus.WithError(err).Errorf("unable to save tokens")
 			fmt.Printf("Unable to save tokens :(")
 		}
-		Context.Namespace, err = configuration.GetFirstClientNamespace()
+		context.GlobalContext.Namespace, err = configuration.GetFirstClientNamespace()
 
 		if err != nil {
 			logrus.WithError(err).Error("unable to get default namespace")
-			if !Context.Quiet {
+			if !context.GlobalContext.Quiet {
 				fmt.Printf("Unable to get default namespace :(\n")
 				(&activekit.Menu{
 					Items: []*activekit.MenuItem{
 						{
 							Name: "Choose your own namespace",
 							Action: func() error {
-								Context.Namespace = activekit.Promt("Type namespace label: ")
+								context.GlobalContext.Namespace = activekit.Promt("Type namespace label: ")
 								return nil
 							},
 						},
@@ -96,24 +96,24 @@ var Command = &cobra.Command{
 				}).Run()
 			}
 		}
-		if !Context.Quiet {
-			fmt.Printf("Successfuly authenticated as %q ^_^\n", Context.Client.Username)
-			if Context.Namespace != "" {
-				fmt.Printf("Using %q as default namespace\n", Context.Namespace)
+		if !context.GlobalContext.Quiet {
+			fmt.Printf("Successfuly authenticated as %q ^_^\n", context.GlobalContext.Client.Username)
+			if context.GlobalContext.Namespace != "" {
+				fmt.Printf("Using %q as default namespace\n", context.GlobalContext.Namespace)
 			} else {
 				fmt.Printf("Default namespace is not defined\n")
 			}
 		}
 	},
 	PostRun: func(command *cobra.Command, args []string) {
-		if Context.Changed {
+		if context.GlobalContext.Changed {
 			if err := configuration.SaveConfig(); err != nil {
 				logrus.WithError(err).Errorf("unable to save config")
 				fmt.Printf("Unable to save config: %v\n", err)
 				return
 			}
 		}
-		if err := configuration.SaveTokens(Context.Client.Tokens); err != nil {
+		if err := configuration.SaveTokens(context.GlobalContext.Client.Tokens); err != nil {
 			logrus.WithError(err).Errorf("unable to save tokens")
 			fmt.Printf("Unable to save tokens: %v\n", err)
 			return

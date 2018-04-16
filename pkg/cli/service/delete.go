@@ -7,7 +7,7 @@ import (
 
 	"os"
 
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -38,7 +38,7 @@ var Delete = &cobra.Command{
 		}
 		logrus.Debugf("deleting service %q from %q", svcName)
 		err := func() error {
-			return Context.Client.DeleteService(Context.Namespace, svcName)
+			return context.GlobalContext.Client.DeleteService(context.GlobalContext.Namespace, svcName)
 		}()
 		if err != nil {
 			logrus.WithError(err).Debugf("error while deleting service")

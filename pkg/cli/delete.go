@@ -7,7 +7,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -21,14 +21,14 @@ var Delete = &cobra.Command{
 		command.Help()
 	},
 	PersistentPostRun: func(command *cobra.Command, args []string) {
-		if Context.Changed {
+		if context.GlobalContext.Changed {
 			if err := configuration.SaveConfig(); err != nil {
 				logrus.WithError(err).Errorf("unable to save config")
 				fmt.Printf("Unable to save config: %v\n", err)
 				return
 			}
 		}
-		if err := configuration.SaveTokens(Context.Client.Tokens); err != nil {
+		if err := configuration.SaveTokens(context.GlobalContext.Client.Tokens); err != nil {
 			logrus.WithError(err).Errorf("unable to save tokens")
 			fmt.Printf("Unable to save tokens: %v\n", err)
 			return

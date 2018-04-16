@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/configuration"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/strset"
@@ -28,13 +28,13 @@ var Get = &cobra.Command{
 		serviceData, err := func() (model.Renderer, error) {
 			switch len(args) {
 			case 0:
-				list, err := Context.Client.GetServiceList(Context.Namespace)
+				list, err := context.GlobalContext.Client.GetServiceList(context.GlobalContext.Namespace)
 				return list, err
 			case 1:
-				svc, err := Context.Client.GetDeployment(Context.Namespace, args[0])
+				svc, err := context.GlobalContext.Client.GetDeployment(context.GlobalContext.Namespace, args[0])
 				return svc, err
 			default:
-				list, err := Context.Client.GetServiceList(Context.Namespace)
+				list, err := context.GlobalContext.Client.GetServiceList(context.GlobalContext.Namespace)
 				var filteredList service.ServiceList
 				names := strset.NewSet(args)
 				for _, svc := range list {

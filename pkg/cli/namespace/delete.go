@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -38,7 +38,7 @@ var Delete = &cobra.Command{
 				}
 			}
 			logrus.Debugf("deleting namespace %q", ns)
-			return Context.Client.DeleteNamespace(ns)
+			return context.GlobalContext.Client.DeleteNamespace(ns)
 		}()
 		if err != nil {
 			logrus.WithError(err).Errorf("unable to delete namespace %q", ns)

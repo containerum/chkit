@@ -7,7 +7,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	. "github.com/containerum/chkit/pkg/context"
 )
 
 const (
@@ -20,25 +19,25 @@ const (
 // LoadConfig -- loads config from fs
 func LoadConfig() error {
 	config := context.Storable{}
-	_, err := toml.DecodeFile(Context.ConfigPath, &config)
+	_, err := toml.DecodeFile(context.GlobalContext.ConfigPath, &config)
 	if err != nil {
 		return ErrUnableToLoadConfig.Wrap(err)
 	}
-	Context.SetStorable(config)
+	context.GlobalContext.SetStorable(config)
 	return nil
 }
 
 // SaveConfig -- writes config from Context to config dir
 func SaveConfig() error {
-	err := os.MkdirAll(Context.ConfigDir, os.ModePerm)
+	err := os.MkdirAll(context.GlobalContext.ConfigDir, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
-	file, err := os.Create(Context.ConfigPath)
+	file, err := os.Create(context.GlobalContext.ConfigPath)
 	if err != nil {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
-	if err := toml.NewEncoder(file).Encode(Context.GetStorable()); err != nil {
+	if err := toml.NewEncoder(file).Encode(context.GlobalContext.GetStorable()); err != nil {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
 	return nil

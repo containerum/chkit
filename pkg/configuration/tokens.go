@@ -5,13 +5,13 @@ import (
 	"os"
 	"path"
 
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 )
 
 // SaveTokens -- save tokens in config path
 func SaveTokens(tokens model.Tokens) error {
-	file, err := os.Create(path.Join(Context.ConfigDir, "tokens"))
+	file, err := os.Create(path.Join(context.GlobalContext.ConfigDir, "tokens"))
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func SaveTokens(tokens model.Tokens) error {
 // LoadTokens -- loads tokens from fs
 func LoadTokens() (model.Tokens, error) {
 	tokens := model.Tokens{}
-	file, err := os.Open(path.Join(Context.ConfigDir, "tokens"))
+	file, err := os.Open(path.Join(context.GlobalContext.ConfigDir, "tokens"))
 	if err != nil && !os.IsNotExist(err) {
 		return tokens, err
 	} else if err != nil && os.IsNotExist(err) {

@@ -2,7 +2,7 @@ package configuration
 
 import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
 )
 
@@ -12,7 +12,7 @@ const (
 
 // GetFirstClientNamespace -- fetches namespace list and returns first element. Needed for login.
 func GetFirstClientNamespace() (string, error) {
-	nsList, err := Context.Client.GetNamespaceList()
+	nsList, err := context.GlobalContext.Client.GetNamespaceList()
 	if err != nil {
 		return "", err
 	}

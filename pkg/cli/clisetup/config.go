@@ -5,14 +5,14 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/configuration"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/util/fingerprint"
 	"github.com/sirupsen/logrus"
 )
 
 func SetupConfig() error {
-	config := Context.Client.Config
+	config := context.GlobalContext.Client.Config
 	config.Fingerprint = fingerpint.Fingerprint()
 	tokens, err := configuration.LoadTokens()
 	if err != nil && !os.IsNotExist(err) {
@@ -32,6 +32,6 @@ func SetupConfig() error {
 		logrus.Debugf("invalid username or pass")
 		return ErrInvalidUserInfo
 	}
-	Context.Client.Config = config
+	context.GlobalContext.Client.Config = config
 	return nil
 }

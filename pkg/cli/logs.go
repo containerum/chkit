@@ -8,7 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/client"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -34,7 +34,7 @@ var commandLogs = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		var podName string
 		var containerName string
-		client := Context.Client
+		client := context.GlobalContext.Client
 		switch ctx.NArg() {
 		case 2:
 			containerName = ctx.Args().Tail()[0]
@@ -47,7 +47,7 @@ var commandLogs = &cli.Command{
 		}
 
 		params := chClient.GetPodLogsParams{
-			Namespace: Context.Namespace,
+			Namespace: context.GlobalContext.Namespace,
 			Pod:       podName,
 			Container: containerName,
 			Follow:    ctx.Bool("follow"),

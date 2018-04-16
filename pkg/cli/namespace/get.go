@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/configuration"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/sirupsen/logrus"
@@ -32,7 +32,7 @@ var Get = &cobra.Command{
 			case 1:
 				namespaceLabel := args[0]
 				logrus.Debugf("getting namespace %q", namespaceLabel)
-				ns, err := Context.Client.GetNamespace(namespaceLabel)
+				ns, err := context.GlobalContext.Client.GetNamespace(namespaceLabel)
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to get namespace %q", namespaceLabel)
 					return nil, err
@@ -41,7 +41,7 @@ var Get = &cobra.Command{
 			default:
 				var list namespace.NamespaceList
 				logrus.Debugf("getting namespace list")
-				list, err := Context.Client.GetNamespaceList()
+				list, err := context.GlobalContext.Client.GetNamespaceList()
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to get namespace list")
 					return nil, err

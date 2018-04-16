@@ -9,7 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/model"
 )
 
-var Context = context{
+var GlobalContext = context{
 	Version:    semver.MustParse("3.0.1-alpha").String(),
 	ConfigDir:  configdir.ConfigDir(),
 	ConfigPath: path.Join(configdir.ConfigDir(), "config.toml"),

@@ -10,7 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -49,14 +49,14 @@ var Root = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("Hello, %q!\nUsing %q as default namespace\n",
-			Context.Client.Username,
-			Context.Namespace)
+			context.GlobalContext.Client.Username,
+			context.GlobalContext.Namespace)
 		if err := mainActivity(); err != nil {
 			logrus.Fatalf("error in main activity: %v", err)
 		}
 	},
 	PostRun: func(cmd *cobra.Command, args []string) {
-		if !Context.Changed {
+		if !context.GlobalContext.Changed {
 			return
 		}
 		if err := configuration.SaveConfig(); err != nil {
@@ -66,7 +66,7 @@ var Root = &cobra.Command{
 }
 
 func init() {
-	Context.Client.APIaddr = mode.API_ADDR
+	context.GlobalContext.Client.APIaddr = mode.API_ADDR
 	Root.AddCommand(
 		login.Command,
 		Get,
@@ -74,7 +74,7 @@ func init() {
 		Create,
 	)
 	Root.PersistentFlags().
-		StringVarP(&Context.Namespace, "namespace", "n", Context.Namespace, "")
+		StringVarP(&context.GlobalContext.Namespace, "namespace", "n", context.GlobalContext.Namespace, "")
 	Root.PersistentFlags().
-		BoolVarP(&Context.Quiet, "quiet", "q", Context.Quiet, "quiet mode")
+		BoolVarP(&context.GlobalContext.Quiet, "quiet", "q", context.GlobalContext.Quiet, "quiet mode")
 }

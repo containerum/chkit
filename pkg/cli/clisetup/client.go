@@ -10,18 +10,18 @@ import (
 func SetupClient() error {
 	var err error
 	if mode.DEBUG && !mode.MOCK {
-		logrus.WithField("operation", "SetupClient").Debugf("Using test API: %q", Context.Client.APIaddr)
+		logrus.WithField("operation", "SetupClient").Debugf("Using test API: %q", GlobalContext.Client.APIaddr)
 		if Config.DebugRequests {
 			logrus.Debugf("verbose requests logs")
-			Context.Client.Log = logrus.StandardLogger().WriterLevel(logrus.DebugLevel)
+			GlobalContext.Client.Log = logrus.StandardLogger().WriterLevel(logrus.DebugLevel)
 		}
-		err = Context.Client.Init(chClient.WithTestAPI)
+		err = GlobalContext.Client.Init(chClient.WithTestAPI)
 	} else if mode.DEBUG && mode.MOCK {
 		logrus.Debugf("Using mock API")
-		err = Context.Client.Init(chClient.WithMock)
+		err = GlobalContext.Client.Init(chClient.WithMock)
 	} else {
-		logrus.Debugf("Using production API: %v", Context.Client.APIaddr)
-		err = Context.Client.Init(chClient.WithCommonAPI)
+		logrus.Debugf("Using production API: %v", GlobalContext.Client.APIaddr)
+		err = GlobalContext.Client.Init(chClient.WithCommonAPI)
 	}
 	if err != nil {
 		return err

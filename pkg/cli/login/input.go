@@ -7,7 +7,7 @@ import (
 	"strings"
 	"syscall"
 
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -15,7 +15,7 @@ func Login() error {
 	var err error
 	var username, pass string
 
-	if strings.TrimSpace(Context.Client.Username) == "" {
+	if strings.TrimSpace(context.GlobalContext.Client.Username) == "" {
 		username, err = readLogin()
 		if err != nil {
 			return err
@@ -23,10 +23,10 @@ func Login() error {
 		if strings.TrimSpace(username) == "" {
 			return ErrInvalidUsername
 		}
-		Context.Client.Username = username
+		context.GlobalContext.Client.Username = username
 	}
 
-	if strings.TrimSpace(Context.Client.Password) == "" {
+	if strings.TrimSpace(context.GlobalContext.Client.Password) == "" {
 		pass, err = readPassword()
 		if err != nil {
 			return err
@@ -34,7 +34,7 @@ func Login() error {
 		if strings.TrimSpace(pass) == "" {
 			return ErrInvalidPassword
 		}
-		Context.Client.Password = pass
+		context.GlobalContext.Client.Password = pass
 	}
 
 	return nil

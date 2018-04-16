@@ -8,7 +8,7 @@ import (
 
 	"time"
 
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -55,7 +55,7 @@ var Create = &cobra.Command{
 								fmt.Println("Sorry for the wait, we are doing our best!")
 							}()
 							err := func() error {
-								return Context.Client.CreateDeployment(Context.Namespace, depl)
+								return context.GlobalContext.Client.CreateDeployment(context.GlobalContext.Namespace, depl)
 							}()
 							if err != nil {
 								logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)

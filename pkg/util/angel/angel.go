@@ -12,7 +12,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/configuration"
-	. "github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/skratchdot/open-golang/open"
 )
 
@@ -20,7 +20,7 @@ var reportPreambula = fmt.Sprintf(`[REPORT]
 chkit fatal report
 version: %s
 os: %s %s
-`, Context.Version, runtime.GOOS, runtime.GOARCH)
+`, context.GlobalContext.Version, runtime.GOOS, runtime.GOARCH)
 
 func Angel(sin interface{}) {
 	report := reportPreambula
