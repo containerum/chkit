@@ -3,15 +3,12 @@ package cliserv
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
-	"github.com/containerum/chkit/pkg/util/animation"
 	"github.com/containerum/chkit/pkg/util/strset"
-	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/spf13/cobra"
 )
 
@@ -28,17 +25,7 @@ var Get = &cobra.Command{
 	Long:    "chkit get service service_label [-o yaml/json] [-f output_file]",
 	Example: "shows service info. Aliases: " + strings.Join(aliases, ", "),
 	Run: func(cmd *cobra.Command, args []string) {
-		anime := &animation.Animation{
-			Framerate:      0.4,
-			ClearLastFrame: true,
-			Source:         trasher.NewSilly(),
-		}
-		go func() {
-			time.Sleep(4 * time.Second)
-			anime.Run()
-		}()
 		serviceData, err := func() (model.Renderer, error) {
-			defer anime.Stop()
 			switch len(args) {
 			case 0:
 				list, err := Context.Client.GetServiceList(Context.Namespace)
