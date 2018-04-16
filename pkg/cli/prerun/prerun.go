@@ -21,7 +21,7 @@ const (
 	ErrFatalError chkitErrors.Err = "fatal error"
 )
 
-func PreRun() {
+func SetupLogs() {
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp:   true,
@@ -33,6 +33,10 @@ func PreRun() {
 		logrus.Fatalf("error while creating log file: %v", err)
 	}
 	logrus.SetOutput(file)
+}
+
+func PreRun() {
+	SetupLogs()
 	logrus.Debugf("loading config")
 	if err := configuration.LoadConfig(); err != nil {
 		logrus.WithError(err).Errorf("unable to load config")
@@ -41,7 +45,7 @@ func PreRun() {
 	}
 
 	logrus.Debugf("running setup")
-	err = clisetup.SetupConfig()
+	err := clisetup.SetupConfig()
 	switch {
 	case err == nil:
 		// pass
