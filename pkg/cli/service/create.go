@@ -24,7 +24,7 @@ var Create = &cobra.Command{
 			fmt.Println("Unable to get deployment list :(")
 			os.Exit(1)
 		}
-		service, err := servactive.RunInteractveConstructor(servactive.ConstructorConfig{
+		service, err := servactive.Wizard(servactive.ConstructorConfig{
 			Deployments: depList.Names(),
 		})
 		if err != nil {

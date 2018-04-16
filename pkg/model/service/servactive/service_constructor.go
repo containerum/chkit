@@ -13,10 +13,7 @@ import (
 )
 
 const (
-	ErrUserExit             chkitErrors.Err = "user exit"
-	ErrUserStoppedSession   chkitErrors.Err = "user stopped session"
-	ErrInvalidSymbolInLabel chkitErrors.Err = "invalid symbol in label"
-	defaultString                           = "undefined"
+	ErrUserStoppedSession chkitErrors.Err = "user stopped session"
 )
 
 type ConstructorConfig struct {
@@ -25,7 +22,7 @@ type ConstructorConfig struct {
 	Service     *service.Service
 }
 
-func RunInteractveConstructor(config ConstructorConfig) (service.Service, error) {
+func Wizard(config ConstructorConfig) (service.Service, error) {
 	var err error
 	var serv service.Service
 	if config.Service != nil {
