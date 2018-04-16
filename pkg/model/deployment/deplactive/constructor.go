@@ -25,7 +25,7 @@ type Config struct {
 	Deployment *deployment.Deployment
 }
 
-func ConstructDeployment(config Config) (deployment.Deployment, error) {
+func Wizard(config Config) (deployment.Deployment, error) {
 	var depl deployment.Deployment
 	if config.Deployment == nil {
 		depl = DefaultDeployment()

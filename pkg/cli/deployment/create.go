@@ -36,7 +36,7 @@ var Create = &cobra.Command{
 				os.Exit(1)
 			}
 		}
-		depl, err := deplactive.ConstructDeployment(deplactive.Config{
+		depl, err := deplactive.Wizard(deplactive.Config{
 			Deployment: &depl,
 		})
 		if err != nil {
@@ -69,7 +69,7 @@ var Create = &cobra.Command{
 						Name: "Edit deployment",
 						Action: func() error {
 							var err error
-							depl, err = deplactive.ConstructDeployment(deplactive.Config{
+							depl, err = deplactive.Wizard(deplactive.Config{
 								Deployment: &depl,
 							})
 							if err != nil {
