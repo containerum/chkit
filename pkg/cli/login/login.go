@@ -9,8 +9,6 @@ import (
 	"github.com/containerum/chkit/pkg/configuration"
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/animation"
-	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -48,17 +46,11 @@ var Command = &cobra.Command{
 			logrus.WithError(err).Errorf("unable to setup client")
 			panic(err)
 		}
-		anim := &animation.Animation{
-			Framerate:      0.5,
-			Source:         trasher.NewSilly(),
-			ClearLastFrame: true,
-		}
 		go func() {
 			time.Sleep(4 * time.Second)
-			anim.Run()
+			fmt.Println("Sorry for the wait, we are doing our best!")
 		}()
 		err = func() error {
-			defer anim.Stop()
 			return Context.Client.Auth()
 		}()
 		if err != nil {
