@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/prerun"
+	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/spf13/cobra"
 )
 
@@ -19,5 +20,6 @@ var Create = &cobra.Command{
 func init() {
 	Create.AddCommand(
 		clideployment.Create,
+		cliserv.Create,
 	)
 }
