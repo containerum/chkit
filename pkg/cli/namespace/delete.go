@@ -3,12 +3,9 @@ package clinamespace
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/animation"
-	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -33,17 +30,7 @@ var Delete = &cobra.Command{
 			return
 		}
 		ns := args[0]
-		anime := &animation.Animation{
-			Framerate:      0.5,
-			Source:         trasher.NewSilly(),
-			ClearLastFrame: true,
-		}
-		go func() {
-			time.Sleep(4 * time.Second)
-			anime.Run()
-		}()
 		err := func() error {
-			defer anime.Stop()
 			if !deleteNamespaceConfig.Force {
 				yes, _ := activekit.Yes(fmt.Sprintf("Do you want to delete namespace %q?", ns))
 				if !yes {
