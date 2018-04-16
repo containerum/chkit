@@ -3,16 +3,12 @@ package cliserv
 import (
 	"strings"
 
-	"time"
-
 	"fmt"
 
 	"os"
 
 	. "github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/animation"
-	"github.com/containerum/chkit/pkg/util/trasher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -35,25 +31,13 @@ var Delete = &cobra.Command{
 			return
 		}
 		svcName := args[0]
-
 		if !deleteServiceConfig.Force {
 			if yes, _ := activekit.Yes(fmt.Sprintf("Do you really want delete service %q?", svcName)); !yes {
 				return
 			}
 		}
-
 		logrus.Debugf("deleting service %q from %q", svcName)
-		anime := &animation.Animation{
-			Framerate:      0.4,
-			Source:         trasher.NewSilly(),
-			ClearLastFrame: true,
-		}
-		go func() {
-			time.Sleep(4 * time.Second)
-			anime.Run()
-		}()
 		err := func() error {
-			defer anime.Stop()
 			return Context.Client.DeleteService(Context.Namespace, svcName)
 		}()
 		if err != nil {
