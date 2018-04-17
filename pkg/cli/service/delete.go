@@ -42,7 +42,7 @@ var Delete = &cobra.Command{
 		}()
 		if err != nil {
 			logrus.WithError(err).Debugf("error while deleting service")
-			fmt.Printf("Unable to delete service %q :(\n%v", err)
+			fmt.Printf("Unable to delete service %q :(\n%v", svcName, err)
 			os.Exit(1)
 		}
 		fmt.Printf("OK\n")
