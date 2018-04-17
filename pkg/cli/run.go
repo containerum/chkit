@@ -43,7 +43,7 @@ var runContext = struct {
 
 var Root = &cobra.Command{
 	Use:     "chkit",
-	Short:   "chkit is a containerum.io terminal client",
+	Short:   "Chkit is a containerum.io terminal client",
 	Version: Version,
 	PreRun: func(*cobra.Command, []string) {
 		prerun.PreRun()
@@ -74,6 +74,7 @@ func init() {
 		Delete,
 		Create,
 		set.Set(&context.GlobalContext),
+		Logs(&context.GlobalContext),
 	)
 	Root.PersistentFlags().
 		StringVarP(&context.GlobalContext.Namespace, "namespace", "n", context.GlobalContext.Namespace, "")
