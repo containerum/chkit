@@ -7,6 +7,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/namespace"
+	"github.com/containerum/chkit/pkg/cli/pod"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
@@ -15,7 +16,8 @@ import (
 )
 
 var Get = &cobra.Command{
-	Use: "get",
+	Use:   "get",
+	Short: "Delete resource data",
 	PersistentPreRun: func(command *cobra.Command, args []string) {
 		prerun.PreRun()
 	},
@@ -43,5 +45,6 @@ func init() {
 		clideployment.Get,
 		clinamespace.Get,
 		cliserv.Get,
+		clipod.Get(&context.GlobalContext),
 	)
 }
