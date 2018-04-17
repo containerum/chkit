@@ -37,7 +37,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 		(&activekit.Menu{
 			Items: []*activekit.MenuItem{
 				{
-					Name: fmt.Sprintf("Set name  : %s",
+					Label: fmt.Sprintf("Set name  : %s",
 						activekit.OrString(serv.Name, "undefined (required)")),
 					Action: func() error {
 						serv.Name = getName(serv.Name)
@@ -45,7 +45,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set deploy: %s",
+					Label: fmt.Sprintf("Set deploy: %s",
 						activekit.OrString(serv.Deploy, "undefined (required)")),
 					Action: func() error {
 						deploy := getDeploy(serv.Deploy, config.Deployments)
@@ -54,7 +54,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set domain: %s",
+					Label: fmt.Sprintf("Set domain: %s",
 						activekit.OrString(serv.Domain, "undefined (optional)")),
 					Action: func() error {
 						domain := getDomain(serv.Domain)
@@ -63,7 +63,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
+					Label: fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
 					Action: func() error {
 						IPs := getIPs(serv.IPs)
 						serv.IPs = IPs
@@ -71,7 +71,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
+					Label: fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
 					Action: func() error {
 						ports := editPorts(serv.Ports)
 						serv.Ports = ports
@@ -79,7 +79,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 					},
 				},
 				{
-					Name: "Confirm",
+					Label: "Confirm",
 					Action: func() error {
 						if err = validateService(serv); err != nil {
 							fmt.Printf("Error: %v", err)
@@ -90,7 +90,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 					},
 				},
 				{
-					Name: "Exit",
+					Label: "Exit",
 					Action: func() error {
 						if yes, _ := activekit.Yes("Do you really want to exit?"); yes {
 							os.Exit(0)

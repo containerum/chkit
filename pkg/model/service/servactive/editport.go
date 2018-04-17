@@ -17,7 +17,7 @@ func portEditorWizard(port service.Port) (service.Port, bool) {
 				setPortPort(&port),
 				setTargetPort(&port),
 				{
-					Name: "Confirm",
+					Label: "Confirm",
 					Action: func() error {
 						if err := validatePort(port); err != nil {
 							activekit.Attention(err.Error())
@@ -29,7 +29,7 @@ func portEditorWizard(port service.Port) (service.Port, bool) {
 					},
 				},
 				{
-					Name: "Delete port",
+					Label: "Delete port",
 					Action: func() error {
 						exit = true
 						ok = false
@@ -38,7 +38,7 @@ func portEditorWizard(port service.Port) (service.Port, bool) {
 					},
 				},
 				{
-					Name: "Return to previous menu",
+					Label: "Return to previous menu",
 					Action: func() error {
 						ok = false
 						exit = true

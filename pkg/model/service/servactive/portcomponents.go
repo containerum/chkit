@@ -11,7 +11,7 @@ import (
 
 func setPortName(port *service.Port) *activekit.MenuItem {
 	return &activekit.MenuItem{
-		Name: fmt.Sprintf("Set name : %s",
+		Label: fmt.Sprintf("Set name : %s",
 			activekit.OrString(port.Name, "undefined (required)")),
 		Action: func() error {
 			var promt string
@@ -36,7 +36,7 @@ func setPortName(port *service.Port) *activekit.MenuItem {
 
 func setTargetPort(port *service.Port) *activekit.MenuItem {
 	return &activekit.MenuItem{
-		Name: fmt.Sprintf("Set target port : %d (required)", port.TargetPort),
+		Label: fmt.Sprintf("Set target port : %d (required)", port.TargetPort),
 		Action: func() error {
 			promt := fmt.Sprintf("Print target port (1..65535, hit enter to use %d): ", port.TargetPort)
 			portStr := strings.TrimSpace(activekit.Promt(promt))
@@ -56,28 +56,28 @@ func setTargetPort(port *service.Port) *activekit.MenuItem {
 
 func setPortProto(port *service.Port) *activekit.MenuItem {
 	return &activekit.MenuItem{
-		Name: fmt.Sprintf("Set proto : %s",
+		Label: fmt.Sprintf("Set proto : %s",
 			activekit.OrString(port.Protocol, "undefined (required)")),
 		Action: func() error {
 			_, err := (&activekit.Menu{
 				Title: fmt.Sprintf("Select protocol (current: %s)", port.Protocol),
 				Items: []*activekit.MenuItem{
 					{
-						Name: "TCP",
+						Label: "TCP",
 						Action: func() error {
 							port.Protocol = "TCP"
 							return nil
 						},
 					},
 					{
-						Name: "UDP",
+						Label: "UDP",
 						Action: func() error {
 							port.Protocol = "UDP"
 							return nil
 						},
 					},
 					{
-						Name: "Return to previous menu",
+						Label: "Return to previous menu",
 					},
 				}}).Run()
 			return err
@@ -87,7 +87,7 @@ func setPortProto(port *service.Port) *activekit.MenuItem {
 
 func setPortPort(port *service.Port) *activekit.MenuItem {
 	return &activekit.MenuItem{
-		Name: fmt.Sprintf("Set port : %s",
+		Label: fmt.Sprintf("Set port : %s",
 			activekit.OrValue(port.Port, "undefined (optional)")),
 		Action: func() error {
 			var promt string

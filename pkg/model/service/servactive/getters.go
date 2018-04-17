@@ -41,7 +41,7 @@ func getIPs(ips []string) []string {
 		var menu []*activekit.MenuItem
 		for i, ip := range ips {
 			menu = append(menu, &activekit.MenuItem{
-				Name: fmt.Sprintf("Delete %q", ip),
+				Label: fmt.Sprintf("Delete %q", ip),
 				Action: func(i int) func() error {
 					return func() error {
 						ips = append(ips[:i], ips[i+1:]...)
@@ -52,7 +52,7 @@ func getIPs(ips []string) []string {
 		}
 		menu = append(menu, []*activekit.MenuItem{
 			{
-				Name: "Add addr",
+				Label: "Add addr",
 				Action: func() error {
 					rawAddr := strings.TrimSpace(activekit.Promt("Type IP : "))
 					ip := net.ParseIP(rawAddr)
@@ -65,7 +65,7 @@ func getIPs(ips []string) []string {
 				},
 			},
 			{
-				Name: "Confirm",
+				Label: "Confirm",
 				Action: func() error {
 					exit = true
 					ok = true
@@ -73,7 +73,7 @@ func getIPs(ips []string) []string {
 				},
 			},
 			{
-				Name: "Return to previous menu",
+				Label: "Return to previous menu",
 				Action: func() error {
 					ok = false
 					exit = true
@@ -99,7 +99,7 @@ func editPorts(ports []service.Port) []service.Port {
 		var menu []*activekit.MenuItem
 		for i, port := range ports {
 			menu = append(menu, &activekit.MenuItem{
-				Name: fmt.Sprintf("Edit port %q", port.Name),
+				Label: fmt.Sprintf("Edit port %q", port.Name),
 				Action: func(i int) func() error {
 					return func() error {
 						port, deletePort := portEditorWizard(ports[i])
@@ -116,7 +116,7 @@ func editPorts(ports []service.Port) []service.Port {
 		(&activekit.Menu{
 			Items: append(menu, []*activekit.MenuItem{
 				{
-					Name: "Add port",
+					Label: "Add port",
 					Action: func() error {
 						ports = append(ports, portCreationWizard(service.Port{
 							Name:       namegen.Aster() + "-" + namegen.Color(),
@@ -127,7 +127,7 @@ func editPorts(ports []service.Port) []service.Port {
 					},
 				},
 				{
-					Name: "Confirm",
+					Label: "Confirm",
 					Action: func() error {
 						ok = true
 						exit = true
@@ -135,7 +135,7 @@ func editPorts(ports []service.Port) []service.Port {
 					},
 				},
 				{
-					Name: "Return to previous menu",
+					Label: "Return to previous menu",
 					Action: func() error {
 						ok = false
 						exit = true
@@ -167,7 +167,7 @@ func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
 		(&activekit.Menu{
 			Items: []*activekit.MenuItem{
 				{
-					Name: fmt.Sprintf("Set name : %s",
+					Label: fmt.Sprintf("Set name : %s",
 						activekit.OrString(p.Name, "undefined (required)")),
 					Action: func() error {
 						var promt string
@@ -189,7 +189,7 @@ func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set target port : %d (required)", p.TargetPort),
+					Label: fmt.Sprintf("Set target port : %d (required)", p.TargetPort),
 					Action: func() error {
 						promt := fmt.Sprintf("Print target port (1..65535, hit enter to use %d): ", p.TargetPort)
 						portStr := strings.TrimSpace(activekit.Promt(promt))
@@ -206,35 +206,35 @@ func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set proto : %s",
+					Label: fmt.Sprintf("Set proto : %s",
 						activekit.OrString(p.Protocol, "undefined (required)")),
 					Action: func() error {
 						_, err := (&activekit.Menu{
 							Title: fmt.Sprintf("Select protocol (current: %s)", p.Protocol),
 							Items: []*activekit.MenuItem{
 								{
-									Name: "TCP",
+									Label: "TCP",
 									Action: func() error {
 										p.Protocol = "TCP"
 										return nil
 									},
 								},
 								{
-									Name: "UDP",
+									Label: "UDP",
 									Action: func() error {
 										p.Protocol = "UDP"
 										return nil
 									},
 								},
 								{
-									Name: "Return to previous menu",
+									Label: "Return to previous menu",
 								},
 							}}).Run()
 						return err
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set port : %s",
+					Label: fmt.Sprintf("Set port : %s",
 						activekit.OrValue(p.Port, "undefined (optional)")),
 					Action: func() error {
 						var promt string
@@ -260,14 +260,14 @@ func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Delete port %q", p),
+					Label: fmt.Sprintf("Delete port %q", p),
 					Action: func() error {
 						*ports = append((*ports)[:ind], (*ports)[ind+1:]...)
 						return nil
 					},
 				},
 				{
-					Name: "Confirm",
+					Label: "Confirm",
 					Action: func() error {
 						if err := validatePort(p); err != nil {
 							activekit.Attention(err.Error())
@@ -311,7 +311,7 @@ func getDeploy(defaultDepl string, depls []string) string {
 	selectedDepl := defaultDepl
 	for _, depl := range depls {
 		menu = append(menu, &activekit.MenuItem{
-			Name: depl,
+			Label: depl,
 			Action: func(depl string) func() error {
 				return func() error {
 					selectedDepl = depl
@@ -323,7 +323,7 @@ func getDeploy(defaultDepl string, depls []string) string {
 	(&activekit.Menu{
 		Items: append(menu, []*activekit.MenuItem{
 			{
-				Name: "Use custom deployment",
+				Label: "Use custom deployment",
 				Action: func() error {
 					deployment := activekit.Promt("Type deployment label: ")
 					if deployment == "" {
@@ -338,7 +338,7 @@ func getDeploy(defaultDepl string, depls []string) string {
 				},
 			},
 			{
-				Name: "Return to previous menu",
+				Label: "Return to previous menu",
 			},
 		}...),
 	}).Run()
@@ -349,14 +349,14 @@ func getDomain(defaultDomain string) string {
 	domain := defaultDomain
 	(&activekit.Menu{Items: []*activekit.MenuItem{
 		{
-			Name: "Use custom domain",
+			Label: "Use custom domain",
 			Action: func() error {
 				domain = activekit.Promt("Type domain: ")
 				return nil
 			},
 		},
 		{
-			Name: "Return to previous menu",
+			Label: "Return to previous menu",
 		},
 	},
 	}).Run()

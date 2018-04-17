@@ -16,7 +16,7 @@ func portCreationWizard(port service.Port) service.Port {
 				setTargetPort(&port),
 				setPortPort(&port),
 				{
-					Name: "Confirm",
+					Label: "Confirm",
 					Action: func() error {
 						if err := validatePort(port); err != nil {
 							activekit.Attention(err.Error())
@@ -28,7 +28,7 @@ func portCreationWizard(port service.Port) service.Port {
 					},
 				},
 				{
-					Name: "Return to previous menu",
+					Label: "Return to previous menu",
 					Action: func() error {
 						ok = false
 						exit = true
