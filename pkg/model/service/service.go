@@ -44,9 +44,6 @@ func ServiceFromKube(kubeService kubeModels.Service) Service {
 }
 
 func (serv *Service) ToKube() kubeModels.Service {
-	if serv.origin != nil {
-		return *serv.origin
-	}
 	kubeServ := kubeModels.Service{
 		Name:   serv.Name,
 		Deploy: serv.Deploy,
