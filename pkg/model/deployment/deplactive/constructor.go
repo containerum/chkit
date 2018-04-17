@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/validation"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 const (
@@ -128,26 +127,12 @@ func validateContainer(cont container.Container) error {
 		errs = append(errs, fmt.Errorf("\n + invalid image name: %v", err))
 	}
 
-	if cont.Limits.CPU == "" {
-		errs = append(errs, fmt.Errorf("\n + undefined CPU limit"))
-	} else if q, err := resource.ParseQuantity(cont.Limits.CPU); err != nil {
-		errs = append(errs, fmt.Errorf("\n + invalid CPU limit %s: %v", cont.Limits.CPU, err))
-	} else {
-		CPUQ := q.Value()
-		if CPUQ <= 0 || CPUQ > 12 {
-			errs = append(errs, fmt.Errorf("\n + invald CPU limit %d: must be in 0.001..12", CPUQ))
-		}
+	if cont.Limits.CPU < 1 || cont.Limits.CPU > 12000 {
+		errs = append(errs, fmt.Errorf("\n + invald CPU limit %d: must be in 0.001..12 milliCPU", cont.Limits.CPU))
 	}
 
-	if cont.Limits.Memory == "" {
-		errs = append(errs, fmt.Errorf("\n + undefined memory limit"))
-	} else if q, err := resource.ParseQuantity(cont.Limits.Memory); err != nil {
-		errs = append(errs, fmt.Errorf("\n + invalid memory limit: %v", err))
-	} else {
-		memQ := q.ScaledValue(resource.Mega)
-		if memQ < 1 || memQ > 16000 {
-			errs = append(errs, fmt.Errorf("\n + invalid memory limit: must be in 1..16000"))
-		}
+	if cont.Limits.Memory < 1 || cont.Limits.Memory > 16000 {
+		errs = append(errs, fmt.Errorf("\n + invalid memory limit: must be in 1..16000 Mb"))
 	}
 
 	if len(errs) > 0 {

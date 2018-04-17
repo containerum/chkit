@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/chkit/pkg/util/validation"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 func getContainers(conts []container.Container) []container.Container {
@@ -48,8 +47,8 @@ func getContainers(conts []container.Container) []container.Container {
 								Name:  namegen.Aster() + "-" + namegen.Color(),
 								Image: "unknown (required)",
 								Limits: model.Resource{
-									Memory: "256Mi",
-									CPU:    "200m",
+									Memory: 256,
+									CPU:    200,
 								},
 								Ports: []model.ContainerPort(nil),
 							},
@@ -143,16 +142,14 @@ func getContainer(con container.Container) (container.Container, bool) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set memory limit : %s",
-						activekit.OrString(con.Limits.Memory, "none (required)")),
+					Name: fmt.Sprintf("Set memory limit : %dMb", con.Limits.Memory),
 					Action: func() error {
 						con.Limits.Memory = getMemory(con.Limits.Memory)
 						return nil
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set CPU limit    : %s",
-						activekit.OrString(con.Limits.CPU, "none (requied)")),
+					Name: fmt.Sprintf("Set CPU limit    : %d", con.Limits.CPU),
 					Action: func() error {
 						con.Limits.CPU = getCPU(con.Limits.CPU)
 						return nil
@@ -216,37 +213,35 @@ func getContainerImage() string {
 	}
 }
 
-func getMemory(oldValue string) string {
+func getMemory(oldValue uint) uint {
 	for {
-		memStr, _ := activekit.AskLine("Memory (Mb, 1..16000) > ")
+		memStr, _ := activekit.AskLine("Memory (Mb, 10..16000) > ")
 		memStr = strings.TrimSpace(memStr)
-		var mem uint32
+		var mem uint
 		if memStr == "" {
 			return oldValue
 		}
-		if _, err := fmt.Sscanln(memStr, &mem); err != nil || mem < 1 || mem > 16000 {
-			fmt.Printf("Memory must be interger number 0..16000. Try again.\n")
+		if _, err := fmt.Sscanln(memStr, &mem); err != nil || mem < 10 || mem > 16000 {
+			fmt.Printf("Memory must be interger number 10..16000. Try again.\n")
 			continue
 		}
-		return resource.NewQuantity(int64(mem*(1<<20)), resource.BinarySI).String()
+		return mem
 	}
 }
 
-func getCPU(oldValue string) string {
+func getCPU(oldValue uint) uint {
 	for {
-		cpuStr, _ := activekit.AskLine("CPU (0.6 of CPU for example, 0.001..12) > ")
+		cpuStr, _ := activekit.AskLine("CPU (10..12000 mCPU) > ")
 		cpuStr = strings.TrimSpace(cpuStr)
-		var cpu float32
+		var cpu uint
 		if cpuStr == "" {
 			return oldValue
 		}
-		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil || cpu <= 0 {
-			fmt.Printf("CPU must be number > 0. Try again.\n")
+		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil || cpu < 10 || cpu > 12000 {
+			fmt.Printf("CPU must be number 10..12000. Try again.\n")
 			continue
 		}
-		cpuQ := resource.NewScaledQuantity(int64(1000*cpu), resource.Milli)
-		cpuQ.Format = resource.BinarySI
-		return cpuQ.String()
+		return cpu
 	}
 }
 
