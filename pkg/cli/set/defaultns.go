@@ -23,7 +23,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 			var menu []*activekit.MenuItem
 			for _, ns := range nsList {
 				menu = append(menu, &activekit.MenuItem{
-					Name: ns.Label,
+					Label: ns.Label,
 					Action: func(ns string) func() error {
 						return func() error {
 							ctx.Namespace = ns
@@ -36,7 +36,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 			}
 			menu = append(menu, []*activekit.MenuItem{
 				{
-					Name: "Set custom namespace",
+					Label: "Set custom namespace",
 					Action: func() error {
 						ns := strings.TrimSpace(activekit.Promt("Type namespace label: "))
 						if err := validation.ValidateLabel(ns); ns == "" || err != nil {
@@ -50,7 +50,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 					},
 				},
 				{
-					Name: "Exit",
+					Label: "Exit",
 				},
 			}...)
 			var title string
