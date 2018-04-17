@@ -5,7 +5,6 @@ import (
 
 	"git.containerum.net/ch/kube-client/pkg/model"
 	"git.containerum.net/ch/kube-client/pkg/rest/remock/ermockerr"
-	api_resource "k8s.io/apimachinery/pkg/api/resource"
 	api_validation "k8s.io/apimachinery/pkg/util/validation"
 )
 
@@ -56,31 +55,13 @@ func ValidateDeployment(deployment model.Deployment) error {
 
 func ValidateContainer(container model.Container) error {
 	errs := []error{}
-	cpu, err := api_resource.ParseQuantity(container.Limits.CPU)
-	if err != nil {
+	if container.Limits.CPU < 10 || container.Limits.CPU > 12000 {
 		return ermockerr.ErrInvalidContainer().
-			AddDetailsErr(err)
+			AddDetailsErr(fmt.Errorf("invalid CPU limit %d: must be in 10..12000 mCPU", container.Limits.CPU))
 	}
-	mem, err := api_resource.ParseQuantity(container.Limits.Memory)
-	if err != nil {
+	if container.Limits.Memory < 10 || container.Limits.Memory > 16000 {
 		return ermockerr.ErrInvalidContainer().
-			AddDetailsErr(err)
-	}
-	mincpu, _ := api_resource.ParseQuantity(minDeployCPU)
-	maxcpu, _ := api_resource.ParseQuantity(maxDeployCPU)
-	minmem, _ := api_resource.ParseQuantity(minDeployMemory)
-	maxmem, _ := api_resource.ParseQuantity(maxDeployMemory)
-
-	if len(api_validation.IsDNS1123Subdomain(container.Name)) > 0 {
-		errs = append(errs, fmt.Errorf(invalidName, container.Name))
-	}
-
-	if cpu.Cmp(mincpu) == -1 || cpu.Cmp(maxcpu) == 1 {
-		errs = append(errs, fmt.Errorf(invalidCPUQuota, cpu.String(), minDeployCPU, maxDeployCPU))
-	}
-
-	if mem.Cmp(minmem) == -1 || mem.Cmp(maxmem) == 1 {
-		errs = append(errs, fmt.Errorf(invalidMemoryQuota, mem.String(), minDeployMemory, maxDeployMemory))
+			AddDetailsErr(fmt.Errorf("invalid memoty limit %d: must be in 10..16000 Mb", container.Limits.Memory))
 	}
 
 	for _, v := range container.Ports {
