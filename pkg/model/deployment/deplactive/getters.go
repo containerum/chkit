@@ -23,7 +23,7 @@ func getContainers(conts []container.Container) []container.Container {
 		for i, cont := range containers {
 			containerMenuItems = append(containerMenuItems,
 				&activekit.MenuItem{
-					Name: fmt.Sprintf("Edit container %q", cont.Name),
+					Label: fmt.Sprintf("Edit container %q", cont.Name),
 					Action: func(i int, cont container.Container) func() error {
 						return func() error {
 							logrus.Debugf("editing container %q", containerMenuItems[i])
@@ -39,7 +39,7 @@ func getContainers(conts []container.Container) []container.Container {
 		containerMenuItems = append(containerMenuItems,
 			[]*activekit.MenuItem{
 				{
-					Name: "Add new container",
+					Label: "Add new container",
 					Action: func() error {
 						logrus.Debugf("adding container")
 						cont, ok := getContainer(container.Container{
@@ -61,13 +61,13 @@ func getContainers(conts []container.Container) []container.Container {
 					},
 				},
 				{
-					Name: "Delete container",
+					Label: "Delete container",
 					Action: func() error {
 						logrus.Debugf("deleting container")
 						var deleteMenu []*activekit.MenuItem
 						for i, name := range getContainersNamesList(containers) {
 							deleteMenu = append(deleteMenu, &activekit.MenuItem{
-								Name: name,
+								Label: name,
 								Action: func(i int, name string) func() error {
 									return func() error {
 										yes, _ := activekit.Yes(fmt.Sprintf("Are you sure you want to delete the container %q?",
@@ -81,7 +81,7 @@ func getContainers(conts []container.Container) []container.Container {
 							})
 						}
 						deleteMenu = append(deleteMenu, &activekit.MenuItem{
-							Name: "Return to previous menu",
+							Label: "Return to previous menu",
 						})
 						(&activekit.Menu{
 							Title: "Which container do you want to delete?",
@@ -91,7 +91,7 @@ func getContainers(conts []container.Container) []container.Container {
 					},
 				},
 				{
-					Name: "Confirm",
+					Label: "Confirm",
 					Action: func() error {
 						exit = true
 						ok = true
@@ -99,7 +99,7 @@ func getContainers(conts []container.Container) []container.Container {
 					},
 				},
 				{
-					Name: "Return to previous menu, drop all changes",
+					Label: "Return to previous menu, drop all changes",
 					Action: func() error {
 						exit = true
 						ok = false
@@ -127,14 +127,14 @@ func getContainer(con container.Container) (container.Container, bool) {
 		(&activekit.Menu{
 			Items: []*activekit.MenuItem{
 				{
-					Name: fmt.Sprintf("Set name         : %s", con.Name),
+					Label: fmt.Sprintf("Set name         : %s", con.Name),
 					Action: func() error {
 						con.Name = getContainerName(con.Name)
 						return nil
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set image        : %s",
+					Label: fmt.Sprintf("Set image        : %s",
 						activekit.OrString(con.Image, "none (required)")),
 					Action: func() error {
 						con.Image = getContainerImage()
@@ -142,21 +142,21 @@ func getContainer(con container.Container) (container.Container, bool) {
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set memory limit : %dMb", con.Limits.Memory),
+					Label: fmt.Sprintf("Set memory limit : %dMb", con.Limits.Memory),
 					Action: func() error {
 						con.Limits.Memory = getMemory(con.Limits.Memory)
 						return nil
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set CPU limit    : %d", con.Limits.CPU),
+					Label: fmt.Sprintf("Set CPU limit    : %d", con.Limits.CPU),
 					Action: func() error {
 						con.Limits.CPU = getCPU(con.Limits.CPU)
 						return nil
 					},
 				},
 				{
-					Name: "Confirm",
+					Label: "Confirm",
 					Action: func() error {
 						if err := validateContainer(con); err != nil {
 							errText := err.Error()
@@ -169,7 +169,7 @@ func getContainer(con container.Container) (container.Container, bool) {
 					},
 				},
 				{
-					Name: "Return to previous menu",
+					Label: "Return to previous menu",
 					Action: func() error {
 						ok = false
 						exit = true

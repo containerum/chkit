@@ -35,28 +35,28 @@ func Wizard(config Config) (deployment.Deployment, error) {
 		_, err := (&activekit.Menu{
 			Items: []*activekit.MenuItem{
 				{
-					Name: fmt.Sprintf("Set name     : %s", depl.Name),
+					Label: fmt.Sprintf("Set name     : %s", depl.Name),
 					Action: func() error {
 						depl.Name = getName(depl.Name)
 						return nil
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set replicas : %d", depl.Replicas),
+					Label: fmt.Sprintf("Set replicas : %d", depl.Replicas),
 					Action: func() error {
 						depl.Replicas = getReplicas(depl.Replicas)
 						return nil
 					},
 				},
 				{
-					Name: fmt.Sprintf("Set containers: %v", activekit.OrValue(depl.Containers, "none (required)")),
+					Label: fmt.Sprintf("Set containers: %v", activekit.OrValue(depl.Containers, "none (required)")),
 					Action: func() error {
 						depl.Containers = getContainers(depl.Containers)
 						return nil
 					},
 				},
 				{
-					Name: "From file",
+					Label: "From file",
 					Action: func() error {
 						if filename, _ := activekit.AskLine("print filename > "); strings.TrimSpace(filename) == "" {
 							fmt.Printf("No file chosen\n")
@@ -73,7 +73,7 @@ func Wizard(config Config) (deployment.Deployment, error) {
 					},
 				},
 				{
-					Name: "Confirm",
+					Label: "Confirm",
 					Action: func() error {
 						if err := validateDeployment(depl); err != nil {
 							errTxt := err.Error()
@@ -92,7 +92,7 @@ func Wizard(config Config) (deployment.Deployment, error) {
 					},
 				},
 				{
-					Name: "Exit",
+					Label: "Exit",
 					Action: func() error {
 						if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
 							os.Exit(0)
