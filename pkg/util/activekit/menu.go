@@ -18,12 +18,12 @@ type Menu struct {
 }
 
 type MenuItem struct {
-	Name   string
+	Label  string
 	Action func() error
 }
 
 func (item *MenuItem) String() string {
-	return item.Name
+	return item.Label
 }
 
 func (menu *Menu) init() {
@@ -58,7 +58,7 @@ func (menu *Menu) Run() (*MenuItem, error) {
 	menu.init()
 	optionSet := map[string]int{}
 	for i, item := range menu.Items {
-		optionSet[item.Name] = i
+		optionSet[item.Label] = i
 	}
 	for {
 		fmt.Printf("%s\n", menu.Title)
