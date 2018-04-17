@@ -22,7 +22,6 @@ var Create = &cobra.Command{
 		if err != nil {
 			logrus.WithError(err).Errorf("unable to get deployment list")
 			fmt.Println("Unable to get deployment list :(")
-			os.Exit(1)
 		}
 		service, err := servactive.Wizard(servactive.ConstructorConfig{
 			Deployments: depList.Names(),
