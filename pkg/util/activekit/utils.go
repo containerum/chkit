@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -104,6 +105,13 @@ func OrStringer(str fmt.Stringer, def string) string {
 func OrValue(val interface{}, def string) string {
 	if val == nil {
 		return def
+	}
+	refVal := reflect.ValueOf(val)
+	if refVal.Kind() == reflect.Ptr || refVal.Kind() == reflect.Interface {
+		if refVal.IsNil() {
+			return def
+		}
+		return fmt.Sprintf("%v", refVal.Elem().Interface())
 	}
 	return fmt.Sprintf("%v", val)
 }
