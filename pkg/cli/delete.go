@@ -3,7 +3,9 @@ package cli
 import (
 	"fmt"
 
+	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/namespace"
+	"github.com/containerum/chkit/pkg/cli/pod"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
@@ -13,7 +15,8 @@ import (
 )
 
 var Delete = &cobra.Command{
-	Use: "delete",
+	Use:   "delete",
+	Short: "Delete resource",
 	PersistentPreRun: func(command *cobra.Command, args []string) {
 		prerun.PreRun()
 	},
@@ -40,5 +43,7 @@ func init() {
 	Delete.AddCommand(
 		clinamespace.Delete,
 		cliserv.Delete,
+		clideployment.Delete(&context.GlobalContext),
+		clipod.Delete(&context.GlobalContext),
 	)
 }
