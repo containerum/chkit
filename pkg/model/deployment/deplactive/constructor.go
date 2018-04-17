@@ -123,7 +123,7 @@ func validateContainer(cont container.Container) error {
 		errs = append(errs, fmt.Errorf("\n + invalid container name: %v", err))
 	}
 
-	if err := validation.ValidateImageName(cont.Image); err != nil {
+	if err := validation.ValidateImageName(cont.Image); err != nil || cont.Image == "" {
 		errs = append(errs, fmt.Errorf("\n + invalid image name: %v", err))
 	}
 

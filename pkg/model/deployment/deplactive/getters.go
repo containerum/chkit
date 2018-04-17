@@ -44,8 +44,7 @@ func getContainers(conts []container.Container) []container.Container {
 						logrus.Debugf("adding container")
 						cont, ok := getContainer(container.Container{
 							Container: model.Container{
-								Name:  namegen.Aster() + "-" + namegen.Color(),
-								Image: "unknown (required)",
+								Name: namegen.Aster() + "-" + namegen.Color(),
 								Limits: model.Resource{
 									Memory: 256,
 									CPU:    200,
@@ -266,7 +265,7 @@ func getReplicas(defaultReplicas int) int {
 		if strings.TrimSpace(replicasStr) == "" {
 			return defaultReplicas
 		}
-		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas < 0 || replicas > 15 {
+		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas < 1 || replicas > 15 {
 			fmt.Printf("Expected number 1..15! Try again.\n")
 			continue
 		}
