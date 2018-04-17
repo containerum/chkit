@@ -73,7 +73,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 				{
 					Name: fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
 					Action: func() error {
-						ports := getPorts(serv.Ports)
+						ports := editPorts(serv.Ports)
 						serv.Ports = ports
 						return nil
 					},

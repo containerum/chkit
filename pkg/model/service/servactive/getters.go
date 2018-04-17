@@ -91,7 +91,7 @@ func getIPs(ips []string) []string {
 	return oldIPs
 }
 
-func getPorts(ports []service.Port) []service.Port {
+func editPorts(ports []service.Port) []service.Port {
 	oldPorts := make([]service.Port, len(ports))
 	copy(oldPorts, ports)
 	ok := false
@@ -102,7 +102,12 @@ func getPorts(ports []service.Port) []service.Port {
 				Name: fmt.Sprintf("Edit port %q", port.Name),
 				Action: func(i int) func() error {
 					return func() error {
-						getPort(&ports, i)
+						port, deletePort := portEditorWizard(ports[i])
+						if deletePort {
+							ports = append(ports[:i], ports[i+1:]...)
+						} else {
+							ports[i] = port
+						}
 						return nil
 					}
 				}(i),
@@ -113,7 +118,11 @@ func getPorts(ports []service.Port) []service.Port {
 				{
 					Name: "Add port",
 					Action: func() error {
-						getPort(&ports, -1)
+						ports = append(ports, portCreationWizard(service.Port{
+							Name:       namegen.Aster() + "-" + namegen.Color(),
+							TargetPort: 80,
+							Protocol:   "TCP",
+						}))
 						return nil
 					},
 				},
@@ -313,6 +322,21 @@ func getDeploy(defaultDepl string, depls []string) string {
 	}
 	(&activekit.Menu{
 		Items: append(menu, []*activekit.MenuItem{
+			{
+				Name: "Use custom deployment",
+				Action: func() error {
+					deployment := activekit.Promt("Type deployment label: ")
+					if deployment == "" {
+						return nil
+					}
+					if err := validation.ValidateLabel(deployment); err != nil {
+						fmt.Printf("Invalid deployment label :(\n")
+						return nil
+					}
+					selectedDepl = deployment
+					return nil
+				},
+			},
 			{
 				Name: "Return to previous menu",
 			},
