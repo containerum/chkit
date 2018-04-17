@@ -83,14 +83,14 @@ var Command = &cobra.Command{
 				(&activekit.Menu{
 					Items: []*activekit.MenuItem{
 						{
-							Name: "Choose your own namespace",
+							Label: "Choose your own namespace",
 							Action: func() error {
 								context.GlobalContext.Namespace = activekit.Promt("Type namespace label: ")
 								return nil
 							},
 						},
 						{
-							Name: "Exit",
+							Label: "Exit",
 						},
 					},
 				}).Run()
