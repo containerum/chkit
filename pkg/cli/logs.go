@@ -6,11 +6,11 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/urfave/cli.v2"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -18,85 +18,70 @@ const (
 )
 
 var logsCommandAliases = []string{"log"}
-var commandLogs = &cli.Command{
-	Name:        "logs",
-	Aliases:     logsCommandAliases,
-	Description: `View pod logs`,
-	Usage:       `view pod logs. Aliases: ` + strings.Join(logsCommandAliases, ", "),
-	UsageText:   `logs pod_label [container] [--follow] [--prev] [--tail n] [--quiet]`,
-	Before: func(ctx *cli.Context) error {
-		if ctx.Bool("help") {
-			return cli.ShowSubcommandHelp(ctx)
-		}
-		clisetup.SetupAll()
-		return nil
-	},
-	Action: func(ctx *cli.Context) error {
-		var podName string
-		var containerName string
-		client := context.GlobalContext.Client
-		switch ctx.NArg() {
-		case 2:
-			containerName = ctx.Args().Tail()[0]
-			fallthrough
-		case 1:
-			podName = ctx.Args().First()
-		default:
-			cli.ShowSubcommandHelp(ctx)
-			return nil
-		}
 
-		params := chClient.GetPodLogsParams{
-			Namespace: context.GlobalContext.Namespace,
-			Pod:       podName,
-			Container: containerName,
-			Follow:    ctx.Bool("follow"),
-			Previous:  ctx.Bool("previous"),
-			Tail:      ctx.Int("tail"),
-		}
-		rc, err := client.GetPodLogs(params)
-		if err != nil {
-			logrus.WithError(err).Errorf("error while getting logs")
-			return err
-		}
-		defer rc.Close()
-
-		scanner := bufio.NewScanner(rc)
-		var nLines uint64
-		for scanner.Scan() {
-			if err := scanner.Err(); err != nil {
-				err = ErrUnableToReadLogs.Wrap(err)
-				logrus.WithError(err).Errorf("unable to scan logs byte stream")
-				return err
+func Logs(ctx *context.Context) *cobra.Command {
+	var logsConfig = struct {
+		Quiet  bool
+		Follow bool
+		Prev   bool
+		Tail   uint
+	}{}
+	command := &cobra.Command{
+		Use:     "logs",
+		Aliases: logsCommandAliases,
+		Short:   "View pod logs",
+		Long:    `view pod logs. Aliases: ` + strings.Join(logsCommandAliases, ", "),
+		Example: `logs pod_label [container] [--follow] [--prev] [--tail n] [--quiet]`,
+		Run: func(cmd *cobra.Command, args []string) {
+			var podName string
+			var containerName string
+			client := context.GlobalContext.Client
+			switch len(args) {
+			case 2:
+				containerName = args[1]
+				fallthrough
+			case 1:
+				podName = args[0]
+			default:
+				cmd.Help()
+				return
 			}
-			fmt.Println(scanner.Text())
-			nLines++
-		}
-		fmt.Printf("%d lines of logs read\n", nLines)
-		return nil
-	},
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "quiet",
-			Aliases: []string{"q"},
-			Usage:   "print only logs and errors",
-			Value:   false,
+
+			params := chClient.GetPodLogsParams{
+				Namespace: context.GlobalContext.Namespace,
+				Pod:       podName,
+				Container: containerName,
+				Follow:    logsConfig.Follow,
+				Previous:  logsConfig.Prev,
+				Tail:      int(logsConfig.Tail),
+			}
+			rc, err := client.GetPodLogs(params)
+			if err != nil {
+				logrus.WithError(err).Errorf("error while getting logs")
+				activekit.Attention(err.Error())
+			}
+			defer rc.Close()
+
+			scanner := bufio.NewScanner(rc)
+			var nLines uint64
+			for scanner.Scan() {
+				if err := scanner.Err(); err != nil {
+					err = ErrUnableToReadLogs.Wrap(err)
+					logrus.WithError(err).Errorf("unable to scan logs byte stream")
+					activekit.Attention(err.Error())
+				}
+				fmt.Println(scanner.Text())
+				nLines++
+			}
+			fmt.Printf("%d lines of logs read\n", nLines)
+			activekit.Attention(err.Error())
 		},
-		&cli.BoolFlag{
-			Name:    "follow",
-			Aliases: []string{"f"},
-			Usage:   `follow pod logs`,
-		},
-		&cli.BoolFlag{
-			Name:    "prev",
-			Aliases: []string{"p"},
-			Usage:   `show logs from previous instance (useful for crashes debugging)`,
-		},
-		&cli.IntFlag{
-			Name:    "tail",
-			Aliases: []string{"t"},
-			Value:   100,
-			Usage:   `print last <value> log lines`,
-		},
-	},
+	}
+	command.PersistentFlags().
+		BoolVarP(&logsConfig.Quiet, "quiet", "q", false, "print only logs and errors")
+	command.PersistentFlags().
+		BoolVarP(&logsConfig.Follow, "follow", "f", false, `follow pod logs`)
+	command.PersistentFlags().
+		UintVarP(&logsConfig.Tail, "tail", "t", 100, `print last <value> log lines`)
+	return command
 }
