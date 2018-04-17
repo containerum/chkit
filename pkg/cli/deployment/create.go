@@ -48,7 +48,7 @@ var Create = &cobra.Command{
 			_, err := (&activekit.Menu{
 				Items: []*activekit.MenuItem{
 					{
-						Name: "Create deployment",
+						Label: "Push deployment to server",
 						Action: func() error {
 							go func() {
 								time.Sleep(4 * time.Second)
@@ -60,13 +60,14 @@ var Create = &cobra.Command{
 							if err != nil {
 								logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)
 								fmt.Println(err)
+								return nil
 							}
 							fmt.Printf("Congratulations! Deployment %q created!\n", depl.Name)
 							return nil
 						},
 					},
 					{
-						Name: "Edit deployment",
+						Label: "Edit deployment",
 						Action: func() error {
 							var err error
 							depl, err = deplactive.Wizard(deplactive.Config{
@@ -81,7 +82,7 @@ var Create = &cobra.Command{
 						},
 					},
 					{
-						Name: "Print to terminal",
+						Label: "Print to terminal",
 						Action: activekit.ActionWithErr(func() error {
 							if data, err := depl.RenderYAML(); err != nil {
 								return err
@@ -94,7 +95,7 @@ var Create = &cobra.Command{
 						}),
 					},
 					{
-						Name: "Save to file",
+						Label: "Save to file",
 						Action: func() error {
 							filename, _ := activekit.AskLine("Print filename: ")
 							data, err := depl.RenderJSON()
@@ -111,7 +112,7 @@ var Create = &cobra.Command{
 						},
 					},
 					{
-						Name: "Exit",
+						Label: "Exit",
 						Action: func() error {
 							if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
 								os.Exit(0)
