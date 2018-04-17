@@ -3,30 +3,47 @@ package clipod
 import (
 	"strings"
 
-	"github.com/containerum/chkit/cmd/util"
+	"os"
+
+	"fmt"
+
+	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/urfave/cli.v2"
+	"github.com/spf13/cobra"
 )
 
-var Delete = &cli.Command{
-	Name:        "pod",
-	Usage:       "call to delete pod in specific namespace",
-	UsageText:   "chkit delete pod pod_name [-n namespace]",
-	Description: "deletes pods. Aliases: " + strings.Join(aliases, ", "),
-	Aliases:     aliases,
-	Flags:       util.DeleteFlags,
-	Action: func(ctx *cli.Context) error {
-		logrus.Debugf("running command delete pod")
-		client := util.GetClient(ctx)
-		namespace := util.GetNamespace(ctx)
-		if ctx.NArg() == 0 {
-			logrus.Debugf("show help")
-			return cli.ShowSubcommandHelp(ctx)
-		}
-		pod := ctx.Args().First()
-		logrus.Debugf("deleting pod %q from %q", pod, namespace)
-		err := client.DeletePod(namespace, pod)
-		logrus.WithError(err).Debugf("error while deleting pod")
-		return err
-	},
+func Delete(ctx *context.Context) *cobra.Command {
+	var deletePodConfig = struct {
+		Force bool
+	}{}
+	command := &cobra.Command{
+		Use:     "pod",
+		Aliases: aliases,
+		Short:   "call to delete pod in specific namespace",
+		Long:    "deletes pods. Aliases: " + strings.Join(aliases, ", "),
+		Example: "chkit delete pod pod_name [-n namespace]",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) != 1 {
+				cmd.Help()
+				return
+			}
+			podName := args[0]
+			logrus.
+				WithField("command", "delete pod").
+				Debugf("start deleting pod %q", podName)
+			if deletePodConfig.Force || activekit.YesNo(fmt.Sprintf("Are you sure you want to delete pod %q? [Y/N]: ", podName)) {
+				if err := ctx.Client.DeletePod(ctx.Namespace, podName); err != nil {
+					logrus.WithError(err).Debugf("unable to delete pod %q in namespace %q", podName, ctx.Namespace)
+					activekit.Attention(err.Error())
+					os.Exit(1)
+				}
+				fmt.Printf("OK\n")
+				logrus.Debugf("pod %q in namespace %q deleted", podName, ctx.Namespace)
+			}
+		},
+	}
+	command.PersistentFlags().
+		BoolVarP(&deletePodConfig.Force, "force", "f", false, "delete pod without confirmation")
+	return command
 }
