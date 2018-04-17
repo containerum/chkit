@@ -6,5 +6,5 @@ build
 !build/*
 .idea
 deployment.json
-/pkg/cli/pod/
 
+/service.json
