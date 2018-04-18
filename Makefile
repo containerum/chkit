@@ -1,7 +1,8 @@
 .PHONY: genkey build test clean release single_release
 
+CMD_DIR:=./cmd/chkit
 #get current package, assuming it`s in GOPATH sources
-PACKAGE := $(shell go list -f '{{.ImportPath}}')
+PACKAGE := $(shell go list -f '{{.ImportPath}}' $(CMD_DIR))
 
 SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
@@ -15,7 +16,6 @@ VERSION?=$(LATEST_TAG:v%=%)
 
 # make directory and store path to variable
 BUILDS_DIR:=$(PWD)/build
-CMD_DIR:=./cmd/chkit
 EXECUTABLE:=chkit
 DEV_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
 	-X $(PACKAGE)/pkg/cli/mode.API_ADDR=$(CONTAINERUM_API)
@@ -88,8 +88,10 @@ single_release:
 
 dev:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+dev)
+	@echo building $(VERSION)
 	@go build -v --tags="dev" -ldflags="$(DEV_LDFLAGS)" $(CMD_DIR)
 
 mock:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)
+	@echo building $(VERSION)
 	@go build -v -tags="dev mock" -ldflags="$(DEV_LDFLAGS)"
