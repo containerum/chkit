@@ -81,8 +81,8 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 				{
 					Label: "Confirm",
 					Action: func() error {
-						if err = validateService(serv); err != nil {
-							fmt.Printf("Error: %v", err)
+						if err = ValidateService(serv); err != nil {
+							activekit.Attention(err.Error())
 							return nil
 						}
 						exit = true

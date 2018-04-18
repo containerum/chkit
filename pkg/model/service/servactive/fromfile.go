@@ -12,7 +12,10 @@ func FromFile(filename string) (service.Service, error) {
 	if err != nil {
 		return service.Service{}, err
 	}
-	var serv service.Service
-	err = json.Unmarshal(data, &serv)
-	return serv, err
+	kubeServ := (&service.Service{}).ToKube()
+	if err = json.Unmarshal(data, &kubeServ); err != nil {
+		return service.Service{}, err
+	}
+	serv := service.ServiceFromKube(kubeServ)
+	return serv, ValidateService(serv)
 }
