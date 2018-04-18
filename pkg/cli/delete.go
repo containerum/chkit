@@ -42,7 +42,7 @@ var Delete = &cobra.Command{
 func init() {
 	Delete.AddCommand(
 		clinamespace.Delete,
-		cliserv.Delete,
+		cliserv.Delete(&context.GlobalContext),
 		clideployment.Delete(&context.GlobalContext),
 		clipod.Delete(&context.GlobalContext),
 	)
