@@ -23,6 +23,9 @@ var createDeplConfig = struct {
 var Create = &cobra.Command{
 	Use:     "deployment",
 	Aliases: aliases,
+	Short:   "create new deployment",
+	Long: `Creates new deployment.
+Has an one-line, suitable for integration with other tools, and an interactive wizard mode`,
 	Run: func(cmd *cobra.Command, args []string) {
 		depl := deplactive.DefaultDeployment()
 		if cmd.Flag("file").Changed {

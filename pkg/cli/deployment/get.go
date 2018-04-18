@@ -2,7 +2,6 @@ package clideployment
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/configuration"
 
@@ -32,7 +31,7 @@ var getDeplDataConfig = struct {
 var Get = &cobra.Command{
 	Use:     "deployment",
 	Short:   "shows deployment data",
-	Long:    "shows deployment data. Aliases: " + strings.Join(aliases, ", "),
+	Long:    "Shows deployment data",
 	Example: "namespace deployment_names... [-n namespace_label]",
 	Aliases: aliases,
 	Run: func(command *cobra.Command, args []string) {

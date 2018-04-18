@@ -1,8 +1,6 @@
 package clideployment
 
 import (
-	"strings"
-
 	"fmt"
 	"os"
 
@@ -21,7 +19,8 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Use:     "deployment",
 		Aliases: aliases,
 		Short:   "call to delete deployment in specific namespace",
-		Long:    "call to delete deployment in specific namespace. Aliases: " + strings.Join(aliases, ", "),
+		Long: `Deletes deployment in specific namespace.
+Use --force flag to suppress confirmation`,
 		Run: func(cmd *cobra.Command, args []string) {
 			switch len(args) {
 			case 0:
