@@ -127,12 +127,12 @@ func validateContainer(cont container.Container) error {
 		errs = append(errs, fmt.Errorf("\n + invalid image name: %v", err))
 	}
 
-	if cont.Limits.CPU < 1 || cont.Limits.CPU > 12000 {
-		errs = append(errs, fmt.Errorf("\n + invald CPU limit %d: must be in 0.001..12 milliCPU", cont.Limits.CPU))
+	if cont.Limits.CPU < 10 || cont.Limits.CPU > 3000 {
+		errs = append(errs, fmt.Errorf("\n + invald CPU limit %d: must be in 10..3000 mCPU", cont.Limits.CPU))
 	}
 
-	if cont.Limits.Memory < 1 || cont.Limits.Memory > 16000 {
-		errs = append(errs, fmt.Errorf("\n + invalid memory limit: must be in 1..16000 Mb"))
+	if cont.Limits.Memory < 10 || cont.Limits.Memory > 8000 {
+		errs = append(errs, fmt.Errorf("\n + invalid memory limit: must be in 10..8000 Mb"))
 	}
 
 	if len(errs) > 0 {
