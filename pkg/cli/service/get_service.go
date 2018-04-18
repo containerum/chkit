@@ -2,7 +2,6 @@ package cliserv
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
@@ -23,7 +22,7 @@ var Get = &cobra.Command{
 	Aliases: aliases,
 	Short:   "shows service info",
 	Long:    "chkit get service service_label [-o yaml/json] [-f output_file]",
-	Example: "shows service info. Aliases: " + strings.Join(aliases, ", "),
+	Example: "Shows service info",
 	Run: func(cmd *cobra.Command, args []string) {
 		serviceData, err := func() (model.Renderer, error) {
 			switch len(args) {

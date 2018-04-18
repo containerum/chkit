@@ -1,12 +1,10 @@
 package cliserv
 
 import (
-	"strings"
-
 	"fmt"
-	"os"
-
 	"io/ioutil"
+	"os"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/service/servactive"
@@ -27,7 +25,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Use:     "service",
 		Aliases: aliases,
 		Short:   "create service",
-		Long:    "create service for provided pod in provided namespace. Aliases: " + strings.Join(aliases, ", "),
+		Long:    "create service for provided pod in provided namespace",
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.WithField("command", "create service").Debugf("start service creation")
 			depList, err := context.GlobalContext.Client.GetDeploymentList(context.GlobalContext.Namespace)

@@ -1,10 +1,7 @@
 package cliserv
 
 import (
-	"strings"
-
 	"fmt"
-
 	"os"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -22,7 +19,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Use:     "service",
 		Aliases: aliases,
 		Short:   "call to delete service in specific namespace",
-		Long:    "deletes service in namespace. Aliases: " + strings.Join(aliases, ", "),
+		Long:    "Deletes service in namespace",
 		Example: "chkit delete service service_label [-n namespace]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.Debugf("running command delete service")
@@ -38,7 +35,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				for _, srv := range list {
 					menu = append(menu, &activekit.MenuItem{
 						Label: srv.Name,
-						Action: func(src service.Service) func() error {
+						Action: func(srv service.Service) func() error {
 							return func() error {
 								if yes, _ := activekit.Yes(fmt.Sprintf("Do you really want delete service %q?", srv.Name)); !yes {
 									return nil
