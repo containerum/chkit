@@ -6,8 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"time"
-
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -50,13 +48,7 @@ var Create = &cobra.Command{
 					{
 						Label: "Push deployment to server",
 						Action: func() error {
-							go func() {
-								time.Sleep(4 * time.Second)
-								fmt.Println("Sorry for the wait, we are doing our best!")
-							}()
-							err := func() error {
-								return context.GlobalContext.Client.CreateDeployment(context.GlobalContext.Namespace, depl)
-							}()
+							err := context.GlobalContext.Client.CreateDeployment(context.GlobalContext.Namespace, depl)
 							if err != nil {
 								logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)
 								fmt.Println(err)
