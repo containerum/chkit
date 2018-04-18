@@ -3,6 +3,7 @@ package set
 import (
 	"fmt"
 
+	"github.com/containerum/chkit/pkg/cli/image"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
@@ -37,6 +38,7 @@ func Set(ctx *context.Context) *cobra.Command {
 	}
 	command.AddCommand(
 		DefaultNamespace(ctx),
+		image.Set(ctx),
 	)
 	return command
 }
