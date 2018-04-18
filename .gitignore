@@ -1,10 +1,10 @@
 log.txt
 chkit
+!chkit/
 chkit-v2*
 build
 *.exe
 !build/*
 .idea
 deployment.json
-
 /service.json
