@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var VERSION = " "
+var VERSION = ""
 
 var runContext = struct {
 	ConfigFile    string
