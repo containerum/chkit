@@ -39,7 +39,7 @@ var Create = &cobra.Command{
 
 func init() {
 	Create.AddCommand(
-		clideployment.Create,
+		clideployment.Create(&context.GlobalContext),
 		cliserv.Create(&context.GlobalContext),
 	)
 }
