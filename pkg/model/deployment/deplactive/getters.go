@@ -157,7 +157,7 @@ func getContainer(con container.Container) (container.Container, bool) {
 				{
 					Label: "Confirm",
 					Action: func() error {
-						if err := validateContainer(con); err != nil {
+						if err := ValidateContainer(con); err != nil {
 							errText := err.Error()
 							attention := strings.Repeat("!", text.Width(errText))
 							fmt.Printf("%s\n%v\n%s\n", attention, errText, attention)

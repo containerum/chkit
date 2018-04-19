@@ -8,7 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/validation"
 )
 
-func validateContainer(cont container.Container) error {
+func ValidateContainer(cont container.Container) error {
 	var errs []error
 	if err := validation.ValidateLabel(cont.Name); err != nil {
 		errs = append(errs, fmt.Errorf("\n + invalid container name: %v", err))
@@ -32,7 +32,7 @@ func validateContainer(cont container.Container) error {
 	return nil
 }
 
-func validateDeployment(depl deployment.Deployment) error {
+func ValidateDeployment(depl deployment.Deployment) error {
 	var errs []error
 	if !ReplicasLimit.Containing(depl.Replicas) {
 		errs = append(errs, fmt.Errorf("\n + invalid replicas number %d: must be %v", depl.Replicas, ReplicasLimit))
@@ -41,7 +41,7 @@ func validateDeployment(depl deployment.Deployment) error {
 		errs = append(errs, fmt.Errorf("\n + can't create deployment without containers!"))
 	}
 	for _, cont := range depl.Containers {
-		if err := validateContainer(cont); err != nil {
+		if err := ValidateContainer(cont); err != nil {
 			errs = append(errs, fmt.Errorf("\n + %s", indent("  ", err.Error())))
 		}
 	}

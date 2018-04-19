@@ -73,7 +73,7 @@ func Wizard(config Config) (deployment.Deployment, error) {
 				{
 					Label: "Confirm",
 					Action: func() error {
-						if err := validateDeployment(depl); err != nil {
+						if err := ValidateDeployment(depl); err != nil {
 							errTxt := err.Error()
 							width := 0
 							for _, line := range strings.Split(errTxt, "\n") {

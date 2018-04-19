@@ -18,5 +18,5 @@ func FromFile(filename string) (deployment.Deployment, error) {
 		return deployment.Deployment{}, err
 	}
 	depl := deployment.DeploymentFromKube(kubeDepl)
-	return depl, validateDeployment(depl)
+	return depl, ValidateDeployment(depl)
 }
