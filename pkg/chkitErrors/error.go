@@ -6,20 +6,15 @@ import (
 
 	"strings"
 
-	"gopkg.in/urfave/cli.v2"
 )
 
 type Err string
 
 var (
 	_ error          = Err("")
-	_ cli.ExitCoder  = Err("")
-	_ cli.MultiError = Err("")
 	_ ErrMatcher     = Err("")
 
 	_ error          = &Wrapper{}
-	_ cli.ExitCoder  = &Wrapper{}
-	_ cli.MultiError = &Wrapper{}
 	_ ErrMatcher     = &Wrapper{}
 )
 
