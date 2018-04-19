@@ -9,29 +9,13 @@ import (
 	"github.com/containerum/chkit/pkg/cli/mode"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 
-	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/set"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-var (
-	// Version -- chkit version
-	Version = "3.0.0-alpha"
-)
-
-const (
-	// FlagConfigFile -- context config data key
-	FlagConfigFile = "config"
-	// FlagAPIaddr -- API address context key
-	FlagAPIaddr = "apiaddr"
-)
-
-const (
-	// ErrFatalError -- unrecoverable fatal error
-	ErrFatalError chkitErrors.Err = "fatal error"
-)
+var VERSION = " "
 
 var runContext = struct {
 	ConfigFile    string
@@ -44,7 +28,7 @@ var runContext = struct {
 var Root = &cobra.Command{
 	Use:     "chkit",
 	Short:   "Chkit is a containerum.io terminal client",
-	Version: Version,
+	Version: VERSION,
 	PreRun: func(*cobra.Command, []string) {
 		prerun.PreRun()
 	},
