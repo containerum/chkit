@@ -1,22 +1,23 @@
 package replicas
 
 import (
-	"github.com/containerum/chkit/pkg/context"
-	"github.com/spf13/cobra"
-	"strconv"
-	"github.com/containerum/chkit/pkg/util/activekit"
 	"fmt"
 	"os"
+	"strconv"
+
+	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/spf13/cobra"
 )
 
 func Set(ctx *context.Context) *cobra.Command {
 	var deplName string
 	var replicas uint64
 	command := &cobra.Command{
-		Use: "replicas",
-		Short:"set deployment replicas",
-		Long: "Sets deployment replicas",
+		Use:     "replicas",
+		Short:   "set deployment replicas",
+		Long:    "Sets deployment replicas",
 		Example: "chkit set replicas [-n namespace_label] [-d depl_label] [N_replicas]",
 		Aliases: []string{"re", "rep", "repl", "replica"},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -40,35 +41,34 @@ func Set(ctx *context.Context) *cobra.Command {
 				}
 				(&activekit.Menu{
 					Title: "Select deployment",
-					Items:menu,
+					Items: menu,
 				}).Run()
 			}
 			if !cmd.Flag("replicas").Changed {
-				if len(args) > 1 {
-					cmd.Help()
-					return
+				for {
+					n, err := strconv.ParseUint(activekit.Promt("Type replicas number: "), 10, 64)
+					if err != nil {
+						activekit.Attention(fmt.Sprintf("replicas parameter must be number 1..15:\n%v\n", err))
+						continue
+					}
+					replicas = n
+					break
 				}
-				n, err := strconv.ParseUint(args[0], 10, 64)
-				if err != nil {
-					activekit.Attention(fmt.Sprintf("replicas parameter must be number 1..15:\n%v\n", err))
-					os.Exit(1)
-				}
-				replicas = n
 			}
 			if replicas < 1 || replicas > 15 {
 				activekit.Attention(fmt.Sprintf("replicas parameter must be number 1..15, but it %d\n", replicas))
 				os.Exit(1)
 			}
-		if err := ctx.Client.SetReplicas(ctx.Namespace, deplName, replicas); err != nil {
-			activekit.Attention(err.Error())
-			os.Exit(1)
-		}
-		fmt.Println("OK")
+			if err := ctx.Client.SetReplicas(ctx.Namespace, deplName, replicas); err != nil {
+				activekit.Attention(err.Error())
+				os.Exit(1)
+			}
+			fmt.Println("OK")
 		},
 	}
 	command.PersistentFlags().
 		StringVarP(&deplName, "deployment", "d", "", "deployment name")
-	command.PersistentFlags() .
+	command.PersistentFlags().
 		Uint64VarP(&replicas, "replicas", "r", 1, "replicas, 1..15")
 	return command
 }
