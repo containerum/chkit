@@ -147,6 +147,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/ninedraft/ranger"
+  packages = ["intranger"]
+  revision = "89890d029c9d148d992d886ee992cf3fb0883284"
+
+[[projects]]
+  branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
   revision = "b8a9be070da40449e501c3c4730a889e42d87a9e"
@@ -420,6 +426,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "82c6e61bfe79a069df4eae9c9cab686cd2c7b51780a01c58f7093a5590a2e22c"
+  inputs-digest = "1ce3ca47f7ac45966e4386b691705c14bf5817e7f548ee3e5398109b0b9524f8"
   solver-name = "gps-cdcl"
   solver-version = 1
