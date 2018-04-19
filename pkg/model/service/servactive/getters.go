@@ -1,222 +1,364 @@
 package servactive
 
 import (
-	"bufio"
 	"fmt"
 	"net"
-	"net/url"
-	"os"
-	"strconv"
 	"strings"
 
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/validation"
 
+	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/namegen"
 )
 
-func getName(defaultName string) (string, error) {
+const (
+	ErrInvalidPort chkitErrors.Err = "invalid port"
+)
+
+func getName(defaultName string) string {
 	for {
-		name, _ := activeToolkit.AskLine(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
+		name := activekit.Promt(fmt.Sprintf("Type service name (just leave empty to dub it %s)",
 			defaultName))
-		if activeToolkit.IsStop(name) {
-			fmt.Printf("OK :(\n")
-			return "", ErrUserStoppedSession
-		}
 		if name == "" {
-			return defaultName, nil
+			return defaultName
 		}
 		if err := validation.ValidateLabel(name); err != nil {
 			fmt.Printf("\nError: %v\nPrint new one: ", err)
 			continue
 		}
-		return name, nil
+		return name
 	}
 
 }
 
-func getIPs() ([]string, error) {
-	fmt.Printf("Print IP addresses, delimited by spaces or enters.\nPress Ctrl+D or print stop word to end list:\n")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Split(bufio.ScanWords)
-	IPs := make([]string, 0, 4)
-	for scanner.Scan() {
-		text := scanner.Text()
-		if activeToolkit.IsStop(text) {
-			break
+func getIPs(ips []string) []string {
+	oldIPs := make([]string, len(ips))
+	copy(oldIPs, ips)
+	var ok bool
+	for exit := false; !exit; {
+		var menu []*activekit.MenuItem
+		for i, ip := range ips {
+			menu = append(menu, &activekit.MenuItem{
+				Label: fmt.Sprintf("Delete %q", ip),
+				Action: func(i int) func() error {
+					return func() error {
+						ips = append(ips[:i], ips[i+1:]...)
+						return nil
+					}
+				}(i),
+			})
 		}
-		if net.ParseIP(text) == nil {
-			fmt.Printf("\nSorry, but %q is not valid IP address\nPrint new one: ", text)
-			continue
-		}
-		IPs = append(IPs, text)
+		menu = append(menu, []*activekit.MenuItem{
+			{
+				Label: "Add addr",
+				Action: func() error {
+					rawAddr := strings.TrimSpace(activekit.Promt("Type IP : "))
+					ip := net.ParseIP(rawAddr)
+					if ip == nil {
+						fmt.Printf("\nInvalid IP address!\n")
+						return nil
+					}
+					ips = append(ips, ip.String())
+					return nil
+				},
+			},
+			{
+				Label: "Confirm",
+				Action: func() error {
+					exit = true
+					ok = true
+					return nil
+				},
+			},
+			{
+				Label: "Return to previous menu",
+				Action: func() error {
+					ok = false
+					exit = true
+					return nil
+				},
+			},
+		}...)
+		(&activekit.Menu{
+			Items: menu,
+		}).Run()
 	}
-	return IPs, nil
+	if ok {
+		return ips
+	}
+	return oldIPs
 }
 
-func getPorts() ([]service.Port, error) {
-	var ports []service.Port
-	for {
-		port, err := getPort()
-		switch err {
-		case nil:
-			ports = append(ports, port)
-		case ErrUserStoppedSession:
-			fmt.Printf("\nPort wasn't added\n")
-		default:
-			return nil, err
+func editPorts(ports []service.Port) []service.Port {
+	oldPorts := make([]service.Port, len(ports))
+	copy(oldPorts, ports)
+	ok := false
+	for exit := false; !exit; {
+		var menu []*activekit.MenuItem
+		for i, port := range ports {
+			menu = append(menu, &activekit.MenuItem{
+				Label: fmt.Sprintf("Edit port %q", port.Name),
+				Action: func(i int) func() error {
+					return func() error {
+						port, deletePort := portEditorWizard(ports[i])
+						if deletePort {
+							ports = append(ports[:i], ports[i+1:]...)
+						} else {
+							ports[i] = port
+						}
+						return nil
+					}
+				}(i),
+			})
 		}
-		fmt.Printf("OK, port %q is added\n", port.Name)
-		ok, _ := activeToolkit.Yes("Continue creating ports?")
-		if !ok {
-			break
-		}
+		(&activekit.Menu{
+			Items: append(menu, []*activekit.MenuItem{
+				{
+					Label: "Add port",
+					Action: func() error {
+						ports = append(ports, portCreationWizard(service.Port{
+							Name:       namegen.Aster() + "-" + namegen.Color(),
+							TargetPort: 80,
+							Protocol:   "TCP",
+						}))
+						return nil
+					},
+				},
+				{
+					Label: "Confirm",
+					Action: func() error {
+						ok = true
+						exit = true
+						return nil
+					},
+				},
+				{
+					Label: "Return to previous menu",
+					Action: func() error {
+						ok = false
+						exit = true
+						return nil
+					},
+				},
+			}...),
+		}).Run()
 	}
-	fmt.Printf("Added %d ports\n", len(ports))
-	return ports, nil
+	if ok {
+		return ports
+	}
+	return oldPorts
 }
 
-func getPort() (service.Port, error) {
-	var port service.Port
-
-	name, err := getPortName()
-	if err != nil {
-		return port, err
+func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
+	var p service.Port
+	if ind < 0 || len(*ports) == 0 {
+		p = service.Port{
+			Name:     namegen.Aster() + "-" + namegen.Color(),
+			Protocol: "TCP",
+		}
+		*ports = append(*ports, p)
+	} else {
+		p = (*ports)[ind]
 	}
-	port.Name = name
-
-	proto, err := getPortProtocol(name)
-	if err != nil {
-		return port, err
+	ok := false
+	for exit := false; !exit; {
+		(&activekit.Menu{
+			Items: []*activekit.MenuItem{
+				{
+					Label: fmt.Sprintf("Set name : %s",
+						activekit.OrString(p.Name, "undefined (required)")),
+					Action: func() error {
+						var promt string
+						if p.Name == "" {
+							promt = "Print port name: "
+						} else {
+							promt = fmt.Sprintf("Print port name (hit enter to use %q): ", p.Name)
+						}
+						name := strings.TrimSpace(activekit.Promt(promt))
+						if name == "" {
+							return nil
+						}
+						if err := validation.ValidateLabel(name); err != nil {
+							activekit.Attention(fmt.Sprintf("Invalid port name:\n%v", err))
+							return nil
+						}
+						p.Name = name
+						return nil
+					},
+				},
+				{
+					Label: fmt.Sprintf("Set target port : %d (required)", p.TargetPort),
+					Action: func() error {
+						promt := fmt.Sprintf("Print target port (1..65535, hit enter to use %d): ", p.TargetPort)
+						portStr := strings.TrimSpace(activekit.Promt(promt))
+						if portStr == "" {
+							return nil
+						}
+						var port int
+						if _, err := fmt.Sscan(portStr, "%d", &port); err != nil || (port < 1 && port > 65535) {
+							fmt.Printf("Invalid target port %q: must be number 1..65535\n", portStr)
+							return nil
+						}
+						p.TargetPort = port
+						return nil
+					},
+				},
+				{
+					Label: fmt.Sprintf("Set proto : %s",
+						activekit.OrString(p.Protocol, "undefined (required)")),
+					Action: func() error {
+						_, err := (&activekit.Menu{
+							Title: fmt.Sprintf("Select protocol (current: %s)", p.Protocol),
+							Items: []*activekit.MenuItem{
+								{
+									Label: "TCP",
+									Action: func() error {
+										p.Protocol = "TCP"
+										return nil
+									},
+								},
+								{
+									Label: "UDP",
+									Action: func() error {
+										p.Protocol = "UDP"
+										return nil
+									},
+								},
+								{
+									Label: "Return to previous menu",
+								},
+							}}).Run()
+						return err
+					},
+				},
+				{
+					Label: fmt.Sprintf("Set port : %s",
+						activekit.OrValue(p.Port, "undefined (optional)")),
+					Action: func() error {
+						var promt string
+						if p.Port == nil {
+							promt = "Print port (11000..65535, hit enter to leave empty):"
+						} else {
+							promt = fmt.Sprintf("Print port (11000..65535, hit enter to use %d, type 'none' to leave empty): ", *p.Port)
+						}
+						portStr := strings.TrimSpace(activekit.Promt(promt))
+						if portStr == "none" {
+							p.Port = nil
+						}
+						if portStr == "" {
+							return nil
+						}
+						var port int
+						if _, err := fmt.Sscan(portStr, "%d", &port); err != nil || (port < 11000 && port > 65535) {
+							fmt.Printf("Invalid port %q: must be number in 11000..65535\n", portStr)
+							return nil
+						}
+						p.Port = &port
+						return nil
+					},
+				},
+				{
+					Label: fmt.Sprintf("Delete port %q", p),
+					Action: func() error {
+						*ports = append((*ports)[:ind], (*ports)[ind+1:]...)
+						return nil
+					},
+				},
+				{
+					Label: "Confirm",
+					Action: func() error {
+						if err := validatePort(p); err != nil {
+							activekit.Attention(err.Error())
+							return nil
+						}
+						ok = true
+						exit = false
+						return nil
+					},
+				},
+			},
+		}).Run()
 	}
-	port.Protocol = proto
-
-	target, err := getTargetPort(name)
-	if err != nil {
-		return port, err
-	}
-	port.TargetPort = target
-
-	opt, err := getOptionalPort(name)
-	if err != nil {
-		return port, err
-	}
-	port.Port = opt
-
-	return port, nil
+	return p, ok
 }
 
-func getPortName() (string, error) {
-	for {
-		defaultName := namegen.Aster()
-		name, _ := activeToolkit.AskLine(fmt.Sprintf("type name (hit Enter to use %q) > ", defaultName))
-		if activeToolkit.IsStop(name) {
-			return name, ErrUserStoppedSession
-		}
-		if name == "" {
-			name = defaultName
-		}
-		if err := validation.ValidateLabel(name); err != nil {
-			fmt.Printf("%v. Try again:\n", err)
-			continue
-		}
-		return name, nil
+func validatePort(port service.Port) error {
+	var errs []error
+	if err := validation.ValidateLabel(port.Name); port.Name == "" || (err != nil) {
+		errs = append(errs, fmt.Errorf("\n + invalid port name %q", port.Name))
 	}
+	if port.Port != nil {
+		if *port.Port < 11000 || *port.Port > 65535 {
+			errs = append(errs, fmt.Errorf("\n + invalid port %d: must be 11000..65535", *port.Port))
+		}
+	}
+	if port.TargetPort < 1 || port.TargetPort > 65535 {
+		errs = append(errs, fmt.Errorf("\n + invalid target port %d: must be 1..65535"))
+	}
+	if port.Protocol != "TCP" && port.Protocol != "UDP" {
+		errs = append(errs, fmt.Errorf("\n + invalid port protocol: must be TCP or UDP"))
+	}
+	if len(errs) == 0 {
+		return nil
+	}
+	return ErrInvalidPort.CommentF("name=%q", port.Name).AddReasons(errs...)
 }
 
-func getPortProtocol(name string) (string, error) {
-	for {
-		proto, _ := activeToolkit.AskLine(fmt.Sprintf("%s::protocol (TCP or UDP , TCP default) > ", name))
-		if activeToolkit.IsStop(proto) {
-			return proto, ErrUserStoppedSession
-		}
-		switch strings.ToLower(proto) {
-		case "tcp", "udp":
-		// pass
-		case "":
-			proto = "TCP"
-		default:
-			fmt.Printf("Only TCP and UDP protocols are available! You printed %q. Try again:\n", proto)
-			continue
-		}
-		fmt.Printf("Using %s\n", proto)
-		return proto, nil
+func getDeploy(defaultDepl string, depls []string) string {
+	var menu []*activekit.MenuItem
+	selectedDepl := defaultDepl
+	for _, depl := range depls {
+		menu = append(menu, &activekit.MenuItem{
+			Label: depl,
+			Action: func(depl string) func() error {
+				return func() error {
+					selectedDepl = depl
+					return nil
+				}
+			}(depl),
+		})
 	}
+	(&activekit.Menu{
+		Items: append(menu, []*activekit.MenuItem{
+			{
+				Label: "Use custom deployment",
+				Action: func() error {
+					deployment := activekit.Promt("Type deployment label: ")
+					if deployment == "" {
+						return nil
+					}
+					if err := validation.ValidateLabel(deployment); err != nil {
+						fmt.Printf("Invalid deployment label :(\n")
+						return nil
+					}
+					selectedDepl = deployment
+					return nil
+				},
+			},
+			{
+				Label: "Return to previous menu",
+			},
+		}...),
+	}).Run()
+	return selectedDepl
 }
 
-func getTargetPort(name string) (int, error) {
-	for {
-		targetPortStr, exit := activeToolkit.AskLine(fmt.Sprintf("%s::target_port > ", name))
-		if exit || activeToolkit.IsStop(targetPortStr) {
-			return -1, ErrUserStoppedSession
-		}
-		targePort, err := strconv.Atoi(targetPortStr)
-		if err != nil || targePort < 1 || targePort > 65535 {
-			fmt.Printf("Target port can be only number 1..65535! Try again:\n")
-			continue
-		}
-		return targePort, nil
-	}
-}
-
-func getOptionalPort(name string) (*int, error) {
-	for {
-		optionalPortStr, exit := activeToolkit.AskLine(fmt.Sprintf("%s::port (hit Enter to leave undefined) > ", name))
-		if exit || activeToolkit.IsStop(optionalPortStr) {
-			return nil, ErrUserStoppedSession
-		}
-		if optionalPortStr == "" {
-			return nil, nil
-		}
-		optionalPort, err := strconv.Atoi(optionalPortStr)
-		if err != nil || optionalPort < 11000 || optionalPort > 65535 {
-			fmt.Printf("Port can be only number 11000..65535! Try again:\n")
-			continue
-		}
-		return &optionalPort, nil
-	}
-}
-
-func parsePort(text string) (service.Port, error) {
-	tokens := strings.Fields(text)
-	var input struct {
-		Name       string
-		Port       string
-		TargetPort string
-		Protocol   string
-	}
-	switch len(tokens) {
-	case 3:
-		input.Name = tokens[0]
-		input.Protocol = tokens[1]
-		input.TargetPort = tokens[2]
-		input.Port = tokens[3]
-	}
-	return service.Port{}, nil
-}
-
-func getDomain() (string, error) {
-	for {
-		domain, _ := activeToolkit.AskWord("Print domain (hit Ctrl+D or Enter to skip): ")
-		if domain == "" {
-			return "", nil
-		}
-		_, err := url.Parse(domain)
-		if err != nil {
-			fmt.Printf("Invalid domain %q. Try again.\n", domain)
-			continue
-		}
-		return domain, nil
-	}
-}
-
-func getDeploy(deployments []string) (string, error) {
-	for {
-		deployment, _, exit := activeToolkit.Options("Choose deployment (print stop to exit):", true, deployments...)
-		if exit {
-			return "", ErrUserStoppedSession
-		}
-		return deployment, nil
-	}
+func getDomain(defaultDomain string) string {
+	domain := defaultDomain
+	(&activekit.Menu{Items: []*activekit.MenuItem{
+		{
+			Label: "Use custom domain",
+			Action: func() error {
+				domain = activekit.Promt("Type domain: ")
+				return nil
+			},
+		},
+		{
+			Label: "Return to previous menu",
+		},
+	},
+	}).Run()
+	return domain
 }

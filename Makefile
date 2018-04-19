@@ -1,8 +1,10 @@
 .PHONY: genkey build test clean release single_release
 
+CMD_DIR:=cmd/chkit
+CLI_DIR:=pkg/cli
 #get current package, assuming it`s in GOPATH sources
-PACKAGE := $(shell go list -f '{{.ImportPath}}')
-
+PACKAGE := $(shell go list -f '{{.ImportPath}}' ./$(CLI_DIR))
+PACKAGE := $(PACKAGE:%/$(CLI_DIR)=%)
 SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
 PUBLIC_KEY_FILE:=pubkey.pem
@@ -16,11 +18,11 @@ VERSION?=$(LATEST_TAG:v%=%)
 # make directory and store path to variable
 BUILDS_DIR:=$(PWD)/build
 EXECUTABLE:=chkit
-DEV_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
-	-X $(PACKAGE)/cmd.API_ADDR=$(CONTAINERUM_API)
-RELEASE_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
+DEV_LDFLAGS=-X '$(PACKAGE)/$(CLI_DIR)/mode.API_ADDR=$(CONTAINERUM_API)' \
+	-X '$(PACKAGE)/$(CLI_DIR).VERSION=v$(VERSION)'
+RELEASE_LDFLAGS=-X $(PACKAGE)/$(CLI_DIR).VERSION=v$(VERSION) \
 	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell base64 -w 0 $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'\
-	-X $(PACKAGE)/cmd.API_ADDR=$(CONTAINERUM_API)
+	-X $(PACKAGE)/$(CLI_DIR)/mode.API_ADDR=$(CONTAINERUM_API)
 
 genkey:
 	@echo "Generating private/public ECDSA keys to sign"
@@ -32,7 +34,7 @@ genkey:
 # go has build artifacts caching so soruce tracking not needed
 build:
 	@echo "Building chkit for current OS/architecture, without signing"
-	@go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE)
+	@go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE) ./$(CMD_DIR)
 
 test:
 	@echo "Running tests"
@@ -62,8 +64,8 @@ $(eval ifeq ($(1),windows)
 else
 	temp_executable=$(temp_build_dir)/$(EXECUTABLE)
 endif)
-@echo go build -tags="dev" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable)
-@GOOS=$(1) GOARCH=$(2) go build -tags="dev" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable)
+@echo go build -tags="dev" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable) ./$(CMD_DIR)
+@GOOS=$(1) GOARCH=$(2) go build -tags="dev" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable) ./$(CMD_DIR)
 @$(call create_checksum,$(temp_executable))
 @$(call create_signature,$(temp_executable))
 $(eval ifeq ($(1),windows)
@@ -87,8 +89,11 @@ single_release:
 
 dev:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+dev)
-	@go build -v --tags="dev" -ldflags="$(DEV_LDFLAGS)"
+	@echo building $(VERSION)
+	@echo $(PACKAGE)
+	go build -v --tags="dev" --ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
 
 mock:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)
-	@go build -v -tags="dev mock" -ldflags="$(DEV_LDFLAGS)"
+	@echo building $(VERSION)
+	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)

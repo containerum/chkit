@@ -11,3 +11,11 @@ func DeploymentListFromKube(kubeList []model.Deployment) DeploymentList {
 	}
 	return list
 }
+
+func (list DeploymentList) Names() []string {
+	names := make([]string, 0, len(list))
+	for _, depl := range list {
+		names = append(names, depl.Name)
+	}
+	return names
+}

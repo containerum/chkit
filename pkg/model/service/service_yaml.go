@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/containerum/chkit/pkg/model"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -11,7 +11,8 @@ var (
 )
 
 func (serv Service) RenderYAML() (string, error) {
-	data, err := yaml.Marshal(serv)
+	serv.ToKube()
+	data, err := yaml.Marshal(serv.origin)
 	return string(data), err
 }
 

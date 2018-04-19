@@ -24,8 +24,8 @@ type Deployment struct {
 	Labels      map[string]string `json:"labels,omitempty"`
 	Name        string            `json:"name"`
 	Replicas    int               `json:"replicas"`
-	TotalCPU    string            `json:"total_cpu,omitempty"`
-	TotalMemory string            `json:"total_memory,omitempty"`
+	TotalCPU    uint              `json:"total_cpu,omitempty"`
+	TotalMemory uint              `json:"total_memory,omitempty"`
 }
 
 // Container --
