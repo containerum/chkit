@@ -141,14 +141,14 @@ func getContainer(con container.Container) (container.Container, bool) {
 					},
 				},
 				{
-					Label: fmt.Sprintf("Set memory limit : %dMb", con.Limits.Memory),
+					Label: fmt.Sprintf("Set memory limit : %d Mb", con.Limits.Memory),
 					Action: func() error {
 						con.Limits.Memory = getMemory(con.Limits.Memory)
 						return nil
 					},
 				},
 				{
-					Label: fmt.Sprintf("Set CPU limit    : %d", con.Limits.CPU),
+					Label: fmt.Sprintf("Set CPU limit    : %d mCPU", con.Limits.CPU),
 					Action: func() error {
 						con.Limits.CPU = getCPU(con.Limits.CPU)
 						return nil
