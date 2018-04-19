@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/containerum/chkit/pkg/cli/replicas"
 )
 
 func Set(ctx *context.Context) *cobra.Command {
@@ -39,6 +40,7 @@ func Set(ctx *context.Context) *cobra.Command {
 	command.AddCommand(
 		DefaultNamespace(ctx),
 		image.Set(ctx),
+		replicas.Set(ctx),
 	)
 	return command
 }
