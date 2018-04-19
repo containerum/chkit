@@ -59,7 +59,7 @@ func PreRun() {
 			return
 		}
 	default:
-		logrus.WithError(ErrFatalError.Wrap(err)).Errorf("fatal erorr while login")
+		logrus.WithError(ErrFatalError.Wrap(err)).Errorf("fatal error while login")
 		angel.Angel(err)
 		return
 	}
