@@ -214,14 +214,14 @@ func getContainerImage() string {
 
 func getMemory(oldValue uint) uint {
 	for {
-		memStr, _ := activekit.AskLine("Memory (Mb, 10..8000) > ")
+		memStr, _ := activekit.AskLine(fmt.Sprintf("Memory (Mb, %v) > ", MemLimit))
 		memStr = strings.TrimSpace(memStr)
 		var mem uint
 		if memStr == "" {
 			return oldValue
 		}
-		if _, err := fmt.Sscanln(memStr, &mem); err != nil || mem < 10 || mem > 8000 {
-			fmt.Printf("Memory must be interger number 10..16000. Try again.\n")
+		if _, err := fmt.Sscanln(memStr, &mem); err != nil || !MemLimit.Containing(int(mem)) {
+			fmt.Printf("Memory must be interger number %v. Try again.\n", MemLimit)
 			continue
 		}
 		return mem
@@ -230,14 +230,14 @@ func getMemory(oldValue uint) uint {
 
 func getCPU(oldValue uint) uint {
 	for {
-		cpuStr, _ := activekit.AskLine("CPU (10..3000 mCPU) > ")
+		cpuStr, _ := activekit.AskLine(fmt.Sprintf("CPU (%v mCPU) > ", CPULimit))
 		cpuStr = strings.TrimSpace(cpuStr)
 		var cpu uint
 		if cpuStr == "" {
 			return oldValue
 		}
-		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil || cpu < 10 || cpu > 3000 {
-			fmt.Printf("CPU must be number 10..3000. Try again.\n")
+		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil || !CPULimit.Containing(int(cpu)) {
+			fmt.Printf("CPU must be number %v. Try again.\n", CPULimit)
 			continue
 		}
 		return cpu
@@ -260,13 +260,13 @@ func getName(defaultName string) string {
 
 func getReplicas(defaultReplicas int) int {
 	for {
-		replicasStr, _ := activekit.AskLine(fmt.Sprintf("Print number or replicas (1..15, hit Enter to use %d) > ", defaultReplicas))
+		replicasStr, _ := activekit.AskLine(fmt.Sprintf("Print number or replicas (%v, hit Enter to use %d) > ", ReplicasLimit, defaultReplicas))
 		replicas := defaultReplicas
 		if strings.TrimSpace(replicasStr) == "" {
 			return defaultReplicas
 		}
-		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas < 1 || replicas > 15 {
-			fmt.Printf("Expected number 1..15! Try again.\n")
+		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || !ReplicasLimit.Containing(replicas) {
+			fmt.Printf("Expected number %v! Try again.\n", ReplicasLimit)
 			continue
 		}
 		return replicas

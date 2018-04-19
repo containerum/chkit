@@ -7,11 +7,9 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
-	"github.com/containerum/chkit/pkg/util/validation"
 )
 
 const (
@@ -115,49 +113,6 @@ func DefaultDeployment() deployment.Deployment {
 		Replicas:   1,
 		Containers: nil,
 	}
-}
-
-func validateContainer(cont container.Container) error {
-	var errs []error
-	if err := validation.ValidateLabel(cont.Name); err != nil {
-		errs = append(errs, fmt.Errorf("\n + invalid container name: %v", err))
-	}
-
-	if err := validation.ValidateImageName(cont.Image); err != nil || cont.Image == "" {
-		errs = append(errs, fmt.Errorf("\n + invalid image name: %v", err))
-	}
-
-	if cont.Limits.CPU < 10 || cont.Limits.CPU > 3000 {
-		errs = append(errs, fmt.Errorf("\n + invald CPU limit %d: must be in 10..3000 mCPU", cont.Limits.CPU))
-	}
-
-	if cont.Limits.Memory < 10 || cont.Limits.Memory > 8000 {
-		errs = append(errs, fmt.Errorf("\n + invalid memory limit: must be in 10..8000 Mb"))
-	}
-
-	if len(errs) > 0 {
-		return ErrInvalidContainer.CommentF("label=%q", cont.Name).AddReasons(errs...)
-	}
-	return nil
-}
-
-func validateDeployment(depl deployment.Deployment) error {
-	var errs []error
-	if depl.Replicas < 1 || depl.Replicas > 15 {
-		errs = append(errs, fmt.Errorf("\n + invalid replicas number %d: must be 1..15", depl.Replicas))
-	}
-	if len(depl.Containers) == 0 {
-		errs = append(errs, fmt.Errorf("\n + can't create deployment without containers!"))
-	}
-	for _, cont := range depl.Containers {
-		if err := validateContainer(cont); err != nil {
-			errs = append(errs, fmt.Errorf("\n + %s", indent("  ", err.Error())))
-		}
-	}
-	if len(errs) > 0 {
-		return ErrInvalidDeployment.CommentF("label=%q", depl.Name).AddReasons(errs...)
-	}
-	return nil
 }
 
 func indent(indent, str string) string {
