@@ -1,4 +1,4 @@
-package login
+package clisetup
 
 import (
 	"bufio"
@@ -7,8 +7,20 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/context"
 	"golang.org/x/crypto/ssh/terminal"
+)
+
+var (
+	// ErrUnableToReadPassword -- unable to read password
+	ErrUnableToReadPassword chkitErrors.Err = "unable to read password"
+	// ErrUnableToReadUsername -- unable to read username
+	ErrUnableToReadUsername chkitErrors.Err = "unable to read username"
+	// ErrInvalidPassword -- invalid password
+	ErrInvalidPassword chkitErrors.Err = "invalid password"
+	// ErrInvalidUsername -- invalid username
+	ErrInvalidUsername chkitErrors.Err = "invalid username"
 )
 
 func InteractiveLogin(ctx *context.Context) error {

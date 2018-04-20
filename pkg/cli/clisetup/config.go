@@ -12,7 +12,7 @@ import (
 )
 
 func SetupConfig(ctx *context.Context) error {
-	ctx.Fingerprint = fingerpint.Fingerprint()
+	ctx.Client.Fingerprint = fingerpint.Fingerprint()
 	tokens, err := configuration.LoadTokens(ctx)
 	if err != nil && !os.IsNotExist(err) {
 		return ErrUnableToLoadTokens.Wrap(err)
