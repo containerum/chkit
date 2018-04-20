@@ -50,6 +50,14 @@ func Get(ctx *context.Context) *cobra.Command {
 		clinamespace.Get(ctx),
 		cliserv.Get(ctx),
 		clipod.Get(ctx),
+		&cobra.Command{
+			Use:     "default-namespace",
+			Short:   "print default",
+			Aliases: []string{"default-ns", "def-ns"},
+			Run: func(cmd *cobra.Command, args []string) {
+				fmt.Printf("%s\n", ctx.Namespace)
+			},
+		},
 	)
 	return command
 }
