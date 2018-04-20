@@ -65,7 +65,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				fmt.Printf("%v :(\n", err)
 				return
 			}
-			if err := configuration.ExportData(deplData, configuration.ExportConfig{}); err != nil {
+			if err := configuration.ExportData(deplData, getDeplDataConfig.ExportConfig); err != nil {
 				logrus.WithError(err).Errorf("unable to export data")
 				angel.Angel(ctx, err)
 			}
