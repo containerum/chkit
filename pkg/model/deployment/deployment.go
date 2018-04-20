@@ -1,6 +1,8 @@
 package deployment
 
 import (
+	"fmt"
+
 	"git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
 )
@@ -44,4 +46,13 @@ func (depl *Deployment) ToKube() model.Deployment {
 	}
 	depl.origin = &kubeDepl
 	return kubeDepl
+}
+
+func (depl *Deployment) StatusString() string {
+	if depl.Status != nil {
+		return fmt.Sprintf("running %d/%d\npending %d/%d\n",
+			depl.Status.AvailableReplicas, depl.Replicas,
+			depl.Status.UnavailableReplicas, depl.Replicas)
+	}
+	return fmt.Sprintf("unpushed\n%d replicas", depl.Replicas)
 }

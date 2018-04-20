@@ -1,14 +1,11 @@
 package deployment
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
 
 	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
-	"github.com/containerum/chkit/pkg/model"
 )
 
 type Status struct {
@@ -40,23 +37,4 @@ func StatusFromKubeStatus(kubeStatus kubeModel.DeploymentStatus) Status {
 		UnavailableReplicas: uint(kubeStatus.UnavailableReplicas),
 		UpdatedReplicas:     uint(kubeStatus.UpdatedReplicas),
 	}
-}
-
-func (status *Status) ColumnReplicas() string {
-	if status == nil {
-		return "unknown"
-	}
-	return strings.Join([]string{
-		"Available: " + fmt.Sprintf("%d/%d", status.AvailableReplicas, status.Replicas),
-	}, "\n")
-}
-
-func (status *Status) ColumnWhen() string {
-	if status == nil {
-		return "unknown"
-	}
-	return strings.Join([]string{
-		"Created: " + model.Age(status.CreatedAt),
-		"Updated: " + model.Age(status.UpdatedAt),
-	}, "\n")
 }

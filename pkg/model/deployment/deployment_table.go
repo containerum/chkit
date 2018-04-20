@@ -27,15 +27,13 @@ func (depl *Deployment) TableRows() [][]string {
 				container.Name,
 				container.Image))
 	}
-	status := fmt.Sprintf("Unpushed, 0/%d", depl.Replicas)
 	age := "undefined"
 	if depl.Status != nil {
-		status = depl.Status.ColumnReplicas()
 		age = model.Age(depl.Status.UpdatedAt)
 	}
 	return [][]string{{
 		depl.Name,
-		status,
+		depl.StatusString(),
 		strings.Join(containers, "\n"),
 		age,
 	}}
