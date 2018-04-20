@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/sirupsen/logrus"
 )
 
 type ExportFormat string
@@ -22,6 +23,7 @@ type ExportConfig struct {
 }
 
 func ExportData(renderer model.Renderer, config ExportConfig) error {
+	logrus.Debugf("output format %q", config.Format)
 	var data string
 	var err error
 	switch config.Format {
