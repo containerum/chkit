@@ -4,13 +4,11 @@ import (
 	"github.com/containerum/chkit/pkg/cli/mode"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/fingerprint"
 	"github.com/sirupsen/logrus"
 )
 
 func SetupClient(ctx *context.Context, debugRequests bool) error {
 	var err error
-	ctx.Fingerprint = fingerpint.Fingerprint()
 	if mode.DEBUG && !mode.MOCK {
 		logrus.WithField("operation", "SetupClient").Debugf("Using test API: %q", ctx.Client.APIaddr)
 		if debugRequests {
