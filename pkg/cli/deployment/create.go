@@ -42,37 +42,38 @@ Has an one-line, suitable for integration with other tools, and an interactive w
 					fmt.Printf("Unable to load deployment data from file :(\n%v", err)
 					os.Exit(1)
 				}
+			} else {
+				if cmd.Flag("env").Changed {
+					envMap, err := pairs.ParseMap(envs, ":")
+					if err != nil {
+						fmt.Printf("invalid env flag\n")
+						os.Exit(1)
+					}
+					for k, v := range envMap {
+						flagCont.Env = append(flagCont.Env, model.Env{
+							Name:  k,
+							Value: v,
+						})
+					}
+				}
+				if flagCont.Name == "" {
+					flagCont.Name = namegen.Aster() + "-" + flagCont.Image
+				}
+				flagDepl.Containers = []container.Container{flagCont}
+				depl = flagDepl
 			}
 			if cmd.Flag("force").Changed {
-				if !cmd.Flag("file").Changed {
-					if cmd.Flag("env").Changed {
-						envMap, err := pairs.ParseMap(envs, ":")
-						if err != nil {
-							fmt.Printf("invalid env flag\n")
-							os.Exit(1)
-						}
-						for k, v := range envMap {
-							flagCont.Env = append(flagCont.Env, model.Env{
-								Name:  k,
-								Value: v,
-							})
-						}
-					}
-					if flagCont.Name == "" {
-						flagCont.Name = namegen.Aster() + "-" + flagCont.Image
-					}
-					flagDepl.Containers = []container.Container{flagCont}
-					depl = flagDepl
-				}
 				if err := deplactive.ValidateDeployment(depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
+				fmt.Println(depl.RenderTable())
 				if err := ctx.Client.CreateDeployment(ctx.Namespace, depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
 				fmt.Println("OK")
+				return
 			}
 			depl, err := deplactive.Wizard(deplactive.Config{
 				Deployment: &depl,
