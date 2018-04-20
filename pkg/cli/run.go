@@ -26,7 +26,14 @@ var VERSION = ""
 
 func Run() error {
 	ctx := &context.Context{
-		Version:    semver.MustParse("3.0.1-alpha").String(),
+		Version: func() string {
+			// try to normalise version string
+			v, err := semver.ParseTolerant(VERSION)
+			if err != nil {
+				return VERSION
+			}
+			return v.String()
+		}(),
 		ConfigDir:  configdir.ConfigDir(),
 		ConfigPath: path.Join(configdir.ConfigDir(), "config.toml"),
 	}
@@ -34,9 +41,21 @@ func Run() error {
 	root := &cobra.Command{
 		Use:     "chkit",
 		Short:   "Chkit is a terminal client for containerum.io powerful API",
-		Version: VERSION,
+		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			clisetup.Config.DebugRequests = true
+			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
+				clisetup.SetupLogs(ctx)
+				if err := clisetup.Setup(ctx); err != nil {
+					angel.Angel(ctx, err)
+					os.Exit(1)
+				}
+				return
+			}
+			if cmd.Flag("username").Changed || cmd.Flag("password").Changed {
+				cmd.Help()
+				os.Exit(1)
+			}
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
 				os.Exit(1)
@@ -68,6 +87,10 @@ func Run() error {
 		set.Set(ctx),
 		Logs(ctx),
 	)
+	root.PersistentFlags().
+		StringVarP(&ctx.Client.Username, "username", "u", "", "account username")
+	root.PersistentFlags().
+		StringVarP(&ctx.Client.Password, "password", "p", "", "account password")
 	root.PersistentFlags().
 		StringVarP(&ctx.Namespace, "namespace", "n", ctx.Namespace, "")
 	root.PersistentFlags().
