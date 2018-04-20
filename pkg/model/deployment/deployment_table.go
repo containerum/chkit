@@ -16,7 +16,7 @@ func (depl Deployment) RenderTable() string {
 }
 
 func (_ *Deployment) TableHeaders() []string {
-	return []string{"Label", "Replicas", "Containers", "Age"}
+	return []string{"Label", "Status", "Containers", "Age"}
 }
 
 func (depl *Deployment) TableRows() [][]string {
@@ -27,7 +27,7 @@ func (depl *Deployment) TableRows() [][]string {
 				container.Name,
 				container.Image))
 	}
-	status := "unpushed"
+	status := fmt.Sprintf("Unpushed, 0/%d", depl.Replicas)
 	age := "undefined"
 	if depl.Status != nil {
 		status = depl.Status.ColumnReplicas()
