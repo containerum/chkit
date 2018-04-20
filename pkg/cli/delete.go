@@ -12,7 +12,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -23,7 +23,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Short: "Delete resource",
 		PersistentPreRun: func(command *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
-				activekit.Attention(err.Error())
+				angel.Angel(ctx, err)
 				os.Exit(1)
 			}
 		},

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/sirupsen/logrus"
 
@@ -12,15 +13,19 @@ import (
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/spf13/cobra"
 )
 
 func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "get",
-		Short: "Delete resource data",
+		Short: "Get resource data",
 		PersistentPreRun: func(command *cobra.Command, args []string) {
-			prerun.PreRun(ctx)
+			if err := prerun.PreRun(ctx); err != nil {
+				angel.Angel(ctx, err)
+				os.Exit(1)
+			}
 		},
 		Run: func(command *cobra.Command, args []string) {
 			command.Help()
