@@ -6,14 +6,13 @@ import (
 )
 
 type Context struct {
-	Version     string
-	ConfigPath  string
-	ConfigDir   string
-	Fingerprint string
-	Namespace   string
-	Quiet       bool
-	Changed     bool
-	Client      chClient.Client
+	Version    string
+	ConfigPath string
+	ConfigDir  string
+	Namespace  string
+	Quiet      bool
+	Changed    bool
+	Client     chClient.Client
 }
 
 type Storable struct {
