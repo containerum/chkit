@@ -11,11 +11,11 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func Login() error {
+func InteractiveLogin(ctx *context.Context) error {
 	var err error
 	var username, pass string
 
-	if strings.TrimSpace(context.GlobalContext.Client.Username) == "" {
+	if strings.TrimSpace(ctx.Client.Username) == "" {
 		username, err = readLogin()
 		if err != nil {
 			return err
@@ -23,10 +23,10 @@ func Login() error {
 		if strings.TrimSpace(username) == "" {
 			return ErrInvalidUsername
 		}
-		context.GlobalContext.Client.Username = username
+		ctx.Client.Username = username
 	}
 
-	if strings.TrimSpace(context.GlobalContext.Client.Password) == "" {
+	if strings.TrimSpace(ctx.Client.Password) == "" {
 		pass, err = readPassword()
 		if err != nil {
 			return err
@@ -34,9 +34,8 @@ func Login() error {
 		if strings.TrimSpace(pass) == "" {
 			return ErrInvalidPassword
 		}
-		context.GlobalContext.Client.Password = pass
+		ctx.Client.Password = pass
 	}
-
 	return nil
 }
 

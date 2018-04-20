@@ -15,36 +15,36 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Get = &cobra.Command{
-	Use:   "get",
-	Short: "Delete resource data",
-	PersistentPreRun: func(command *cobra.Command, args []string) {
-		prerun.PreRun()
-	},
-	Run: func(command *cobra.Command, args []string) {
-		command.Help()
-	},
-	PersistentPostRun: func(command *cobra.Command, args []string) {
-		if context.GlobalContext.Changed {
-			if err := configuration.SaveConfig(); err != nil {
-				logrus.WithError(err).Errorf("unable to save config")
-				fmt.Printf("Unable to save config: %v\n", err)
+func Get(ctx *context.Context) *cobra.Command {
+	command := &cobra.Command{
+		Use:   "get",
+		Short: "Delete resource data",
+		PersistentPreRun: func(command *cobra.Command, args []string) {
+			prerun.PreRun(ctx)
+		},
+		Run: func(command *cobra.Command, args []string) {
+			command.Help()
+		},
+		PersistentPostRun: func(command *cobra.Command, args []string) {
+			if ctx.Changed {
+				if err := configuration.SaveConfig(ctx); err != nil {
+					logrus.WithError(err).Errorf("unable to save config")
+					fmt.Printf("Unable to save config: %v\n", err)
+					return
+				}
+			}
+			if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
+				logrus.WithError(err).Errorf("unable to save tokens")
+				fmt.Printf("Unable to save tokens: %v\n", err)
 				return
 			}
-		}
-		if err := configuration.SaveTokens(context.GlobalContext.Client.Tokens); err != nil {
-			logrus.WithError(err).Errorf("unable to save tokens")
-			fmt.Printf("Unable to save tokens: %v\n", err)
-			return
-		}
-	},
-}
-
-func init() {
-	Get.AddCommand(
-		clideployment.Get,
-		clinamespace.Get,
-		cliserv.Get,
-		clipod.Get(&context.GlobalContext),
+		},
+	}
+	command.AddCommand(
+		clideployment.Get(ctx),
+		clinamespace.Get(ctx),
+		cliserv.Get(ctx),
+		clipod.Get(ctx),
 	)
+	return command
 }

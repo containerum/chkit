@@ -28,7 +28,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Long:    "create service for provided pod in provided namespace",
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.WithField("command", "create service").Debugf("start service creation")
-			depList, err := context.GlobalContext.Client.GetDeploymentList(context.GlobalContext.Namespace)
+			depList, err := ctx.Client.GetDeploymentList(ctx.Namespace)
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to get deployment list")
 				fmt.Println("Unable to get deployment list :(")

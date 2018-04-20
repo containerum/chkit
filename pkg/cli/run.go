@@ -1,67 +1,76 @@
 package cli
 
 import (
-	"fmt"
-
-	"github.com/containerum/chkit/pkg/configuration"
-
 	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/cli/mode"
-	"github.com/containerum/chkit/pkg/cli/prerun"
 
+	"path"
+
+	"fmt"
+
+	"os"
+
+	"github.com/blang/semver"
+	"github.com/containerum/chkit/pkg/cli/clisetup"
+	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/set"
+	"github.com/containerum/chkit/pkg/configdir"
+	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var VERSION = ""
 
-var runContext = struct {
-	ConfigFile    string
-	APIaddr       string
-	Username      string
-	Pass          string
-	DebugRequests bool
-}{}
+func Run() error {
+	ctx := &context.Context{
+		Version:    semver.MustParse("3.0.1-alpha").String(),
+		ConfigDir:  configdir.ConfigDir(),
+		ConfigPath: path.Join(configdir.ConfigDir(), "config.toml"),
+	}
 
-var Root = &cobra.Command{
-	Use:     "chkit",
-	Short:   "Chkit is a containerum.io terminal client",
-	Version: VERSION,
-	PreRun: func(*cobra.Command, []string) {
-		prerun.PreRun()
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Hello, %q!\nUsing %q as default namespace\n",
-			context.GlobalContext.Client.Username,
-			context.GlobalContext.Namespace)
-		if err := mainActivity(); err != nil {
-			logrus.Fatalf("error in main activity: %v", err)
-		}
-	},
-	PostRun: func(cmd *cobra.Command, args []string) {
-		if !context.GlobalContext.Changed {
-			return
-		}
-		if err := configuration.SaveConfig(); err != nil {
-			fmt.Printf("Unable to save config file: %v\n", err)
-		}
-	},
-}
-
-func init() {
-	context.GlobalContext.Client.APIaddr = mode.API_ADDR
-	Root.AddCommand(
-		login.Command,
-		Get,
-		Delete,
-		Create,
-		set.Set(&context.GlobalContext),
-		Logs(&context.GlobalContext),
+	root := &cobra.Command{
+		Use:     "chkit",
+		Short:   "Chkit is a terminal client for containerum.io powerful API",
+		Version: VERSION,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			clisetup.Config.DebugRequests = true
+			if err := prerun.PreRun(ctx); err != nil {
+				angel.Angel(ctx, err)
+				os.Exit(1)
+			}
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("Hello, %q!\nUsing %q as default namespace\n",
+				ctx.Client.Username,
+				ctx.Namespace)
+			if err := mainActivity(); err != nil {
+				logrus.Fatalf("error in main activity: %v", err)
+			}
+		},
+		PostRun: func(cmd *cobra.Command, args []string) {
+			if !ctx.Changed {
+				return
+			}
+			if err := configuration.SaveConfig(ctx); err != nil {
+				fmt.Printf("Unable to save config file: %v\n", err)
+			}
+		},
+	}
+	ctx.Client.APIaddr = mode.API_ADDR
+	root.AddCommand(
+		login.Login(ctx),
+		Get(ctx),
+		Delete(ctx),
+		Create(ctx),
+		set.Set(ctx),
+		Logs(ctx),
 	)
-	Root.PersistentFlags().
-		StringVarP(&context.GlobalContext.Namespace, "namespace", "n", context.GlobalContext.Namespace, "")
-	Root.PersistentFlags().
-		BoolVarP(&context.GlobalContext.Quiet, "quiet", "q", context.GlobalContext.Quiet, "quiet mode")
+	root.PersistentFlags().
+		StringVarP(&ctx.Namespace, "namespace", "n", ctx.Namespace, "")
+	root.PersistentFlags().
+		BoolVarP(&ctx.Quiet, "quiet", "q", ctx.Quiet, "quiet mode")
+	return root.Execute()
 }

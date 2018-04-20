@@ -156,7 +156,7 @@ Has an one-line, suitable for integration with other tools, and an interactive w
 				}).Run()
 				if err != nil {
 					logrus.WithError(err).Errorf("error while menu execution")
-					angel.Angel(err)
+					angel.Angel(ctx, err)
 					os.Exit(1)
 				}
 			}

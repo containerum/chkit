@@ -35,7 +35,7 @@ func Logs(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			var podName string
 			var containerName string
-			client := context.GlobalContext.Client
+			client := ctx.Client
 			switch len(args) {
 			case 2:
 				containerName = args[1]
@@ -48,7 +48,7 @@ func Logs(ctx *context.Context) *cobra.Command {
 			}
 
 			params := chClient.GetPodLogsParams{
-				Namespace: context.GlobalContext.Namespace,
+				Namespace: ctx.Namespace,
 				Pod:       podName,
 				Container: containerName,
 				Follow:    logsConfig.Follow,

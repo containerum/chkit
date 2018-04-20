@@ -17,27 +17,27 @@ const (
 )
 
 // LoadConfig -- loads config from fs
-func LoadConfig() error {
+func LoadConfig(ctx *context.Context) error {
 	config := context.Storable{}
-	_, err := toml.DecodeFile(context.GlobalContext.ConfigPath, &config)
+	_, err := toml.DecodeFile(ctx.ConfigPath, &config)
 	if err != nil {
 		return ErrUnableToLoadConfig.Wrap(err)
 	}
-	context.GlobalContext.SetStorable(config)
+	ctx.SetStorable(config)
 	return nil
 }
 
 // SaveConfig -- writes config from Context to config dir
-func SaveConfig() error {
-	err := os.MkdirAll(context.GlobalContext.ConfigDir, os.ModePerm)
+func SaveConfig(ctx *context.Context) error {
+	err := os.MkdirAll(ctx.ConfigDir, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
-	file, err := os.Create(context.GlobalContext.ConfigPath)
+	file, err := os.Create(ctx.ConfigPath)
 	if err != nil {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
-	if err := toml.NewEncoder(file).Encode(context.GlobalContext.GetStorable()); err != nil {
+	if err := toml.NewEncoder(file).Encode(ctx.GetStorable()); err != nil {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
 	return nil
