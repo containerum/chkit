@@ -146,8 +146,7 @@ func (client *Client) SetContainerImage(ns, depl string, image model.UpdateImage
 	})
 }
 
-func (client *Client) ReplaceDeployment(ns, oldDepl string, newDepl deployment.Deployment) error {
-	newDepl.Name = oldDepl
+func (client *Client) ReplaceDeployment(ns string, newDepl deployment.Deployment) error {
 	return retry(4, func() (bool, error) {
 		err := client.kubeAPIClient.ReplaceDeployment(ns, newDepl.ToKube())
 		switch {
