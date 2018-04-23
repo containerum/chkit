@@ -6,7 +6,7 @@ import (
 )
 
 func YesNo(promt string) bool {
-	fmt.Print(promt)
+	fmt.Print(promt + " [Y/N]: ")
 	answer := strings.ToLower(strings.TrimSpace(Input()))
 	return answer == "y"
 }
