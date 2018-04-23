@@ -83,19 +83,29 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				fmt.Println(err)
 				os.Exit(1)
 			}
+			if activekit.YesNo("Are you sure?") {
+				if err := ctx.Client.CreateDeployment(ctx.Namespace, depl); err != nil {
+					logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)
+					activekit.Attention(err.Error())
+					os.Exit(1)
+				}
+				fmt.Printf("Congratulations! Deployment %q created!\n", depl.Name)
+			}
 			for {
 				_, err := (&activekit.Menu{
 					Items: []*activekit.MenuItem{
 						{
-							Label: "Push deployment to server",
+							Label: "Push changes to server",
 							Action: func() error {
-								err := ctx.Client.CreateDeployment(ctx.Namespace, depl)
-								if err != nil {
-									logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)
-									fmt.Println(err)
-									return nil
+								if activekit.YesNo("Are you sure?") {
+									err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl)
+									if err != nil {
+										logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
+										fmt.Println(err)
+										return nil
+									}
+									fmt.Printf("Congratulations! Deployment %q updated!\n", depl.Name)
 								}
-								fmt.Printf("Congratulations! Deployment %q created!\n", depl.Name)
 								return nil
 							},
 						},
@@ -103,7 +113,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 							Label: "Edit deployment",
 							Action: func() error {
 								var err error
-								depl, err = deplactive.Wizard(deplactive.Config{
+								depl, err = deplactive.ReplaceWizard(deplactive.Config{
 									Deployment: &depl,
 								})
 								if err != nil {
