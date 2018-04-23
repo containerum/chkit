@@ -35,7 +35,7 @@ Use --force flag to suppress confirmation`,
 						Label: depl.Name,
 						Action: func(depl deployment.Deployment) func() error {
 							return func() error {
-								if activekit.YesNo(fmt.Sprintf("Are you sure you want to delete deployment %q? [Y/N]: ", depl.Name)) {
+								if activekit.YesNo(fmt.Sprintf("Are you sure you want to delete deployment %q?", depl.Name)) {
 									if err := ctx.Client.DeleteDeployment(ctx.Namespace, depl.Name); err != nil {
 										logrus.WithError(err).Debugf("unable to delete deployment %q in namespace %q", depl.Name, ctx.Namespace)
 										activekit.Attention(err.Error())
@@ -61,7 +61,7 @@ Use --force flag to suppress confirmation`,
 				logrus.
 					WithField("command", "delete deployment").
 					Debugf("start deleting deployment %q", deplName)
-				if deleteDeplConfig.Force || activekit.YesNo(fmt.Sprintf("Are you sure you want to delete deployment %q? [Y/N]: ", deplName)) {
+				if deleteDeplConfig.Force || activekit.YesNo(fmt.Sprintf("Are you sure you want to delete deployment %q?", deplName)) {
 					if err := ctx.Client.DeleteDeployment(ctx.Namespace, deplName); err != nil {
 						logrus.WithError(err).Debugf("unable to delete deployment %q in namespace %q", deplName, ctx.Namespace)
 						activekit.Attention(err.Error())
