@@ -42,7 +42,7 @@ Has an one-line, suitable for integration with other tools, and an interactive w
 					fmt.Printf("Unable to load deployment data from file :(\n%v", err)
 					os.Exit(1)
 				}
-			} else {
+			} else if cmd.Flag("force").Changed {
 				if cmd.Flag("env").Changed {
 					envMap, err := pairs.ParseMap(envs, ":")
 					if err != nil {
