@@ -44,8 +44,8 @@ func Run() error {
 		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			clisetup.Config.DebugRequests = true
+			clisetup.SetupLogs(ctx)
 			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
-				clisetup.SetupLogs(ctx)
 				if err := clisetup.Setup(ctx); err != nil {
 					angel.Angel(ctx, err)
 					os.Exit(1)
@@ -84,6 +84,7 @@ func Run() error {
 		Get(ctx),
 		Delete(ctx),
 		Create(ctx),
+		Replace(ctx),
 		set.Set(ctx),
 		Logs(ctx),
 	)
