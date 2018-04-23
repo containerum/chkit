@@ -50,9 +50,8 @@ func (depl *Deployment) ToKube() model.Deployment {
 
 func (depl *Deployment) StatusString() string {
 	if depl.Status != nil {
-		return fmt.Sprintf("running %d/%d\npending %d/%d\n",
-			depl.Status.AvailableReplicas, depl.Replicas,
-			depl.Status.UnavailableReplicas, depl.Replicas)
+		return fmt.Sprintf("running %d/%d",
+			depl.Status.AvailableReplicas, depl.Replicas)
 	}
 	return fmt.Sprintf("local\n%d replicas", depl.Replicas)
 }
