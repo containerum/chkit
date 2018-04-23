@@ -18,10 +18,13 @@ func Replace(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "replace",
 		Short: "Replace deployment or service",
-		PersistentPreRun: func(command *cobra.Command, args []string) {
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
 				os.Exit(1)
+			}
+			if cmd.Flags().Changed("namespace") {
+				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -42,6 +45,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 			}
 		},
 	}
+	command.PersistentFlags().
+		StringVarP(&ctx.Namespace, "namespace", "n", ctx.Namespace, "")
+
 	command.AddCommand(
 		clideployment.Replace(ctx),
 	)

@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/cli/mode"
 
 	"path"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/cli/clisetup"
+	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/set"
 	"github.com/containerum/chkit/pkg/configdir"
@@ -77,8 +77,19 @@ func Run() error {
 				fmt.Printf("Unable to save config file: %v\n", err)
 			}
 		},
+		TraverseChildren: true,
 	}
 	ctx.Client.APIaddr = mode.API_ADDR
+
+	root.PersistentFlags().
+		StringVarP(&ctx.Client.Username, "username", "u", "", "account username")
+	root.PersistentFlags().
+		StringVarP(&ctx.Client.Password, "password", "p", "", "account password")
+	root.PersistentFlags().
+		StringVarP(&ctx.Namespace, "namespace", "n", ctx.Namespace, "")
+	root.PersistentFlags().
+		BoolVarP(&ctx.Quiet, "quiet", "q", ctx.Quiet, "quiet mode")
+
 	root.AddCommand(
 		login.Login(ctx),
 		Get(ctx),
@@ -88,13 +99,5 @@ func Run() error {
 		set.Set(ctx),
 		Logs(ctx),
 	)
-	root.PersistentFlags().
-		StringVarP(&ctx.Client.Username, "username", "u", "", "account username")
-	root.PersistentFlags().
-		StringVarP(&ctx.Client.Password, "password", "p", "", "account password")
-	root.PersistentFlags().
-		StringVarP(&ctx.Namespace, "namespace", "n", ctx.Namespace, "")
-	root.PersistentFlags().
-		BoolVarP(&ctx.Quiet, "quiet", "q", ctx.Quiet, "quiet mode")
 	return root.Execute()
 }

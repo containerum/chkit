@@ -21,10 +21,13 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "delete",
 		Short: "Delete resource",
-		PersistentPreRun: func(command *cobra.Command, args []string) {
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
 				os.Exit(1)
+			}
+			if cmd.Flags().Changed("namespace") {
+				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
 			}
 		},
 		Run: func(command *cobra.Command, args []string) {
@@ -51,5 +54,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		clideployment.Delete(ctx),
 		clipod.Delete(ctx),
 	)
+	command.PersistentFlags().
+		StringP("namespace", "n", ctx.Namespace, "")
 	return command
 }
