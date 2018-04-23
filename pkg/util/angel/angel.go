@@ -41,7 +41,7 @@ func Angel(ctx *context.Context, sin interface{}) {
 	err := ioutil.WriteFile(reportFile, []byte(report), os.ModePerm)
 	if err != nil {
 		fmt.Printf("[FATAL] something completely wrong.\n")
-		fmt.Printf("Please, send %q and %q files from %q to support@exonlab.omnidesk.ru",
+		fmt.Printf("Please, send %q and %q files from %q to support@exonlab.omnidesk.ru\n",
 			logFileName, "report.txt", logDir)
 		return
 	}
@@ -57,7 +57,7 @@ func Angel(ctx *context.Context, sin interface{}) {
 		if err := openSupportPageWithReport(report); err != nil {
 	*/
 	fmt.Printf("Fatal error: %v\n", sin)
-	fmt.Printf("Please, send %q and %q files from %q to support@exonlab.omnidesk.ru",
+	fmt.Printf("Please, send %q and %q files from %q to support@exonlab.omnidesk.ru\n",
 		logFileName, "report.txt", logDir)
 	//	}
 }
