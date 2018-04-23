@@ -54,5 +54,5 @@ func (depl *Deployment) StatusString() string {
 			depl.Status.AvailableReplicas, depl.Replicas,
 			depl.Status.UnavailableReplicas, depl.Replicas)
 	}
-	return fmt.Sprintf("unpushed\n%d replicas", depl.Replicas)
+	return fmt.Sprintf("local\n%d replicas", depl.Replicas)
 }
