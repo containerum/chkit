@@ -15,3 +15,14 @@ func Width(text string) int {
 	}
 	return width
 }
+
+func Crop(txt string, width int) string {
+	txtWidth := Width(txt)
+	if txtWidth <= width {
+		return txt
+	}
+	if width <= 3 {
+		return string([]rune(txt)[:width])
+	}
+	return string([]rune(txt)[:width-3]) + "..."
+}
