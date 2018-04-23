@@ -103,7 +103,7 @@ func (client *Client) CreateDeployment(ns string, depl deployment.Deployment) er
 			err = client.Auth()
 			if err != nil {
 				logrus.WithError(err).
-					Debugf("error while creating service %q", depl.Name)
+					Debugf("error while creating deployment %q", depl.Name)
 			}
 			return true, err
 		default:
@@ -138,6 +138,41 @@ func (client *Client) SetContainerImage(ns, depl string, image model.UpdateImage
 			if err != nil {
 				logrus.WithError(err).
 					Errorf("unable to set container image")
+			}
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+}
+
+func (client *Client) ReplaceDeployment(ns, oldDepl string, newDepl deployment.Deployment) error {
+	newDepl.Name = oldDepl
+	return retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.ReplaceDeployment(ns, newDepl.ToKube())
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			logrus.WithError(ErrResourceNotExists.Wrap(err)).
+				Debugf("error while creating service %q", newDepl.Name)
+			return false, ErrResourceNotExists.Wrap(err)
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
+				Debugf("error while creating deployment %q", newDepl.Name)
+			return false, ErrYouDoNotHaveAccessToResource.
+				CommentF("you don't have create access to namespace %q", ns)
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			if err != nil {
+				logrus.WithError(err).
+					Debugf("error while creating service %q", newDepl.Name)
 			}
 			return true, err
 		default:
