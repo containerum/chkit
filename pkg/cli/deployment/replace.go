@@ -13,7 +13,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/sirupsen/logrus"
@@ -56,10 +55,21 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 						})
 					}
 				}
-				if flagCont.Name == "" {
-					flagCont.Name = namegen.Aster() + "-" + flagCont.Image
+
+				oldDepl, err := ctx.Client.GetDeployment(ctx.Namespace, depl.Name)
+				if err != nil {
+					activekit.Attention(err.Error())
+					os.Exit(1)
 				}
-				flagDepl.Containers = []container.Container{flagCont}
+				if !cmd.Flag("replicas").Changed {
+					flagDepl.Replicas = oldDepl.Replicas
+				}
+				if !cmd.Flag("image").Changed {
+					flagDepl.Containers = oldDepl.Containers
+				} else {
+					flagDepl.Containers = []container.Container{flagCont}
+				}
+
 				depl = flagDepl
 			}
 			if cmd.Flag("force").Changed {
@@ -215,13 +225,11 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 	command.PersistentFlags().
 		StringVar(&flagCont.Name, "container-name", "", "container name, equal to image name by default")
 	command.PersistentFlags().
-		StringVar(&flagCont.Image, "image", "", "container image, required")
+		StringVar(&flagCont.Image, "image", "", "container image, optional")
 	command.PersistentFlags().
 		UintVar(&flagCont.Limits.Memory, "memory", 256, "container memory limit im Mb, optional")
 	command.PersistentFlags().
 		UintVar(&flagCont.Limits.CPU, "cpu", 200, "container CPU limit in mCPU, optional")
-	command.PersistentFlags().
-		StringSliceVar(&flagCont.Commands, "commands", nil, "container commands")
 	command.PersistentFlags().
 		StringVar(&envs, "env", "", "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
 	return command

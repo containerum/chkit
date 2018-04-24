@@ -6,16 +6,9 @@ import (
 
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/namegen"
 )
 
-type ConstructorConfig struct {
-	Force       bool
-	Deployments []string
-	Service     *service.Service
-}
-
-func Wizard(config ConstructorConfig) (service.Service, error) {
+func ReplaceWizard(config ConstructorConfig) (service.Service, error) {
 	var err error
 	var serv service.Service
 	if config.Service != nil {
@@ -29,14 +22,6 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 	for exit := false; !exit; {
 		(&activekit.Menu{
 			Items: []*activekit.MenuItem{
-				{
-					Label: fmt.Sprintf("Set name  : %s",
-						activekit.OrString(serv.Name, "undefined (required)")),
-					Action: func() error {
-						serv.Name = getName(serv.Name)
-						return nil
-					},
-				},
 				{
 					Label: fmt.Sprintf("Set deploy: %s",
 						activekit.OrString(serv.Deploy, "undefined (required)")),
@@ -78,14 +63,4 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 		}).Run()
 	}
 	return serv, nil
-}
-
-func DefaultService() service.Service {
-	return service.Service{
-		Name:   namegen.ColoredPhysics(),
-		Domain: "",
-		IPs:    nil,
-		Ports:  nil,
-		Deploy: "",
-	}
 }

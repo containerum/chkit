@@ -7,6 +7,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/prerun"
+	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -50,6 +51,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 
 	command.AddCommand(
 		clideployment.Replace(ctx),
+		cliserv.Replace(ctx),
 	)
 	return command
 }

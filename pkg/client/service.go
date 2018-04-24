@@ -121,3 +121,37 @@ func (client *Client) CreateService(ns string, serv service.Service) error {
 		}
 	})
 }
+
+func (client *Client) ReplaceService(ns string, serv service.Service) error {
+	return retry(4, func() (bool, error) {
+		_, err := client.kubeAPIClient.UpdateService(ns, serv.ToKube())
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			logrus.WithError(ErrResourceNotExists.Wrap(err)).
+				Debugf("error while replacing service %q", serv.Name)
+			return false, ErrResourceNotExists.Wrap(err)
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
+				Debugf("error while replacing service %q", serv.Name)
+			return false, ErrYouDoNotHaveAccessToResource.
+				CommentF("you don't have write access to namespace %q", ns)
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			if err != nil {
+				logrus.WithError(err).
+					Debugf("error while replacing service %q", serv.Name)
+			}
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+}
