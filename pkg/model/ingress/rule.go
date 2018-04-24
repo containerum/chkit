@@ -1,6 +1,8 @@
 package ingress
 
-import kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+import (
+	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+)
 
 type Rule struct {
 	Host      string
@@ -65,4 +67,44 @@ func (list RuleList) Delete(i int) RuleList {
 
 func (list RuleList) Append(rules ...Rule) RuleList {
 	return append(list.Copy(), rules...)
+}
+
+func (list RuleList) Hosts() []string {
+	hosts := make([]string, 0, len(list))
+	for _, rule := range list {
+		hosts = append(hosts, rule.Host)
+	}
+	return hosts
+}
+
+func (list RuleList) Paths() PathList {
+	var paths = make(PathList, 0, len(list))
+	for _, rule := range list {
+		paths = append(paths, rule.Paths.Copy()...)
+	}
+	return paths
+}
+
+func (list RuleList) Services() []Service {
+	var services = make([]Service, 0, len(list))
+	for _, rule := range list {
+		services = append(services, rule.Paths.Services()...)
+	}
+	return services
+}
+
+func (list RuleList) ServicesNames() []string {
+	var services = make([]string, 0, len(list))
+	for _, rule := range list {
+		services = append(services, rule.Paths.ServicesNames()...)
+	}
+	return services
+}
+
+func (list RuleList) ServicesTableView() []string {
+	var services = make([]string, 0, len(list))
+	for _, rule := range list {
+		services = append(services, rule.Paths.ServicesTableView()...)
+	}
+	return services
 }
