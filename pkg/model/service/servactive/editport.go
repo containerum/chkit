@@ -24,7 +24,7 @@ func portEditorWizard(port service.Port) (service.Port, bool) {
 							return nil
 						}
 						ok = true
-						exit = false
+						exit = true
 						return nil
 					},
 				},
