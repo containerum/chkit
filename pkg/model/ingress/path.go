@@ -1,6 +1,10 @@
 package ingress
 
-import kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+import (
+	"fmt"
+
+	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+)
 
 type Path kubeModels.Path
 
@@ -41,4 +45,55 @@ func (list PathList) ToKube() []kubeModels.Path {
 		kubeList = append(kubeList, path.ToKube())
 	}
 	return kubeList
+}
+
+type Service struct {
+	Name string
+	Port int
+}
+
+func (list PathList) Services() []Service {
+	var services = make([]Service, 0, len(list))
+	for _, path := range list {
+		services = append(services, Service{
+			Name: path.ServiceName,
+			Port: path.ServicePort,
+		})
+	}
+	return services
+}
+
+func (list PathList) ServicesNames() []string {
+	var services = make([]string, 0, len(list))
+	for _, path := range list {
+		services = append(services, path.ServiceName)
+	}
+	return services
+}
+
+func (list PathList) ServicesPorts() []int {
+	var ports = make([]int, 0, len(list))
+	for _, path := range list {
+		ports = append(ports, path.ServicePort)
+	}
+	return ports
+}
+
+func (list PathList) Paths() []string {
+	var paths = make([]string, 0, len(list))
+	for _, path := range list {
+		paths = append(paths, path.Path)
+	}
+	return paths
+}
+
+func (list PathList) ServicesTableView() []string {
+	var services = make([]string, 0, len(list))
+	for _, path := range list {
+		services = append(services,
+			fmt.Sprintf("%s:%d",
+				path.ServiceName,
+				path.ServicePort))
+	}
+	return services
 }
