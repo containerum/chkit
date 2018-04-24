@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/containerum/chkit/pkg/util/text"
@@ -83,6 +82,9 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				fmt.Println(err)
 				os.Exit(1)
 			}
+
+			var firstItem *activekit.MenuItem
+			var created = false
 			if activekit.YesNo("Are you sure?") {
 				if err := ctx.Client.CreateDeployment(ctx.Namespace, depl); err != nil {
 					logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)
@@ -90,85 +92,58 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					os.Exit(1)
 				}
 				fmt.Printf("Congratulations! Deployment %q created!\n", depl.Name)
+				created = true
+				firstItem = &activekit.MenuItem{
+					Label: "Push changes to server",
+					Action: func() error {
+						if activekit.YesNo("Are you sure?") {
+							err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl)
+							if err != nil {
+								logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
+								fmt.Println(err)
+								return nil
+							}
+							fmt.Printf("Congratulations! Deployment %q updated!\n", depl.Name)
+						}
+						return nil
+					},
+				}
+			} else {
+				firstItem = &activekit.MenuItem{
+					Label: "Create deployment on server",
+					Action: func() error {
+						if activekit.YesNo("Are you sure?") {
+							err := ctx.Client.CreateDeployment(ctx.Namespace, depl)
+							if err != nil {
+								logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
+								fmt.Println(err)
+								return nil
+							}
+							fmt.Printf("Congratulations! Deployment %q created!\n", depl.Name)
+							created = true
+						}
+						return nil
+					},
+				}
 			}
 			for {
-				_, err := (&activekit.Menu{
-					Items: []*activekit.MenuItem{
-						{
-							Label: "Push changes to server",
-							Action: func() error {
-								if activekit.YesNo("Are you sure?") {
-									err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl)
-									if err != nil {
-										logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
-										fmt.Println(err)
-										return nil
-									}
-									fmt.Printf("Congratulations! Deployment %q updated!\n", depl.Name)
-								}
-								return nil
-							},
-						},
-						{
-							Label: "Edit deployment",
-							Action: func() error {
-								var err error
-								depl, err = deplactive.ReplaceWizard(deplactive.Config{
-									Deployment: &depl,
-								})
+				deploymentMenu(ctx, depl, firstItem).Run()
+				if created {
+					firstItem = &activekit.MenuItem{
+						Label: "Push changes to server",
+						Action: func() error {
+							if activekit.YesNo("Are you sure?") {
+								err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl)
 								if err != nil {
-									logrus.WithError(err).Errorf("unable to create deployment")
+									logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
 									fmt.Println(err)
-									os.Exit(1)
-								}
-								return nil
-							},
-						},
-						{
-							Label: "Print to terminal",
-							Action: activekit.ActionWithErr(func() error {
-								if data, err := depl.RenderYAML(); err != nil {
-									return err
-								} else {
-									upBorders := strings.Repeat("_", text.Width(data))
-									downBorders := strings.Repeat("_", text.Width(data))
-									fmt.Printf("%s\n\n%s\n%s\n", upBorders, data, downBorders)
-								}
-								return nil
-							}),
-						},
-						{
-							Label: "Save to file",
-							Action: func() error {
-								filename, _ := activekit.AskLine("Print filename: ")
-								data, err := depl.RenderJSON()
-								if err != nil {
-									return err
-								}
-								if err := ioutil.WriteFile(filename, []byte(data), os.ModePerm); err != nil {
-									logrus.WithError(err).Errorf("unable to save deployment %q to file", depl.Name)
-									fmt.Printf("Unable to save deployment to file :(\n%v", err)
 									return nil
 								}
-								fmt.Printf("OK\n")
-								return nil
-							},
+								fmt.Printf("Congratulations! Deployment %q updated!\n", depl.Name)
+							}
+							return nil
 						},
-						{
-							Label: "Exit",
-							Action: func() error {
-								if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
-									os.Exit(0)
-								}
-								return nil
-							},
-						},
-					},
-				}).Run()
-				if err != nil {
-					logrus.WithError(err).Errorf("error while menu execution")
-					angel.Angel(ctx, err)
-					os.Exit(1)
+					}
 				}
 			}
 		},
@@ -195,4 +170,66 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 	command.PersistentFlags().
 		StringVar(&envs, "env", "", "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
 	return command
+}
+
+func deploymentMenu(ctx *context.Context, depl deployment.Deployment, firstItem *activekit.MenuItem) *activekit.Menu {
+	return &activekit.Menu{
+		Items: []*activekit.MenuItem{
+			firstItem,
+			{
+				Label: "Edit deployment",
+				Action: func() error {
+					var err error
+					depl, err = deplactive.ReplaceWizard(deplactive.Config{
+						Deployment: &depl,
+					})
+					if err != nil {
+						logrus.WithError(err).Errorf("unable to create deployment")
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					return nil
+				},
+			},
+			{
+				Label: "Print to terminal",
+				Action: activekit.ActionWithErr(func() error {
+					if data, err := depl.RenderYAML(); err != nil {
+						return err
+					} else {
+						upBorders := strings.Repeat("_", text.Width(data))
+						downBorders := strings.Repeat("_", text.Width(data))
+						fmt.Printf("%s\n\n%s\n%s\n", upBorders, data, downBorders)
+					}
+					return nil
+				}),
+			},
+			{
+				Label: "Save to file",
+				Action: func() error {
+					filename, _ := activekit.AskLine("Print filename: ")
+					data, err := depl.RenderJSON()
+					if err != nil {
+						return err
+					}
+					if err := ioutil.WriteFile(filename, []byte(data), os.ModePerm); err != nil {
+						logrus.WithError(err).Errorf("unable to save deployment %q to file", depl.Name)
+						fmt.Printf("Unable to save deployment to file :(\n%v", err)
+						return nil
+					}
+					fmt.Printf("OK\n")
+					return nil
+				},
+			},
+			{
+				Label: "Exit",
+				Action: func() error {
+					if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
+						os.Exit(0)
+					}
+					return nil
+				},
+			},
+		},
+	}
 }
