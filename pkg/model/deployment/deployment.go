@@ -53,5 +53,5 @@ func (depl *Deployment) StatusString() string {
 		return fmt.Sprintf("running %d/%d",
 			depl.Status.AvailableReplicas, depl.Replicas)
 	}
-	return fmt.Sprintf("local\n%d replicas", depl.Replicas)
+	return fmt.Sprintf("local\nreplicas %d", depl.Replicas)
 }
