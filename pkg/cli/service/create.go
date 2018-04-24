@@ -92,7 +92,7 @@ func Create(ctx *context.Context) *cobra.Command {
 						{
 							Label: "Push serv to server",
 							Action: func() error {
-								if activekit.YesNo("Are you sure? [Y/N]: ") {
+								if activekit.YesNo("Are you sure?") {
 									if err := ctx.Client.CreateService(ctx.Namespace, serv); err != nil {
 										logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.Namespace)
 										activekit.Attention(err.Error())
@@ -156,7 +156,7 @@ func Create(ctx *context.Context) *cobra.Command {
 						{
 							Label: "Exit",
 							Action: func() error {
-								if activekit.YesNo("Are you sure? [Y/N]: ") {
+								if activekit.YesNo("Are you sure?") {
 									os.Exit(0)
 								}
 								return nil
