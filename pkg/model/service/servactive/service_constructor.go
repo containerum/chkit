@@ -2,18 +2,11 @@ package servactive
 
 import (
 	"fmt"
-	"strings"
-
 	"os"
 
-	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
-)
-
-const (
-	ErrUserStoppedSession chkitErrors.Err = "user stopped session"
 )
 
 type ConstructorConfig struct {
@@ -28,7 +21,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 	if config.Service != nil {
 		serv = *config.Service
 	} else {
-		serv = defaultService()
+		serv = DefaultService()
 	}
 	if len(config.Deployments) == 1 && serv.Deploy == "" {
 		serv.Deploy = config.Deployments[0]
@@ -50,23 +43,6 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 					Action: func() error {
 						deploy := getDeploy(serv.Deploy, config.Deployments)
 						serv.Deploy = deploy
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set domain: %s",
-						activekit.OrString(serv.Domain, "undefined (optional)")),
-					Action: func() error {
-						domain := getDomain(serv.Domain)
-						serv.Domain = domain
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
-					Action: func() error {
-						IPs := getIPs(serv.IPs)
-						serv.IPs = IPs
 						return nil
 					},
 				},
@@ -104,7 +80,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 	return serv, nil
 }
 
-func defaultService() service.Service {
+func DefaultService() service.Service {
 	return service.Service{
 		Name:   namegen.ColoredPhysics(),
 		Domain: "",
