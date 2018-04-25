@@ -21,8 +21,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "3064009dcf9774053ef4a1179adfe8c348fb1a17"
-  version = "v0.9.3"
+  revision = "d719bf83b39eb8cbc2ece117b83dd65db5822552"
+  version = "0.10.0"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -426,6 +426,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1ce3ca47f7ac45966e4386b691705c14bf5817e7f548ee3e5398109b0b9524f8"
+  inputs-digest = "f9a0f3eea5d44aa05354c772ae0abf5ddca82190b97d80841fd1e7eb18612e77"
   solver-name = "gps-cdcl"
   solver-version = 1

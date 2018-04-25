@@ -1,8 +1,13 @@
 package model
 
-// Secret --
+// model for secret
+//
+// swagger:model
 type Secret struct {
-	Name      string            `json:"name"`
-	CreatedAt *string           `json:"created_at,omitempty"`
-	Data      map[string]string `json:"data"`
+	// required: true
+	Name string `json:"name"`
+	//creation date in RFC3339 format
+	CreatedAt *string `json:"created_at,omitempty"`
+	// required: true
+	Data map[string]string `json:"data"`
 }

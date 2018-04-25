@@ -1,9 +1,13 @@
 package model
 
-// Protocol -- represents port protocol type
+// represents port protocol type (TCP or UDP)
+//
+// swagger:model
 type Protocol string
 
-// ServiceType -- represents service type
+// represents service type
+//
+// swagger:model
 type ServiceType string
 
 const (
@@ -13,20 +17,30 @@ const (
 	TCP Protocol = "TCP"
 )
 
-// Service --
+// represents service
+//
+// swagger:model
 type Service struct {
-	Name      string        `json:"name"`
-	CreatedAt *string       `json:"created_at,omitempty"`
-	Deploy    string        `json:"deploy,omitempty"`
-	IPs       []string      `json:"ips,omitempty"`
-	Domain    string        `json:"domain,omitempty"`
-	Ports     []ServicePort `json:"ports"`
+	// required: true
+	Name string `json:"name"`
+	//creation date in RFC3339 format
+	CreatedAt *string  `json:"created_at,omitempty"`
+	Deploy    string   `json:"deploy,omitempty"`
+	IPs       []string `json:"ips,omitempty"`
+	Domain    string   `json:"domain,omitempty"`
+	// required: true
+	Ports []ServicePort `json:"ports"`
 }
 
-// ServicePort -- represent service port
+// represent service port
+//
+// swagger:model
 type ServicePort struct {
-	Name       string   `json:"name"`
-	Port       *int     `json:"port,omitempty"`
-	TargetPort int      `json:"target_port"`
-	Protocol   Protocol `json:"protocol"`
+	// required: true
+	Name string `json:"name"`
+	Port *int   `json:"port,omitempty"`
+	// required: true
+	TargetPort int `json:"target_port"`
+	// required: true
+	Protocol Protocol `json:"protocol"`
 }
