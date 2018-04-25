@@ -95,3 +95,65 @@ func (client *Client) CreateIngress(ns string, ingr ingress.Ingress) error {
 	}
 	return err
 }
+
+func (client *Client) ReplaceIngress(ns string, ingr ingress.Ingress) error {
+	err := retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.UpdateIngress(ns, ingr.Name, ingr.ToKube())
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists(),
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
+			err = client.Auth()
+			if err != nil {
+				logrus.WithError(err).
+					Debugf("error while creating ingress %q", ingr.Name)
+			}
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logrus.WithError(err).
+			WithField("namespace", ns).
+			Errorf("unable to create ingress")
+	}
+	return err
+}
+
+func (client *Client) DeleteIngress(ns, domain string) error {
+	err := retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.DeleteIngress(ns, domain)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists(),
+			rserrors.ErrPermissionDenied(),
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists()):
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
+			return true, client.Auth()
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logrus.WithError(err).WithField("namespace", ns).
+			Errorf("unable to get ingress")
+	}
+	return err
+}
