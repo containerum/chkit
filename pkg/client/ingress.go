@@ -21,9 +21,11 @@ func (client *Client) GetIngress(ns, domain string) (ingress.Ingress, error) {
 			kubeErrors.ErrResourceNotExist(),
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableGetResource()):
-			return false, ErrResourceNotExists
-		case cherry.In(err, autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
 			return true, client.Auth()
 		default:
 			return true, ErrFatalError.Wrap(err)
@@ -48,9 +50,11 @@ func (client *Client) GetIngressList(ns string) (ingress.IngressList, error) {
 			kubeErrors.ErrResourceNotExist(),
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableGetResource()):
-			return false, ErrResourceNotExists
-		case cherry.In(err, autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
 			return true, client.Auth()
 		default:
 			return true, ErrFatalError.Wrap(err)
@@ -63,36 +67,31 @@ func (client *Client) GetIngressList(ns string) (ingress.IngressList, error) {
 	return list, err
 }
 
-func (client *Client) AddIngress(ns string, ingr ingress.Ingress) error {
-	return retry(4, func() (bool, error) {
+func (client *Client) CreateIngress(ns string, ingr ingress.Ingress) error {
+	err := retry(4, func() (bool, error) {
 		err := client.kubeAPIClient.AddIngress(ns, ingr.ToKube())
 		switch {
 		case err == nil:
 			return false, nil
 		case cherry.In(err,
-			rserrors.ErrResourceNotExists()):
-			logrus.WithError(ErrResourceNotExists.Wrap(err)).
-				Debugf("error while creating ingress %q", ingr.Name)
-			return false, ErrResourceNotExists.CommentF("namespace %q doesn't exist", ns)
-		case cherry.In(err,
+			rserrors.ErrResourceNotExists(),
 			rserrors.ErrResourceNotOwned(),
 			rserrors.ErrAccessRecordNotExists(),
 			rserrors.ErrPermissionDenied()):
-			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
-				Debugf("error while creating ingress %q", ingr.Name)
-			return false, ErrYouDoNotHaveAccessToResource.
-				CommentF("you don't have create access to namespace %q", ns)
+			return false, err
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
-			err = client.Auth()
-			if err != nil {
-				logrus.WithError(err).
-					Debugf("error while creating ingress %q", ingr.Name)
-			}
-			return true, err
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
+			return true, client.Auth()
 		default:
 			return true, ErrFatalError.Wrap(err)
 		}
 	})
+	if err != nil {
+		logrus.WithError(err).
+			WithField("namespace", ns).
+			Errorf("unable to create ingress")
+	}
+	return err
 }
