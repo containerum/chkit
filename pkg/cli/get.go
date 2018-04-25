@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/containerum/chkit/pkg/cli/deployment"
+	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/pod"
 	"github.com/containerum/chkit/pkg/cli/prerun"
@@ -53,6 +54,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		clinamespace.Get(ctx),
 		cliserv.Get(ctx),
 		clipod.Get(ctx),
+		clingress.Get(ctx),
 		&cobra.Command{
 			Use:     "default-namespace",
 			Short:   "print default",
