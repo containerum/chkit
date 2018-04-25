@@ -91,7 +91,8 @@ func (list PathList) ServicesTableView() []string {
 	var services = make([]string, 0, len(list))
 	for _, path := range list {
 		services = append(services,
-			fmt.Sprintf("%s:%d",
+			fmt.Sprintf("%q -> %s:%d",
+				path.Path,
 				path.ServiceName,
 				path.ServicePort))
 	}
