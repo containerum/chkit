@@ -14,22 +14,23 @@ const (
 // Client -- chkit core client
 type Client struct {
 	model.Config
+	isInitialized bool
 	kubeAPIClient kubeClient.Client
 }
 
-// NewClient -- creates new client with provided options
-func NewClient(config model.Config, option KubeAPIclientFactory) (*Client, error) {
-	chcli := &Client{
-		Config: config,
+func (client *Client) IsInitialized() bool {
+	return client.isInitialized
+}
+
+func (client *Client) Init(setup KubeAPIclientSetup) error {
+	if setup == nil {
+		setup = WithCommonAPI
 	}
-	var factory = WithCommonAPI
-	if option != nil {
-		factory = option
-	}
-	kcli, err := factory(config)
+	kcli, err := setup(client.Config)
 	if err != nil {
-		return nil, ErrUnableToInitClient.Wrap(err)
+		return ErrUnableToInitClient.Wrap(err)
 	}
-	chcli.kubeAPIClient = *kcli
-	return chcli, nil
+	client.kubeAPIClient = *kcli
+	client.isInitialized = true
+	return nil
 }

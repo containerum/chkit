@@ -98,7 +98,7 @@ func (client *Client) CreateService(ns string, serv service.Service) error {
 			rserrors.ErrResourceNotExists()):
 			logrus.WithError(ErrResourceNotExists.Wrap(err)).
 				Debugf("error while creating service %q", serv.Name)
-			return false, ErrResourceNotExists.CommentF("namespace %q doesn't exist", ns)
+			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err,
 			rserrors.ErrResourceNotOwned(),
 			rserrors.ErrAccessRecordNotExists(),

@@ -12,6 +12,7 @@ var (
 )
 
 func (depl Deployment) RenderJSON() (string, error) {
+	depl.ToKube()
 	data, err := depl.MarshalJSON()
 	return string(data), err
 }

@@ -6,3 +6,5 @@ build
 !build/*
 .idea
 deployment.json
+/service.json
+!/cmd/chkit/

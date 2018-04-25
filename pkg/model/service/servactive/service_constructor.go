@@ -4,146 +4,112 @@ import (
 	"fmt"
 	"strings"
 
+	"os"
+
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/service"
-	"github.com/containerum/chkit/pkg/util/activeToolkit"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 )
 
 const (
-	ErrUserExit             chkitErrors.Err = "user exit"
-	ErrUserStoppedSession   chkitErrors.Err = "user stopped session"
-	ErrInvalidSymbolInLabel chkitErrors.Err = "invalid symbol in label"
-	defaultString                           = "undefined"
+	ErrUserStoppedSession chkitErrors.Err = "user stopped session"
 )
 
 type ConstructorConfig struct {
 	Force       bool
 	Deployments []string
+	Service     *service.Service
 }
 
-func RunInteractveConstructor(config ConstructorConfig) (service.ServiceList, error) {
-	fmt.Printf("Hi there!\n")
-	if !config.Force {
-		ok, _ := activeToolkit.Yes("Do you want to create service?")
-		if !ok {
-			return nil, ErrUserExit
-		}
-		fmt.Printf("OK")
-	}
-	var list service.ServiceList
-	serv := defaultService()
+func Wizard(config ConstructorConfig) (service.Service, error) {
 	var err error
-	for {
-		serv, err = fillServiceField(config, serv)
-		switch err {
-		case nil:
-			// pass
-		case ErrUserStoppedSession:
-			return list, err
-		case ErrUserExit:
-			return list, nil
-		default:
-			return list, err
-		}
-		if err = validateService(serv); err != nil {
-			fmt.Printf("Error: %v", err)
-			_, res, _ := activeToolkit.Options("What's next?",
-				true,
-				"fix service",
-				"create new service",
-				"exit")
-			switch {
-			case res == 0:
-				continue
-			case res == 1:
-				serv = defaultService()
-				continue
-			default:
-				return list, ErrUserExit
-			}
-		}
-		if yes, _ := activeToolkit.Yes(fmt.Sprintf("Add %q to list?", serv.Name)); yes {
-			list = append(list, serv)
-			fmt.Printf("Service %q added to list\n", serv.Name)
-		}
-		ok, _ := activeToolkit.Yes("Do you want to create another service?")
-		if !ok {
-			return list, ErrUserStoppedSession
-		}
-		fmt.Printf("OK")
+	var serv service.Service
+	if config.Service != nil {
+		serv = *config.Service
+	} else {
 		serv = defaultService()
 	}
-}
-
-func fillServiceField(config ConstructorConfig, serv service.Service) (service.Service, error) {
-	const (
-		name = iota
-		deploy
-		domain
-		ips
-		ports
-		pushServ
-		exit
-	)
-	for {
-		fields := []string{
-			fmt.Sprintf("Set name  : %s", serv.Name),
-			fmt.Sprintf("Set deploy: %s", serv.Deploy),
-			fmt.Sprintf("Set domain: %s", serv.Domain),
-			fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
-			fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
-			"Push to list",
-			"Exit",
-		}
-		_, field, _ := activeToolkit.Options("What's next?", false, fields...)
-		switch field {
-		case name:
-			name, err := getName(serv.Name)
-			if err != nil {
-				return serv, err
-			}
-			serv.Name = name
-		case ports:
-			ports, err := getPorts()
-			if err != nil {
-				return serv, err
-			}
-			serv.Ports = ports
-		case domain:
-			domain, err := getDomain()
-			if err != nil {
-				return serv, err
-			}
-			serv.Domain = domain
-		case ips:
-			IPs, err := getIPs()
-			if err != nil {
-				return serv, err
-			}
-			serv.IPs = IPs
-		case deploy:
-			deploy, err := getDeploy(config.Deployments)
-			if err != nil {
-				return serv, err
-			}
-			serv.Deploy = deploy
-		case pushServ:
-			return serv, nil
-		case exit:
-			return serv, ErrUserExit
-		default:
-			panic("[service interactive constructor] unreacheable state in field selection func")
-		}
+	if len(config.Deployments) == 1 && serv.Deploy == "" {
+		serv.Deploy = config.Deployments[0]
 	}
+	for exit := false; !exit; {
+		(&activekit.Menu{
+			Items: []*activekit.MenuItem{
+				{
+					Label: fmt.Sprintf("Set name  : %s",
+						activekit.OrString(serv.Name, "undefined (required)")),
+					Action: func() error {
+						serv.Name = getName(serv.Name)
+						return nil
+					},
+				},
+				{
+					Label: fmt.Sprintf("Set deploy: %s",
+						activekit.OrString(serv.Deploy, "undefined (required)")),
+					Action: func() error {
+						deploy := getDeploy(serv.Deploy, config.Deployments)
+						serv.Deploy = deploy
+						return nil
+					},
+				},
+				{
+					Label: fmt.Sprintf("Set domain: %s",
+						activekit.OrString(serv.Domain, "undefined (optional)")),
+					Action: func() error {
+						domain := getDomain(serv.Domain)
+						serv.Domain = domain
+						return nil
+					},
+				},
+				{
+					Label: fmt.Sprintf("Set IPs   : [%s]", strings.Join(serv.IPs, ", ")),
+					Action: func() error {
+						IPs := getIPs(serv.IPs)
+						serv.IPs = IPs
+						return nil
+					},
+				},
+				{
+					Label: fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
+					Action: func() error {
+						ports := editPorts(serv.Ports)
+						serv.Ports = ports
+						return nil
+					},
+				},
+				{
+					Label: "Confirm",
+					Action: func() error {
+						if err = ValidateService(serv); err != nil {
+							activekit.Attention(err.Error())
+							return nil
+						}
+						exit = true
+						return nil
+					},
+				},
+				{
+					Label: "Exit",
+					Action: func() error {
+						if yes, _ := activekit.Yes("Do you really want to exit?"); yes {
+							os.Exit(0)
+						}
+						return nil
+					},
+				},
+			},
+		}).Run()
+	}
+	return serv, nil
 }
 
 func defaultService() service.Service {
 	return service.Service{
 		Name:   namegen.ColoredPhysics(),
-		Domain: "undefined (optional)",
+		Domain: "",
 		IPs:    nil,
 		Ports:  nil,
-		Deploy: "undefined (required)",
+		Deploy: "",
 	}
 }

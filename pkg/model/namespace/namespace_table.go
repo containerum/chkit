@@ -28,10 +28,10 @@ func (namespace Namespace) TableRows() [][]string {
 	}
 	return [][]string{{
 		namespace.Label,
-		fmt.Sprintf("%s/%s",
+		fmt.Sprintf("%d/%d Mb",
 			namespace.Resources.Used.CPU,
 			namespace.Resources.Hard.CPU),
-		fmt.Sprintf("%s/%s",
+		fmt.Sprintf("%d/%d mCPU",
 			namespace.Resources.Used.Memory,
 			namespace.Resources.Hard.Memory),
 		age,

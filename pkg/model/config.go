@@ -6,7 +6,6 @@ import (
 
 type StorableConfig struct {
 	UserInfo
-	DefaultNamespace string
 }
 type Config struct {
 	StorableConfig

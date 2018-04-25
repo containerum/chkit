@@ -1,7 +1,8 @@
 .PHONY: genkey build test clean release single_release
 
+CMD_DIR:=./cmd/chkit
 #get current package, assuming it`s in GOPATH sources
-PACKAGE := $(shell go list -f '{{.ImportPath}}')
+PACKAGE := $(shell go list -f '{{.ImportPath}}' $(CMD_DIR))
 
 SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
@@ -17,10 +18,10 @@ VERSION?=$(LATEST_TAG:v%=%)
 BUILDS_DIR:=$(PWD)/build
 EXECUTABLE:=chkit
 DEV_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
-	-X $(PACKAGE)/cmd.API_ADDR=$(CONTAINERUM_API)
+	-X $(PACKAGE)/pkg/cli/mode.API_ADDR=$(CONTAINERUM_API)
 RELEASE_LDFLAGS=-X $(PACKAGE)/cmd.Version=$(VERSION) \
 	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell base64 -w 0 $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'\
-	-X $(PACKAGE)/cmd.API_ADDR=$(CONTAINERUM_API)
+	-X $(PACKAGE)/pkg/cli/mode.API_ADDR=$(CONTAINERUM_API)
 
 genkey:
 	@echo "Generating private/public ECDSA keys to sign"
@@ -32,7 +33,7 @@ genkey:
 # go has build artifacts caching so soruce tracking not needed
 build:
 	@echo "Building chkit for current OS/architecture, without signing"
-	@go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE)
+	@go build $(CMD_DIR) -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE)
 
 test:
 	@echo "Running tests"
@@ -87,8 +88,10 @@ single_release:
 
 dev:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+dev)
-	@go build -v --tags="dev" -ldflags="$(DEV_LDFLAGS)"
+	@echo building $(VERSION)
+	@go build -v --tags="dev" -ldflags="$(DEV_LDFLAGS)" $(CMD_DIR)
 
 mock:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)
+	@echo building $(VERSION)
 	@go build -v -tags="dev mock" -ldflags="$(DEV_LDFLAGS)"

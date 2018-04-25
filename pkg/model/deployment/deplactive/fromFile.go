@@ -8,16 +8,15 @@ import (
 )
 
 func FromFile(filename string) (deployment.Deployment, error) {
-	depl := deployment.Deployment{}
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return depl, err
+		return deployment.Deployment{}, err
 	}
-	kubeDepl := depl.ToKube()
+	kubeDepl := (&deployment.Deployment{}).ToKube()
 	err = json.Unmarshal(data, &kubeDepl)
 	if err != nil {
-		return depl, err
+		return deployment.Deployment{}, err
 	}
-	depl = deployment.DeploymentFromKube(kubeDepl)
-	return depl, nil
+	depl := deployment.DeploymentFromKube(kubeDepl)
+	return depl, validateDeployment(depl)
 }

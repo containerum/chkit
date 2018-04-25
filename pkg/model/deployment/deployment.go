@@ -7,7 +7,7 @@ import (
 
 type Deployment struct {
 	Name       string
-	Replicas   uint
+	Replicas   int
 	Status     *Status
 	Containers []container.Container
 	origin     *model.Deployment
@@ -25,7 +25,7 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 	}
 	return Deployment{
 		Name:       kubeDeployment.Name,
-		Replicas:   uint(kubeDeployment.Replicas),
+		Replicas:   kubeDeployment.Replicas,
 		Status:     status,
 		Containers: containers,
 		origin:     &kubeDeployment,

@@ -16,7 +16,7 @@ func (depl Deployment) RenderTable() string {
 }
 
 func (_ *Deployment) TableHeaders() []string {
-	return []string{"Name", "Replicas", "Containers", "Age"}
+	return []string{"Label", "Replicas", "Containers", "Age"}
 }
 
 func (depl *Deployment) TableRows() [][]string {

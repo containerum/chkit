@@ -4,20 +4,17 @@ import (
 	"bytes"
 	"fmt"
 
-	"gopkg.in/urfave/cli.v2"
+	"strings"
+
 )
 
 type Err string
 
 var (
 	_ error          = Err("")
-	_ cli.ExitCoder  = Err("")
-	_ cli.MultiError = Err("")
 	_ ErrMatcher     = Err("")
 
 	_ error          = &Wrapper{}
-	_ cli.ExitCoder  = &Wrapper{}
-	_ cli.MultiError = &Wrapper{}
 	_ ErrMatcher     = &Wrapper{}
 )
 
@@ -102,6 +99,12 @@ func (wrapper *Wrapper) Error() string {
 		return wrapper.cachedMessage
 	}
 	buf := bytes.NewBufferString(wrapper.main.Error())
+
+	if len(wrapper.comments) > 0 {
+		buf.WriteString(", ")
+	}
+	buf.WriteString(strings.Join(wrapper.comments, ", "))
+
 	if len(wrapper.reasons) > 0 {
 		buf.WriteString(": ")
 	}

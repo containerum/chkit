@@ -8,20 +8,20 @@ import (
 	kubeClient "git.containerum.net/ch/kube-client/pkg/client"
 	"git.containerum.net/ch/kube-client/pkg/rest/re"
 	"git.containerum.net/ch/kube-client/pkg/rest/remock"
-	"git.containerum.net/ch/kube-client/pkg/websocket/wsmock"
 	"git.containerum.net/ch/kube-client/pkg/websocket/gorilla"
+	"git.containerum.net/ch/kube-client/pkg/websocket/wsmock"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
 
-// KubeAPIclientFactory -- creates new kube-client with provided config
-type KubeAPIclientFactory func(model.Config) (*kubeClient.Client, error)
+// KubeAPIclientSetup -- creates new kube-client with provided config
+type KubeAPIclientSetup func(model.Config) (*kubeClient.Client, error)
 
 var (
-	_ KubeAPIclientFactory = WithTestAPI
-	_ KubeAPIclientFactory = WithMock
-	_ KubeAPIclientFactory = WithCommonAPI
+	_ KubeAPIclientSetup = WithTestAPI
+	_ KubeAPIclientSetup = WithMock
+	_ KubeAPIclientSetup = WithCommonAPI
 )
 
 // WithCommonAPI -- creates kube-client for production api
