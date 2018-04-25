@@ -48,9 +48,20 @@ func Wizard(config Config) (ingress.Ingress, error) {
 					},
 				},
 				{
+					Label: "Edit services",
+					Action: func() error {
+						rule.Paths = pathsMenu(rule.Paths)
+						return nil
+					},
+				},
+				{
 					Label: "Confirm",
 					Action: func() error {
-						// TODO: validation
+						ingr.Rules = []ingress.Rule{rule}
+						if err := ValidateIngress(ingr); err != nil {
+							activekit.Attention(err.Error())
+							return nil
+						}
 						exit = true
 						return nil
 					},
