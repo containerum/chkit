@@ -3,8 +3,8 @@ package ingress
 import kubeModels "git.containerum.net/ch/kube-client/pkg/model"
 
 type Ingress struct {
-	Name  string
-	Rules RuleList
+	Name  string   `json:"name"`
+	Rules RuleList `json:"rules"`
 }
 
 func IngressFromKube(kubeIngress kubeModels.Ingress) Ingress {

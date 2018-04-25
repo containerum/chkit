@@ -5,9 +5,9 @@ import (
 )
 
 type Rule struct {
-	Host      string
-	TLSSecret *string
-	Paths     PathList
+	Host      string   `json:"host"`
+	TLSSecret *string  `json:"tls_secret,omitempty"`
+	Paths     PathList `json:"paths"`
 }
 
 func RuleFromKube(kubeRule kubeModels.Rule) Rule {
