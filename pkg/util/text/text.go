@@ -26,3 +26,12 @@ func Crop(txt string, width int) string {
 	}
 	return string([]rune(txt)[:width-3]) + "..."
 }
+
+func Indent(text string, indent uint) string {
+	lines := strings.Split(text, "\n")
+	ind := strings.Repeat(" ", int(indent))
+	for i, line := range lines {
+		lines[i] = ind + line
+	}
+	return strings.Join(lines, "\n")
+}
