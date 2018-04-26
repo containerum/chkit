@@ -17,7 +17,11 @@ func Login(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use: "login",
 		Run: func(command *cobra.Command, args []string) {
-			if err := clisetup.Setup(ctx); err != nil {
+			if err := clisetup.SetupLogs(ctx); err != nil {
+				angel.Angel(ctx, err)
+				os.Exit(1)
+			}
+			if err := Setup(ctx); err != nil {
 				angel.Angel(ctx, err)
 				os.Exit(1)
 			}
