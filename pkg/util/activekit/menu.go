@@ -13,7 +13,7 @@ type Menu struct {
 	Title   string
 	Promt   string
 	History []string
-	Items   []*MenuItem
+	Items   MenuItems
 	once    sync.Once
 }
 
@@ -37,6 +37,7 @@ func (menu *Menu) init() {
 		if menu.Promt == "" {
 			menu.Promt = "Choose wisely: "
 		}
+		menu.Items = menu.Items.NotNil()
 	})
 }
 
