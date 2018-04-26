@@ -13,9 +13,16 @@ import (
 
 func DefaultNamespace(ctx *context.Context) *cobra.Command {
 	return &cobra.Command{
-		Use:   "default-namespace",
-		Short: "set default namespace",
+		Use:     "default-namespace",
+		Short:   "set default namespace",
+		Aliases: []string{"def-ns", "default-ns", "defns", "def-namespace"},
 		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 1 {
+				ctx.Namespace = args[0]
+				fmt.Printf("Using %q as default namespace!\n", ctx.Namespace)
+				ctx.Changed = true
+				return
+			}
 			nsList, err := ctx.Client.GetNamespaceList()
 			if err != nil || len(nsList) == 0 {
 				fmt.Printf("You have no namespaces :(\n")

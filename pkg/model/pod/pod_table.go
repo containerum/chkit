@@ -20,8 +20,8 @@ func (_ Pod) TableHeaders() []string {
 
 func (pod Pod) TableRows() [][]string {
 	age := "unknown"
-	if pod.Status.StartedAt.Unix() != 0 {
-		age = model.Age(pod.Status.StartedAt)
+	if pod.CreatedAt.Unix() != 0 {
+		age = model.Age(pod.CreatedAt)
 	}
 	return [][]string{
 		{

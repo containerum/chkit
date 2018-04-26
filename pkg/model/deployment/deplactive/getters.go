@@ -10,7 +10,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
-	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/chkit/pkg/util/validation"
 )
 
@@ -120,130 +119,6 @@ func getContainers(conts []container.Container) []container.Container {
 	return conts
 }
 
-func getContainer(con container.Container) (container.Container, bool) {
-	ok := true
-	for exit := false; !exit; {
-		(&activekit.Menu{
-			Items: []*activekit.MenuItem{
-				{
-					Label: fmt.Sprintf("Set name         : %s", con.Name),
-					Action: func() error {
-						con.Name = getContainerName(con.Name)
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set image        : %s",
-						activekit.OrString(con.Image, "none (required)")),
-					Action: func() error {
-						con.Image = getContainerImage()
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set memory limit : %dMb", con.Limits.Memory),
-					Action: func() error {
-						con.Limits.Memory = getMemory(con.Limits.Memory)
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set CPU limit    : %d", con.Limits.CPU),
-					Action: func() error {
-						con.Limits.CPU = getCPU(con.Limits.CPU)
-						return nil
-					},
-				},
-				{
-					Label: "Confirm",
-					Action: func() error {
-						if err := validateContainer(con); err != nil {
-							errText := err.Error()
-							attention := strings.Repeat("!", text.Width(errText))
-							fmt.Printf("%s\n%v\n%s\n", attention, errText, attention)
-							return nil
-						}
-						exit = true
-						return nil
-					},
-				},
-				{
-					Label: "Return to previous menu",
-					Action: func() error {
-						ok = false
-						exit = true
-						return nil
-					},
-				},
-			},
-		}).Run()
-	}
-	return con, ok
-}
-
-func getContainerName(defaultName string) string {
-	for {
-		name, _ := activekit.AskLine(fmt.Sprintf("Type container name (press Enter to use %q) > ", defaultName))
-		name = strings.TrimSpace(name)
-		if name == "" {
-			name = defaultName
-		}
-		if validation.ValidateContainerName(name) != nil {
-			fmt.Printf("Invalid name :( Try again.\n")
-			continue
-		}
-		return name
-	}
-}
-
-func getContainerImage() string {
-	fmt.Printf("Which image do you want to use?\n")
-	for {
-		image, _ := activekit.AskLine("> ")
-		image = strings.TrimSpace(image)
-		if image == "" {
-			return ""
-		}
-		if validation.ValidateImageName(image) != nil {
-			fmt.Printf("Invalid image name :( Try again.\n")
-			continue
-		}
-		return image
-	}
-}
-
-func getMemory(oldValue uint) uint {
-	for {
-		memStr, _ := activekit.AskLine("Memory (Mb, 10..8000) > ")
-		memStr = strings.TrimSpace(memStr)
-		var mem uint
-		if memStr == "" {
-			return oldValue
-		}
-		if _, err := fmt.Sscanln(memStr, &mem); err != nil || mem < 10 || mem > 8000 {
-			fmt.Printf("Memory must be interger number 10..16000. Try again.\n")
-			continue
-		}
-		return mem
-	}
-}
-
-func getCPU(oldValue uint) uint {
-	for {
-		cpuStr, _ := activekit.AskLine("CPU (10..3000 mCPU) > ")
-		cpuStr = strings.TrimSpace(cpuStr)
-		var cpu uint
-		if cpuStr == "" {
-			return oldValue
-		}
-		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil || cpu < 10 || cpu > 3000 {
-			fmt.Printf("CPU must be number 10..3000. Try again.\n")
-			continue
-		}
-		return cpu
-	}
-}
-
 func getName(defaultName string) string {
 	for {
 		name, _ := activekit.AskLine(fmt.Sprintf("Print deployment name (or hit Enter to use %q) > ", defaultName))
@@ -260,13 +135,13 @@ func getName(defaultName string) string {
 
 func getReplicas(defaultReplicas int) int {
 	for {
-		replicasStr, _ := activekit.AskLine(fmt.Sprintf("Print number or replicas (1..15, hit Enter to use %d) > ", defaultReplicas))
+		replicasStr, _ := activekit.AskLine(fmt.Sprintf("Print number or replicas (%v, hit Enter to use %d) > ", ReplicasLimit, defaultReplicas))
 		replicas := defaultReplicas
 		if strings.TrimSpace(replicasStr) == "" {
 			return defaultReplicas
 		}
-		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || replicas < 1 || replicas > 15 {
-			fmt.Printf("Expected number 1..15! Try again.\n")
+		if _, err := fmt.Sscan(replicasStr, &replicas); err != nil || !ReplicasLimit.Containing(replicas) {
+			fmt.Printf("Expected number %v! Try again.\n", ReplicasLimit)
 			continue
 		}
 		return replicas

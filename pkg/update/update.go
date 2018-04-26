@@ -58,7 +58,7 @@ func verifiedUpdate(upd *Package) error {
 	return nil
 }
 
-func AskForUpdate(ctx *cli.Context, latestVersion semver.Version) (bool, error) {
+func AskForUpdate(ctx *context.Context, latestVersion semver.Version) (bool, error) {
 	// check if we have terminal supports escape sequences
 	var colorStart, colorEnd string
 	if terminal.IsTerminal(int(os.Stdout.Fd())) {
@@ -66,7 +66,7 @@ func AskForUpdate(ctx *cli.Context, latestVersion semver.Version) (bool, error) 
 		colorEnd = "\x1b[0m"
 	}
 	fmt.Printf("%sYou are using version %s, however version %s is available%s\n",
-		colorStart, context.GlobalContext.Version, latestVersion, colorEnd)
+		colorStart, ctx.Version, latestVersion, colorEnd)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanWords)

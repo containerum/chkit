@@ -31,15 +31,14 @@ func MapErrors(resp *resty.Response, err error, okCodes ...int) error {
 			return nil
 		}
 	}
-	request := fmt.Sprintf("[%s] %q", resp.Request.Method, resp.Request.URL)
 	if resp.Error() != nil {
 		if err, ok := resp.Error().(*cherry.Err); ok &&
 			err != nil &&
 			err.ID != (cherry.ErrID{}) {
-			return err.
-				AddDetails("on " + request)
+			return err
 		}
 	}
+	request := fmt.Sprintf("[%s] %q", resp.Request.Method, resp.Request.URL)
 	return &UnexpectedHTTPstatusError{
 		Status:  resp.StatusCode(),
 		Message: "on " + request,

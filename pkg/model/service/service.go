@@ -63,3 +63,28 @@ func (serv *Service) ToKube() kubeModels.Service {
 	serv.origin = &kubeServ
 	return *serv.origin
 }
+
+func (service Service) Copy() Service {
+	cp := service
+	cp.Ports = append([]Port{}, service.Ports...)
+	cp.IPs = append([]string{}, service.IPs...)
+	return cp
+}
+
+func (service Service) AllTargetPorts() []int {
+	ports := make([]int, 0, len(service.Ports))
+	for _, port := range service.Ports {
+		ports = append(ports, port.TargetPort)
+	}
+	return ports
+}
+
+func (service Service) AllExternalPorts() []int {
+	ports := make([]int, 0, len(service.Ports))
+	for _, port := range service.Ports {
+		if port.Port != nil {
+			ports = append(ports, *port.Port)
+		}
+	}
+	return ports
+}

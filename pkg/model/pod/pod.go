@@ -3,7 +3,10 @@ package pod
 import (
 	"fmt"
 
+	"time"
+
 	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/containerum/chkit/pkg/model"
 )
 
 type Pod struct {
@@ -11,6 +14,7 @@ type Pod struct {
 	Hostname   string
 	Containers []string
 	Status     Status
+	CreatedAt  time.Time
 	origin     kubeModel.Pod
 }
 
@@ -30,11 +34,16 @@ func PodFromKube(pod kubeModel.Pod) Pod {
 	if pod.Status != nil {
 		status = StatusFromKube(*pod.Status)
 	}
+	var createdAt time.Time
+	if pod.CreatedAt != nil {
+		createdAt, _ = time.Parse(model.TimestampFormat, *pod.CreatedAt)
+	}
 	return Pod{
 		Name:       pod.Name,
 		Hostname:   hostname,
 		Containers: containers,
 		Status:     status,
+		CreatedAt:  createdAt,
 		origin:     pod,
 	}
 }

@@ -55,7 +55,7 @@ func ValidateDeployment(deployment model.Deployment) error {
 
 func ValidateContainer(container model.Container) error {
 	errs := []error{}
-	if container.Limits.CPU < 10 || container.Limits.CPU > 12000 {
+	if  container.Limits.CPU < 10 || container.Limits.CPU > 12000 {
 		return ermockerr.ErrInvalidContainer().
 			AddDetailsErr(fmt.Errorf("invalid CPU limit %d: must be in 10..12000 mCPU", container.Limits.CPU))
 	}

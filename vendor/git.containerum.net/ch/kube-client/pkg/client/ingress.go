@@ -1,13 +1,13 @@
 package client
 
 import (
-	"strconv"
-
 	"git.containerum.net/ch/kube-client/pkg/model"
 	"git.containerum.net/ch/kube-client/pkg/rest"
 )
 
 const (
+	kubeAPIIngressRootPath  = "/namespaces/{namespace}/ingresses"
+	kubeAPIIngressPath      = kubeAPIIngressRootPath + "/{domain}"
 	resourceIngressRootPath = "/namespace/{namespace}/ingress"
 	resourceIngressPath     = resourceIngressRootPath + "/{domain}"
 )
@@ -26,29 +26,37 @@ func (client *Client) AddIngress(namespace string, ingress model.Ingress) error 
 }
 
 // GetIngressList -- returns list of ingresses.
-// Consumes namespace and optional pagination parameters
-// If role=admin && !user-id -> return all
-// If role=admin && user-id -> return user's
-// If role=user -> return user's
-func (client *Client) GetIngressList(namespace string, page, perPage *uint64) ([]model.Ingress, error) {
+func (client *Client) GetIngressList(namespace string) ([]model.Ingress, error) {
 	var ingressList []model.Ingress
 	jsonAdaptor := struct {
 		Ingresses *[]model.Ingress `json:"ingresses"`
 	}{&ingressList}
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &jsonAdaptor,
-		Query: rest.Q{
-			"page":     strconv.FormatUint(*page, 10),
-			"per_page": strconv.FormatUint(*perPage, 10),
-		},
 		URL: rest.URL{
-			Path: resourceIngressRootPath,
+			Path: kubeAPIIngressRootPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
 		},
 	})
 	return ingressList, err
+}
+
+// GetIngressList -- returns ingress with specified domain.
+func(client *Client) GetIngress(namespace, domain string) (model.Ingress, error) {
+	var ingress model.Ingress
+	err := client.RestAPI.Get(rest.Rq{
+		Result: &ingress,
+		URL: rest.URL{
+			Path: kubeAPIIngressPath,
+			Params: rest.P{
+				"namespace": namespace,
+				"domain": domain,
+			},
+		},
+	})
+	return ingress, err
 }
 
 // UpdateIngress -- updates ingress on provided domain with new one

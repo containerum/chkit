@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-func YesNo(promt string) bool {
-	fmt.Print(promt)
+func YesNo(promt string, args ...interface{}) bool {
+	fmt.Printf("%s [Y/N]: ", fmt.Sprintf(promt, args...))
 	answer := strings.ToLower(strings.TrimSpace(Input()))
 	return answer == "y"
 }

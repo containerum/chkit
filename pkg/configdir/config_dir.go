@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mitchellh/go-homedir"
 )
 
 const (

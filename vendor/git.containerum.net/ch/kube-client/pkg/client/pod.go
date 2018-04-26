@@ -17,7 +17,7 @@ func (client *Client) DeletePod(namespace, pod string) error {
 		URL: rest.URL{
 			Path: kubeAPIpodPath,
 			Params: rest.P{
-				"pod":       pod,
+				"pod": pod,
 				"namespace": namespace,
 			},
 		},

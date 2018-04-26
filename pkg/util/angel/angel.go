@@ -16,14 +16,16 @@ import (
 	"github.com/skratchdot/open-golang/open"
 )
 
-var reportPreambula = fmt.Sprintf(`[REPORT]
+func reportPreambula(version string) string {
+	return fmt.Sprintf(`[REPORT]
 chkit fatal report
 version: %s
 os: %s %s
-`, context.GlobalContext.Version, runtime.GOOS, runtime.GOARCH)
+`, version, runtime.GOOS, runtime.GOARCH)
+}
 
-func Angel(sin interface{}) {
-	report := reportPreambula
+func Angel(ctx *context.Context, sin interface{}) {
+	report := reportPreambula(ctx.Version)
 	switch recoverData := sin.(type) {
 	case nil:
 		return
@@ -34,13 +36,13 @@ func Angel(sin interface{}) {
 	}
 	logDir := configdir.LogDir()
 	logFileName := configuration.LogFileName()
-	logFilePath := path.Join(logDir, logFileName)
 	reportFile := path.Join(logDir, "report.txt")
 
 	err := ioutil.WriteFile(reportFile, []byte(report), os.ModePerm)
 	if err != nil {
 		fmt.Printf("[FATAL] something completely wrong.\n")
-		fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", logFilePath)
+		fmt.Printf("Please, send %q and %q files from %q to support@exonlab.omnidesk.ru\n",
+			logFileName, "report.txt", logDir)
 		return
 	}
 	/*
@@ -55,7 +57,8 @@ func Angel(sin interface{}) {
 		if err := openSupportPageWithReport(report); err != nil {
 	*/
 	fmt.Printf("Fatal error: %v\n", sin)
-	fmt.Printf("Please, send report and log file from %q to support@exonlab.omnidesk.ru", logDir)
+	fmt.Printf("Please, send %q and %q files from %q to support@exonlab.omnidesk.ru\n",
+		logFileName, "report.txt", logDir)
 	//	}
 }
 
@@ -71,8 +74,8 @@ func appendOrCreate(filepath string, data string) error {
 	return file.Close()
 }
 
-func readLogTail(logPath string) (string, error) {
-	tailLen := int64(2048 - len(reportPreambula))
+func readLogTail(report string, logPath string) (string, error) {
+	tailLen := int64(2048 - len(report))
 	stat, err := os.Stat(logPath)
 	if err != nil && !os.IsNotExist(err) {
 		return "", err

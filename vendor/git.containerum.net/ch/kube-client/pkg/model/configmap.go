@@ -1,8 +1,17 @@
 package model
 
-// ConfigMap --
+//go:generate swagger generate spec -m -o ../../kube-client-swagger.json
+
+// ConfigMap -- model for config map
+//
+// swagger:model
 type ConfigMap struct {
-	Name      string            `json:"name"`
-	CreatedAt *string           `json:"created_at,omitempty"`
-	Data      map[string]string `json:"data"`
+	// required: true
+	Name string `json:"name"`
+	//creation date in RFC3339 format
+	CreatedAt *string `json:"created_at,omitempty"`
+	// key-value data
+	//
+	// required: true
+	Data map[string]string `json:"data"`
 }

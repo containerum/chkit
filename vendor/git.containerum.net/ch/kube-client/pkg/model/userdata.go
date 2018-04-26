@@ -1,13 +1,22 @@
 package model
 
-// UserHeaderData --
+// represents header data for X-User-Namespace and X-User-Volume headers (encoded in base64)
+//
+//swagger:model
 type UserHeaderData struct {
-	ID     string `json:"id"`     // hosting-internal name
-	Label  string `json:"label"`  // user-visible label for the object
-	Access string `json:"access"` // one of: "owner", "read", "write", "read-delete", "none"
+	// hosting-internal name
+	// required: true
+	ID string `json:"id"`
+	// user-visible label for the object
+	// required: true
+	Label string `json:"label"`
+	// one of: "owner", "read", "write", "read-delete", "none"
+	// required: true
+	Access string `json:"access"`
 }
 
 // User --
+//swagger:ignore
 type User struct {
 	Login     string   `json:"login"`
 	Data      UserData `json:"data"`
@@ -17,6 +26,7 @@ type User struct {
 }
 
 // UserData --
+//swagger:ignore
 type UserData struct {
 	Email          string `json:"email"`
 	Address        string `json:"address"`
@@ -29,12 +39,14 @@ type UserData struct {
 }
 
 // Tokens --
+//swagger:ignore
 type Tokens struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
 
 // CheckTokenResponse --
+//swagger:ignore
 type CheckTokenResponse struct {
 	Access struct {
 		Namespace []Resource `json:"namespace"`
@@ -43,6 +55,7 @@ type CheckTokenResponse struct {
 }
 
 // Login --
+//swagger:ignore
 type Login struct {
 	Login     string  `json:"login"`
 	Password  string  `json:"password"`

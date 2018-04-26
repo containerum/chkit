@@ -2,7 +2,6 @@ package servactive
 
 import (
 	"fmt"
-	"net"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -31,64 +30,6 @@ func getName(defaultName string) string {
 		return name
 	}
 
-}
-
-func getIPs(ips []string) []string {
-	oldIPs := make([]string, len(ips))
-	copy(oldIPs, ips)
-	var ok bool
-	for exit := false; !exit; {
-		var menu []*activekit.MenuItem
-		for i, ip := range ips {
-			menu = append(menu, &activekit.MenuItem{
-				Label: fmt.Sprintf("Delete %q", ip),
-				Action: func(i int) func() error {
-					return func() error {
-						ips = append(ips[:i], ips[i+1:]...)
-						return nil
-					}
-				}(i),
-			})
-		}
-		menu = append(menu, []*activekit.MenuItem{
-			{
-				Label: "Add addr",
-				Action: func() error {
-					rawAddr := strings.TrimSpace(activekit.Promt("Type IP : "))
-					ip := net.ParseIP(rawAddr)
-					if ip == nil {
-						fmt.Printf("\nInvalid IP address!\n")
-						return nil
-					}
-					ips = append(ips, ip.String())
-					return nil
-				},
-			},
-			{
-				Label: "Confirm",
-				Action: func() error {
-					exit = true
-					ok = true
-					return nil
-				},
-			},
-			{
-				Label: "Return to previous menu",
-				Action: func() error {
-					ok = false
-					exit = true
-					return nil
-				},
-			},
-		}...)
-		(&activekit.Menu{
-			Items: menu,
-		}).Run()
-	}
-	if ok {
-		return ips
-	}
-	return oldIPs
 }
 
 func editPorts(ports []service.Port) []service.Port {
@@ -343,22 +284,4 @@ func getDeploy(defaultDepl string, depls []string) string {
 		}...),
 	}).Run()
 	return selectedDepl
-}
-
-func getDomain(defaultDomain string) string {
-	domain := defaultDomain
-	(&activekit.Menu{Items: []*activekit.MenuItem{
-		{
-			Label: "Use custom domain",
-			Action: func() error {
-				domain = activekit.Promt("Type domain: ")
-				return nil
-			},
-		},
-		{
-			Label: "Return to previous menu",
-		},
-	},
-	}).Run()
-	return domain
 }

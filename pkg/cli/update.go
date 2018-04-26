@@ -6,19 +6,27 @@ import (
 )
 
 var commandUpdate = &cli.Command{
-	Name: "update",
+	Name:      "update",
+	Usage:     "update chkit client",
+	UsageText: "chkit update [from github|dir]",
 	Action: func(ctx *cli.Context) error {
 		return updateFromGithub(ctx)
 	},
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:   "debug-requests",
+			Hidden: true,
+		},
+	},
 	Subcommands: []*cli.Command{
-		&cli.Command{
+		{
 			Name: "from",
 			Subcommands: []*cli.Command{
-				&cli.Command{
+				{
 					Name:   "github",
 					Action: updateFromGithub,
 				},
-				&cli.Command{
+				{
 					Name:   "dir",
 					Action: updateFromDir,
 				},

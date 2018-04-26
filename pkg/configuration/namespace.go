@@ -11,8 +11,8 @@ const (
 )
 
 // GetFirstClientNamespace -- fetches namespace list and returns first element. Needed for login.
-func GetFirstClientNamespace() (string, error) {
-	nsList, err := context.GlobalContext.Client.GetNamespaceList()
+func GetFirstClientNamespace(ctx *context.Context) (string, error) {
+	nsList, err := ctx.Client.GetNamespaceList()
 	if err != nil {
 		return "", err
 	}

@@ -12,7 +12,8 @@ var Config = struct {
 }{}
 
 const (
-
+	// ErrFatalError -- unrecoverable fatal error
+	ErrFatalError chkitErrors.Err = "fatal error"
 	// ErrInvalidUserInfo -- invalid user info"
 	ErrInvalidUserInfo chkitErrors.Err = "invalid user info"
 	// ErrInvalidAPIurl -- invalid API url
@@ -23,19 +24,42 @@ const (
 	ErrUnableToSaveTokens chkitErrors.Err = "unable to save tokens"
 )
 
-func SetupAll() error {
-	logrus.Debugf("loading config")
-	if err := configuration.LoadConfig(); err != nil {
+func Setup(ctx *context.Context) error {
+	logrus.Debugf("running setup")
+	err := SetupConfig(ctx)
+	switch {
+	case err == nil:
+		// pass
+	case ErrInvalidUserInfo.Match(err):
+		logrus.Debugf("invalid user information")
+		logrus.Debugf("running login")
+		if err := InteractiveLogin(ctx); err != nil {
+			logrus.WithError(err).Errorf("unable to login")
+			return err
+		}
+	default:
+		logrus.WithError(ErrFatalError.Wrap(err)).Errorf("fatal error while config setup")
+		return ErrFatalError.Wrap(err)
+	}
+
+	logrus.Debugf("client initialisation")
+	if err := SetupClient(ctx, false); err != nil {
+		logrus.WithError(err).Errorf("unable to init client")
 		return err
 	}
-	logrus.Debugf("setuping config")
-	if err := SetupConfig(); err != nil {
+	if err := ctx.Client.Auth(); err != nil {
+		logrus.WithError(err).Errorf("unable to auth")
 		return err
 	}
-	logrus.Debugf("setuping client")
-	if err := SetupClient(); err != nil {
+
+	logrus.Debugf("saving tokens")
+	if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
+		logrus.WithError(err).Errorf("unable to save tokens")
 		return err
 	}
-	logrus.Debugf("API: %q", context.GlobalContext.Client.APIaddr)
+
+	if ctx.Namespace == "" {
+		return GetDefaultNS(ctx, false)
+	}
 	return nil
 }
