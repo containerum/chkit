@@ -7,6 +7,9 @@ import (
 
 func SmallView(tlsSecret []byte) string {
 	secret, _ := pem.Decode(tlsSecret)
+	if secret == nil {
+		return "set"
+	}
 	cert, err := x509.ParseCertificate(secret.Bytes)
 	if err != nil {
 		return "set"
