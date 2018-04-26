@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  name = "git.containerum.net/ch/cherry"
-  packages = ["."]
-  revision = "82e4d22be24efe6d9e6925376119a24f789bddc7"
-  version = "v1.0.1-rc2"
-
-[[projects]]
   name = "git.containerum.net/ch/kube-client"
   packages = [
     "pkg/cherry",
@@ -456,6 +450,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "65580d0f268cf998f9573b17484d565d5ab375a0e5c98e00fcf0d40aa8041d60"
+  inputs-digest = "ba9841cb6d91bef406c2782ca77f00e01b0e1aefaa5d26c3fa163b120fe70dc4"
   solver-name = "gps-cdcl"
   solver-version = 1
