@@ -66,15 +66,21 @@ func Create(ctx *context.Context) *cobra.Command {
 				}
 				return
 			}
+			services, err := ctx.Client.GetServiceList(ctx.Namespace)
+			if err != nil {
+				activekit.Attention(fmt.Sprintf("Unable to get service list!\n%v", err))
+				os.Exit(1)
+			}
 			ingr, err := activeingress.Wizard(activeingress.Config{
-				Ingress: &flagIngress,
+				Services: services,
+				Ingress:  &flagIngress,
 			})
 			if err != nil {
 				activekit.Attention(err.Error())
 				os.Exit(1)
 			}
 			fmt.Println(ingr.RenderTable())
-			if !activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
+			if activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
 				if err := ctx.Client.CreateIngress(ctx.Namespace, ingr); err != nil {
 					fmt.Println(err)
 					os.Exit(1)

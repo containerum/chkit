@@ -5,12 +5,13 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/ingress"
+	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/tlsview"
 )
 
 type Config struct {
-	Services []string
+	Services service.ServiceList
 	Ingress  *ingress.Ingress
 }
 
@@ -54,7 +55,7 @@ func Wizard(config Config) (ingress.Ingress, error) {
 				{
 					Label: "Edit paths",
 					Action: func() error {
-						rule.Paths = pathsMenu(rule.Paths)
+						rule.Paths = pathsMenu(config.Services, rule.Paths)
 						return nil
 					},
 				},
