@@ -2,10 +2,8 @@ package clingress
 
 import (
 	"fmt"
-
-	"os"
-
 	"io/ioutil"
+	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/ingress"
@@ -77,20 +75,11 @@ func Create(ctx *context.Context) *cobra.Command {
 			}
 			fmt.Println(ingr.RenderTable())
 			if !activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
-				os.Exit(1)
-			}
-			for exit := false; !exit; {
-				(&activekit.Menu{
-					Items: []*activekit.MenuItem{
-						{
-							Label: "Edit ",
-						},
-					},
-				}).Run()
-			}
-			if err := ctx.Client.CreateIngress(ctx.Namespace, ingr); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				if err := ctx.Client.CreateIngress(ctx.Namespace, ingr); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				fmt.Printf("Congratulations! Ingress %s created!\n", ingr.Name)
 			}
 		},
 	}
