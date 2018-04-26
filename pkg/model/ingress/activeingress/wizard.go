@@ -10,15 +10,19 @@ import (
 )
 
 type Config struct {
-	Ingress *ingress.Ingress
+	Services []string
+	Ingress  *ingress.Ingress
 }
 
 func Wizard(config Config) (ingress.Ingress, error) {
 	var ingr ingress.Ingress
 	if config.Ingress != nil {
-		ingr = *config.Ingress
+		ingr = (*config.Ingress).Copy()
 	}
 	var rule ingress.Rule
+	if len(config.Ingress.Rules) > 0 {
+		rule = config.Ingress.Rules[0].Copy()
+	}
 	for exit := false; !exit; {
 		_, err := (&activekit.Menu{
 			Items: []*activekit.MenuItem{
@@ -26,7 +30,7 @@ func Wizard(config Config) (ingress.Ingress, error) {
 					Label: fmt.Sprintf("Set host       : %q",
 						activekit.OrString(ingr.Name, "undefined (required)")),
 					Action: func() error {
-						host := strings.TrimSpace(activekit.Promt(fmt.Sprintf("type host name (hit enter to leave %s):",
+						host := strings.TrimSpace(activekit.Promt(fmt.Sprintf("type host name (hit enter to leave %s): ",
 							activekit.OrString(ingr.Name, "empty"))))
 						if host != "" {
 							ingr.Name = host
@@ -48,7 +52,7 @@ func Wizard(config Config) (ingress.Ingress, error) {
 					},
 				},
 				{
-					Label: "Edit services",
+					Label: "Edit paths",
 					Action: func() error {
 						rule.Paths = pathsMenu(rule.Paths)
 						return nil
@@ -72,5 +76,5 @@ func Wizard(config Config) (ingress.Ingress, error) {
 			return ingr, err
 		}
 	}
-	return ingress.Ingress{}, nil
+	return ingr, nil
 }
