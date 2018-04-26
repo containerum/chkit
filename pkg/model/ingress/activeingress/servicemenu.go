@@ -17,7 +17,16 @@ func pathsMenu(paths ingress.PathList) ingress.PathList {
 		var menu []*activekit.MenuItem
 		for ind, path := range paths {
 			menu = append(menu, &activekit.MenuItem{
-				Label: fmt.Sprintf("Edit %q", path.ServiceName),
+				Label: fmt.Sprintf("Edit path %s", func() string {
+					if path.Path != "" && (path.ServicePort >= 0 || path.ServiceName != "") {
+						return fmt.Sprintf("%q -> %s:%d", path.Path, path.ServiceName, path.ServicePort)
+					} else if path.Path != "" {
+						return path.Path
+					} else if path.ServicePort >= 0 || path.ServiceName != "" {
+						return fmt.Sprintf("%s:%d", path.ServiceName, path.ServicePort)
+					}
+					return "empty path"
+				}()),
 				Action: func(ind int) func() error {
 					return func() error {
 						paths[ind] = editPathMenu(paths, ind)
@@ -151,10 +160,10 @@ func pathMenu(path ingress.Path) ingress.Path {
 			Title: "Edit path",
 			Items: []*activekit.MenuItem{
 				{
-					Label: fmt.Sprintf("Set path      :  %s",
+					Label: fmt.Sprintf("Set service      : %s",
 						activekit.OrString(path.ServiceName, "undefined (required)")),
 					Action: func() error {
-						servName := strings.TrimSpace(activekit.Promt("Type path name (hit Enter to leave %s)",
+						servName := strings.TrimSpace(activekit.Promt("Type service name (hit Enter to leave %s): ",
 							activekit.OrString(path.ServiceName, "empty")))
 						if servName == "" {
 							return nil
@@ -164,23 +173,36 @@ func pathMenu(path ingress.Path) ingress.Path {
 					},
 				},
 				{
-					Label: fmt.Sprintf("Set path port : %s", func() string {
-						if path.ServicePort < 0 {
+					Label: fmt.Sprintf("Set service port : %s", func() string {
+						if path.ServicePort <= 0 {
 							return "undefined (required)"
 						}
 						return strconv.Itoa(path.ServicePort)
 					}()),
 					Action: func() error {
 						portLimits := intranger.IntRanger(1, 65553)
-						portString := strings.TrimSpace(activekit.Promt("Type port (%v, hit Enter to leave %d)", portLimits, path.ServicePort))
+						portString := strings.TrimSpace(activekit.Promt("Type port (%v, hit Enter to leave %d): ", portLimits, path.ServicePort))
 						if portString == "" {
 							return nil
 						}
 						if port, err := strconv.Atoi(portString); err != nil || !portLimits.Containing(port) {
-							fmt.Printf("Expect number %v, got %d\n", portLimits, port)
+							fmt.Printf("Expect number %v, got %q\n", portLimits, portString)
 						} else {
 							path.ServicePort = port
 						}
+						return nil
+					},
+				},
+				{
+					Label: fmt.Sprintf("Set path         : %s",
+						activekit.OrString(path.Path, "undefined (required)")),
+					Action: func() error {
+						p := strings.TrimSpace(activekit.Promt("Type path (hit Enter to leave %s): ",
+							activekit.OrString(path.Path, "empty")))
+						if p == "" {
+							return nil
+						}
+						path.Path = p
 						return nil
 					},
 				},
