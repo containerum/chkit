@@ -11,7 +11,7 @@ type Deployment struct {
 	Name       string
 	Replicas   int
 	Status     *Status
-	Containers []container.Container
+	Containers container.ContainerList
 	origin     *model.Deployment
 }
 
