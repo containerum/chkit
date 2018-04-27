@@ -19,7 +19,6 @@ type Config struct {
 func Wizard(config Config) kubeModel.UpdateImage {
 	updImage := config.UpdateImage
 	oldImage := updImage
-
 	if updImage.Container == "" &&
 		len(config.Containers) == 1 {
 		updImage.Container = config.Containers[0].Name
@@ -85,7 +84,7 @@ func Wizard(config Config) kubeModel.UpdateImage {
 				{
 					Label: "Confirm",
 					Action: func() error {
-						if err := ValidateImage(config.UpdateImage); err != nil {
+						if err := ValidateImage(updImage); err != nil {
 							activekit.Attention(err.Error())
 							return nil
 						}

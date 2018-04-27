@@ -96,7 +96,7 @@ func Run() error {
 		Create(ctx),
 		Replace(ctx),
 		set.Set(ctx),
-		//Logs(ctx),
+		Logs(ctx),
 	)
 	return root.Execute()
 }

@@ -71,6 +71,13 @@ If deployment contains only one container, then uses that container by default.`
 			if cmd.Flag("image").Changed {
 				config.UpdateImage.Image = img.Image
 			}
+			if force {
+				if err := ctx.Client.SetContainerImage(ctx.Namespace, deplName, img); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				return
+			}
 			img = image.Wizard(config)
 			for exit := false; !exit; {
 				(&activekit.Menu{
