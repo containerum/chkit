@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var setAliases = []string{"imgs", "img", "im"}
+var setAliases = []string{"imgs", "img", "im", "images"}
 
 func Set(ctx *context.Context) *cobra.Command {
 	force := false
