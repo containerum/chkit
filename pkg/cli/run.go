@@ -18,7 +18,6 @@ import (
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -61,12 +60,7 @@ func Run() error {
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Hello, %q!\nUsing %q as default namespace\n",
-				ctx.Client.Username,
-				ctx.Namespace)
-			if err := mainActivity(); err != nil {
-				logrus.Fatalf("error in main activity: %v", err)
-			}
+			cmd.Help()
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			if !ctx.Changed {
@@ -96,7 +90,7 @@ func Run() error {
 		Create(ctx),
 		Replace(ctx),
 		set.Set(ctx),
-		//Logs(ctx),
+		Logs(ctx),
 	)
 	return root.Execute()
 }
