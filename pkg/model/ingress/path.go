@@ -3,7 +3,7 @@ package ingress
 import (
 	"fmt"
 
-	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
 type Path kubeModels.Path

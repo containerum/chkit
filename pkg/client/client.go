@@ -1,7 +1,7 @@
 package chClient
 
 import (
-	kubeClient "git.containerum.net/ch/kube-client/pkg/client"
+	kubeClient "github.com/containerum/kube-client/pkg/client"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
 )

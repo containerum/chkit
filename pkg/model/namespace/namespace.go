@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
+	kubeModel "github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/volume"
 	"github.com/olekukonko/tablewriter"

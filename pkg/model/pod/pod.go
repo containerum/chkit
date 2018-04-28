@@ -2,10 +2,9 @@ package pod
 
 import (
 	"fmt"
-
 	"time"
 
-	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
+	kubeModel "github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model"
 )
 
@@ -19,7 +18,7 @@ type Pod struct {
 }
 
 func PodFromKube(pod kubeModel.Pod) Pod {
-	containers := []string{}
+	var containers []string
 	for _, container := range pod.Containers {
 		containers = append(containers,
 			fmt.Sprintf("%s [%s]",

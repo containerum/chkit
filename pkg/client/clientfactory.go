@@ -5,11 +5,11 @@ import (
 
 	"time"
 
-	kubeClient "git.containerum.net/ch/kube-client/pkg/client"
-	"git.containerum.net/ch/kube-client/pkg/rest/re"
-	"git.containerum.net/ch/kube-client/pkg/rest/remock"
-	"git.containerum.net/ch/kube-client/pkg/websocket/gorilla"
-	"git.containerum.net/ch/kube-client/pkg/websocket/wsmock"
+	kubeClient "github.com/containerum/kube-client/pkg/client"
+	"github.com/containerum/kube-client/pkg/rest/re"
+	"github.com/containerum/kube-client/pkg/rest/remock"
+	"github.com/containerum/kube-client/pkg/websocket/gorilla"
+	"github.com/containerum/kube-client/pkg/websocket/wsmock"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"

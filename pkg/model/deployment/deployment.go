@@ -3,7 +3,7 @@ package deployment
 import (
 	"fmt"
 
-	"git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
 )
 

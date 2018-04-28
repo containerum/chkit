@@ -2,27 +2,28 @@
 
 
 [[projects]]
+  branch = "develop"
+  name = "git.containerum.net/ch/auth"
+  packages = ["pkg/errors"]
+  revision = "7430ec8f101b19886808585f9cef3ff6e6c33016"
+
+[[projects]]
+  branch = "develop"
+  name = "git.containerum.net/ch/kube-api"
+  packages = ["pkg/kubeErrors"]
+  revision = "15b8a669401acef895e747eaeabb6100a6adb8ab"
+
+[[projects]]
   name = "git.containerum.net/ch/kube-client"
-  packages = [
-    "pkg/cherry",
-    "pkg/cherry/api-gateway",
-    "pkg/cherry/auth",
-    "pkg/cherry/kube-api",
-    "pkg/cherry/resource-service",
-    "pkg/cherry/user-manager",
-    "pkg/client",
-    "pkg/identity",
-    "pkg/model",
-    "pkg/rest",
-    "pkg/rest/re",
-    "pkg/rest/remock",
-    "pkg/rest/remock/ermockerr",
-    "pkg/websocket/gorilla",
-    "pkg/websocket/wsmock",
-    "pkg/websocket/wsmock/errwsmock"
-  ]
+  packages = ["pkg/model"]
   revision = "d719bf83b39eb8cbc2ece117b83dd65db5822552"
   version = "0.10.0"
+
+[[projects]]
+  branch = "develop"
+  name = "git.containerum.net/ch/user-manager"
+  packages = ["pkg/umErrors"]
+  revision = "8770d25cffcc79a5efe374fc4cf516bba378be27"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -41,6 +42,31 @@
   packages = ["."]
   revision = "c112833d014c77e8bde723fd0158e3156951639f"
   version = "v2.0.6"
+
+[[projects]]
+  name = "github.com/containerum/cherry"
+  packages = ["."]
+  revision = "3076e36aee79538b125d060e5b671649cbb2db4e"
+  version = "v1.0.1-rc2"
+
+[[projects]]
+  name = "github.com/containerum/kube-client"
+  packages = [
+    "pkg/cherry/api-gateway",
+    "pkg/cherry/resource-service",
+    "pkg/client",
+    "pkg/identity",
+    "pkg/model",
+    "pkg/rest",
+    "pkg/rest/re",
+    "pkg/rest/remock",
+    "pkg/rest/remock/ermockerr",
+    "pkg/websocket/gorilla",
+    "pkg/websocket/wsmock",
+    "pkg/websocket/wsmock/errwsmock"
+  ]
+  revision = "f5726b4cacfa4f7d1d53c651ca3606c5be518435"
+  version = "v0.11.0"
 
 [[projects]]
   branch = "master"
@@ -450,6 +476,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ba9841cb6d91bef406c2782ca77f00e01b0e1aefaa5d26c3fa163b120fe70dc4"
+  inputs-digest = "f570ee0b2e44d8099e241f33a16a431a1aa89fe943f27e0381ef601f69e58f93"
   solver-name = "gps-cdcl"
   solver-version = 1

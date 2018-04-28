@@ -1,12 +1,12 @@
 package chClient
 
 import (
-	"git.containerum.net/ch/kube-client/pkg/cherry"
-	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
-	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
-	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
-	"git.containerum.net/ch/kube-client/pkg/model"
+	"git.containerum.net/ch/auth/pkg/errors"
+	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/kube-client/pkg/cherry/resource-service"
+	kubeModels "github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -112,7 +112,7 @@ func (client *Client) CreateDeployment(ns string, depl deployment.Deployment) er
 	})
 }
 
-func (client *Client) SetContainerImage(ns, depl string, image model.UpdateImage) error {
+func (client *Client) SetContainerImage(ns, depl string, image kubeModels.UpdateImage) error {
 	return retry(4, func() (bool, error) {
 		err := client.kubeAPIClient.SetContainerImage(ns, depl, image)
 		switch {

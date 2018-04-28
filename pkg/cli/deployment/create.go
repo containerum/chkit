@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"

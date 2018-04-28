@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sirupsen/logrus"
-
-	"git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/validation"
+	"github.com/containerum/kube-client/pkg/model"
+	"github.com/sirupsen/logrus"
 )
 
 func getContainers(conts []container.Container) []container.Container {

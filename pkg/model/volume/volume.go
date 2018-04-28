@@ -3,7 +3,7 @@ package volume
 import (
 	"time"
 
-	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
 type Volume struct {
