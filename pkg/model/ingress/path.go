@@ -26,6 +26,21 @@ func PathListFromKube(kubeList []kubeModels.Path) PathList {
 	return list
 }
 
+func (list PathList) Len() int {
+	return len(list)
+}
+
+func (list PathList) Empty() bool {
+	return list.Len() == 0
+}
+
+func (list PathList) Head() Path {
+	if list.Empty() {
+		return Path{}
+	}
+	return list[0]
+}
+
 func (list PathList) Copy() PathList {
 	return append(make([]Path, 0, len(list)), list...)
 }

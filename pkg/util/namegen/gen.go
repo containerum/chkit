@@ -22,3 +22,7 @@ func Color() string {
 func Aster() string {
 	return Asteroids[rnd.Intn(len(Asteroids))]
 }
+
+func Physicist() string {
+	return Physicists[rnd.Intn(len(Physicists))]
+}

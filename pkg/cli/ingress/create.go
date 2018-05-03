@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/ingress/activeingress"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/host2dnslabel"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +53,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				cmd.Flag("service").Changed ||
 				cmd.Flag("port").Changed {
 				flagIngress.Rules = ingress.RuleList{flagRule}
-				flagIngress.Name = flagRule.Host
+				flagIngress.Name = host2dnslabel.Host2DNSLabel(flagRule.Host)
 			}
 
 			if cmd.Flag("force").Changed {

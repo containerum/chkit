@@ -52,6 +52,21 @@ func (list RuleList) ToKube() []kubeModels.Rule {
 	return kubeList
 }
 
+func (list RuleList) Len() int {
+	return len(list)
+}
+
+func (list RuleList) Empty() bool {
+	return list.Len() == 0
+}
+
+func (list RuleList) Head() Rule {
+	if list.Empty() {
+		return Rule{}
+	}
+	return list[0].Copy()
+}
+
 func (list RuleList) Copy() RuleList {
 	cp := append(RuleList{}, list...)
 	for i, rule := range cp {

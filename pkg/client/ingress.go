@@ -98,7 +98,7 @@ func (client *Client) CreateIngress(ns string, ingr ingress.Ingress) error {
 
 func (client *Client) ReplaceIngress(ns string, ingr ingress.Ingress) error {
 	err := retry(4, func() (bool, error) {
-		err := client.kubeAPIClient.UpdateIngress(ns, ingr.Name, ingr.ToKube())
+		err := client.kubeAPIClient.UpdateIngress(ns, ingr.Host(), ingr.ToKube())
 		switch {
 		case err == nil:
 			return false, nil

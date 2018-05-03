@@ -27,3 +27,7 @@ func (ingr Ingress) Copy() Ingress {
 		Rules: ingr.Rules.Copy(),
 	}
 }
+
+func (ingr Ingress) Host() string {
+	return ingr.Rules.Head().Host
+}

@@ -20,6 +20,21 @@ func (list IngressList) ToKube() []kubeModels.Ingress {
 	return kubeList
 }
 
+func (list IngressList) Len() int {
+	return len(list)
+}
+
+func (list IngressList) Empty() bool {
+	return list.Len() == 0
+}
+
+func (list IngressList) Head() Ingress {
+	if list.Empty() {
+		return Ingress{}
+	}
+	return list[0].Copy()
+}
+
 func (list IngressList) Copy() IngressList {
 	var cp IngressList = make([]Ingress, 0, len(list))
 	for _, ingr := range list {

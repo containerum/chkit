@@ -30,3 +30,7 @@ func (ingress Ingress) TableRows() [][]string {
 		strings.Join(ingress.Rules.ServicesTableView(), "\n"),
 	}}
 }
+
+func (ingress Ingress) String() string {
+	return ingress.RenderTable()
+}
