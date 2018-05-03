@@ -18,7 +18,7 @@ func (user User) ToKube() kubeModels.User {
 
 func (user User) String() string {
 	return fmt.Sprintf(
-		"Login   : %s\n"+
+		"Login  : %s\n"+
 			"Name   : %s %s\n"+
 			"Phone  : %s\n"+
 			"Company: %s\n",
