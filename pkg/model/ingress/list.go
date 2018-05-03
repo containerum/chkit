@@ -51,3 +51,12 @@ func (list IngressList) Delete(i int) IngressList {
 	cp := list.Copy()
 	return append(cp[:i], cp[i+1:]...)
 }
+
+func (list IngressList) GetByName(name string) (Ingress, bool) {
+	for _, ingr := range list {
+		if name == ingr.Name {
+			return ingr.Copy(), true
+		}
+	}
+	return Ingress{}, false
+}
