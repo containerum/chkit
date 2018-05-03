@@ -87,9 +87,6 @@ func Logs(ctx *context.Context) *cobra.Command {
 				fmt.Println(scanner.Text())
 				nLines++
 			}
-			if !logsConfig.Quiet {
-				fmt.Printf("%d lines of logs read\n", nLines)
-			}
 			if err != nil {
 				activekit.Attention(err.Error())
 				os.Exit(1)
