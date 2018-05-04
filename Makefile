@@ -21,7 +21,7 @@ EXECUTABLE:=chkit
 DEV_LDFLAGS=-X '$(PACKAGE)/$(CLI_DIR)/mode.API_ADDR=$(CONTAINERUM_API)' \
 	-X '$(PACKAGE)/$(CLI_DIR).VERSION=v$(VERSION)'
 RELEASE_LDFLAGS=-X $(PACKAGE)/$(CLI_DIR).VERSION=v$(VERSION) \
-	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell base64 -w 0 $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'\
+	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell openssl enc -base64 -in $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'\
 	-X $(PACKAGE)/$(CLI_DIR)/mode.API_ADDR=$(CONTAINERUM_API)
 
 genkey:
@@ -34,7 +34,7 @@ genkey:
 # go has build artifacts caching so soruce tracking not needed
 build:
 	@echo "Building chkit for current OS/architecture, without signing"
-	@go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE) ./$(CMD_DIR)
+	go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE) ./$(CMD_DIR)
 
 test:
 	@echo "Running tests"
@@ -64,8 +64,7 @@ $(eval ifeq ($(1),windows)
 else
 	temp_executable=$(temp_build_dir)/$(EXECUTABLE)
 endif)
-@echo go build -tags="dev" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable) ./$(CMD_DIR)
-@GOOS=$(1) GOARCH=$(2) go build -tags="dev" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable) ./$(CMD_DIR)
+GOOS=$(1) GOARCH=$(2) go build -tags="release" -ldflags="$(RELEASE_LDFLAGS)"  -v -o $(temp_executable) ./$(CMD_DIR)
 @$(call create_checksum,$(temp_executable))
 @$(call create_signature,$(temp_executable))
 $(eval ifeq ($(1),windows)
