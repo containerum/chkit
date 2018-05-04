@@ -65,8 +65,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "f5726b4cacfa4f7d1d53c651ca3606c5be518435"
-  version = "v0.11.0"
+  revision = "584feaf51fc5cf24ccf2f4872c7da1c5a81d75d8"
+  version = "v0.11.3"
 
 [[projects]]
   branch = "master"

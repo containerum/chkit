@@ -2,7 +2,6 @@ package client
 
 import (
 	"github.com/containerum/kube-client/pkg/rest"
-
 	"github.com/containerum/kube-client/pkg/model"
 )
 
