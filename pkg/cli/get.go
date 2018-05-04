@@ -12,6 +12,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/pod"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
+	"github.com/containerum/chkit/pkg/cli/solution"
 	"github.com/containerum/chkit/pkg/cli/user"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
@@ -57,6 +58,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		clipod.Get(ctx),
 		clingress.Get(ctx),
 		cliuser.Get(ctx),
+		clisolution.Get(ctx),
 		&cobra.Command{
 			Use:     "default-namespace",
 			Short:   "print default",
