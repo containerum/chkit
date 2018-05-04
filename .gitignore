@@ -8,5 +8,4 @@ build
 deployment.json
 /service.json
 !/cmd/chkit/
-/Dockerfile
-/.dockerignore
+.dockerignore
