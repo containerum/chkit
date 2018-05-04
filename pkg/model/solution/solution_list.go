@@ -8,7 +8,7 @@ import (
 
 type SolutionList kubeModels.AvailableSolutionsList
 
-func SolutionListFromKube(kubeList SolutionList) SolutionList {
+func SolutionListFromKube(kubeList kubeModels.AvailableSolutionsList) SolutionList {
 	return SolutionList(kubeList)
 }
 
