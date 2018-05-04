@@ -30,8 +30,9 @@ func (solution Solution) String() string {
 func (solution Solution) ImagePreview() string {
 	view := strings.Join(solution.Images, ", ")
 	width := text.Width(view)
-	if width > 13 {
-		view = string([]rune(view)[:13]) + "..."
+	const max = 32
+	if width > max {
+		view = string([]rune(view)[:max]) + "..."
 	}
 	return view
 }
