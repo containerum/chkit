@@ -23,8 +23,9 @@ func (list SolutionList) Filter(pred func(Solution) bool) SolutionList {
 }
 
 func (list SolutionList) SearchByName(name string) SolutionList {
+	name = strings.ToLower(name)
 	return list.Filter(func(solution Solution) bool {
-		return strings.Contains(solution.Name, name)
+		return strings.Contains(strings.ToLower(solution.Name), name)
 	})
 }
 
