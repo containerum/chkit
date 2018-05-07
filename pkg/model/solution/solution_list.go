@@ -36,3 +36,11 @@ func (list SolutionList) String() string {
 	}
 	return strings.Join(strs, "\n")
 }
+
+func (list SolutionList) Names() []string {
+	var names = make([]string, 0, list.Len())
+	for _, sol := range list.Solutions {
+		names = append(names, sol.Name)
+	}
+	return names
+}

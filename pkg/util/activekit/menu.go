@@ -10,11 +10,12 @@ import (
 )
 
 type Menu struct {
-	Title   string
-	Promt   string
-	History []string
-	Items   MenuItems
-	once    sync.Once
+	Title               string
+	Promt               string
+	History             []string
+	Items               MenuItems
+	CustomOptionHandler func(string) error
+	once                sync.Once
 }
 
 type MenuItem struct {
@@ -87,6 +88,10 @@ func (menu *Menu) Run() (*MenuItem, error) {
 			}
 			return item, item.Action()
 		}
-		fmt.Printf("Option %q not found\n", input)
+		if menu.CustomOptionHandler == nil {
+			fmt.Printf("Option %q not found\n", input)
+		} else {
+			return nil, menu.CustomOptionHandler(input)
+		}
 	}
 }

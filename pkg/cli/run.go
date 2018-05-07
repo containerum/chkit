@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
+	"github.com/containerum/chkit/pkg/cli/solution"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -43,7 +44,9 @@ func Run(ctx *context.Context) *cobra.Command {
 			}
 		},
 	}
-	command.AddCommand()
+	command.AddCommand(
+		clisolution.Run(ctx),
+	)
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.Namespace, "")
 	return command
