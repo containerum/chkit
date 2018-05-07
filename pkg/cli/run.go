@@ -23,7 +23,7 @@ import (
 
 var VERSION = ""
 
-func Run() error {
+func Root() error {
 	ctx := &context.Context{
 		Version: func() string {
 			// try to normalise version string
