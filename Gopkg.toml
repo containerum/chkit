@@ -76,3 +76,7 @@
 [[constraint]]
   revision = "8152e7eb6ccf8679a64582a66b78519688d156ad"
   name = "github.com/inconshreveable/go-update"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.2.1"
