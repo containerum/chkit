@@ -95,7 +95,7 @@ func Root() error {
 		Rename(ctx),
 		&cobra.Command{
 			Use:   "version",
-			Short: "print version",
+			Short: "Print version",
 			Run: func(cmd *cobra.Command, args []string) {
 				fmt.Println(ctx.Version)
 			},

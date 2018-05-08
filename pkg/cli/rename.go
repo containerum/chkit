@@ -12,7 +12,8 @@ import (
 
 func Rename(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
-		Use: "rename",
+		Use:   "rename",
+		Short: "Rename resource",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
