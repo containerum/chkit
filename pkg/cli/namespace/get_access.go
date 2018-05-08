@@ -24,6 +24,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 				logger.Debugf("getting access list")
 				list, err := ctx.Client.GetAccessList()
 				if err != nil {
+					logger.WithError(err).Errorf("unable to get namespace access list")
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -40,6 +41,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 				logger.Debugf("getting namespace %q access", ctx.Namespace)
 				acc, err := ctx.Client.GetAccess(nsName)
 				if err != nil {
+					logger.WithError(err).Errorf("uanble to get namespace %q access", nsName)
 					fmt.Println(err)
 					os.Exit(1)
 				}
