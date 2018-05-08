@@ -54,6 +54,7 @@ func Get(ctx *context.Context) *cobra.Command {
 	command.AddCommand(
 		clideployment.Get(ctx),
 		clinamespace.Get(ctx),
+		clinamespace.GetAccess(ctx),
 		cliserv.Get(ctx),
 		clipod.Get(ctx),
 		clingress.Get(ctx),
