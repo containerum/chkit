@@ -13,7 +13,8 @@ import (
 
 func Login(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
-		Use: "login",
+		Use:   "login",
+		Short: "Login to system",
 		Run: func(command *cobra.Command, args []string) {
 			if err := clisetup.SetupLogs(ctx); err != nil {
 				angel.Angel(ctx, err)
