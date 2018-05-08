@@ -6,14 +6,17 @@ import (
 )
 
 type Access struct {
-	Namespace string `json:"namespace"`
-	Access    string `json:"access"`
+	Namespace string      `json:"namespace"`
+	Access    AccessLevel `json:"access"`
 }
 
 func AccessFromNamespace(namespace namespace.Namespace) Access {
 	return Access{
 		Namespace: namespace.Label,
-		Access:    namespace.Access,
+		Access: func() AccessLevel {
+			var lvl, _ = LevelFromString(namespace.Access)
+			return lvl
+		}(),
 	}
 }
 
@@ -31,6 +34,6 @@ func (Access) TableHeaders() []string {
 func (access Access) TableRows() [][]string {
 	return [][]string{{
 		access.Namespace,
-		access.Access,
+		access.Access.String(),
 	}}
 }
