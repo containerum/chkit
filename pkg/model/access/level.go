@@ -24,6 +24,18 @@ var (
 	_ encoding.TextUnmarshaler = new(AccessLevel)
 )
 
+var levelsList = []AccessLevel{
+	Owner,
+	Write,
+	ReadDelete,
+	Read,
+	None,
+}
+
+func Levels() []AccessLevel {
+	return append(make([]AccessLevel, 0, len(levelsList)), levelsList...)
+}
+
 var lvls = strset.NewSet([]string{
 	Owner.String(),
 	Write.String(),
@@ -42,6 +54,9 @@ func LevelFromString(str string) (AccessLevel, error) {
 }
 
 func (lvl AccessLevel) String() string {
+	if None == lvl {
+		return "none"
+	}
 	return string(lvl)
 }
 
