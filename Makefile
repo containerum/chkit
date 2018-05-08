@@ -12,7 +12,7 @@ PUBLIC_KEY_FILE:=pubkey.pem
 COMMIT_HASH=$(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE=$(shell date +%FT%T%Z)
 LATEST_TAG=$(shell git describe --tags $(shell git rev-list --tags --max-count=1))
-CONTAINERUM_API?=https://api.containerum.io:8082
+#CONTAINERUM_API?=https://api.containerum.io:8082
 VERSION?=$(LATEST_TAG:v%=%)
 
 # make directory and store path to variable
@@ -23,6 +23,15 @@ DEV_LDFLAGS=-X '$(PACKAGE)/$(CLI_DIR)/mode.API_ADDR=$(CONTAINERUM_API)' \
 RELEASE_LDFLAGS=-X $(PACKAGE)/$(CLI_DIR).VERSION=v$(VERSION) \
 	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(shell openssl enc -base64 -in $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))\'\
 	-X $(PACKAGE)/$(CLI_DIR)/mode.API_ADDR=$(CONTAINERUM_API)
+
+CONTAINER_NAME?=containerum/chkit
+ALLOW_SELF_SIGNED_CERTS?=true
+docker:
+	docker build -t $(CONTAINER_NAME) . \
+		--build-arg ALLOW_SELF_SIGNED_CERTS=$(ALLOW_SELF_SIGNED_CERTS) \
+		--build-arg USERNAME=$(USERNAME) \
+		--build-arg PASS=$(PASS)
+
 
 genkey:
 	@echo "Generating private/public ECDSA keys to sign"
