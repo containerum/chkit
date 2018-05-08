@@ -66,7 +66,7 @@ func Root() error {
 			if !ctx.Changed {
 				return
 			}
-			if err := configuration.SaveConfig(ctx); err != nil {
+			if err := configuration.SyncConfig(ctx); err != nil {
 				fmt.Printf("Unable to save config file: %v\n", err)
 			}
 		},

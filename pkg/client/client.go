@@ -1,9 +1,9 @@
 package chClient
 
 import (
-	kubeClient "github.com/containerum/kube-client/pkg/client"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
+	kubeClient "github.com/containerum/kube-client/pkg/client"
 )
 
 const (
@@ -14,6 +14,7 @@ const (
 // Client -- chkit core client
 type Client struct {
 	model.Config
+	factory       KubeAPIclientSetup
 	isInitialized bool
 	kubeAPIClient kubeClient.Client
 }
@@ -32,5 +33,14 @@ func (client *Client) Init(setup KubeAPIclientSetup) error {
 	}
 	client.kubeAPIClient = *kcli
 	client.isInitialized = true
+	client.factory = setup
+	return nil
+}
+
+func (client *Client) ReInit() error {
+	if client.factory == nil || !client.isInitialized {
+		panic("[chkit/pkg/client.Client.ReInit] try to reinit not initialized client")
+	}
+	client.Init(client.factory)
 	return nil
 }

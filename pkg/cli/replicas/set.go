@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -20,6 +21,12 @@ func Set(ctx *context.Context) *cobra.Command {
 		Long:    "Sets deployment replicas",
 		Example: "chkit set replicas [-n namespace_label] [-d depl_label] [N_replicas]",
 		Aliases: []string{"re", "rep", "repl", "replica"},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				activekit.Attention(err.Error())
+				os.Exit(1)
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if !cmd.Flag("deployment").Changed {
 				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace)

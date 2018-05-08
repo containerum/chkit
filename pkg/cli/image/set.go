@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/containerum/kube-client/pkg/model"
+	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/image"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/spf13/cobra"
 )
 
@@ -24,6 +25,12 @@ func Set(ctx *context.Context) *cobra.Command {
 		Short:   "set container image in specific deployment",
 		Long: `Sets container image in specific deployment.
 If deployment contains only one container, then uses that container by default.`,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				activekit.Attention(err.Error())
+				os.Exit(1)
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if force {
 				if err := ctx.Client.SetContainerImage(ctx.Namespace, deplName, img); err != nil {

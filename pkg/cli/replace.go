@@ -34,7 +34,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 		},
 		PersistentPostRun: func(command *cobra.Command, args []string) {
 			if ctx.Changed {
-				if err := configuration.SaveConfig(ctx); err != nil {
+				if err := configuration.SyncConfig(ctx); err != nil {
 					logrus.WithError(err).Errorf("unable to save config")
 					fmt.Printf("Unable to save config: %v\n", err)
 					return

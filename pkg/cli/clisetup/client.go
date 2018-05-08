@@ -9,7 +9,7 @@ import (
 
 func SetupClient(ctx *context.Context, debugRequests bool) error {
 	var err error
-	if mode.DEBUG && !mode.MOCK {
+	if (mode.DEBUG && !mode.MOCK) || ctx.AllowSelfSignedTLS {
 		logrus.WithField("operation", "SetupClient").Debugf("Using test API: %q", ctx.Client.APIaddr)
 		if debugRequests {
 			logrus.Debugf("verbose requests logs")
