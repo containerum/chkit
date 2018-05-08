@@ -92,6 +92,7 @@ func Root() error {
 		set.Set(ctx),
 		Logs(ctx),
 		Run(ctx),
+		Rename(ctx),
 		&cobra.Command{
 			Use:   "version",
 			Short: "print version",
