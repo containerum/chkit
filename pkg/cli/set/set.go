@@ -3,6 +3,7 @@ package set
 import (
 	"github.com/containerum/chkit/pkg/cli/containerumapi"
 	"github.com/containerum/chkit/pkg/cli/image"
+	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/replicas"
 	"github.com/containerum/chkit/pkg/context"
@@ -29,6 +30,7 @@ func Set(ctx *context.Context) *cobra.Command {
 		image.Set(ctx),
 		replicas.Set(ctx),
 		containerumapi.Set(ctx),
+		clinamespace.SetAccess(ctx),
 	)
 	return command
 }
