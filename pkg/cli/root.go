@@ -92,6 +92,13 @@ func Root() error {
 		set.Set(ctx),
 		Logs(ctx),
 		Run(ctx),
+		&cobra.Command{
+			Use:   "version",
+			Short: "print version",
+			Run: func(cmd *cobra.Command, args []string) {
+				fmt.Println(ctx.Version)
+			},
+		},
 	)
 	return root.Execute()
 }
