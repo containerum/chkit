@@ -34,6 +34,10 @@
 #  version = "kubernetes-1.9.3"
 
 [[constraint]]
+  name = "github.com/containerum/kube-client"
+  version = "~0.12.0"
+
+[[constraint]]
   branch = "master"
   name = "github.com/containerum/solutions"
 

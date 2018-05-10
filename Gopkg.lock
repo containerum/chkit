@@ -59,8 +59,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "67a267bad74bbbe621d04cae4d89abf62998867b"
-  version = "v0.11.5"
+  revision = "1666433c3c47c410d059aee7e1d41aa8126188eb"
+  version = "v0.12.0"
 
 [[projects]]
   branch = "master"
@@ -488,6 +488,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9f279f28623e5ea5c9d35a038eaadbda73e28474ded45a35819e3f4b64968ffb"
+  inputs-digest = "acf48f6fabf1a6a79af6f41ea4eb7ddf17a612234eac9aa408cdec75628a19b8"
   solver-name = "gps-cdcl"
   solver-version = 1
