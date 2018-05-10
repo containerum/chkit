@@ -114,7 +114,7 @@ func (client *Client) SetNamespaceAccess(namespace, username, access string) err
 			Access:   access,
 		},
 		URL: rest.URL{
-			Path: resourceNamespaceNamePath,
+			Path: resourceNamespaceAccessPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},

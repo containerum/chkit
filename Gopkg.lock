@@ -14,12 +14,6 @@
   revision = "15b8a669401acef895e747eaeabb6100a6adb8ab"
 
 [[projects]]
-  name = "git.containerum.net/ch/kube-client"
-  packages = ["pkg/model"]
-  revision = "d719bf83b39eb8cbc2ece117b83dd65db5822552"
-  version = "0.10.0"
-
-[[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/user-manager"
   packages = ["pkg/umErrors"]
@@ -65,8 +59,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "584feaf51fc5cf24ccf2f4872c7da1c5a81d75d8"
-  version = "v0.11.3"
+  revision = "02c2c082b09657afa859403253917aa3400f501d"
+  version = "v0.11.4"
 
 [[projects]]
   branch = "master"
@@ -494,6 +488,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "678c26d9920fd8390daf95a53780eae995af9a5713e415e37752fe62be0cbb65"
+  inputs-digest = "9f279f28623e5ea5c9d35a038eaadbda73e28474ded45a35819e3f4b64968ffb"
   solver-name = "gps-cdcl"
   solver-version = 1
