@@ -5,17 +5,16 @@ import (
 	"fmt"
 
 	"strings"
-
 )
 
 type Err string
 
 var (
-	_ error          = Err("")
-	_ ErrMatcher     = Err("")
+	_ error      = Err("")
+	_ ErrMatcher = Err("")
 
-	_ error          = &Wrapper{}
-	_ ErrMatcher     = &Wrapper{}
+	_ error      = &Wrapper{}
+	_ ErrMatcher = &Wrapper{}
 )
 
 type ErrMatcher interface {
