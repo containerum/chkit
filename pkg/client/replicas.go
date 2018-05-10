@@ -1,9 +1,9 @@
 package chClient
 
 import (
-	"github.com/containerum/cherry"
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	"github.com/containerum/cherry"
 )
 
 func (client *Client) SetReplicas(ns, depl string, n uint64) error {

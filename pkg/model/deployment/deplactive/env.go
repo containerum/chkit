@@ -3,10 +3,10 @@ package deplactive
 import (
 	"fmt"
 
-	"github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/containerum/kube-client/pkg/model"
 )
 
 func editContainerEnvironmentVars(cont *container.Container) {

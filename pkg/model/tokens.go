@@ -1,6 +1,6 @@
 package model
 
-import "git.containerum.net/ch/kube-client/pkg/model"
+import "github.com/containerum/kube-client/pkg/model"
 
 var (
 	_ = Tokens(model.Tokens{})

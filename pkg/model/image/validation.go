@@ -3,9 +3,9 @@ package image
 import (
 	"fmt"
 
-	"github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/util/validation"
+	"github.com/containerum/kube-client/pkg/model"
 )
 
 const (

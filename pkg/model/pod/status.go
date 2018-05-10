@@ -3,9 +3,9 @@ package pod
 import (
 	"time"
 
-	"github.com/sirupsen/logrus"
-	kubeModels "github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model"
+	kubeModels "github.com/containerum/kube-client/pkg/model"
+	"github.com/sirupsen/logrus"
 )
 
 type Status struct {

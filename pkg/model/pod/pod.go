@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	kubeModel "github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model"
+	kubeModel "github.com/containerum/kube-client/pkg/model"
 )
 
 type Pod struct {

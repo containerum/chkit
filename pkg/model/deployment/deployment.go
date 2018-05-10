@@ -3,8 +3,8 @@ package deployment
 import (
 	"fmt"
 
-	"github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
+	"github.com/containerum/kube-client/pkg/model"
 )
 
 type Deployment struct {
