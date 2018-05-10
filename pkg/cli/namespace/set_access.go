@@ -17,9 +17,11 @@ import (
 
 func SetAccess(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
-		Use:     "access",
-		Aliases: accessAliases,
-		Short:   "get namespace access",
+		Use:        "access",
+		Aliases:    accessAliases,
+		SuggestFor: accessAliases,
+		Short:      "get namespace access",
+		Example:    "chkit set access $USERNAME [--namespace $NAMESPACE]",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
@@ -27,46 +29,20 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
-			var accessLevel = access.None
-			var user string
-			var ns string
-			switch len(args) {
-			case 2:
-				ns = args[0]
-				user = args[1]
-				var menu activekit.MenuItems
-				for _, lvl := range access.Levels() {
-					menu = menu.Append(&activekit.MenuItem{
-						Label: lvl.String(),
-						Action: func(lvl access.AccessLevel) func() error {
-							return func() error {
-								accessLevel = lvl
-								return nil
-							}
-						}(lvl),
-					})
-				}
-				(&activekit.Menu{
-					Title: "Select access level",
-					Items: menu,
-				}).Run()
-			case 3:
-				ns = args[0]
-				user = args[1]
-				acc, err := access.LevelFromString(args[2])
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-				accessLevel = acc
-			default:
+			if len(args) != 1 {
 				cmd.Help()
 				os.Exit(1)
 			}
+			var username = args[0]
+			accessLevel, err := access.LevelFromString(args[2])
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			if force, _ := cmd.Flags().GetBool("force"); force ||
-				activekit.YesNo("Are you sure you want give %s %v access?", user, accessLevel) {
-				if err := ctx.Client.SetAccess(ns, user, accessLevel); err != nil {
-					logger.WithError(err).Errorf("unable to update access to %q for user %q", user, accessLevel)
+				activekit.YesNo("Are you sure you want give %s %v access?", username, accessLevel) {
+				if err := ctx.Client.SetAccess(ctx.Namespace, username, accessLevel); err != nil {
+					logger.WithError(err).Errorf("unable to update access to %q for user %q", username, accessLevel)
 					fmt.Println(err)
 					os.Exit(1)
 				}
