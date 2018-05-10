@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -15,6 +14,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
