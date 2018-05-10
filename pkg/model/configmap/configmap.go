@@ -41,9 +41,22 @@ func (config ConfigMap) Add(data map[string]interface{}) ConfigMap {
 	return config
 }
 
-func (config ConfigMap) Get(key string) (interface{}, bool) {
+func (config ConfigMap) Get(key string, defaultValues ...interface{}) (interface{}, bool) {
 	value, ok := config.Data[key]
+	if !ok {
+		for _, defaultValue := range defaultValues {
+			if defaultValue != nil {
+				return defaultValue, ok
+			}
+		}
+	}
 	return value, ok
+}
+
+func (config ConfigMap) Delete(key string) ConfigMap {
+	config = config.Copy()
+	delete(config.Data, key)
+	return config
 }
 
 func (config ConfigMap) SetName(name string) ConfigMap {
