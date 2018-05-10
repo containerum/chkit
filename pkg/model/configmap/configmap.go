@@ -41,6 +41,25 @@ func (config ConfigMap) Add(data map[string]interface{}) ConfigMap {
 	return config
 }
 
+func (config ConfigMap) AddItems(items ...Item) ConfigMap {
+	config = config.Copy()
+	for _, item := range items {
+		config.Data[item.Key] = item.Value
+	}
+	return config
+}
+
+func (config ConfigMap) Items() []Item {
+	var items = make([]Item, 0, len(config.Data))
+	for k, v := range config.Data {
+		items = append(items, Item{
+			Key:   k,
+			Value: v,
+		})
+	}
+	return items
+}
+
 func (config ConfigMap) Get(key string, defaultValues ...interface{}) (interface{}, bool) {
 	value, ok := config.Data[key]
 	if !ok {
