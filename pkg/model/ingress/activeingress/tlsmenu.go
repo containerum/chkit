@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/eof"
 )
 
 func tlsSecretMenu(secret *string) *string {
@@ -44,7 +45,7 @@ func tlsSecretMenu(secret *string) *string {
 						if !activekit.YesNo("Are you sure?") {
 							return nil
 						}
-						fmt.Printf("Paste TLS secret here (hit Ctrl+D to submit):\n")
+						fmt.Printf("Paste TLS secret here (hit %s to submit):\n", eof.COMBO)
 						secretBytes, err := ioutil.ReadAll(os.Stdin)
 						if err != nil {
 							activekit.Attention(err.Error())

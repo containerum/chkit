@@ -3,6 +3,7 @@ package cli
 import (
 	"os"
 
+	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/postrun"
@@ -36,8 +37,8 @@ func Create(ctx *context.Context) *cobra.Command {
 	}
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.Namespace, "")
-
 	command.AddCommand(
+		cliconfigmap.Create(ctx),
 		clideployment.Create(ctx),
 		cliserv.Create(ctx),
 		clingress.Create(ctx),

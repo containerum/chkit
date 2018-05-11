@@ -2,6 +2,11 @@ package model
 
 //go:generate swagger generate spec -m -o ../../swagger.json
 
+// ConfigMapData -- model for config map data
+//
+// swagger:model
+type ConfigMapData map[string]string
+
 // ConfigMap -- model for config map
 //
 // swagger:model
@@ -13,5 +18,5 @@ type ConfigMap struct {
 	// key-value data
 	//
 	// required: true
-	Data map[string]string `json:"data"`
+	Data ConfigMapData `json:"data"`
 }
