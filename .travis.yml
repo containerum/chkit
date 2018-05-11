@@ -1,0 +1,24 @@
+sudo: required
+
+language: go
+
+env:
+  global:
+  - IMAGE_NAME=containerum/chkit
+
+services:
+  - docker
+
+script:
+  - docker build -t "$IMAGE_NAME" .
+
+before_deploy:
+  - docker login -u="$DOCKER_LOGIN" -p="$DOCKER_PASSWORD"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
+
+deploy:
+  provider: script
+  script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
+  on:
+    tags: true

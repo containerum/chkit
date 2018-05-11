@@ -28,9 +28,7 @@ CONTAINER_NAME?=containerum/chkit
 ALLOW_SELF_SIGNED_CERTS?=true
 docker:
 	docker build -t $(CONTAINER_NAME) . \
-		--build-arg ALLOW_SELF_SIGNED_CERTS=$(ALLOW_SELF_SIGNED_CERTS) \
-		--build-arg USERNAME=$(USERNAME) \
-		--build-arg PASS=$(PASS)
+		--build-arg ALLOW_SELF_SIGNED_CERTS=$(ALLOW_SELF_SIGNED_CERTS)
 
 
 genkey:
