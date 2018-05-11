@@ -17,22 +17,25 @@ func itemMenu(item configmap.Item) *configmap.Item {
 	var del = false
 	for exit := false; !exit; {
 		(&activekit.Menu{
+			Title: fmt.Sprintf("Item %s", text.Crop(interview.View([]byte(item.Value)), 64)),
 			Items: activekit.MenuItems{
 				{
-					Label: fmt.Sprintf("Edit name : %s",
+					Label: fmt.Sprintf("Edit name  : %s",
 						activekit.OrString(item.Key, "undefined, required")),
 					Action: func() error {
-						var key = activekit.Promt("Type name (hit Enter to leave %s",
+						var key = activekit.Promt("Type name (hit Enter to leave %s): ",
 							activekit.OrString(item.Key, "empty"))
 						key = strings.TrimSpace(key)
-						if key != "" {
+						if ok := configmap.KeyRegexp().MatchString(key); key != "" && ok {
 							item.Key = key
+						} else if !ok {
+							fmt.Printf("Invalid key %q: must match %q\n", key, configmap.KeyRegexp())
 						}
 						return nil
 					},
 				},
 				{
-					Label: fmt.Sprintf("Edit value :	 %s", text.Crop(interview.View(item.Value), 64)),
+					Label: fmt.Sprintf("Edit value :	 %q", text.Crop(interview.View([]byte(item.Value)), 64)),
 					Action: func() error {
 						item.Value = itemValueMenu(item.Value)
 						return nil

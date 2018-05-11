@@ -15,11 +15,11 @@ import (
 	"github.com/containerum/chkit/pkg/util/text"
 )
 
-func itemValueMenu(value interface{}) interface{} {
+func itemValueMenu(value string) string {
 	var oldValue = value
 	for exit := false; !exit; {
 		(&activekit.Menu{
-			Title: fmt.Sprintf("Value : %s", text.Crop(interview.View(value), 64)),
+			Title: fmt.Sprintf("Value : %q", text.Crop(interview.View(value), 64)),
 			Items: activekit.MenuItems{
 				{
 					Label: "Load from file",
@@ -32,7 +32,7 @@ func itemValueMenu(value interface{}) interface{} {
 								fmt.Println(err)
 								return nil
 							}
-							value = data
+							value = interview.View(data)
 						}
 						return nil
 					},
@@ -40,16 +40,13 @@ func itemValueMenu(value interface{}) interface{} {
 				{
 					Label: "Read from input",
 					Action: func() error {
-						fname := activekit.Promt("Type or paste data (you can drop changes later, hit %s to end input): ", eof.COMBO)
-						fname = strings.TrimSpace(fname)
-						if fname != "" {
-							data, err := ioutil.ReadAll(os.Stdin)
-							if err != nil {
-								fmt.Println(err)
-								return nil
-							}
-							value = string(data)
+						fmt.Printf("Type or paste data (you can drop changes later, hit %s to end input):\n", eof.COMBO)
+						data, err := ioutil.ReadAll(os.Stdin)
+						if err != nil {
+							fmt.Println(err)
+							return nil
 						}
+						value = string(data)
 						return nil
 					},
 				},
