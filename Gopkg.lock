@@ -59,8 +59,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "9293939b520c2d35ba27b6d72b8cd09b3c770cdf"
-  version = "v0.13.0"
+  revision = "2da1273465508146137a2a0312889ebbfb1b3346"
+  version = "v0.13.1"
 
 [[projects]]
   branch = "master"
@@ -246,8 +246,8 @@
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
-  version = "v1.0.0"
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/src-d/gcfg"
@@ -488,6 +488,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "eef78555798399a9068466328acd778254bc093b25ba8cb4f38e17a06edacaa0"
+  inputs-digest = "16343c4fab42ee0d23d6e67c07ff3b201a3f6c81aacd658df9e89ff5bcfdf86d"
   solver-name = "gps-cdcl"
   solver-version = 1
