@@ -42,10 +42,11 @@ func (list AvailableSolutionsList) Filter(pred func(AvailableSolution) bool) Ava
 // swagger:model
 type AvailableSolution struct {
 	Name   string          `json:"name"`
+	ID     string          `json:"id,omitempty"`
 	Limits *SolutionLimits `json:"limits"`
 	Images []string        `json:"images"`
 	URL    string          `json:"url"`
-	Active bool
+	Active bool            `json:"active"`
 }
 
 func (solution AvailableSolution) Copy() AvailableSolution {

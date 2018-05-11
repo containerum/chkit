@@ -5,7 +5,7 @@ package model
 // ConfigMapData -- model for config map data
 //
 // swagger:model
-type ConfigMapData map[string]interface{}
+type ConfigMapData map[string]string
 
 // ConfigMap -- model for config map
 //
