@@ -4,6 +4,14 @@ import kubeModels "github.com/containerum/kube-client/pkg/model"
 
 type ConfigMapList []ConfigMap
 
+func MakeList(size uint) ConfigMapList {
+	return make(ConfigMapList, size)
+}
+
+func MakeListCap(size, cap uint) ConfigMapList {
+	return make(ConfigMapList, size, cap)
+}
+
 func ConfigMapListFromKube(kubeList []kubeModels.ConfigMap) ConfigMapList {
 	var list = make([]ConfigMap, 0, len(kubeList))
 	for _, cm := range kubeList {

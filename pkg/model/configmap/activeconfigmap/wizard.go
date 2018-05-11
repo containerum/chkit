@@ -26,7 +26,9 @@ func (c Config) Wizard() configmap.ConfigMap {
 			menu = menu.Append(&activekit.MenuItem{
 				Label: fmt.Sprintf("Edit %v", item),
 				Action: func(item configmap.Item) func() error {
-
+					if i := itemMenu(item); i != nil {
+						config.Data[i.Key] = i.Value
+					}
 					return nil
 				}(item),
 			})

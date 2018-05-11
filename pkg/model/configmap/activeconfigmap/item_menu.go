@@ -11,7 +11,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/text"
 )
 
-func itemMenu(item configmap.Item, list configmap.ConfigMapList) *configmap.Item {
+func itemMenu(item configmap.Item) *configmap.Item {
 	var oldItem = item
 	var ok = false
 	var del = false
@@ -44,7 +44,26 @@ func itemMenu(item configmap.Item, list configmap.ConfigMapList) *configmap.Item
 						if activekit.YesNo("Are you sure?") {
 							del = true
 							exit = true
+							ok = false
 						}
+						return nil
+					},
+				},
+				{
+					Label: "Confirm",
+					Action: func() error {
+						ok = true
+						exit = true
+						del = false
+						return nil
+					},
+				},
+				{
+					Label: "Return to previous menu",
+					Action: func() error {
+						ok = false
+						exit = true
+						del = false
 						return nil
 					},
 				},

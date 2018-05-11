@@ -20,20 +20,20 @@ func (config ConfigMap) ToKube() kubeModels.ConfigMap {
 
 func (config ConfigMap) Copy() ConfigMap {
 	var cm = config
-	cm.Data = make(map[string]interface{}, len(config.Data))
+	cm.Data = make(kubeModels.ConfigMapData, len(config.Data))
 	for k, v := range config.Data {
 		cm.Data[k] = v
 	}
 	return config
 }
 
-func (config ConfigMap) Set(key string, value interface{}) ConfigMap {
+func (config ConfigMap) Set(key string, value string) ConfigMap {
 	config = config.Copy()
 	config.Data[key] = value
 	return config
 }
 
-func (config ConfigMap) Add(data map[string]interface{}) ConfigMap {
+func (config ConfigMap) Add(data map[string]string) ConfigMap {
 	config = config.Copy()
 	for k, v := range data {
 		config.Data[k] = v
@@ -60,13 +60,12 @@ func (config ConfigMap) Items() []Item {
 	return items
 }
 
-func (config ConfigMap) Get(key string, defaultValues ...interface{}) (interface{}, bool) {
+//  Get -- if defaultValues passed, then first return
+func (config ConfigMap) Get(key string, defaultValues ...string) (string, bool) {
 	value, ok := config.Data[key]
 	if !ok {
 		for _, defaultValue := range defaultValues {
-			if defaultValue != nil {
-				return defaultValue, ok
-			}
+			return defaultValue, ok
 		}
 	}
 	return value, ok
