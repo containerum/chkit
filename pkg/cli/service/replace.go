@@ -23,7 +23,6 @@ func Replace(ctx *context.Context) *cobra.Command {
 	var flagPort = service.Port{
 		Port: new(int),
 	}
-
 	command := &cobra.Command{
 		Use:     "service",
 		Aliases: aliases,

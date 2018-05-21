@@ -48,7 +48,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 		},
 	}
 	command.PersistentFlags().
-		StringVarP(&ctx.Namespace, "namespace", "n", ctx.Namespace, "")
+		StringP("namespace", "n", ctx.Namespace, "")
 
 	command.AddCommand(
 		clideployment.Replace(ctx),
