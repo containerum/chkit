@@ -60,8 +60,8 @@ install:
 temp_dir_name=$(EXECUTABLE)_$(1)_$(2)_v$(3)
 
 pack_win=zip -r -j $(1).zip $(1) && rm -rf $(1)
-pack_nix=tar --transform 's/.*\///g' -cpzf $(1).tar.gz $(1)/* && rm -rf $(1)
-
+# pack_nix=tar --transform 's/.*\///g' -cpzf $(1).tar.gz $(1)/* && rm -rf $(1)
+pack_nix=tar -C $(1) -cpzf $(1).tar.gz ./ && rm -rf $(1)
 create_checksum=openssl dgst -sha256 -binary -out $(dir $(1))/sha256.sum $(1)
 create_signature=openssl dgst -sha256 -sign $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE) -out $(dir $(1))/ecdsa.sig $(1)
 
