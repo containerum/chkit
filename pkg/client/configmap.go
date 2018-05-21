@@ -80,3 +80,35 @@ func (client *Client) GetConfigmapList(namespace string) (configmap.ConfigMapLis
 	})
 	return gainedCM, err
 }
+
+func (client *Client) DeleteConfigmap(namespace, cm string) error {
+	var err = retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.DeleteConfigMap(namespace, cm)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			return false, ErrResourceNotExists.
+				CommentF("service %q not found in %q", cm, namespace)
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+
+			return false, ErrYouDoNotHaveAccessToResource.
+				CommentF("you don't have delete access to service %q", cm)
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logrus.WithError(err).Errorf("unable to delete configmap %q in %q", cm, namespace)
+	}
+	return err
+}

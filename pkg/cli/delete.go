@@ -5,6 +5,7 @@ import (
 
 	"os"
 
+	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/namespace"
@@ -56,6 +57,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		clideployment.Delete(ctx),
 		clipod.Delete(ctx),
 		clingress.Delete(ctx),
+		cliconfigmap.Delete(ctx),
 	)
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.Namespace, "")
