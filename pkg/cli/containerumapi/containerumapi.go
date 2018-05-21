@@ -11,7 +11,8 @@ import (
 
 func Set(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
-		Use: "containerum-api",
+		Use:     "containerum-api",
+		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 1 && !cmd.Flags().Changed("allow-self-signed-certs") {
 				cmd.Help()
