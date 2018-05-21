@@ -130,9 +130,11 @@ func newEnvVar() (model.Env, bool) {
 					Label: fmt.Sprintf("Set name   :  %q",
 						activekit.OrString(env.Name, "undefined (required)")),
 					Action: func() error {
-						name := activekit.Promt("Type variable name (hit Enter to leave unchanged): ")
+						name := activekit.Promt("Type variable name: ")
 						if name != "" {
 							env.Name = name
+						} else {
+							fmt.Printf("Environment name cant be empty!\n")
 						}
 						return nil
 					},
@@ -151,8 +153,12 @@ func newEnvVar() (model.Env, bool) {
 				{
 					Label: "Confirm",
 					Action: func() error {
-						exit = true
-						ok = true
+						if env.Name == "" {
+							fmt.Printf("Environment name can't be empty!\n")
+						} else {
+							exit = true
+							ok = true
+						}
 						return nil
 					},
 				},
