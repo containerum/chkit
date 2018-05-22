@@ -11,13 +11,15 @@ import (
 
 	"bytes"
 
+	"strings"
+
 	"github.com/containerum/chkit/pkg/chkitErrors"
 )
 
 // unpack .tar.gz archive to temporary dir and save paths
 func unarchive(rd io.Reader, update *Package) error {
 	fmap := update.getFileMap()
-	retVal := reflect.ValueOf(update)
+	retVal := reflect.ValueOf(update).Elem()
 
 	gzf, err := gzip.NewReader(io.LimitReader(rd, MaxFileSize))
 	if err != nil {
@@ -37,11 +39,10 @@ func unarchive(rd io.Reader, update *Package) error {
 		}
 
 		if header.Typeflag == tar.TypeReg {
-			field, updateFile := fmap[header.Name]
+			field, updateFile := fmap[strings.TrimPrefix(header.Name, "./")]
 			if updateFile {
 				// this is our file, unpack it
-				buf := bytes.NewBuffer(make([]byte, header.Size))
-
+				buf := bytes.NewBuffer([]byte{})
 				if _, copyErr := io.Copy(buf, tarf); copyErr != nil {
 					return chkitErrors.Wrap(ErrUnpack, copyErr)
 				}

@@ -19,18 +19,10 @@ type Package struct {
 
 func (u *Package) getFileMap() (ret map[string]int) {
 	ret = make(map[string]int)
-	for t, i := reflect.TypeOf(u), 0; i < t.NumField(); i++ {
+	for t, i := reflect.TypeOf(u).Elem(), 0; i < t.NumField(); i++ {
 		ret[t.Field(i).Tag.Get("filename")] = i
 	}
 	return
-}
-
-func (u *Package) Close() {
-	for v, i := reflect.ValueOf(u), 0; i < v.NumField(); i++ {
-		if cl, ok := v.Field(i).Interface().(io.Closer); ok {
-			cl.Close()
-		}
-	}
 }
 
 const (
@@ -40,7 +32,7 @@ const (
 
 func unpack(rd io.Reader) (*Package, error) {
 	var ret Package
-	retVal := reflect.ValueOf(&ret)
+	retVal := reflect.ValueOf(&ret).Elem()
 
 	if err := unarchive(rd, &ret); err != nil {
 		return nil, err

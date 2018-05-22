@@ -15,7 +15,6 @@ import (
 	"github.com/inconshreveable/go-update"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh/terminal"
-	"gopkg.in/urfave/cli.v2"
 )
 
 var PublicKeyB64 = "cHVibGljIGtleQo="
@@ -45,12 +44,13 @@ func verifiedUpdate(upd *Package) error {
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
+
 	err = opts.SetPublicKeyPEM(publicKey)
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
-	err = update.Apply(upd.Binary, opts)
 
+	err = update.Apply(upd.Binary, opts)
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
@@ -90,7 +90,7 @@ func AskForUpdate(ctx *context.Context, latestVersion semver.Version) (bool, err
 	}
 }
 
-func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter bool) error {
+func Update(downloader LatestCheckerDownloader, restartAfter bool) error {
 	archive, err := downloader.LatestDownload()
 	if err != nil {
 		return err
@@ -101,7 +101,6 @@ func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter b
 	if err != nil {
 		return err
 	}
-	defer pkg.Close()
 
 	err = verifiedUpdate(pkg)
 	if err != nil {
@@ -109,7 +108,7 @@ func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter b
 	}
 
 	if restartAfter {
-		gracefulRestart(ctx)
+		gracefulRestart()
 	}
 
 	return nil
