@@ -5,7 +5,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/auth"
   packages = ["pkg/errors"]
-  revision = "d24b5580144db62d8a8bf52b2f6920d830bcd0e8"
+  revision = "d5c31e2e613c3aeadf0d3cf8a8256c336da39fb1"
 
 [[projects]]
   name = "git.containerum.net/ch/kube-api"
@@ -68,8 +68,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "6c2c0ca6b40ef1ed3390ec7cc0d75434aed29bff"
-  version = "v0.14.1"
+  revision = "4767a439d67ba8e1d18c88ac42e7f8c82e46d254"
+  version = "v0.14.2"
 
 [[projects]]
   branch = "master"
@@ -364,7 +364,7 @@
     "unix",
     "windows"
   ]
-  revision = "7c87d13f8e835d2fb3a70a2912c811ed0c1d241b"
+  revision = "89da893103a6ed6c87fb4bb5c19fcf97812df621"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -520,6 +520,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d1c63f690e4fd0c6fc0bf4fc1739f5ad3a933689dfaba351c0b3efd56ab493b3"
+  inputs-digest = "0e05bcde7f8a37af37cc9c3e7f4d214e5bbdeb07582bf6d5c993ae0ea33d6155"
   solver-name = "gps-cdcl"
   solver-version = 1
