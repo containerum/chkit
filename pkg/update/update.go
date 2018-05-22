@@ -93,7 +93,7 @@ func AskForUpdate(ctx *context.Context, latestVersion semver.Version) (bool, err
 }
 
 func Update(downloader LatestCheckerDownloader, restartAfter bool) error {
-	archive, size, err := downloader.LatestDownload()
+	archive, size, version, err := downloader.LatestDownload()
 	if err != nil {
 		return err
 	}
@@ -119,6 +119,7 @@ func Update(downloader LatestCheckerDownloader, restartAfter bool) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Updated to version %s\n", version)
 
 	if restartAfter {
 		gracefulRestart()

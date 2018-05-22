@@ -20,7 +20,7 @@ type LatestChecker interface {
 }
 
 type LatestDownloader interface {
-	LatestDownload() (rc io.ReadCloser, size int64, err error)
+	LatestDownload() (rc io.ReadCloser, size int64, version semver.Version, err error)
 }
 
 type LatestCheckerDownloader interface {
@@ -88,20 +88,21 @@ func (gh *GithubLatestCheckerDownloader) LatestVersion() (semver.Version, error)
 	return vers, nil
 }
 
-func (gh *GithubLatestCheckerDownloader) LatestDownload() (io.ReadCloser, int64, error) {
+func (gh *GithubLatestCheckerDownloader) LatestDownload() (io.ReadCloser, int64, semver.Version, error) {
 	logrus.Debug("download update")
 
 	latestVersion, err := gh.LatestVersion()
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, latestVersion, err
 	}
 
-	resp, err := http.Get(fmt.Sprintf("%s/%s/%s", gh.downloadUrl, latestVersion, DownloadFileName(latestVersion)))
+	url := fmt.Sprintf("%s/v%s/%s", gh.downloadUrl, latestVersion, DownloadFileName(latestVersion))
+	resp, err := http.Get(url)
 	if err != nil {
-		return nil, 0, chkitErrors.Wrap(ErrUpdateDownload, err)
+		return nil, 0, latestVersion, chkitErrors.Wrap(ErrUpdateDownload, err)
 	}
 
-	return resp.Body, resp.ContentLength, nil
+	return resp.Body, resp.ContentLength, latestVersion, nil
 }
 
 type FileSystemLatestCheckerDownloader struct {
@@ -130,23 +131,23 @@ func (fs *FileSystemLatestCheckerDownloader) LatestVersion() (semver.Version, er
 	return sv, nil
 }
 
-func (fs *FileSystemLatestCheckerDownloader) LatestDownload() (io.ReadCloser, int64, error) {
+func (fs *FileSystemLatestCheckerDownloader) LatestDownload() (io.ReadCloser, int64, semver.Version, error) {
 	logrus.Debug("get latest version package from filesystem")
 
 	latestVersion, err := fs.LatestVersion()
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, latestVersion, err
 	}
 
 	pkg, err := os.Open(path.Join(fs.baseDir, DownloadFileName(latestVersion)))
 	if err != nil {
-		return nil, 0, chkitErrors.Wrap(ErrUpdateDownload, err)
+		return nil, 0, latestVersion, chkitErrors.Wrap(ErrUpdateDownload, err)
 	}
 
 	stat, err := pkg.Stat()
 	if err != nil {
-		return nil, 0, chkitErrors.Wrap(ErrUpdateDownload, err)
+		return nil, 0, latestVersion, chkitErrors.Wrap(ErrUpdateDownload, err)
 	}
 
-	return pkg, stat.Size(), nil
+	return pkg, stat.Size(), latestVersion, nil
 }
