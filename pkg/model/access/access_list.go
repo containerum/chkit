@@ -1,19 +1,17 @@
 package access
 
-import (
-	"github.com/containerum/chkit/pkg/model"
-	"github.com/containerum/chkit/pkg/model/namespace"
-)
+import "github.com/containerum/chkit/pkg/model"
 
 type AccessList []Access
 
+/*
 func AccessListFromNamespaces(nsList namespace.NamespaceList) AccessList {
-	var list = make([]Access, 0, len(nsList))
+	var list = make([]Access, 0)
 	for _, ns := range nsList {
 		list = append(list, AccessFromNamespace(ns))
 	}
 	return list
-}
+}*/
 
 func (list AccessList) RenderTable() string {
 	return model.RenderTable(list)

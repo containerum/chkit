@@ -28,10 +28,3 @@ type CreateVolume struct {
 type ResourceUpdateName struct {
 	Label string `json:"label"`
 }
-
-// ResourceUpdateUserAccess -- containes user access data
-//swagger:ignore
-type ResourceUpdateUserAccess struct {
-	Username string `json:"username"`
-	Access   string `json:"access,omitempty"`
-}
