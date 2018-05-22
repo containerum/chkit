@@ -14,6 +14,8 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/inconshreveable/go-update"
 	"github.com/sirupsen/logrus"
+	"github.com/vbauerster/mpb"
+	"github.com/vbauerster/mpb/decor"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -91,16 +93,27 @@ func AskForUpdate(ctx *context.Context, latestVersion semver.Version) (bool, err
 }
 
 func Update(downloader LatestCheckerDownloader, restartAfter bool) error {
-	archive, err := downloader.LatestDownload()
+	archive, size, err := downloader.LatestDownload()
 	if err != nil {
 		return err
 	}
 	defer archive.Close()
 
+	p := mpb.New()
+	bar := p.AddBar(size, mpb.PrependDecorators(
+		decor.Counters("%.1f / %.1f", 1, 3, 0),
+	), mpb.AppendDecorators(
+		decor.Percentage(3, 0),
+		decor.StaticName(" ETA:", 3, 0),
+		decor.ETA(3, 0),
+	))
+	archive = bar.ProxyReader(archive)
+
 	pkg, err := unpack(archive)
 	if err != nil {
 		return err
 	}
+	p.Wait()
 
 	err = verifiedUpdate(pkg)
 	if err != nil {

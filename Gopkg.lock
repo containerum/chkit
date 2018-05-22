@@ -287,6 +287,16 @@
   version = "v2.3.2"
 
 [[projects]]
+  name = "github.com/vbauerster/mpb"
+  packages = [
+    ".",
+    "cwriter",
+    "decor"
+  ]
+  revision = "23769ee3856b917f8a1ae929ca1c6f408ebdaefe"
+  version = "v3.2.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/xanzy/ssh-agent"
   packages = ["."]
@@ -488,6 +498,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "16343c4fab42ee0d23d6e67c07ff3b201a3f6c81aacd658df9e89ff5bcfdf86d"
+  inputs-digest = "98951d8655030ed0fb82ad8c0ac05599eacc0d95ed078f7c96c5f04ec5d3c9e9"
   solver-name = "gps-cdcl"
   solver-version = 1
