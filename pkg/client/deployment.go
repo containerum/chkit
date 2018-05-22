@@ -128,7 +128,7 @@ func (client *Client) SetContainerImage(ns, depl string, image kubeModels.Update
 			rserrors.ErrAccessRecordNotExists(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
-				Errorf("unable to set container image image")
+				Errorf("unable to set container image")
 			return false, ErrYouDoNotHaveAccessToResource.
 				CommentF("you don't have create access to namespace %q", ns)
 		case cherry.In(err,

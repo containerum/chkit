@@ -33,6 +33,14 @@ If deployment contains only one container, then uses that container by default.`
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if force {
+				if img.Container == "" {
+					depl, err := ctx.Client.GetDeployment(ctx.Namespace, deplName)
+					if err!=nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					img.Container = depl.Containers.Names()[0]
+				}
 				if err := ctx.Client.SetContainerImage(ctx.Namespace, deplName, img); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
