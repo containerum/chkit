@@ -45,9 +45,10 @@ func init() {
 	}
 
 	pathToConfigFile := path.Join(pathToConfigDir, "config.toml")
-	file, err := os.OpenFile(pathToConfigFile, os.O_CREATE, os.ModePerm)
+	file, err := os.OpenFile(pathToConfigFile, os.O_CREATE, 0600)
 	switch {
 	case err == nil || os.IsExist(err):
+		file.Chmod(0600)
 		file.Close()
 	default:
 		panic(ErrUnableToCreateConfigFile.Wrap(err))
