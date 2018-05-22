@@ -14,8 +14,9 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/inconshreveable/go-update"
 	"github.com/sirupsen/logrus"
+	"github.com/vbauerster/mpb"
+	"github.com/vbauerster/mpb/decor"
 	"golang.org/x/crypto/ssh/terminal"
-	"gopkg.in/urfave/cli.v2"
 )
 
 var PublicKeyB64 = "cHVibGljIGtleQo="
@@ -45,12 +46,13 @@ func verifiedUpdate(upd *Package) error {
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
+
 	err = opts.SetPublicKeyPEM(publicKey)
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
-	err = update.Apply(upd.Binary, opts)
 
+	err = update.Apply(upd.Binary, opts)
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
@@ -90,26 +92,37 @@ func AskForUpdate(ctx *context.Context, latestVersion semver.Version) (bool, err
 	}
 }
 
-func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter bool) error {
-	archive, err := downloader.LatestDownload()
+func Update(downloader LatestCheckerDownloader, restartAfter bool) error {
+	archive, size, version, err := downloader.LatestDownload()
 	if err != nil {
 		return err
 	}
 	defer archive.Close()
 
+	p := mpb.New()
+	bar := p.AddBar(size, mpb.PrependDecorators(
+		decor.Counters("%.1f / %.1f", 1, 3, 0),
+	), mpb.AppendDecorators(
+		decor.Percentage(3, 0),
+		decor.StaticName(" ETA:", 3, 0),
+		decor.ETA(3, 0),
+	))
+	archive = bar.ProxyReader(archive)
+
 	pkg, err := unpack(archive)
 	if err != nil {
 		return err
 	}
-	defer pkg.Close()
+	p.Wait()
 
 	err = verifiedUpdate(pkg)
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Updated to version %s\n", version)
 
 	if restartAfter {
-		gracefulRestart(ctx)
+		gracefulRestart()
 	}
 
 	return nil

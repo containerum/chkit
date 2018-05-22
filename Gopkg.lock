@@ -319,6 +319,16 @@
   version = "v2.3.2"
 
 [[projects]]
+  name = "github.com/vbauerster/mpb"
+  packages = [
+    ".",
+    "cwriter",
+    "decor"
+  ]
+  revision = "23769ee3856b917f8a1ae929ca1c6f408ebdaefe"
+  version = "v3.2.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/xanzy/ssh-agent"
   packages = ["."]

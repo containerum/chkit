@@ -1,17 +1,14 @@
 package cli
 
 import (
-	"github.com/containerum/chkit/pkg/cli/mode"
-
-	"path"
-
 	"fmt"
-
 	"os"
+	"path"
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/cli/login"
+	"github.com/containerum/chkit/pkg/cli/mode"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/set"
 	"github.com/containerum/chkit/pkg/configdir"
@@ -93,6 +90,7 @@ func Root() error {
 		Logs(ctx),
 		Run(ctx),
 		Rename(ctx),
+		Update(ctx),
 		&cobra.Command{
 			Use:   "version",
 			Short: "Print version",
