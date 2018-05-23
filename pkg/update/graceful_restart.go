@@ -5,10 +5,9 @@ import (
 	"os/exec"
 
 	"github.com/sirupsen/logrus"
-	"gopkg.in/urfave/cli.v2"
 )
 
-func gracefulRestart(ctx *cli.Context) {
+func gracefulRestart() {
 	args := make([]string, 0)
 	if len(args) > 1 {
 		args = os.Args[1:]
