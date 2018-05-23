@@ -47,6 +47,10 @@ func Setup(ctx *context.Context) error {
 	case "":
 		return clisetup.GetDefaultNS(ctx, false)
 	default:
+		_, err := ctx.Client.GetNamespace(ctx.Namespace)
+		if err != nil {
+			return err
+		}
 		// pass
 	}
 	return nil

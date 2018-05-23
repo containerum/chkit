@@ -8,15 +8,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (client *Client) GetAccess(nsName string) (access.Access, error) {
-	ns, err := client.GetNamespace(nsName)
-	return access.AccessFromNamespace(ns), err
+func (client *Client) GetAccess(nsName string) (access.AccessList, error) {
+	nswp, err := client.kubeAPIClient.GetNamespaceAccesses(nsName)
+	if err != nil {
+		return nil, err
+	}
+
+	return access.AccessFromNamespace(nswp), err
 }
 
-func (client *Client) GetAccessList() (access.AccessList, error) {
+/*func (client *Client) GetAccessList() (access.AccessList, error) {
 	list, err := client.GetNamespaceList()
 	return access.AccessListFromNamespaces(list), err
-}
+}*/
 
 func (client *Client) SetAccess(ns, username string, acc access.AccessLevel) error {
 	err := retry(4, func() (bool, error) {
