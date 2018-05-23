@@ -15,7 +15,7 @@ func SaveTokens(ctx *context.Context, tokens model.Tokens) error {
 	if err != nil {
 		return err
 	}
-	if err := file.Chmod(0600); err != nil {
+	if err := os.Chmod(file.Name(), 0600); err != nil {
 		return err
 	}
 	encoder := json.NewEncoder(file)
