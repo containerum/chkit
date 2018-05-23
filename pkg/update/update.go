@@ -121,8 +121,8 @@ func Update(currentVersion semver.Version, downloader LatestCheckerDownloader, r
 
 	p := mpb.New()
 	bar := p.AddBar(size, mpb.PrependDecorators(
-		decor.CountersKiloByte("%.1f / %.1f", 3, 0),
-		decor.StaticName("(", 1, 0),
+		decor.CountersKiloByte("%.1f / %.1f", 3, decor.DextraSpace),
+		decor.StaticName(" (", 1, 0),
 		decor.Percentage(3, 0),
 		decor.StaticName(")", 1, 0),
 	), mpb.AppendDecorators(
