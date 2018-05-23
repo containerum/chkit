@@ -41,6 +41,7 @@ type Namespace struct {
 	//creation date in RFC3339 format
 	CreatedAt *string `json:"created_at,omitempty"`
 	// user-visible label for the namespace
+	Name          string   `json:"name,omitempty"`
 	Label         string   `json:"label,omitempty"`
 	Access        string   `json:"access,omitempty"`
 	MaxExtService *uint    `json:"max_ext_service,omitempty"`
