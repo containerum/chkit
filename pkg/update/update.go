@@ -6,6 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"time"
+	"unicode/utf8"
+
+	"math"
+
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/inconshreveable/go-update"
@@ -54,6 +59,50 @@ func verifiedUpdate(upd *Package) error {
 	return nil
 }
 
+func speedDecorator(minWidth int, conf byte) decor.DecoratorFunc {
+	format := "%%"
+	if (conf & decor.DidentRight) != 0 {
+		format += "-"
+	}
+	format += "%ds"
+	var (
+		prevCount         int64
+		prevDuration      time.Duration
+		integrSpeed       float64
+		measurementsCount float64
+	)
+	return func(s *decor.Statistics, widthAccumulator chan<- int, widthDistributor <-chan int) string {
+		var str string
+		measurementsCount++
+		curSpeed := float64(s.Current-prevCount) / (s.TimeElapsed - prevDuration).Seconds() // bytes per second
+		if !math.IsNaN(curSpeed) && !math.IsInf(curSpeed, 1) && !math.IsInf(curSpeed, -1) {
+			integrSpeed += curSpeed
+		}
+		speedToShow := integrSpeed / measurementsCount
+		prevCount = s.Current
+		prevDuration = s.TimeElapsed
+		switch {
+		case speedToShow < 1<<10:
+			str = fmt.Sprintf("%.1f B/s", speedToShow)
+		case speedToShow >= 1<<10 && speedToShow < 1<<20:
+			str = fmt.Sprintf("%.1f KiB/s", speedToShow/(1<<10))
+		case speedToShow >= 1<<20 && speedToShow < 1<<30:
+			str = fmt.Sprintf("%.1f MiB/s", speedToShow/(1<<20))
+		default:
+			str = fmt.Sprintf("%.1f GiB/s", speedToShow/(1<<30))
+		}
+		if (conf & decor.DwidthSync) != 0 {
+			widthAccumulator <- utf8.RuneCountInString(str)
+			max := <-widthDistributor
+			if (conf & decor.DextraSpace) != 0 {
+				max++
+			}
+			return fmt.Sprintf(fmt.Sprintf(format, max), str)
+		}
+		return fmt.Sprintf(fmt.Sprintf(format, minWidth), str)
+	}
+}
+
 func Update(currentVersion semver.Version, downloader LatestCheckerDownloader, restartAfter bool) error {
 	latestVersion, err := downloader.LatestVersion()
 	if err != nil {
@@ -72,11 +121,14 @@ func Update(currentVersion semver.Version, downloader LatestCheckerDownloader, r
 
 	p := mpb.New()
 	bar := p.AddBar(size, mpb.PrependDecorators(
-		decor.Counters("%.1f / %.1f", 1, 3, 0),
-	), mpb.AppendDecorators(
+		decor.CountersKiloByte("%.1f / %.1f", 3, 0),
+		decor.StaticName("(", 1, 0),
 		decor.Percentage(3, 0),
-		decor.StaticName(" ETA:", 3, 0),
-		decor.ETA(3, 0),
+		decor.StaticName(")", 1, 0),
+	), mpb.AppendDecorators(
+		speedDecorator(3, decor.DextraSpace),
+		decor.StaticName(" ETA:", 3, decor.DextraSpace),
+		decor.ETA(3, decor.DextraSpace),
 	))
 	archive = bar.ProxyReader(archive)
 

@@ -9,7 +9,6 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/update"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
@@ -21,15 +20,11 @@ func Update(ctx *context.Context) *cobra.Command {
 		Short:   "update chkit client",
 		Example: "chkit update [from github|dir <path>] [--debug]",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
-			}
+			prerun.PreRun(ctx)
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := updateFromGithub(debug); err != nil {
+			if err := updateFromGithub(ctx, debug); err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
 			}
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
@@ -56,7 +51,7 @@ func updateFromGithubCommand(ctx *context.Context, debug *bool) *cobra.Command {
 		Use:   "github",
 		Short: "update from github releases",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := updateFromGithub(*debug); err != nil {
+			if err := updateFromGithub(ctx, *debug); err != nil {
 				activekit.Attention(err.Error())
 				os.Exit(1)
 			}
@@ -75,7 +70,7 @@ func updateFromDirCommand(ctx *context.Context, debug *bool) *cobra.Command {
 				cmd.Help()
 				os.Exit(1)
 			}
-			if err := updateFromDir(args[0]); err != nil {
+			if err := updateFromDir(ctx, args[0]); err != nil {
 				activekit.Attention(err.Error())
 				os.Exit(1)
 			}
@@ -84,8 +79,8 @@ func updateFromDirCommand(ctx *context.Context, debug *bool) *cobra.Command {
 	return command
 }
 
-func updateFromGithub(debug bool) error {
-	ver, err := semver.ParseTolerant(VERSION)
+func updateFromGithub(ctx *context.Context, debug bool) error {
+	ver, err := semver.ParseTolerant(ctx.Version)
 	if err != nil {
 		return err
 	}
@@ -96,13 +91,14 @@ func updateFromGithub(debug bool) error {
 	)
 }
 
-func updateFromDir(path string) error {
-	ver, err := semver.ParseTolerant(VERSION)
+func updateFromDir(ctx *context.Context, path string) error {
+	ver, err := semver.ParseTolerant(ctx.Version)
 	if err != nil {
 		return err
 	}
 	return update.Update(
 		ver,
 		update.NewFileSystemLatestCheckerDownloader(path),
-		false)
+		false,
+	)
 }
