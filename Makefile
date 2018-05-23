@@ -20,11 +20,11 @@ BUILDS_DIR:=$(PWD)/build
 EXECUTABLE:=chkit
 DEV_LDFLAGS=-X '$(PACKAGE)/$(CLI_DIR)/mode.API_ADDR=$(CONTAINERUM_API)' \
 	-X '$(PACKAGE)/$(CLI_DIR).VERSION=v$(VERSION)'
-RAW_PUBLIC_KEY:=$(shell openssl enc -base64 -in $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE)))
+RAW_PUBLIC_KEY:=$(shell openssl enc -base64 -in $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE))
 SPACE:=$(shell echo ' ')
 PUBLIC_KEY:=$(subst $(SPACE),,$(RAW_PUBLIC_KEY))
 RELEASE_LDFLAGS=-X $(PACKAGE)/$(CLI_DIR).VERSION=v$(VERSION)+release \
-	-X $(PACKAGE)/pkg/update.PublicKeyB64=\'$(PUBLIC_KEY)\'\
+	-X $(PACKAGE)/pkg/update.PublicKeyB64=$(PUBLIC_KEY)\
 	-X $(PACKAGE)/$(CLI_DIR)/mode.API_ADDR=$(CONTAINERUM_API)
 
 CONTAINER_NAME?=containerum/chkit
