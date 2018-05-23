@@ -111,6 +111,8 @@ func Update(currentVersion semver.Version, downloader LatestCheckerDownloader, r
 	if latestVersion.LE(currentVersion) {
 		fmt.Println("You already using latest version. Update not needed.")
 		return nil
+	} else {
+		fmt.Printf("Found newer version: %s. Updating...\n", latestVersion)
 	}
 
 	archive, size, err := downloader.Download(latestVersion)
