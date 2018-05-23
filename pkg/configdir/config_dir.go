@@ -48,7 +48,7 @@ func init() {
 	file, err := os.OpenFile(pathToConfigFile, os.O_CREATE, 0600)
 	switch {
 	case err == nil || os.IsExist(err):
-		file.Chmod(0600)
+		os.Chmod(file.Name(), 0600)
 		file.Close()
 	default:
 		panic(ErrUnableToCreateConfigFile.Wrap(err))
