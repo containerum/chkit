@@ -24,6 +24,7 @@ func Login(ctx *context.Context) *cobra.Command {
 			if flags.Changed("default-namespace") {
 				defNS, _ := flags.GetString("default-namespace")
 				ctx.Namespace = defNS
+				ctx.Changed = true
 			}
 			if err := Setup(ctx); err != nil {
 				angel.Angel(ctx, err)
