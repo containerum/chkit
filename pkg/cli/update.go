@@ -3,9 +3,14 @@ package cli
 import (
 	"os"
 
+	"github.com/blang/semver"
+	"github.com/containerum/chkit/pkg/cli/postrun"
+	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/update"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
 
@@ -15,11 +20,20 @@ func Update(ctx *context.Context) *cobra.Command {
 		Use:     "update",
 		Short:   "update chkit client",
 		Example: "chkit update [from github|dir <path>] [--debug]",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				angel.Angel(ctx, err)
+				os.Exit(1)
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := updateFromGithub(debug); err != nil {
 				activekit.Attention(err.Error())
 				os.Exit(1)
 			}
+		},
+		PersistentPostRun: func(cmd *cobra.Command, args []string) {
+			postrun.PostRun(coblog.Logger(cmd), ctx)
 		},
 	}
 	command.PersistentFlags().
@@ -71,9 +85,24 @@ func updateFromDirCommand(ctx *context.Context, debug *bool) *cobra.Command {
 }
 
 func updateFromGithub(debug bool) error {
-	return update.Update(update.NewGithubLatestCheckerDownloader("containerum", "chkit", debug), false)
+	ver, err := semver.ParseTolerant(VERSION)
+	if err != nil {
+		return err
+	}
+	return update.Update(
+		ver,
+		update.NewGithubLatestCheckerDownloader("containerum", "chkit", debug),
+		false,
+	)
 }
 
 func updateFromDir(path string) error {
-	return update.Update(update.NewFileSystemLatestCheckerDownloader(path), false)
+	ver, err := semver.ParseTolerant(VERSION)
+	if err != nil {
+		return err
+	}
+	return update.Update(
+		ver,
+		update.NewFileSystemLatestCheckerDownloader(path),
+		false)
 }

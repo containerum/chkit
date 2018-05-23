@@ -1,22 +1,16 @@
 package update
 
 import (
-	"bufio"
 	"crypto"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
-	"os"
-	"strings"
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/context"
 	"github.com/inconshreveable/go-update"
-	"github.com/sirupsen/logrus"
 	"github.com/vbauerster/mpb"
 	"github.com/vbauerster/mpb/decor"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 var PublicKeyB64 = "cHVibGljIGtleQo="
@@ -60,40 +54,17 @@ func verifiedUpdate(upd *Package) error {
 	return nil
 }
 
-func AskForUpdate(ctx *context.Context, latestVersion semver.Version) (bool, error) {
-	// check if we have terminal supports escape sequences
-	var colorStart, colorEnd string
-	if terminal.IsTerminal(int(os.Stdout.Fd())) {
-		colorStart = "\x1b[31;1m"
-		colorEnd = "\x1b[0m"
+func Update(currentVersion semver.Version, downloader LatestCheckerDownloader, restartAfter bool) error {
+	latestVersion, err := downloader.LatestVersion()
+	if err != nil {
+		return err
 	}
-	fmt.Printf("%sYou are using version %s, however version %s is available%s\n",
-		colorStart, ctx.Version, latestVersion, colorEnd)
-
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Split(bufio.ScanWords)
-	for {
-		fmt.Println("Do you want to update [Y/n]: ")
-		for !scanner.Scan() {
-			break
-		}
-		if err := scanner.Err(); err != nil {
-			logrus.WithError(err).Error("scan failed")
-			return false, err
-		}
-		switch strings.ToLower(scanner.Text()) {
-		case "", "y":
-			return true, nil
-		case "n":
-			return false, nil
-		default:
-			continue
-		}
+	if latestVersion.LE(currentVersion) {
+		fmt.Println("You already using latest version. Update not needed.")
+		return nil
 	}
-}
 
-func Update(downloader LatestCheckerDownloader, restartAfter bool) error {
-	archive, size, version, err := downloader.LatestDownload()
+	archive, size, err := downloader.Download(latestVersion)
 	if err != nil {
 		return err
 	}
@@ -119,7 +90,7 @@ func Update(downloader LatestCheckerDownloader, restartAfter bool) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Updated to version %s\n", version)
+	fmt.Printf("Updated to version %s\n", latestVersion)
 
 	if restartAfter {
 		gracefulRestart()
