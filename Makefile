@@ -12,7 +12,7 @@ PUBLIC_KEY_FILE:=pubkey.pem
 COMMIT_HASH=$(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE=$(shell date +%FT%T%Z)
 LATEST_TAG=$(shell git describe --tags $(shell git rev-list --tags --max-count=1))
-#CONTAINERUM_API?=https://api.containerum.io:8082
+CONTAINERUM_API?=https://api.containerum.io:8082
 VERSION?=$(LATEST_TAG:v%=%)
 
 # make directory and store path to variable
