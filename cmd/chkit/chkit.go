@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	if err := cli.Run(); err != nil {
+	if err := cli.Root(); err != nil {
 		fmt.Printf("%v\n", err)
 		os.Exit(1)
 	}

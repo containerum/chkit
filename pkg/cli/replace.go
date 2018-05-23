@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/cli/deployment"
+	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/configuration"
@@ -33,7 +34,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 		},
 		PersistentPostRun: func(command *cobra.Command, args []string) {
 			if ctx.Changed {
-				if err := configuration.SaveConfig(ctx); err != nil {
+				if err := configuration.SyncConfig(ctx); err != nil {
 					logrus.WithError(err).Errorf("unable to save config")
 					fmt.Printf("Unable to save config: %v\n", err)
 					return
@@ -47,11 +48,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 		},
 	}
 	command.PersistentFlags().
-		StringVarP(&ctx.Namespace, "namespace", "n", ctx.Namespace, "")
+		StringP("namespace", "n", ctx.Namespace, "")
 
 	command.AddCommand(
 		clideployment.Replace(ctx),
 		cliserv.Replace(ctx),
+		clingress.Replace(ctx),
 	)
 	return command
 }

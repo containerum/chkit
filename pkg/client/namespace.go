@@ -1,12 +1,12 @@
 package chClient
 
 import (
-	"git.containerum.net/ch/kube-client/pkg/cherry"
-	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
-	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
-	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
+	"git.containerum.net/ch/auth/pkg/errors"
+	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/namespace"
+	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -100,4 +100,32 @@ func (client *Client) DeleteNamespace(namespace string) error {
 			return true, ErrFatalError.Wrap(err)
 		}
 	})
+}
+
+func (client *Client) RenameNamespace(oldName, newName string) error {
+	err := retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.RenameNamespace(oldName, newName)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			return false, ErrResourceNotExists.Wrap(err)
+		case cherry.In(err,
+			rserrors.ErrResourceNotOwned(),
+			rserrors.ErrAccessRecordNotExists(),
+			rserrors.ErrPermissionDenied()):
+			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			return true, client.Auth()
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logrus.WithError(err).Errorf("unable to rename namespace %q", oldName)
+	}
+	return err
 }

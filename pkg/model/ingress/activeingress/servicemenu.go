@@ -92,19 +92,6 @@ func editPathMenu(services service.ServiceList, paths ingress.PathList, ind int)
 			Title: "Edit path",
 			Items: []*activekit.MenuItem{
 				{
-					Label: fmt.Sprintf("Set path         : %s",
-						activekit.OrString(path.Path, "undefined (required)")),
-					Action: func() error {
-						p := strings.TrimSpace(activekit.Promt("Type path name (hit Enter to leave %s)",
-							activekit.OrString(path.Path, "empty")))
-						if p == "" {
-							return nil
-						}
-						path.Path = p
-						return nil
-					},
-				},
-				{
 					Label: fmt.Sprintf("Set service      : %s",
 						activekit.OrString(path.ServiceName, "undefined (required)")),
 					Action: func() error {
@@ -115,10 +102,8 @@ func editPathMenu(services service.ServiceList, paths ingress.PathList, ind int)
 								Action: func(serv service.Service) func() error {
 									return func() error {
 										path.ServiceName = serv.Name
-										cp := serv.Copy()
-										selectedService = &cp
 										ports := serv.AllExternalPorts()
-										if len(ports) > 0 {
+										if len(ports) == 1 {
 											path.ServicePort = ports[0]
 										}
 										return nil
@@ -189,13 +174,15 @@ func editPathMenu(services service.ServiceList, paths ingress.PathList, ind int)
 					},
 				},
 				{
-					Label: "Delete path",
+					Label: fmt.Sprintf("Set path         : %s",
+						activekit.OrString(path.Path, "undefined (required)")),
 					Action: func() error {
-						if activekit.YesNo("Are you sure you want to delete path?") {
-							paths.Delete(ind)
-							exit = true
-							ok = true
+						p := strings.TrimSpace(activekit.Promt("Type path (hit Enter to leave %s): ",
+							activekit.OrString(path.Path, "empty")))
+						if p == "" {
+							return nil
 						}
+						path.Path = p
 						return nil
 					},
 				},

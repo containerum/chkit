@@ -88,23 +88,23 @@ func Options(msg string, withStop bool, options ...string) (string, int, bool) {
 	}
 }
 
-func OrString(str, def string) string {
+func OrString(str, def string, args ...interface{}) string {
 	if strings.TrimSpace(str) == "" {
-		return def
+		return fmt.Sprintf(def, args...)
 	}
 	return str
 }
 
-func OrStringer(str fmt.Stringer, def string) string {
+func OrStringer(str fmt.Stringer, def string, args ...interface{}) string {
 	if str == nil {
-		return def
+		return fmt.Sprintf(def, args...)
 	}
 	return str.String()
 }
 
-func OrValue(val interface{}, def string) string {
+func OrValue(val interface{}, def string, args ...interface{}) string {
 	if val == nil {
-		return def
+		return fmt.Sprintf(def, args...)
 	}
 	refVal := reflect.ValueOf(val)
 	if refVal.Kind() == reflect.Ptr || refVal.Kind() == reflect.Interface {

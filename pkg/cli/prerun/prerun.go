@@ -16,7 +16,7 @@ const (
 func PreRun(ctx *context.Context) error {
 	clisetup.SetupLogs(ctx)
 	logrus.Debugf("loading config")
-	if err := configuration.LoadConfig(ctx); err != nil {
+	if err := configuration.SyncConfig(ctx); err != nil {
 		logrus.WithError(err).Errorf("unable to load config")
 		return err
 	}

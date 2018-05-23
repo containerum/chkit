@@ -6,12 +6,16 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/containerum/chkit/pkg/cli/configmap"
+	"github.com/containerum/chkit/pkg/cli/containerumapi"
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/pod"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
+	"github.com/containerum/chkit/pkg/cli/solution"
+	"github.com/containerum/chkit/pkg/cli/user"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -36,7 +40,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		},
 		PersistentPostRun: func(command *cobra.Command, args []string) {
 			if ctx.Changed {
-				if err := configuration.SaveConfig(ctx); err != nil {
+				if err := configuration.SyncConfig(ctx); err != nil {
 					logrus.WithError(err).Errorf("unable to save config")
 					fmt.Printf("Unable to save config: %v\n", err)
 					return
@@ -52,9 +56,14 @@ func Get(ctx *context.Context) *cobra.Command {
 	command.AddCommand(
 		clideployment.Get(ctx),
 		clinamespace.Get(ctx),
+		clinamespace.GetAccess(ctx),
 		cliserv.Get(ctx),
 		clipod.Get(ctx),
 		clingress.Get(ctx),
+		cliuser.Get(ctx),
+		clisolution.Get(ctx),
+		containerumapi.Get(ctx),
+		cliconfigmap.Get(ctx),
 		&cobra.Command{
 			Use:     "default-namespace",
 			Short:   "print default",

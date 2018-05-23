@@ -19,11 +19,11 @@ func Fingerprint() string {
 		runtime.GOARCH +
 		runtime.Version() +
 		runtime.Compiler
-	user, err := user.Current()
+	userInfo, err := user.Current()
 	if err != nil {
-		panic("[chkit-cmd] unable to get user data for fingerpint:\n" + err.Error())
+		panic("[chkit-cmd] unable to get userInfo data for fingerpint:\n" + err.Error())
 	}
-	userData += user.Username
+	userData += userInfo.Username
 	interfaces, err := net.Interfaces()
 	if err != nil {
 		panic("[chkit-cmd] unable to get net interfaces:\n" +
@@ -34,6 +34,7 @@ func Fingerprint() string {
 			userData += netInterface.HardwareAddr.String()
 		}
 	}
+	//#nosec
 	sum := md5.Sum([]byte(userData))
 	return hex.EncodeToString(sum[:])
 }

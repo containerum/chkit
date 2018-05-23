@@ -3,12 +3,12 @@ package chClient
 import (
 	"io"
 
-	"git.containerum.net/ch/kube-client/pkg/cherry"
-	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
-	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
-	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
-	"git.containerum.net/ch/kube-client/pkg/client"
+	"git.containerum.net/ch/auth/pkg/errors"
+	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/pod"
+	"github.com/containerum/kube-client/pkg/cherry/resource-service"
+	"github.com/containerum/kube-client/pkg/client"
 	"github.com/sirupsen/logrus"
 )
 

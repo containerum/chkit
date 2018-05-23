@@ -1,6 +1,6 @@
 package volume
 
-import kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+import kubeModels "github.com/containerum/kube-client/pkg/model"
 
 type VolumeList []Volume
 

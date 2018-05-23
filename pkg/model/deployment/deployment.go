@@ -3,15 +3,15 @@ package deployment
 import (
 	"fmt"
 
-	"git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
+	"github.com/containerum/kube-client/pkg/model"
 )
 
 type Deployment struct {
 	Name       string
 	Replicas   int
 	Status     *Status
-	Containers []container.Container
+	Containers container.ContainerList
 	origin     *model.Deployment
 }
 

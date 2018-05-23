@@ -3,8 +3,9 @@ chkit
 chkit-v2*
 build
 *.exe
-!build/*
+!/build/*
 .idea
 deployment.json
 /service.json
 !/cmd/chkit/
+

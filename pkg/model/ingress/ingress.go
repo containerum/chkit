@@ -1,6 +1,6 @@
 package ingress
 
-import kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+import kubeModels "github.com/containerum/kube-client/pkg/model"
 
 type Ingress struct {
 	Name  string   `json:"name"`
@@ -26,4 +26,8 @@ func (ingr Ingress) Copy() Ingress {
 		Name:  ingr.Name,
 		Rules: ingr.Rules.Copy(),
 	}
+}
+
+func (ingr Ingress) Host() string {
+	return ingr.Rules.Head().Host
 }

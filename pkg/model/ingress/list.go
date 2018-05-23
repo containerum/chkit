@@ -1,6 +1,6 @@
 package ingress
 
-import kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+import kubeModels "github.com/containerum/kube-client/pkg/model"
 
 type IngressList []Ingress
 
@@ -20,6 +20,21 @@ func (list IngressList) ToKube() []kubeModels.Ingress {
 	return kubeList
 }
 
+func (list IngressList) Len() int {
+	return len(list)
+}
+
+func (list IngressList) Empty() bool {
+	return list.Len() == 0
+}
+
+func (list IngressList) Head() Ingress {
+	if list.Empty() {
+		return Ingress{}
+	}
+	return list[0].Copy()
+}
+
 func (list IngressList) Copy() IngressList {
 	var cp IngressList = make([]Ingress, 0, len(list))
 	for _, ingr := range list {
@@ -35,4 +50,13 @@ func (list IngressList) Append(ing ...Ingress) IngressList {
 func (list IngressList) Delete(i int) IngressList {
 	cp := list.Copy()
 	return append(cp[:i], cp[i+1:]...)
+}
+
+func (list IngressList) GetByName(name string) (Ingress, bool) {
+	for _, ingr := range list {
+		if name == ingr.Name {
+			return ingr.Copy(), true
+		}
+	}
+	return Ingress{}, false
 }

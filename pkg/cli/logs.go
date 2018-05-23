@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"os"
+
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -32,6 +36,15 @@ func Logs(ctx *context.Context) *cobra.Command {
 		Short:   "View pod logs",
 		Long:    `view pod logs. Aliases: ` + strings.Join(logsCommandAliases, ", "),
 		Example: `logs pod_label [container] [--follow] [--prev] [--tail n] [--quiet]`,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				angel.Angel(ctx, err)
+				os.Exit(1)
+			}
+			if cmd.Flags().Changed("namespace") {
+				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			var podName string
 			var containerName string
@@ -69,12 +82,15 @@ func Logs(ctx *context.Context) *cobra.Command {
 					err = ErrUnableToReadLogs.Wrap(err)
 					logrus.WithError(err).Errorf("unable to scan logs byte stream")
 					activekit.Attention(err.Error())
+					os.Exit(1)
 				}
 				fmt.Println(scanner.Text())
 				nLines++
 			}
-			fmt.Printf("%d lines of logs read\n", nLines)
-			activekit.Attention(err.Error())
+			if err != nil {
+				activekit.Attention(err.Error())
+				os.Exit(1)
+			}
 		},
 	}
 	command.PersistentFlags().

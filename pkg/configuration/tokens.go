@@ -11,8 +11,11 @@ import (
 
 // SaveTokens -- save tokens in config path
 func SaveTokens(ctx *context.Context, tokens model.Tokens) error {
-	file, err := os.Create(path.Join(ctx.ConfigDir, "tokens"))
+	file, err := os.OpenFile(path.Join(ctx.ConfigDir, "tokens"), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0600)
 	if err != nil {
+		return err
+	}
+	if err := file.Chmod(0600); err != nil {
 		return err
 	}
 	encoder := json.NewEncoder(file)

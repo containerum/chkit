@@ -1,21 +1,21 @@
 package update
 
 import (
-	"bufio"
 	"crypto"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
-	"os"
-	"strings"
+
+	"time"
+	"unicode/utf8"
+
+	"math"
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/context"
 	"github.com/inconshreveable/go-update"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/crypto/ssh/terminal"
-	"gopkg.in/urfave/cli.v2"
+	"github.com/vbauerster/mpb"
+	"github.com/vbauerster/mpb/decor"
 )
 
 var PublicKeyB64 = "cHVibGljIGtleQo="
@@ -45,12 +45,13 @@ func verifiedUpdate(upd *Package) error {
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
+
 	err = opts.SetPublicKeyPEM(publicKey)
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
-	err = update.Apply(upd.Binary, opts)
 
+	err = update.Apply(upd.Binary, opts)
 	if err != nil {
 		return chkitErrors.Wrap(ErrUpdateApply, err)
 	}
@@ -58,58 +59,95 @@ func verifiedUpdate(upd *Package) error {
 	return nil
 }
 
-func AskForUpdate(ctx *context.Context, latestVersion semver.Version) (bool, error) {
-	// check if we have terminal supports escape sequences
-	var colorStart, colorEnd string
-	if terminal.IsTerminal(int(os.Stdout.Fd())) {
-		colorStart = "\x1b[31;1m"
-		colorEnd = "\x1b[0m"
+func speedDecorator(minWidth int, conf byte) decor.DecoratorFunc {
+	format := "%%"
+	if (conf & decor.DidentRight) != 0 {
+		format += "-"
 	}
-	fmt.Printf("%sYou are using version %s, however version %s is available%s\n",
-		colorStart, ctx.Version, latestVersion, colorEnd)
-
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Split(bufio.ScanWords)
-	for {
-		fmt.Println("Do you want to update [Y/n]: ")
-		for !scanner.Scan() {
-			break
+	format += "%ds"
+	var (
+		prevCount         int64
+		prevDuration      time.Duration
+		integrSpeed       float64
+		measurementsCount float64
+	)
+	return func(s *decor.Statistics, widthAccumulator chan<- int, widthDistributor <-chan int) string {
+		var str string
+		measurementsCount++
+		curSpeed := float64(s.Current-prevCount) / (s.TimeElapsed - prevDuration).Seconds() // bytes per second
+		if !math.IsNaN(curSpeed) && !math.IsInf(curSpeed, 1) && !math.IsInf(curSpeed, -1) {
+			integrSpeed += curSpeed
 		}
-		if err := scanner.Err(); err != nil {
-			logrus.WithError(err).Error("scan failed")
-			return false, err
-		}
-		switch strings.ToLower(scanner.Text()) {
-		case "", "y":
-			return true, nil
-		case "n":
-			return false, nil
+		speedToShow := integrSpeed / measurementsCount
+		prevCount = s.Current
+		prevDuration = s.TimeElapsed
+		switch {
+		case speedToShow < 1<<10:
+			str = fmt.Sprintf("%.1f B/s", speedToShow)
+		case speedToShow >= 1<<10 && speedToShow < 1<<20:
+			str = fmt.Sprintf("%.1f KiB/s", speedToShow/(1<<10))
+		case speedToShow >= 1<<20 && speedToShow < 1<<30:
+			str = fmt.Sprintf("%.1f MiB/s", speedToShow/(1<<20))
 		default:
-			continue
+			str = fmt.Sprintf("%.1f GiB/s", speedToShow/(1<<30))
 		}
+		if (conf & decor.DwidthSync) != 0 {
+			widthAccumulator <- utf8.RuneCountInString(str)
+			max := <-widthDistributor
+			if (conf & decor.DextraSpace) != 0 {
+				max++
+			}
+			return fmt.Sprintf(fmt.Sprintf(format, max), str)
+		}
+		return fmt.Sprintf(fmt.Sprintf(format, minWidth), str)
 	}
 }
 
-func Update(ctx *cli.Context, downloader LatestCheckerDownloader, restartAfter bool) error {
-	archive, err := downloader.LatestDownload()
+func Update(currentVersion semver.Version, downloader LatestCheckerDownloader, restartAfter bool) error {
+	latestVersion, err := downloader.LatestVersion()
+	if err != nil {
+		return err
+	}
+	if latestVersion.LE(currentVersion) {
+		fmt.Println("You already using latest version. Update not needed.")
+		return nil
+	} else {
+		fmt.Printf("Found newer version: %s. Updating...\n", latestVersion)
+	}
+
+	archive, size, err := downloader.Download(latestVersion)
 	if err != nil {
 		return err
 	}
 	defer archive.Close()
 
+	p := mpb.New()
+	bar := p.AddBar(size, mpb.PrependDecorators(
+		decor.CountersKiloByte("%.1f / %.1f", 3, decor.DextraSpace),
+		decor.StaticName(" (", 1, 0),
+		decor.Percentage(3, 0),
+		decor.StaticName(")", 1, 0),
+	), mpb.AppendDecorators(
+		speedDecorator(3, decor.DextraSpace),
+		decor.StaticName(" ETA:", 3, decor.DextraSpace),
+		decor.ETA(3, decor.DextraSpace),
+	))
+	archive = bar.ProxyReader(archive)
+
 	pkg, err := unpack(archive)
 	if err != nil {
 		return err
 	}
-	defer pkg.Close()
+	p.Wait()
 
 	err = verifiedUpdate(pkg)
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Updated to version %s\n", latestVersion)
 
 	if restartAfter {
-		gracefulRestart(ctx)
+		gracefulRestart()
 	}
 
 	return nil

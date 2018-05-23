@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/containerum/kube-client/pkg/model"
 )
 
 type Port struct {

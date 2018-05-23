@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -15,6 +14,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,7 @@ func Create(ctx *context.Context) *cobra.Command {
 	var force bool
 	var flagCont container.Container
 	var flagDepl deployment.Deployment
-	var envs string
+	var envs []string
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
@@ -43,11 +43,18 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				}
 			} else if cmd.Flag("force").Changed {
 				if cmd.Flag("env").Changed {
-					envMap, err := pairs.ParseMap(envs, ":")
-					if err != nil {
-						fmt.Printf("invalid env flag\n")
-						os.Exit(1)
+					envMap := map[string]string{}
+					for _, env := range envs {
+						penv, err := pairs.ParseMap(env, ":")
+						if err != nil {
+							fmt.Printf("invalid env flag\n")
+							os.Exit(1)
+						}
+						for k, v := range penv {
+							envMap[k] = v
+						}
 					}
+
 					for k, v := range envMap {
 						flagCont.Env = append(flagCont.Env, model.Env{
 							Name:  k,
@@ -168,7 +175,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 	command.PersistentFlags().
 		StringSliceVar(&flagCont.Commands, "commands", nil, "container commands")
 	command.PersistentFlags().
-		StringVar(&envs, "env", "", "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
+		StringSliceVar(&envs, "env", []string{}, "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
 	return command
 }
 

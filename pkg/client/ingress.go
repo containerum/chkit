@@ -1,11 +1,11 @@
 package chClient
 
 import (
-	"git.containerum.net/ch/kube-client/pkg/cherry"
-	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
-	"git.containerum.net/ch/kube-client/pkg/cherry/kube-api"
-	"git.containerum.net/ch/kube-client/pkg/cherry/resource-service"
+	"git.containerum.net/ch/auth/pkg/errors"
+	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/ingress"
+	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -98,7 +98,7 @@ func (client *Client) CreateIngress(ns string, ingr ingress.Ingress) error {
 
 func (client *Client) ReplaceIngress(ns string, ingr ingress.Ingress) error {
 	err := retry(4, func() (bool, error) {
-		err := client.kubeAPIClient.UpdateIngress(ns, ingr.Name, ingr.ToKube())
+		err := client.kubeAPIClient.UpdateIngress(ns, ingr.Host(), ingr.ToKube())
 		switch {
 		case err == nil:
 			return false, nil

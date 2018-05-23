@@ -5,7 +5,7 @@ import (
 )
 
 func waitNextAttempt(attempt uint) {
-	duration := 500 * time.Duration(attempt+1) * time.Millisecond
+	duration := 500 * time.Duration(attempt) * time.Millisecond
 	if duration < time.Minute {
 		time.Sleep(duration)
 	} else {
@@ -19,7 +19,7 @@ func retry(maxTimes uint, fn func() (bool, error)) error {
 	for i := uint(0); i == 0 || i < maxTimes; i++ {
 		repeat, err = fn()
 		if repeat {
-			waitNextAttempt(i)
+			waitNextAttempt(1 << i)
 			continue
 		}
 		return err

@@ -3,7 +3,7 @@ package ingress
 import (
 	"fmt"
 
-	kubeModels "git.containerum.net/ch/kube-client/pkg/model"
+	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
 type Path kubeModels.Path
@@ -24,6 +24,21 @@ func PathListFromKube(kubeList []kubeModels.Path) PathList {
 		list = append(list, PathFromKube(p))
 	}
 	return list
+}
+
+func (list PathList) Len() int {
+	return len(list)
+}
+
+func (list PathList) Empty() bool {
+	return list.Len() == 0
+}
+
+func (list PathList) Head() Path {
+	if list.Empty() {
+		return Path{}
+	}
+	return list[0]
 }
 
 func (list PathList) Copy() PathList {

@@ -2,18 +2,18 @@ package image
 
 import (
 	"fmt"
-
 	"os"
 
-	"git.containerum.net/ch/kube-client/pkg/model"
+	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/image"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/spf13/cobra"
 )
 
-var setAliases = []string{"imgs", "img", "im"}
+var setAliases = []string{"imgs", "img", "im", "images"}
 
 func Set(ctx *context.Context) *cobra.Command {
 	force := false
@@ -25,8 +25,22 @@ func Set(ctx *context.Context) *cobra.Command {
 		Short:   "set container image in specific deployment",
 		Long: `Sets container image in specific deployment.
 If deployment contains only one container, then uses that container by default.`,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				activekit.Attention(err.Error())
+				os.Exit(1)
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if force {
+				if img.Container == "" {
+					depl, err := ctx.Client.GetDeployment(ctx.Namespace, deplName)
+					if err!=nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					img.Container = depl.Containers.Names()[0]
+				}
 				if err := ctx.Client.SetContainerImage(ctx.Namespace, deplName, img); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -70,6 +84,13 @@ If deployment contains only one container, then uses that container by default.`
 			}
 			if cmd.Flag("image").Changed {
 				config.UpdateImage.Image = img.Image
+			}
+			if force {
+				if err := ctx.Client.SetContainerImage(ctx.Namespace, deplName, img); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				return
 			}
 			img = image.Wizard(config)
 			for exit := false; !exit; {

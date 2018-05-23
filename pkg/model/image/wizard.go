@@ -5,10 +5,10 @@ import (
 
 	"strings"
 
-	kubeModel "git.containerum.net/ch/kube-client/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/validation"
+	kubeModel "github.com/containerum/kube-client/pkg/model"
 )
 
 type Config struct {
@@ -19,7 +19,6 @@ type Config struct {
 func Wizard(config Config) kubeModel.UpdateImage {
 	updImage := config.UpdateImage
 	oldImage := updImage
-
 	if updImage.Container == "" &&
 		len(config.Containers) == 1 {
 		updImage.Container = config.Containers[0].Name
@@ -85,7 +84,7 @@ func Wizard(config Config) kubeModel.UpdateImage {
 				{
 					Label: "Confirm",
 					Action: func() error {
-						if err := ValidateImage(config.UpdateImage); err != nil {
+						if err := ValidateImage(updImage); err != nil {
 							activekit.Attention(err.Error())
 							return nil
 						}
