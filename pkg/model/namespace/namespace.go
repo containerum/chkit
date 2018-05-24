@@ -14,6 +14,7 @@ import (
 
 type Namespace struct {
 	CreatedAt *time.Time
+	ID        string
 	Label     string
 	Access    string
 	Volumes   []volume.Volume
@@ -23,6 +24,7 @@ type Namespace struct {
 
 func NamespaceFromKube(kubeNameSpace kubeModel.Namespace) Namespace {
 	ns := Namespace{
+		ID:        kubeNameSpace.ID,
 		Label:     kubeNameSpace.Label,
 		Access:    kubeNameSpace.Access,
 		Resources: kubeNameSpace.Resources,

@@ -11,16 +11,17 @@ var (
 )
 
 func (_ *Volume) TableHeaders() []string {
-	return []string{"Label", "Age", "Access", "Replicas", "Storage, GB"}
+	return []string{"ID", "Label", "Age", "Access", "Replicas", "Capacity, GB"}
 }
 
 func (volume *Volume) TableRows() [][]string {
 	return [][]string{{
+		volume.ID,
 		volume.Label,
 		model.Age(volume.CreatedAt),
 		volume.Access,
 		fmt.Sprintf("%d", volume.Replicas),
-		fmt.Sprintf("%d", volume.Storage),
+		fmt.Sprintf("%d", volume.Capacity),
 	}}
 }
 

@@ -15,18 +15,20 @@ func TestNamespaceRenderToTable(test *testing.T) {
 		CreatedAt: &creationTime,
 		Volumes: []volume.Volume{
 			{
+				ID:        "id1",
 				Label:     "newton",
 				CreatedAt: time.Now(),
 				Access:    "r/w",
 				Replicas:  10,
-				Storage:   5,
+				Capacity:  5,
 			},
 			{
+				ID:        "id2",
 				Label:     "max",
 				CreatedAt: time.Now(),
 				Access:    "r",
 				Replicas:  4,
-				Storage:   10,
+				Capacity:  10,
 			},
 		},
 	}
