@@ -6,13 +6,10 @@ import (
 )
 
 const (
-	kubeAPIdeploymentPath  = "/namespaces/{namespace}/deployments/{deployment}"
-	kubeAPIdeploymentsPath = "/namespaces/{namespace}/deployments"
-
-	resourceDeploymentRootPath = "/namespace/{namespace}/deployment"
-	resourceDeploymentPath     = "/namespace/{namespace}/deployment/{deployment}"
-	resourceImagePath          = "/namespace/{namespace}/deployment/{deployment}/image"
-	resourceReplicasPath       = "/namespace/{namespace}/deployment/{deployment}/replicas"
+	deploymentsPath = "/namespaces/{namespace}/deployment"
+	deploymentPath  = "/namespaces/{namespace}/deployment/{deployment}"
+	imagePath       = "/namespaces/{namespace}/deployment/{deployment}/image"
+	replicasPath    = "/namespaces/{namespace}/deployment/{deployment}/replicas"
 )
 
 // GetDeployment -- consumes a namespace and a deployment names,
@@ -22,7 +19,7 @@ func (client *Client) GetDeployment(namespace, deployment string) (model.Deploym
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &depl,
 		URL: rest.URL{
-			Path: kubeAPIdeploymentPath,
+			Path: deploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -42,7 +39,7 @@ func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, e
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &jsonAdaptor,
 		URL: rest.URL{
-			Path: kubeAPIdeploymentsPath,
+			Path: deploymentsPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -56,7 +53,7 @@ func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, e
 func (client *Client) DeleteDeployment(namespace, deployment string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: resourceDeploymentPath,
+			Path: deploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -71,7 +68,7 @@ func (client *Client) CreateDeployment(namespace string, deployment model.Deploy
 	return client.RestAPI.Post(rest.Rq{
 		Body: deployment,
 		URL: rest.URL{
-			Path: resourceDeploymentRootPath,
+			Path: deploymentsPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -85,7 +82,7 @@ func (client *Client) SetContainerImage(namespace, deployment string, updateImag
 	return client.RestAPI.Put(rest.Rq{
 		Body: updateImage,
 		URL: rest.URL{
-			Path: resourceImagePath,
+			Path: imagePath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -99,7 +96,7 @@ func (client *Client) ReplaceDeployment(namespace string, deployment model.Deplo
 	return client.RestAPI.Put(rest.Rq{
 		Body: deployment,
 		URL: rest.URL{
-			Path: resourceDeploymentPath,
+			Path: deploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment.Name,
@@ -115,7 +112,7 @@ func (client *Client) SetReplicas(namespace, deployment string, replicas int) er
 			Replicas: replicas,
 		},
 		URL: rest.URL{
-			Path: resourceReplicasPath,
+			Path: replicasPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,

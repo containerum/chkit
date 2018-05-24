@@ -6,10 +6,8 @@ import (
 )
 
 const (
-	kubeAPIIngressRootPath  = "/namespaces/{namespace}/ingresses"
-	kubeAPIIngressPath      = kubeAPIIngressRootPath + "/{domain}"
-	resourceIngressRootPath = "/namespace/{namespace}/ingress"
-	resourceIngressPath     = resourceIngressRootPath + "/{domain}"
+	ingressesPath = "/namespaces/{namespace}/ingresses"
+	ingressPath   = "/namespaces/{namespace}/ingresses/{domain}"
 )
 
 // AddIngress -- adds ingress to provided namespace
@@ -17,7 +15,7 @@ func (client *Client) AddIngress(namespace string, ingress model.Ingress) error 
 	return client.RestAPI.Post(rest.Rq{
 		Body: ingress,
 		URL: rest.URL{
-			Path: resourceIngressRootPath,
+			Path: ingressesPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -34,7 +32,7 @@ func (client *Client) GetIngressList(namespace string) ([]model.Ingress, error) 
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &jsonAdaptor,
 		URL: rest.URL{
-			Path: kubeAPIIngressRootPath,
+			Path: ingressesPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -49,7 +47,7 @@ func (client *Client) GetIngress(namespace, domain string) (model.Ingress, error
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &ingress,
 		URL: rest.URL{
-			Path: kubeAPIIngressPath,
+			Path: ingressPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"domain":    domain,
@@ -64,7 +62,7 @@ func (client *Client) UpdateIngress(namespace, domain string, ingress model.Ingr
 	return client.RestAPI.Put(rest.Rq{
 		Body: ingress,
 		URL: rest.URL{
-			Path: resourceIngressPath,
+			Path: ingressPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"domain":    domain,
@@ -77,7 +75,7 @@ func (client *Client) UpdateIngress(namespace, domain string, ingress model.Ingr
 func (client *Client) DeleteIngress(namespace, domain string) error {
 	return client.RestAPI.Put(rest.Rq{
 		URL: rest.URL{
-			Path: resourceIngressPath,
+			Path: ingressPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"domain":    domain,

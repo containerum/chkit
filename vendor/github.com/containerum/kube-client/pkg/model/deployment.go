@@ -57,7 +57,7 @@ type Container struct {
 	ConfigMaps   []ContainerVolume `json:"config_maps,omitempty"`
 }
 
-// Env -- key-value pair of enviroment variables
+// Env -- key-value pair of environment variables
 //
 // swagger:model
 type Env struct {

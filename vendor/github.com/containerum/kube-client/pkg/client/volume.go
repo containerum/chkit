@@ -7,17 +7,17 @@ import (
 )
 
 const (
-	resourceVolumeRootPath   = "/volume"
-	resourceVolumePath       = "/volume/{volume}"
-	resourceVolumeNamePath   = "/volume/{volume}/name"
-	resourceVolumeAccessPath = "/volume/{volume}/access"
+	volumesPath      = "/volumes"
+	volumePath       = "/volumes/{volume}"
+	volumeNamePath   = "/volumes/{volume}/name"
+	volumeAccessPath = "/volumes/{volume}/access"
 )
 
 // DeleteVolume -- deletes Volume with provided volume name
 func (client *Client) DeleteVolume(volumeName string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: resourceVolumePath,
+			Path: volumePath,
 			Params: rest.P{
 				"volume": volumeName,
 			},
@@ -32,7 +32,7 @@ func (client *Client) GetVolume(volumeName string) (model.Volume, error) {
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &volume,
 		URL: rest.URL{
-			Path: resourceVolumePath,
+			Path: volumePath,
 			Params: rest.P{
 				"volume": volumeName,
 			},
@@ -54,7 +54,7 @@ func (client *Client) GetVolumeList(filter *string) ([]model.Volume, error) {
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &volumeList,
 		URL: rest.URL{
-			Path:   resourceVolumeRootPath,
+			Path:   volumesPath,
 			Params: rest.P{},
 		},
 	})
@@ -68,7 +68,7 @@ func (client *Client) RenameVolume(volumeName, newName string) error {
 			Label: newName,
 		},
 		URL: rest.URL{
-			Path: resourceVolumeNamePath,
+			Path: volumeNamePath,
 			Params: rest.P{
 				"volume": volumeName,
 			},
@@ -81,7 +81,7 @@ func (client *Client) SetVolumeAccess(volumeName string, accessData model.Resour
 	return client.RestAPI.Post(rest.Rq{
 		Body: accessData,
 		URL: rest.URL{
-			Path: resourceVolumeAccessPath,
+			Path: volumeAccessPath,
 			Params: rest.P{
 				"volume": volumeName,
 			},
@@ -96,7 +96,7 @@ func (client *Client) DeleteAccess(volumeName, username string) error {
 			Username: username,
 		},
 		URL: rest.URL{
-			Path: resourceVolumeAccessPath,
+			Path: volumeAccessPath,
 			Params: rest.P{
 				"volume": volumeName,
 			},

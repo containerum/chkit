@@ -6,8 +6,7 @@ import (
 )
 
 const (
-	//TODO: Change path to Permissions "/namespaces/{namespace}/accesses"
-	accessesPath = "/namespace/{namespace}/access"
+	accessesPath = "/namespaces/{namespace}/access"
 )
 
 func (client *Client) GetNamespaceAccesses(namespace string) (permModel.NamespaceWithPermissionsJSON, error) {

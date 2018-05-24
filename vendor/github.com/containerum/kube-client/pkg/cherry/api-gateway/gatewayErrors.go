@@ -3,8 +3,9 @@ package gatewayErrors
 
 import (
 	bytes "bytes"
-	cherry "github.com/containerum/cherry"
 	template "text/template"
+
+	cherry "github.com/containerum/cherry"
 )
 
 const ()

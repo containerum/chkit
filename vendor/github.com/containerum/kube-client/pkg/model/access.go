@@ -41,7 +41,7 @@ func (access UserAccess) String() string {
 	return access.Username + ":" + access.AccessLevel.String()
 }
 
-// ResourceUpdateUserAccess -- containes user access data
+// ResourceUpdateUserAccess -- contains user access data
 //swagger:ignore
 type ResourceUpdateUserAccess struct {
 	Username string `json:"username"`

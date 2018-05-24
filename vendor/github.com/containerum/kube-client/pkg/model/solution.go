@@ -131,7 +131,7 @@ func (list UserSolutionsList) Get(i int) UserSolution {
 //
 // swagger:model
 type UserSolution struct {
-	ID     string          `json:"id,omitempty"`
+	ID     string            `json:"id,omitempty"`
 	Branch string            `json:"branch"`
 	Env    map[string]string `json:"env"`
 	// required: true
@@ -156,10 +156,10 @@ func (solution UserSolution) Copy() UserSolution {
 	}
 }
 
-// RunSolutionResponce -- responce to run solution request
+// RunSolutionResponse -- response to run solution request
 //
 // swagger:model
-type RunSolutionResponce struct {
+type RunSolutionResponse struct {
 	Created    int      `json:"created"`
 	NotCreated int      `json:"not_created"`
 	Errors     []string `json:"errors,omitempty"`

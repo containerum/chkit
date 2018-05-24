@@ -33,15 +33,14 @@ type UpdateNamespaceName struct {
 	Label string `json:"label"`
 }
 
-// Namespace -- namespace representation provided by resource-service
-// https://ch.pages.containerum.net/api-docs/modules/resource-service/index.html#get-namespace
+// Namespace -- namespace representation
 //
 // swagger:model
 type Namespace struct {
 	//creation date in RFC3339 format
 	CreatedAt *string `json:"created_at,omitempty"`
+	ID        string  `json:"id,omitempty"`
 	// user-visible label for the namespace
-	Name          string   `json:"name,omitempty"`
 	Label         string   `json:"label,omitempty"`
 	Access        string   `json:"access,omitempty"`
 	MaxExtService *uint    `json:"max_ext_service,omitempty"`
