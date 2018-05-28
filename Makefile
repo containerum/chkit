@@ -34,13 +34,14 @@ docker:
 	docker build -t $(CONTAINER_NAME) . \
 		--build-arg ALLOW_SELF_SIGNED_CERTS=$(ALLOW_SELF_SIGNED_CERTS)
 
-
-genkey:
+$(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE):
 	@echo "Generating private/public ECDSA keys to sign"
 	@mkdir -p $(SIGNING_KEY_DIR)
 	@openssl ecparam -genkey -name prime256v1 -out $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 	@openssl ec -in $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE) -pubout -out $(SIGNING_KEY_DIR)/$(PUBLIC_KEY_FILE)
 	@echo "Keys stored in $(SIGNING_KEY_DIR)"
+
+genkey: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 
 # go has build artifacts caching so soruce tracking not needed
 build:
@@ -86,7 +87,7 @@ endif)
 @$(pack_cmd)
 endef
 
-release:
+release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 	$(eval VERSION=$(LATEST_TAG:v%=%)+release)
 	$(call build_release,linux,amd64)
 	$(call build_release,linux,386)
@@ -95,7 +96,7 @@ release:
 	$(call build_release,windows,amd64)
 	$(call build_release,windows,386)
 
-single_release:
+single_release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 	$(call build_release,$(OS),$(ARCH))
 
 dev:
