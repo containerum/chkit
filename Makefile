@@ -88,7 +88,6 @@ endif)
 endef
 
 release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
-	$(eval VERSION=$(LATEST_TAG:v%=%)+release)
 	$(call build_release,linux,amd64)
 	$(call build_release,linux,386)
 	$(call build_release,linux,arm)
@@ -102,7 +101,6 @@ single_release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 dev:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+dev)
 	@echo building $(VERSION)
-	@echo $(PACKAGE)
 	go build -v --tags="dev" --ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
 
 mock:
