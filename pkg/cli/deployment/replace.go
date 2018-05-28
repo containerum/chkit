@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -24,7 +23,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 	var force bool
 	var flagCont container.Container
 	var flagDepl deployment.Deployment
-	var envs string
+	var envs []string
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
@@ -41,12 +40,21 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					fmt.Printf("Unable to load deployment data from file :(\n%v", err)
 					os.Exit(1)
 				}
-			} else if cmd.Flag("force").Changed {
+			} else {
 				if cmd.Flag("env").Changed {
-					envMap, err := pairs.ParseMap(envs, ":")
-					if err != nil {
-						fmt.Printf("invalid env flag\n")
-						os.Exit(1)
+					envMap := map[string]string{}
+					for _, env := range envs {
+						var tokens = strings.SplitN(env, ":", 2)
+						if len(tokens) != 2 {
+							fmt.Printf("Inavlid env kev-value pair %q", env)
+							os.Exit(1)
+						}
+						var k, v = tokens[0], tokens[1]
+						k = strings.TrimSpace(k)
+						v = strings.TrimSpace(v)
+						v = strings.TrimPrefix(v, "\"")
+						v = strings.TrimSuffix(v, "\"")
+						envMap[k] = v
 					}
 					for k, v := range envMap {
 						flagCont.Env = append(flagCont.Env, model.Env{
@@ -231,6 +239,6 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 	command.PersistentFlags().
 		UintVar(&flagCont.Limits.CPU, "cpu", 200, "container CPU limit in mCPU, optional")
 	command.PersistentFlags().
-		StringVar(&envs, "env", "", "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
+		StringArrayVar(&envs, "env", nil, "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
 	return command
 }

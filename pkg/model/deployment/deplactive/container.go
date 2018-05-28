@@ -60,6 +60,7 @@ func getContainer(con container.Container) (container.Container, bool) {
 							fmt.Printf("%s\n%v\n%s\n", attention, errText, attention)
 							return nil
 						}
+						ok = true
 						exit = true
 						return nil
 					},
