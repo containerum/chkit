@@ -24,6 +24,7 @@ var (
 )
 
 func ValidateContainerName(name string) error {
+	name = strings.TrimSpace(name)
 	if !containerNameRe.MatchString(name) {
 		return ErrInvalidContainerName
 	}
@@ -31,7 +32,8 @@ func ValidateContainerName(name string) error {
 }
 
 func ValidateImageName(image string) error {
-	if !reference.NameRegexp.MatchString(image) || strings.TrimSpace(image) == "" {
+	image = strings.TrimSpace(image)
+	if !reference.NameRegexp.MatchString(image) || image == "" {
 		return ErrInvalidImageName
 	}
 	return nil

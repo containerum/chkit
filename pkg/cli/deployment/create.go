@@ -13,6 +13,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/containerum/chkit/pkg/util/whaler"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -40,7 +41,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					fmt.Printf("Unable to load deployment data from file :(\n%v", err)
 					os.Exit(1)
 				}
-			} else if cmd.Flag("force").Changed {
+			} else if force, _ := cmd.Flags().GetBool("force"); force {
 				if cmd.Flag("env").Changed {
 					envMap := map[string]string{}
 					for _, env := range envs {
@@ -64,12 +65,17 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					}
 				}
 				if flagCont.Name == "" {
-					flagCont.Name = namegen.Aster() + "-" + flagCont.Image
+					var name, err = whaler.ExtractImageName(flagCont.Image)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					flagCont.Name = namegen.Aster() + "-" + name
 				}
 				flagDepl.Containers = []container.Container{flagCont}
 				depl = flagDepl
 			}
-			if cmd.Flag("force").Changed {
+			if force, _ := cmd.Flags().GetBool("force"); force {
 				if err := deplactive.ValidateDeployment(depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
