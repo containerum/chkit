@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
-	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -45,16 +44,18 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				if cmd.Flag("env").Changed {
 					envMap := map[string]string{}
 					for _, env := range envs {
-						penv, err := pairs.ParseMap(env, ":")
-						if err != nil {
-							fmt.Printf("invalid env flag\n")
+						var tokens = strings.SplitN(env, ":", 2)
+						if len(tokens) != 2 {
+							fmt.Printf("Inavlid env kev-value pair %q", env)
 							os.Exit(1)
 						}
-						for k, v := range penv {
-							envMap[k] = v
-						}
+						var k, v = tokens[0], tokens[1]
+						k = strings.TrimSpace(k)
+						v = strings.TrimSpace(v)
+						v = strings.TrimPrefix(v, "\"")
+						v = strings.TrimSuffix(v, "\"")
+						envMap[k] = v
 					}
-
 					for k, v := range envMap {
 						flagCont.Env = append(flagCont.Env, model.Env{
 							Name:  k,
