@@ -36,3 +36,16 @@ func (items MenuItems) NotNil() MenuItems {
 	}
 	return cp
 }
+
+func SelectString(items []string, action func(string) error) MenuItems {
+	var menuItems = make(MenuItems, 0, len(items))
+	for _, item := range items {
+		menuItems = menuItems.Append(&MenuItem{
+			Label: item,
+			Action: func(item string) func() error {
+				return func() error { return action(item) }
+			}(item),
+		})
+	}
+	return menuItems
+}

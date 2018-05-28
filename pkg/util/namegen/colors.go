@@ -147,7 +147,6 @@ var Colors = []string{
 	"meringue",
 	"tomato",
 	"menthol",
-	"19",
 	"car",
 	"ebony",
 	"soda",

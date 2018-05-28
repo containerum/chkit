@@ -82,7 +82,7 @@ func environmentVariableMenu(envs *[]model.Env, ind int) {
 					},
 				},
 				{
-					Label: fmt.Sprintf("Set value  :  %q", env.Name),
+					Label: fmt.Sprintf("Set value  :  %q", env.Value),
 					Action: func() error {
 						value := activekit.Promt("Type variable value (hit Enter to leave unchanged): ")
 						if value != "" {
