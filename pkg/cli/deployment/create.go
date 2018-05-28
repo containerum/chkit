@@ -50,8 +50,10 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 							os.Exit(1)
 						}
 						var k, v = tokens[0], tokens[1]
-						v = strings.TrimPrefix(k, "\"")
-						v = strings.TrimSuffix(k, "\"")
+						k = strings.TrimSpace(k)
+						v = strings.TrimSpace(v)
+						v = strings.TrimPrefix(v, "\"")
+						v = strings.TrimSuffix(v, "\"")
 						envMap[k] = v
 					}
 					for k, v := range envMap {
