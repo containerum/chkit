@@ -22,7 +22,7 @@ func (client *Client) GetDeployment(namespace, deplName string) (deployment.Depl
 			kubeErrors.ErrResourceNotExist(),
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableGetResource()):
-			return false, ErrResourceNotExists
+			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
 			return true, client.Auth()
