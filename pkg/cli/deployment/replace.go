@@ -32,6 +32,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 Has an one-line mode, suitable for integration with other tools, and an interactive wizard mode`,
 		Run: func(cmd *cobra.Command, args []string) {
 			depl := deplactive.DefaultDeployment()
+			switch len(args) {
+			case 1:
+				depl.Name = args[0]
+			default:
+				cmd.Help()
+			}
 			if cmd.Flag("file").Changed {
 				var err error
 				depl, err = deplactive.FromFile(file)
@@ -66,7 +72,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 
 				oldDepl, err := ctx.Client.GetDeployment(ctx.Namespace, depl.Name)
 				if err != nil {
-					activekit.Attention(err.Error())
+					activekit.Attention("unable to get deploment %q: %v", depl.Name, err)
 					os.Exit(1)
 				}
 				if !cmd.Flag("replicas").Changed {
