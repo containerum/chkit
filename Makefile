@@ -1,4 +1,4 @@
-.PHONY: genkey build test clean release single_release
+.PHONY: docker genkey build test clean install release single_release dev mock
 
 CMD_DIR:=cmd/chkit
 CLI_DIR:=pkg/cli
