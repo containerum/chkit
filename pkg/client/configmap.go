@@ -3,9 +3,10 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/configmap"
-	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,8 +20,7 @@ func (client *Client) CreateConfigMap(ns string, config configmap.ConfigMap) err
 			rserrors.ErrResourceNotExists()):
 			return false, ErrResourceNotExists.CommentF("namespace %q doesn't exist", ns)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
 		case cherry.In(err,
@@ -92,8 +92,7 @@ func (client *Client) DeleteConfigmap(namespace, cm string) error {
 			return false, ErrResourceNotExists.
 				CommentF("service %q not found in %q", cm, namespace)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 
 			return false, ErrYouDoNotHaveAccessToResource.

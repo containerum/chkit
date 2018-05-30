@@ -1,12 +1,12 @@
 package chClient
 
 import (
+	"git.containerum.net/ch/api-gateway/pkg/gatewayErrors"
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/user-manager/pkg/umErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/containerum/kube-client/pkg/cherry/api-gateway"
 	kubeClientModels "github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 )
