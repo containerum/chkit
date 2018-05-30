@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	solutionListPath  = "/solutions"
+	solutionsPath     = "/solutions"
 	userSolutionsPath = "/user_solutions"
 )
 
@@ -16,14 +16,14 @@ func (client *Client) GetSolutionList() (model.AvailableSolutionsList, error) {
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &solutionList,
 		URL: rest.URL{
-			Path: solutionListPath,
+			Path: solutionsPath,
 		},
 	})
 	return solutionList, err
 }
 
-func (client *Client) RunSolution(solution model.UserSolution) (model.RunSolutionResponce, error) {
-	var resp model.RunSolutionResponce
+func (client *Client) RunSolution(solution model.UserSolution) (model.RunSolutionResponse, error) {
+	var resp model.RunSolutionResponse
 	err := client.RestAPI.Post(rest.Rq{
 		Result: &resp,
 		Body:   solution.Copy(),

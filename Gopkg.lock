@@ -8,12 +8,6 @@
   revision = "d5c31e2e613c3aeadf0d3cf8a8256c336da39fb1"
 
 [[projects]]
-  name = "git.containerum.net/ch/kube-api"
-  packages = ["pkg/kubeErrors"]
-  revision = "bb4ec38ff060c55d3e7983f4919088e6fe88922d"
-  version = "v1.0.0"
-
-[[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = [
@@ -21,12 +15,6 @@
     "pkg/model"
   ]
   revision = "f9f444b6bb19ed6f7fcc251243f98d52d731b00a"
-
-[[projects]]
-  branch = "develop"
-  name = "git.containerum.net/ch/user-manager"
-  packages = ["pkg/umErrors"]
-  revision = "a417c26b6f93e8fe8c39e2cc0f5668f5ce4960c8"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -41,16 +29,22 @@
   version = "v3.5.1"
 
 [[projects]]
-  name = "github.com/cheggaaa/pb"
-  packages = ["."]
-  revision = "c112833d014c77e8bde723fd0158e3156951639f"
-  version = "v2.0.6"
+  name = "github.com/containerum/auth"
+  packages = ["pkg/errors"]
+  revision = "f5be2683b112903d242654db72e9b21d060555d4"
+  version = "v1.0.0-rc.0"
 
 [[projects]]
   name = "github.com/containerum/cherry"
   packages = ["."]
   revision = "34f7a2a139b36c20a34b93738dda33476efad47d"
   version = "v1.0.1"
+
+[[projects]]
+  name = "github.com/containerum/kube-api"
+  packages = ["pkg/kubeErrors"]
+  revision = "1394810a2fdfda018766955a5776658b1e83c711"
+  version = "v1.0.0-rc.0"
 
 [[projects]]
   name = "github.com/containerum/kube-client"
@@ -68,14 +62,20 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "4767a439d67ba8e1d18c88ac42e7f8c82e46d254"
-  version = "v0.14.2"
+  revision = "095b956a36ee7a952c2fbd4d4da35df6d7d1446a"
+  version = "v0.18.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/containerum/solutions"
   packages = ["."]
   revision = "cf98ef93964f879aa704aac38a3426d6d2bdb607"
+
+[[projects]]
+  name = "github.com/containerum/user-manager"
+  packages = ["pkg/umErrors"]
+  revision = "ecbf4d476f6ccfd53e92c6425b52fd9b54d3f78a"
+  version = "v1.0.0-rc.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -184,12 +184,6 @@
   name = "github.com/matishsiao/goInfo"
   packages = ["."]
   revision = "617e6440957ee5591c8912e8b7e2f03a86298722"
-
-[[projects]]
-  name = "github.com/mattn/go-colorable"
-  packages = ["."]
-  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
-  version = "v0.0.9"
 
 [[projects]]
   name = "github.com/mattn/go-isatty"
@@ -319,6 +313,16 @@
   version = "v2.3.2"
 
 [[projects]]
+  name = "github.com/vbauerster/mpb"
+  packages = [
+    ".",
+    "cwriter",
+    "decor"
+  ]
+  revision = "23769ee3856b917f8a1ae929ca1c6f408ebdaefe"
+  version = "v3.2.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/xanzy/ssh-agent"
   packages = ["."]
@@ -386,42 +390,6 @@
   ]
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
-
-[[projects]]
-  name = "gopkg.in/VividCortex/ewma.v1"
-  packages = ["."]
-  revision = "b24eb346a94c3ba12c1da1e564dbac1b498a77ce"
-  version = "v1.1.1"
-
-[[projects]]
-  name = "gopkg.in/cheggaaa/pb.v2"
-  packages = ["termutil"]
-  revision = "c112833d014c77e8bde723fd0158e3156951639f"
-  version = "v2.0.6"
-
-[[projects]]
-  name = "gopkg.in/fatih/color.v1"
-  packages = ["."]
-  revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
-  version = "v1.7.0"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-colorable.v0"
-  packages = ["."]
-  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
-  version = "v0.0.9"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-isatty.v0"
-  packages = ["."]
-  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
-  version = "v0.0.3"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-runewidth.v0"
-  packages = ["."]
-  revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
-  version = "v0.0.2"
 
 [[projects]]
   name = "gopkg.in/resty.v1"
@@ -520,6 +488,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0e05bcde7f8a37af37cc9c3e7f4d214e5bbdeb07582bf6d5c993ae0ea33d6155"
+  inputs-digest = "f4bfae40a0d19bbd2030965106e00f71432edb30b012d2ee7b6f98c85d1c5319"
   solver-name = "gps-cdcl"
   solver-version = 1
