@@ -1,14 +1,12 @@
 package service
 
-import (
-	"github.com/containerum/kube-client/pkg/model"
-)
+import "github.com/containerum/kube-client/pkg/model"
 
 type ServiceList []Service
 
-func ServiceListFromKube(kubeList []model.Service) ServiceList {
-	var list ServiceList = make([]Service, 0, len(kubeList))
-	for _, kubeService := range kubeList {
+func ServiceListFromKube(kubeList model.ServicesList) ServiceList {
+	var list ServiceList = make([]Service, 0, len(kubeList.Services))
+	for _, kubeService := range kubeList.Services {
 		list = append(list, ServiceFromKube(kubeService))
 	}
 	return list
