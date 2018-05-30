@@ -1,16 +1,13 @@
 package client
 
 import (
-	"github.com/containerum/kube-client/pkg/rest"
 	"github.com/containerum/kube-client/pkg/model"
+	"github.com/containerum/kube-client/pkg/rest"
 )
 
 const (
 	servicePath  = "/namespaces/{namespace}/services/{service}"
 	servicesPath = "/namespaces/{namespace}/services"
-
-	serviceRootResourcePath = "/namespace/{namespace}/service"
-	serviceResourcePath     = serviceRootResourcePath + "/{service}"
 )
 
 // GetService -- consume a namespace id and a service name
@@ -32,13 +29,10 @@ func (client *Client) GetService(namespace, serviceName string) (model.Service, 
 
 // GetServiceList -- consumes a namespace name
 // returns a slice of Services OR a nil slice AND an error
-func (client *Client) GetServiceList(namespace string) ([]model.Service, error) {
-	var serviceList []model.Service
-	jsonAdaptor := struct {
-		Services *[]model.Service
-	}{&serviceList}
+func (client *Client) GetServiceList(namespace string) (model.ServicesList, error) {
+	var serviceList model.ServicesList
 	err := client.RestAPI.Get(rest.Rq{
-		Result: &jsonAdaptor,
+		Result: &serviceList,
 		URL: rest.URL{
 			Path: servicesPath,
 			Params: rest.P{
@@ -57,7 +51,7 @@ func (client *Client) CreateService(namespace string, service model.Service) (mo
 		Body:   service,
 		Result: &gainedService,
 		URL: rest.URL{
-			Path: serviceRootResourcePath,
+			Path: servicesPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -71,7 +65,7 @@ func (client *Client) CreateService(namespace string, service model.Service) (mo
 func (client *Client) DeleteService(namespace, serviceName string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: serviceResourcePath,
+			Path: servicePath,
 			Params: rest.P{
 				"namespace": namespace,
 				"service":   serviceName,
@@ -88,7 +82,7 @@ func (client *Client) UpdateService(namespace string, service model.Service) (mo
 		Body:   service,
 		Result: &gainedService,
 		URL: rest.URL{
-			Path: serviceResourcePath,
+			Path: servicePath,
 			Params: rest.P{
 				"namespace": namespace,
 				"service":   service.Name,

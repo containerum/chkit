@@ -1,4 +1,4 @@
-package namespace
+package volume
 
 import (
 	"github.com/containerum/chkit/pkg/model"
@@ -6,10 +6,10 @@ import (
 )
 
 var (
-	_ model.YAMLrenderer = new(NamespaceList)
+	_ model.YAMLrenderer = new(VolumeList)
 )
 
-func (list NamespaceList) RenderYAML() (string, error) {
+func (list VolumeList) RenderYAML() (string, error) {
 	data, err := yaml.Marshal(list.ToKube())
 	return string(data), err
 }

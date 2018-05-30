@@ -9,7 +9,7 @@
 
 [[constraint]]
   name = "github.com/containerum/kube-client"
-  version = "~0.14.2"
+  version = "~0.19.0"
 
 [[constraint]]
   branch = "master"
@@ -54,3 +54,15 @@
 [[constraint]]
   name = "github.com/vbauerster/mpb"
   version = "3.2.0"
+
+[[constraint]]
+  name = "git.containerum.net/ch/api-gateway"
+  branch = "develop"
+  
+[[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/auth"
+
+[[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/resource-service"

@@ -3,26 +3,38 @@ package volume
 import (
 	"time"
 
+	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
-type Volume struct {
-	Label     string
-	CreatedAt time.Time
-	Access    string
-	Replicas  uint
-	Storage   uint
-	origin    kubeModels.Volume
-}
+type Volume kubeModels.Volume
 
 func VolumeFromKube(kv kubeModels.Volume) Volume {
-	volume := Volume{
-		Label:     kv.Label,
-		CreatedAt: kv.CreateTime,
-		Access:    kv.Access,
-		Replicas:  uint(kv.Replicas),
-		Storage:   uint(kv.Storage),
-		origin:    kv,
+	return Volume(kv).Copy()
+}
+
+func (volume Volume) ToKube() kubeModels.Volume {
+	return kubeModels.Volume(volume.Copy())
+}
+
+func (volume Volume) Age() string {
+	if volume.CreatedAt == nil {
+		return "undefined"
 	}
-	return volume
+	var timestamp, _ = time.Parse(*volume.CreatedAt, model.TimestampFormat)
+	return model.Age(timestamp)
+}
+
+func (volume Volume) Copy() Volume {
+	var cp = volume
+	cp.Users = append(make([]kubeModels.UserAccess, 0, len(volume.Users)), volume.Users...)
+	return cp
+}
+
+func (volume Volume) UserNames() []string {
+	var names = make([]string, 0, len(volume.Users))
+	for _, user := range volume.Users {
+		names = append(names, user.Username)
+	}
+	return names
 }
