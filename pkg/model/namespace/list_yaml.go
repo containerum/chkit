@@ -2,7 +2,7 @@ package namespace
 
 import (
 	"github.com/containerum/chkit/pkg/model"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -10,6 +10,6 @@ var (
 )
 
 func (list NamespaceList) RenderYAML() (string, error) {
-	data, err := yaml.Marshal(list)
+	data, err := yaml.Marshal(list.ToKube())
 	return string(data), err
 }

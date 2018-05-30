@@ -16,5 +16,5 @@ func (v Volume) RenderYAML() (string, error) {
 }
 
 func (vol Volume) MarshalYAML() (interface{}, error) {
-	return vol.origin, nil
+	return vol.ToKube(), nil
 }

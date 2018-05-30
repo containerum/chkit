@@ -10,6 +10,6 @@ var (
 )
 
 func (list VolumeList) RenderYAML() (string, error) {
-	data, err := yaml.Marshal(list)
+	data, err := yaml.Marshal(list.ToKube())
 	return string(data), err
 }

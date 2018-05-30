@@ -17,6 +17,6 @@ func (vol Volume) RenderJSON() (string, error) {
 }
 
 func (vol Volume) MarshalJSON() ([]byte, error) {
-	data, err := json.MarshalIndent(vol.origin, "", model.Indent)
+	data, err := json.MarshalIndent(vol.ToKube(), "", model.Indent)
 	return data, err
 }

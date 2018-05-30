@@ -1,56 +1,57 @@
 package namespace
 
 import (
-	"bytes"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"fmt"
 
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/containerum/chkit/pkg/model/volume"
 	kubeModel "github.com/containerum/kube-client/pkg/model"
-	"github.com/olekukonko/tablewriter"
 )
 
-type Namespace struct {
-	CreatedAt *time.Time
-	Label     string
-	Access    string
-	Volumes   []volume.Volume
-	Resources kubeModel.Resources
-	origin    kubeModel.Namespace
-}
+type Namespace kubeModel.Namespace
 
 func NamespaceFromKube(kubeNameSpace kubeModel.Namespace) Namespace {
-	ns := Namespace{
-		Label:     kubeNameSpace.Label,
-		Access:    kubeNameSpace.Access,
-		Resources: kubeNameSpace.Resources,
-		origin:    kubeNameSpace,
-	}
-	if kubeNameSpace.CreatedAt != nil {
-		createdAt, err := time.Parse(model.TimestampFormat, *kubeNameSpace.CreatedAt)
-		if err != nil {
-			logrus.WithError(err).Debugf("invalid created_at timestamp")
-		} else {
-			ns.CreatedAt = &createdAt
-		}
-	}
-	ns.Volumes = make([]volume.Volume, 0, len(kubeNameSpace.Volumes))
-	for _, kubeVolume := range kubeNameSpace.Volumes {
-		ns.Volumes = append(ns.Volumes,
-			volume.VolumeFromKube(kubeVolume))
-	}
-	return ns
+	return Namespace(kubeNameSpace).Copy()
 }
 
-func (ns *Namespace) RenderVolumes() string {
-	buf := &bytes.Buffer{}
-	table := tablewriter.NewWriter(buf)
-	table.SetHeader(new(volume.Volume).TableHeaders())
-	for _, volume := range ns.Volumes {
-		table.AppendBulk(volume.TableRows())
+func (namespace Namespace) Copy() Namespace {
+	namespace.Users = append(make([]kubeModel.UserAccess, 0, len(namespace.Users)), namespace.Users...)
+	return namespace
+}
+
+func (namespace Namespace) ToKube() kubeModel.Namespace {
+	return kubeModel.Namespace(namespace.Copy())
+}
+
+func (namespace Namespace) UserNames() []string {
+	var names = make([]string, 0, len(namespace.Users))
+	for _, user := range namespace.Users {
+		names = append(names, user.Username)
 	}
-	table.Render()
-	return buf.String()
+	return names
+}
+
+func (namespace Namespace) Age() string {
+	if namespace.CreatedAt == nil {
+		return "undefined"
+	}
+	var timestamp, _ = time.Parse(model.TimestampFormat, *namespace.CreatedAt)
+	return model.Age(timestamp)
+}
+
+func (namespace Namespace) UsageCPU() string {
+	var hard, used = namespace.Resources.Hard, namespace.Resources.Used
+	if used == nil {
+		return fmt.Sprintf("%d mCPU", hard.CPU)
+	}
+	return fmt.Sprintf("%d/%d mCPU", used.CPU, hard.CPU)
+}
+
+func (namespace Namespace) UsageMemory() string {
+	var hard, used = namespace.Resources.Hard, namespace.Resources.Used
+	if used == nil {
+		return fmt.Sprintf("%d Mb", hard.Memory)
+	}
+	return fmt.Sprintf("%d/%d Mb", used.Memory, hard.Memory)
 }
