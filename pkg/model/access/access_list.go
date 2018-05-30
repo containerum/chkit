@@ -7,6 +7,14 @@ import (
 
 type AccessList []Access
 
+func AccessListFromKube(kubeAccesses []kubeModels.UserAccess) AccessList {
+	var accesses = make(AccessList, 0, len(kubeAccesses))
+	for _, access := range kubeAccesses {
+		accesses = append(accesses, AccessFromKube(access))
+	}
+	return accesses
+}
+
 func (list AccessList) Len() int {
 	return len(list)
 }

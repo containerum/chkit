@@ -1,6 +1,7 @@
 package access
 
 import (
+	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
@@ -23,6 +24,10 @@ func (access Access) TableRows() [][]string {
 		access.Username,
 		access.AccessLevel.String(),
 	}}
+}
+
+func (access Access) RenderTable() string {
+	return model.RenderTable(access)
 }
 
 func (access Access) String() string {
