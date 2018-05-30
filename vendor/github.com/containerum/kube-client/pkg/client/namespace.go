@@ -3,9 +3,8 @@ package client
 import (
 	"strconv"
 
-	"github.com/containerum/kube-client/pkg/rest"
-
 	"github.com/containerum/kube-client/pkg/model"
+	"github.com/containerum/kube-client/pkg/rest"
 )
 
 const (

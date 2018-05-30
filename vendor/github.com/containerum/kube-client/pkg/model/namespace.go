@@ -52,6 +52,7 @@ type Namespace struct {
 	// user-visible label for the namespace
 	Label         string      `json:"label,omitempty"`
 	Access        AccessLevel `json:"access,omitempty"`
+	TariffID      string      `json:"tariff_id",omitempty`
 	MaxExtService uint        `json:"max_ext_service,omitempty"`
 	MaxIntService uint        `json:"max_int_service,omitempty"`
 	MaxTraffic    uint        `json:"max_traffic,omitempty"`
