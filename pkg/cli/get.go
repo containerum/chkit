@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/sirupsen/logrus"
 
@@ -12,13 +11,11 @@ import (
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/pod"
-	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/cli/solution"
 	"github.com/containerum/chkit/pkg/cli/user"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/spf13/cobra"
 )
 
@@ -26,15 +23,6 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "get",
 		Short: "Get resource data",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
-			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
-			}
-		},
 		Run: func(command *cobra.Command, args []string) {
 			command.Help()
 		},

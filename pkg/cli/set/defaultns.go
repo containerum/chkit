@@ -47,16 +47,16 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 							fmt.Printf("Using %q as default namespace\n", ns)
 							return nil
 						}
-					}(ns.Label),
+					}(ns.ID),
 				})
 			}
 			menu = append(menu, []*activekit.MenuItem{
 				{
 					Label: "Set custom namespace",
 					Action: func() error {
-						ns := strings.TrimSpace(activekit.Promt("Type namespace label: "))
-						if err := validation.ValidateLabel(ns); ns == "" || err != nil {
-							fmt.Printf("Inavlid namespace label\n")
+						ns := strings.TrimSpace(activekit.Promt("Type namespace ID: "))
+						if err := validation.ValidateID(ns); ns == "" || err != nil {
+							fmt.Printf("Inavlid namespace ID\n")
 							return nil
 						}
 						ctx.Namespace = ns

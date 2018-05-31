@@ -19,21 +19,21 @@ func GetDefaultNS(ctx *context.Context, force bool) error {
 	if len(list) == 0 {
 		fmt.Printf("You have no namespaces!\n")
 	} else if force {
-		ctx.Namespace = list[0].Label
+		ctx.Namespace = list[0].ID
 		ctx.Changed = true
 		return nil
 	} else {
 		var menu []*activekit.MenuItem
 		for _, ns := range list {
 			menu = append(menu, &activekit.MenuItem{
-				Label: ns.Label,
+				Label: fmt.Sprintf("%s %s", ns.Label, ns.ID),
 				Action: func(ns string) func() error {
 					return func() error {
 						ctx.Namespace = ns
 						ctx.Changed = true
 						return nil
 					}
-				}(ns.Label),
+				}(ns.ID),
 			})
 		}
 		_, err := (&activekit.Menu{
