@@ -21,7 +21,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 		Aliases:    accessAliases,
 		SuggestFor: accessAliases,
 		Short:      "set namespace access",
-		Example:    "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $NAMESPACE]",
+		Example:    "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $ID]",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)

@@ -17,7 +17,7 @@ func DeleteAccess(ctx *context.Context) *cobra.Command {
 		Aliases:    accessAliases,
 		SuggestFor: accessAliases,
 		Short:      "delete user access to namespace",
-		Example:    "chkit delete access $USERNAME [--namespace $NAMESPACE]",
+		Example:    "chkit delete access $USERNAME [--namespace $ID]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
 			if len(args) != 1 {

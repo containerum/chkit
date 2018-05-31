@@ -23,7 +23,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Aliases: aliases,
 		Short:   `shows namespace data or namespace list`,
 		Long:    `shows namespace data or namespace list. Aliases: ` + strings.Join(aliases, ", "),
-		Example: "chkit get namespace_name... [-o yaml/json] [-f output_file]",
+		Example: "chkit get $ID... [-o yaml/json] [-f output_file]",
 		Run: func(command *cobra.Command, args []string) {
 			logrus.WithFields(logrus.Fields{
 				"command": "get namespace",
