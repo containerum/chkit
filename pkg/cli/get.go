@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/sirupsen/logrus"
 
@@ -56,6 +57,12 @@ func Get(ctx *context.Context) *cobra.Command {
 			Use:     "default-namespace",
 			Short:   "print default",
 			Aliases: []string{"default-ns", "def-ns"},
+			PreRun: func(cmd *cobra.Command, args []string) {
+				if err := configuration.SyncConfig(ctx); err != nil {
+					fmt.Printf("Unable to setup config:\n%v\n", err)
+					os.Exit(1)
+				}
+			},
 			Run: func(cmd *cobra.Command, args []string) {
 				fmt.Printf("%s\n", ctx.Namespace)
 			},
