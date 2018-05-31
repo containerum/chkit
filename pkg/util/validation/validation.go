@@ -6,8 +6,8 @@ import (
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/docker/distribution/reference"
-	"github.com/docker/distribution/uuid"
 	"github.com/ninedraft/ranger/intranger"
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -66,6 +66,6 @@ func DNSLabel(label string) error {
 }
 
 func ValidateID(ID string) error {
-	_, err := uuid.Parse(ID)
+	_, err := uuid.FromString(ID)
 	return err
 }

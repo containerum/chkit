@@ -82,8 +82,7 @@
   name = "github.com/docker/distribution"
   packages = [
     "digest",
-    "reference",
-    "uuid"
+    "reference"
   ]
   revision = "48294d928ced5dd9b378f7fd7c6f5da3ff3f2c89"
   version = "v2.6.2"
@@ -186,6 +185,12 @@
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -304,6 +309,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "12b7bfb6e7b9aaa73bc3b4e06a819a1f8c37466907535bf5ffef1369c3c568f5"
+  inputs-digest = "0afe598847247078c4c53783e1374ec24dc8a541bab9d50659a8a7d07174cbdc"
   solver-name = "gps-cdcl"
   solver-version = 1
