@@ -3,6 +3,8 @@ package login
 import (
 	"os"
 
+	"fmt"
+
 	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/context"
@@ -23,8 +25,12 @@ func Login(ctx *context.Context) *cobra.Command {
 			flags := command.Flags()
 			if flags.Changed("default-namespace") {
 				defNS, _ := flags.GetString("default-namespace")
-				ctx.Namespace = defNS
-				ctx.Changed = true
+				ns, err := ctx.Client.GetNamespace(defNS)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				ctx.SetNamespace(ns)
 			}
 			if err := Setup(ctx); err != nil {
 				angel.Angel(ctx, err)

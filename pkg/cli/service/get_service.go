@@ -33,20 +33,20 @@ func Get(ctx *context.Context) *cobra.Command {
 				os.Exit(1)
 			}
 			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
+				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			serviceData, err := func() (model.Renderer, error) {
 				switch len(args) {
 				case 0:
-					list, err := ctx.Client.GetServiceList(ctx.Namespace)
+					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
 					return list, err
 				case 1:
-					svc, err := ctx.Client.GetDeployment(ctx.Namespace, args[0])
+					svc, err := ctx.Client.GetDeployment(ctx.Namespace.ID, args[0])
 					return svc, err
 				default:
-					list, err := ctx.Client.GetServiceList(ctx.Namespace)
+					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
 					var filteredList service.ServiceList
 					names := strset.NewSet(args)
 					for _, svc := range list {

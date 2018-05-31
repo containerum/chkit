@@ -70,7 +70,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					}
 				}
 
-				oldDepl, err := ctx.Client.GetDeployment(ctx.Namespace, depl.Name)
+				oldDepl, err := ctx.Client.GetDeployment(ctx.Namespace.ID, depl.Name)
 				if err != nil {
 					activekit.Attention("unable to get deploment %q: %v", depl.Name, err)
 					os.Exit(1)
@@ -97,7 +97,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					os.Exit(1)
 				}
 				fmt.Println(depl.RenderTable())
-				if err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl); err != nil {
+				if err := ctx.Client.ReplaceDeployment(ctx.Namespace.ID, depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -105,7 +105,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				return
 			} else {
 				if len(args) == 0 {
-					list, err := ctx.Client.GetDeploymentList(ctx.Namespace)
+					list, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 					if err != nil {
 						activekit.Attention(err.Error())
 						os.Exit(1)
@@ -128,7 +128,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					}).Run()
 				} else {
 					var err error
-					depl, err = ctx.Client.GetDeployment(ctx.Namespace, args[0])
+					depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, args[0])
 					if err != nil {
 						activekit.Attention(err.Error())
 						os.Exit(1)
@@ -151,7 +151,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 							Action: func() error {
 								fmt.Println(depl.RenderTable())
 								if activekit.YesNo(fmt.Sprintf("Are you sure you want to update deployment %q on server?", depl.Name)) {
-									err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl)
+									err := ctx.Client.ReplaceDeployment(ctx.Namespace.ID, depl)
 									if err != nil {
 										logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
 										fmt.Println(err)

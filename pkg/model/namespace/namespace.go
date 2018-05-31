@@ -55,3 +55,7 @@ func (namespace Namespace) UsageMemory() string {
 	}
 	return fmt.Sprintf("%d/%d Mb", used.Memory, hard.Memory)
 }
+
+func (namespace Namespace) LabelAndID() string {
+	return fmt.Sprintf("%s (%s)", namespace.Label, namespace.OwnerLogin)
+}

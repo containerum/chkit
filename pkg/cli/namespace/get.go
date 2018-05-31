@@ -33,7 +33,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				os.Exit(1)
 			}
 			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
+				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
 			}
 		},
 		Run: func(command *cobra.Command, args []string) {

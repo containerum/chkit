@@ -43,7 +43,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				os.Exit(1)
 			}
 			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
+				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
 			}
 		},
 		Run: func(command *cobra.Command, args []string) {
@@ -51,7 +51,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				switch len(args) {
 				case 0:
 					logrus.Debugf("getting deployment from %q", ctx.Namespace)
-					list, err := ctx.Client.GetDeploymentList(ctx.Namespace)
+					list, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 					if err != nil {
 						return nil, err
 					}
@@ -59,7 +59,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				default:
 					deplNames := strset.NewSet(args)
 					var showList deployment.DeploymentList = make([]deployment.Deployment, 0) // prevents panic
-					list, err := ctx.Client.GetDeploymentList(ctx.Namespace)
+					list, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 					if err != nil {
 						return nil, err
 					}

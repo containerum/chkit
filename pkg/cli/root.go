@@ -76,7 +76,7 @@ func Root() error {
 	root.PersistentFlags().
 		StringVarP(&ctx.Client.Password, "password", "p", "", "account password")
 	root.PersistentFlags().
-		StringVarP(&ctx.Namespace, "namespace", "n", ctx.Namespace, "")
+		StringVarP(&ctx.Namespace.ID, "namespace", "n", ctx.Namespace.ID, "")
 	root.PersistentFlags().
 		BoolVarP(&ctx.Quiet, "quiet", "q", ctx.Quiet, "quiet mode")
 

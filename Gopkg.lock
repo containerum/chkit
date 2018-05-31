@@ -73,12 +73,6 @@
   version = "v0.19.0"
 
 [[projects]]
-  name = "github.com/containerum/permissions"
-  packages = ["pkg/model"]
-  revision = "5b1a6591ef3b91beed6749fd4d50c249f4de6562"
-  version = "v1.0.0-rc2"
-
-[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -88,7 +82,8 @@
   name = "github.com/docker/distribution"
   packages = [
     "digest",
-    "reference"
+    "reference",
+    "uuid"
   ]
   revision = "48294d928ced5dd9b378f7fd7c6f5da3ff3f2c89"
   version = "v2.6.2"
@@ -98,17 +93,6 @@
   name = "github.com/gin-gonic/gin"
   packages = ["json"]
   revision = "bf7803815b0baa22ff7a10457932882dfbf09925"
-
-[[projects]]
-  name = "github.com/go-pg/pg"
-  packages = [
-    "internal",
-    "internal/parser",
-    "orm",
-    "types"
-  ]
-  revision = "5b73ce88484575f3480edf393237f6bf79d5f166"
-  version = "v6.11.2"
 
 [[projects]]
   name = "github.com/go-resty/resty"
@@ -136,12 +120,6 @@
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/jinzhu/inflection"
-  packages = ["."]
-  revision = "04140366298a54a039076d798123ffa108fff46c"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -326,6 +304,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9d6b9f6dba1671b562baaa2f1d424450ac142cdde53bc8a75bdd6fd732fd2b83"
+  inputs-digest = "12b7bfb6e7b9aaa73bc3b4e06a819a1f8c37466907535bf5ffef1369c3c568f5"
   solver-name = "gps-cdcl"
   solver-version = 1

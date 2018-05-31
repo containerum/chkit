@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/sirupsen/logrus"
 )
@@ -19,21 +20,19 @@ func GetDefaultNS(ctx *context.Context, force bool) error {
 	if len(list) == 0 {
 		fmt.Printf("You have no namespaces!\n")
 	} else if force {
-		ctx.Namespace = list[0].ID
-		ctx.Changed = true
+		ctx.SetNamespace(list[0])
 		return nil
 	} else {
 		var menu []*activekit.MenuItem
 		for _, ns := range list {
 			menu = append(menu, &activekit.MenuItem{
-				Label: fmt.Sprintf("%s %s", ns.Label, ns.ID),
-				Action: func(ns string) func() error {
+				Label: ns.LabelAndID(),
+				Action: func(ns namespace.Namespace) func() error {
 					return func() error {
-						ctx.Namespace = ns
-						ctx.Changed = true
+						ctx.SetNamespace(ns)
 						return nil
 					}
-				}(ns.ID),
+				}(ns),
 			})
 		}
 		_, err := (&activekit.Menu{

@@ -1,6 +1,8 @@
 package namespace
 
 import (
+	"fmt"
+
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
@@ -54,4 +56,12 @@ func (list NamespaceList) IDs() []string {
 		IDs = append(IDs, namespace.ID)
 	}
 	return IDs
+}
+
+func (list NamespaceList) LabelsAndIDs() []string {
+	var lines = make([]string, 0, list.Len())
+	for _, namespace := range list {
+		lines = append(lines, fmt.Sprintf("%s %s", namespace.Label, namespace.ID))
+	}
+	return lines
 }
