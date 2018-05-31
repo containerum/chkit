@@ -13,14 +13,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/containerum/solutions"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/kardianos/osext"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/mitchellh/go-homedir"
 
 [[constraint]]

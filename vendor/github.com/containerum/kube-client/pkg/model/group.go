@@ -10,6 +10,13 @@ const (
 	NoAccess     UserGroupAccess = "none"
 )
 
+// UserGroups -- list of user groups
+//
+// swagger:model
+type UserGroups struct {
+	Groups []UserGroup `json:"groups"`
+}
+
 // UserGroup -- group of users
 //
 // swagger:model
