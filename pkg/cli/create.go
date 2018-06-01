@@ -25,7 +25,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				os.Exit(1)
 			}
 			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
+				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -36,7 +36,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		},
 	}
 	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace, "")
+		StringP("namespace", "n", ctx.Namespace.ID, "")
 	command.AddCommand(
 		cliconfigmap.Create(ctx),
 		clideployment.Create(ctx),

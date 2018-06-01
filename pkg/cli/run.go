@@ -23,7 +23,7 @@ func Run(ctx *context.Context) *cobra.Command {
 				os.Exit(1)
 			}
 			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
+				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
 			}
 		},
 		Run: func(command *cobra.Command, args []string) {
@@ -48,6 +48,6 @@ func Run(ctx *context.Context) *cobra.Command {
 		clisolution.Run(ctx),
 	)
 	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace, "")
+		StringP("namespace", "n", ctx.Namespace.ID, "")
 	return command
 }

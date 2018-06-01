@@ -3,13 +3,14 @@ package context
 import (
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/model/namespace"
 )
 
 type Context struct {
 	Version            string
 	ConfigPath         string
 	ConfigDir          string
-	Namespace          string
+	Namespace          Namespace
 	Quiet              bool
 	Changed            bool
 	Client             chClient.Client
@@ -26,14 +27,14 @@ func (ctx *Context) SetAPI(api string) *Context {
 	return ctx
 }
 
-func (ctx *Context) SetNamespace(ns string) *Context {
-	ctx.Namespace = ns
+func (ctx *Context) SetNamespace(ns namespace.Namespace) *Context {
+	ctx.Namespace = NamespaceFromModel(ns)
 	ctx.Changed = true
 	return ctx
 }
 
 type Storable struct {
-	Namespace          string
+	Namespace          Namespace
 	Username           string
 	Password           string
 	API                string
@@ -41,7 +42,7 @@ type Storable struct {
 }
 
 func (config Storable) Merge(upd Storable) Storable {
-	if upd.Namespace != "" {
+	if !upd.Namespace.IsEmpty() {
 		config.Namespace = upd.Namespace
 	}
 	if upd.API != "" {

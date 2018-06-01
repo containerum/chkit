@@ -81,7 +81,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					os.Exit(1)
 				}
 				fmt.Println(depl.RenderTable())
-				if err := ctx.Client.CreateDeployment(ctx.Namespace, depl); err != nil {
+				if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -100,7 +100,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 			var firstItem *activekit.MenuItem
 			var created = false
 			if activekit.YesNo("Are you sure?") {
-				if err := ctx.Client.CreateDeployment(ctx.Namespace, depl); err != nil {
+				if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
 					logrus.WithError(err).Errorf("unable to create deployment %q", depl.Name)
 					activekit.Attention(err.Error())
 					os.Exit(1)
@@ -111,7 +111,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					Label: "Push changes to server",
 					Action: func() error {
 						if activekit.YesNo("Are you sure?") {
-							err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl)
+							err := ctx.Client.ReplaceDeployment(ctx.Namespace.ID, depl)
 							if err != nil {
 								logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
 								fmt.Println(err)
@@ -127,7 +127,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					Label: "Create deployment on server",
 					Action: func() error {
 						if activekit.YesNo("Are you sure?") {
-							err := ctx.Client.CreateDeployment(ctx.Namespace, depl)
+							err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl)
 							if err != nil {
 								logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
 								fmt.Println(err)
@@ -147,7 +147,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 						Label: "Push changes to server",
 						Action: func() error {
 							if activekit.YesNo("Are you sure?") {
-								err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl)
+								err := ctx.Client.ReplaceDeployment(ctx.Namespace.ID, depl)
 								if err != nil {
 									logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
 									fmt.Println(err)

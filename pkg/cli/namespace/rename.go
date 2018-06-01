@@ -16,6 +16,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "namespace",
 		Aliases: aliases,
+		Example: "chkit rename ns $ID $NEW_NAME",
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			switch len(args) {

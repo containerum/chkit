@@ -12,13 +12,11 @@ import (
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/pod"
-	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/cli/solution"
 	"github.com/containerum/chkit/pkg/cli/user"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/spf13/cobra"
 )
 
@@ -26,15 +24,6 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "get",
 		Short: "Get resource data",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
-			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
-			}
-		},
 		Run: func(command *cobra.Command, args []string) {
 			command.Help()
 		},
@@ -68,12 +57,18 @@ func Get(ctx *context.Context) *cobra.Command {
 			Use:     "default-namespace",
 			Short:   "print default",
 			Aliases: []string{"default-ns", "def-ns"},
+			PreRun: func(cmd *cobra.Command, args []string) {
+				if err := configuration.SyncConfig(ctx); err != nil {
+					fmt.Printf("Unable to setup config:\n%v\n", err)
+					os.Exit(1)
+				}
+			},
 			Run: func(cmd *cobra.Command, args []string) {
 				fmt.Printf("%s\n", ctx.Namespace)
 			},
 		},
 	)
 	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace, "")
+		StringP("namespace", "n", ctx.Namespace.ID, "")
 	return command
 }

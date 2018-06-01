@@ -2,12 +2,15 @@ package clinamespace
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -23,7 +26,16 @@ func Get(ctx *context.Context) *cobra.Command {
 		Aliases: aliases,
 		Short:   `shows namespace data or namespace list`,
 		Long:    `shows namespace data or namespace list. Aliases: ` + strings.Join(aliases, ", "),
-		Example: "chkit get namespace_name... [-o yaml/json] [-f output_file]",
+		Example: "chkit get $ID... [-o yaml/json] [-f output_file]",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				angel.Angel(ctx, err)
+				os.Exit(1)
+			}
+			if cmd.Flags().Changed("namespace") {
+				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
+			}
+		},
 		Run: func(command *cobra.Command, args []string) {
 			logrus.WithFields(logrus.Fields{
 				"command": "get namespace",

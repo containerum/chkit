@@ -5,9 +5,11 @@ import (
 
 	"fmt"
 
+	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
@@ -16,12 +18,21 @@ func Get(ctx *context.Context) *cobra.Command {
 	var command = &cobra.Command{
 		Use:     "configmap",
 		Aliases: aliases,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				angel.Angel(ctx, err)
+				os.Exit(1)
+			}
+			if cmd.Flags().Changed("namespace") {
+				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			var data model.Renderer
 			switch len(args) {
 			case 0:
-				cm, err := ctx.Client.GetConfigmapList(ctx.Namespace)
+				cm, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap list")
 					fmt.Printf("Unable to get configmap list:\n%v\n", err)
@@ -29,7 +40,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 				data = cm
 			case 1:
-				cm, err := ctx.Client.GetConfigmap(ctx.Namespace, args[0])
+				cm, err := ctx.Client.GetConfigmap(ctx.Namespace.ID, args[0])
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap %q", args[0])
 					fmt.Printf("Unable to get configmap %q:\n%v\n", args[0], err)

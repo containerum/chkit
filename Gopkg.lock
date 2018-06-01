@@ -69,14 +69,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "a556ee05dd9d0c52f9ae85a9ceff69668302f7d3"
-  version = "v0.19.0"
-
-[[projects]]
-  name = "github.com/containerum/permissions"
-  packages = ["pkg/model"]
-  revision = "5b1a6591ef3b91beed6749fd4d50c249f4de6562"
-  version = "v1.0.0-rc2"
+  revision = "ea99fc8e4b53d482604ae1ea8ba7ff4a481a7bcb"
+  version = "v0.19.2"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -98,17 +92,6 @@
   name = "github.com/gin-gonic/gin"
   packages = ["json"]
   revision = "bf7803815b0baa22ff7a10457932882dfbf09925"
-
-[[projects]]
-  name = "github.com/go-pg/pg"
-  packages = [
-    "internal",
-    "internal/parser",
-    "orm",
-    "types"
-  ]
-  revision = "5b73ce88484575f3480edf393237f6bf79d5f166"
-  version = "v6.11.2"
 
 [[projects]]
   name = "github.com/go-resty/resty"
@@ -136,12 +119,6 @@
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/jinzhu/inflection"
-  packages = ["."]
-  revision = "04140366298a54a039076d798123ffa108fff46c"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -208,6 +185,12 @@
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -326,6 +309,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9d6b9f6dba1671b562baaa2f1d424450ac142cdde53bc8a75bdd6fd732fd2b83"
+  inputs-digest = "0afe598847247078c4c53783e1374ec24dc8a541bab9d50659a8a7d07174cbdc"
   solver-name = "gps-cdcl"
   solver-version = 1

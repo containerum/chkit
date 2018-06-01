@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	deploymentsPath = "/namespaces/{namespace}/deployment"
-	deploymentPath  = "/namespaces/{namespace}/deployment/{deployment}"
-	imagePath       = "/namespaces/{namespace}/deployment/{deployment}/image"
-	replicasPath    = "/namespaces/{namespace}/deployment/{deployment}/replicas"
+	deploymentsPath = "/namespaces/{namespace}/deployments"
+	deploymentPath  = "/namespaces/{namespace}/deployments/{deployment}"
+	imagePath       = "/namespaces/{namespace}/deployments/{deployment}/image"
+	replicasPath    = "/namespaces/{namespace}/deployments/{deployment}/replicas"
 )
 
 // GetDeployment -- consumes a namespace and a deployment names,
