@@ -25,7 +25,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 1 {
-				ns, err := ctx.Client.GetNamespace(args[0])
+				ns, err := prerun.ResolveLabel(ctx, args[0])
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -42,7 +42,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 			var menu []*activekit.MenuItem
 			for _, ns := range nsList {
 				menu = append(menu, &activekit.MenuItem{
-					Label: ns.LabelAndID(),
+					Label: ns.OwnerAndLabel(),
 					Action: func(ns namespace.Namespace) func() error {
 						return func() error {
 							ctx.SetNamespace(ns)
