@@ -44,7 +44,7 @@ $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE):
 genkey: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 
 # go has build artifacts caching so soruce tracking not needed
-build:
+build: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 	@echo "Building chkit for current OS/architecture, without signing"
 	go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE) ./$(CMD_DIR)
 
