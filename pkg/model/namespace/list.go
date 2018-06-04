@@ -2,6 +2,7 @@ package namespace
 
 import (
 	"fmt"
+	"strings"
 
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
@@ -42,6 +43,21 @@ func (list NamespaceList) Len() int {
 	return len(list)
 }
 
+func (list NamespaceList) GetDefault(i int, defaultNs Namespace) (Namespace, bool) {
+	if i >= 0 && i < list.Len() {
+		return list.Get(i), true
+	}
+	return defaultNs, false
+}
+
+func (list NamespaceList) Get(i int) Namespace {
+	return list[i].Copy()
+}
+
+func (list NamespaceList) Head() (Namespace, bool) {
+	return list.GetDefault(0, Namespace{})
+}
+
 func (list NamespaceList) Labels() []string {
 	var labels = make([]string, 0, list.Len())
 	for _, namespace := range list {
@@ -61,7 +77,42 @@ func (list NamespaceList) IDs() []string {
 func (list NamespaceList) LabelsAndIDs() []string {
 	var lines = make([]string, 0, list.Len())
 	for _, namespace := range list {
-		lines = append(lines, fmt.Sprintf("%s %s", namespace.Label, namespace.ID))
+		lines = append(lines, fmt.Sprintf("%s/%s", namespace.Label, namespace.ID))
 	}
 	return lines
+}
+
+func (list NamespaceList) OwnersAndLabels() []string {
+	var ownersAndLabels = make([]string, 0, list.Len())
+	for _, namespace := range list {
+		ownersAndLabels = append(ownersAndLabels, fmt.Sprintf("%s/%s", namespace.OwnerLogin, namespace.Label))
+	}
+	return ownersAndLabels
+}
+
+func (list NamespaceList) Filter(pred func(Namespace) bool) NamespaceList {
+	var filtered = list.New()
+	for _, namespace := range list {
+		if pred(namespace.Copy()) {
+			filtered = append(filtered, namespace.Copy())
+		}
+	}
+	return filtered
+}
+
+// get Namespace by string $LABEL or $OWNER_LOGIN/$LABEL
+func (list NamespaceList) GetByUserFriendlyID(label string) (Namespace, bool) {
+	var tokens = strings.SplitN(label, "/", 2)
+	if len(tokens) == 2 {
+		return list.GetByLabelAndOwner(tokens[0], tokens[1])
+	}
+	return list.Filter(func(namespace Namespace) bool {
+		return namespace.Label == label
+	}).Head()
+}
+
+func (list NamespaceList) GetByLabelAndOwner(owner, label string) (Namespace, bool) {
+	return list.Filter(func(namespace Namespace) bool {
+		return namespace.OwnerLogin == owner && namespace.Label == label
+	}).Head()
 }

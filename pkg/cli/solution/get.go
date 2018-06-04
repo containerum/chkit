@@ -5,10 +5,8 @@ import (
 
 	"fmt"
 
-	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
@@ -22,15 +20,6 @@ func Get(ctx *context.Context) *cobra.Command {
 		Short:   "get solutions",
 		Long:    "Show solution list, available for run. To search solution by name add arg",
 		Example: "chkit get solution [name]",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
-			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
-			}
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
 			logger.Debugf("loading solution info")
