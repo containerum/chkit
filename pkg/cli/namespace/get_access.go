@@ -22,7 +22,17 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 			logger := coblog.Logger(cmd)
 			var nsID = ctx.Namespace.ID
 			if len(args) == 1 {
-				nsID = args[0]
+				nsList, err := ctx.Client.GetNamespaceList()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				ns, ok := nsList.GetByUserFriendlyID(args[0])
+				if !ok {
+					fmt.Printf("namespace %q not found\n", args[0])
+					os.Exit(1)
+				}
+				nsID = ns.ID
 			} else if len(args) > 1 {
 				cmd.Help()
 				os.Exit(1)

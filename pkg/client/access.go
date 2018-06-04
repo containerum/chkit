@@ -14,7 +14,6 @@ func (client *Client) GetAccess(nsName string) (access.AccessList, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return access.AccessListFromKube(nswp), err
 }
 

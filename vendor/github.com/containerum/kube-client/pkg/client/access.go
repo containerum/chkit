@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	accessesPath = "/namespaces/{namespace}/access"
+	accessesPath = "/namespaces/{namespace}/accesses"
 )
 
 func (client *Client) GetNamespaceAccesses(namespace string) ([]model.UserAccess, error) {

@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -61,4 +62,16 @@ func WithInit(ctx *context.Context, action func(*context.Context) *cobra.Command
 		}
 	}
 	return cmd
+}
+
+func ResolveLabel(ctx *context.Context, label string) (namespace.Namespace, error) {
+	nsList, err := ctx.Client.GetNamespaceList()
+	if err != nil {
+		return namespace.Namespace{}, err
+	}
+	ns, ok := nsList.GetByUserFriendlyID(label)
+	if !ok {
+		return namespace.Namespace{}, fmt.Errorf("unable to find deployment")
+	}
+	return ns, nil
 }

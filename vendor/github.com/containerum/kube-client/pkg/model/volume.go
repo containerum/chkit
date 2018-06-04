@@ -9,11 +9,18 @@ type Volume struct {
 	Owner       string                     `json:"owner,omitempty"`
 	OwnerLogin  string                     `json:"owner_login,omitempty"`
 	Access      AccessLevel                `json:"access,omitempty"`
-	TariffID    string                     `json:"tariff_id",omitempty`
+	TariffID    string                     `json:"tariff_id,omitempty"`
 	Capacity    uint                       `json:"capacity,omitempty"`
 	StorageName string                     `json:"storage_name,omitempty"` //AKA StorageClass
 	AccessMode  PersistentVolumeAccessMode `json:"access_mode,omitempty"`
 	Users       []UserAccess               `json:"users,omitempty"`
+}
+
+// DeploymentVersion -- model for deployment version update
+//
+// swagger:model
+type DeploymentVersion struct {
+	Version string `json:"version"`
 }
 
 // VolumesList -- model for volumes list
@@ -24,14 +31,14 @@ type VolumesList struct {
 }
 
 // CreateVolume --
-//swagger:ignore
+//swagger:model
 type CreateVolume struct {
 	TariffID string `json:"tariff_id"`
 	Label    string `json:"label"`
 }
 
 // ResourceUpdateName -- contains new resource name
-//swagger:ignore
+//swagger:model
 type ResourceUpdateName struct {
 	Label string `json:"label"`
 }

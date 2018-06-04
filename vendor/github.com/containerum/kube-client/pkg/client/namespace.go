@@ -10,8 +10,8 @@ import (
 const (
 	namespacesPath      = "/namespaces"
 	namespacePath       = "/namespaces/{namespace}"
-	namespaceNamePath   = "/namespaces/{namespace}/name"
-	namespaceAccessPath = "/namespaces/{namespace}/access"
+	namespaceNamePath   = "/namespaces/{namespace}/rename"
+	namespaceAccessPath = "/namespaces/{namespace}/accesses"
 )
 
 //GetNamespaceList return namespace list. Can use query filters: owner
@@ -95,7 +95,7 @@ func (client *Client) RenameNamespace(namespace, newName string) error {
 
 // SetNamespaceAccess -- sets/changes access to namespace for provided user
 func (client *Client) SetNamespaceAccess(namespace, username string, access model.AccessLevel) error {
-	return client.RestAPI.Post(rest.Rq{
+	return client.RestAPI.Put(rest.Rq{
 		Body: model.ResourceUpdateUserAccess{
 			Username: username,
 			Access:   access,
