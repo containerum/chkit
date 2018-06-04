@@ -77,9 +77,17 @@ func (list NamespaceList) IDs() []string {
 func (list NamespaceList) LabelsAndIDs() []string {
 	var lines = make([]string, 0, list.Len())
 	for _, namespace := range list {
-		lines = append(lines, fmt.Sprintf("%s %s", namespace.Label, namespace.ID))
+		lines = append(lines, fmt.Sprintf("%s/%s", namespace.Label, namespace.ID))
 	}
 	return lines
+}
+
+func (list NamespaceList) OwnersAndLabels() []string {
+	var ownersAndLabels = make([]string, 0, list.Len())
+	for _, namespace := range list {
+		ownersAndLabels = append(ownersAndLabels, fmt.Sprintf("%s/%s", namespace.OwnerLogin, namespace.Label))
+	}
+	return ownersAndLabels
 }
 
 func (list NamespaceList) Filter(pred func(Namespace) bool) NamespaceList {

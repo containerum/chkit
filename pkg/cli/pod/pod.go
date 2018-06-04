@@ -7,12 +7,10 @@ import (
 
 	"os"
 
-	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/pod"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/strset"
 	"github.com/spf13/cobra"
 )
@@ -34,15 +32,6 @@ func Get(ctx *context.Context) *cobra.Command {
 		Short:   "shows pod info",
 		Long:    "shows pod info. Aliases: " + strings.Join(aliases, ", "),
 		Example: "chkit get pod pod_label [-o yaml/json] [-f output_file]",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
-			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
-			}
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			switch len(args) {
 			case 0:

@@ -2,12 +2,10 @@ package clideployment
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/configuration"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -37,15 +35,6 @@ func Get(ctx *context.Context) *cobra.Command {
 		Long:    "Shows deployment data",
 		Example: "namespace deployment_names... [-n namespace_label]",
 		Aliases: aliases,
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
-			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
-			}
-		},
 		Run: func(command *cobra.Command, args []string) {
 			deplData, err := func() (model.Renderer, error) {
 				switch len(args) {

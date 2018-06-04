@@ -3,14 +3,10 @@ package cliserv
 import (
 	"fmt"
 
-	"os"
-
-	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/strset"
 	"github.com/spf13/cobra"
 )
@@ -27,15 +23,6 @@ func Get(ctx *context.Context) *cobra.Command {
 		Short:   "shows service info",
 		Long:    "chkit get service service_label [-o yaml/json] [-f output_file]",
 		Example: "Shows service info",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
-			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
-			}
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			serviceData, err := func() (model.Renderer, error) {
 				switch len(args) {

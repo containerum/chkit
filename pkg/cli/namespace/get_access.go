@@ -5,9 +5,7 @@ import (
 
 	"os"
 
-	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
@@ -20,15 +18,6 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 		Aliases: accessAliases,
 		Short:   "get namespace access",
 		Example: "chkit get ns-access $ID",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
-			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
-			}
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
 			var nsID = ctx.Namespace.ID

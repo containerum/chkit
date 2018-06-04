@@ -41,8 +41,9 @@ func Logs(ctx *context.Context) *cobra.Command {
 				angel.Angel(ctx, err)
 				os.Exit(1)
 			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace.ID, _ = cmd.Flags().GetString("namespace")
+			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
