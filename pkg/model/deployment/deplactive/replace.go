@@ -29,7 +29,7 @@ func ReplaceWizard(config Config) (deployment.Deployment, error) {
 				{
 					Label: fmt.Sprintf("Set containers: %v", activekit.OrValue(depl.Containers, "none (required)")),
 					Action: func() error {
-						depl.Containers = getContainers(depl.Containers)
+						depl.Containers = getContainers(depl.Containers, config)
 						return nil
 					},
 				},
