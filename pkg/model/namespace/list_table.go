@@ -1,21 +1,28 @@
 package namespace
 
-import "github.com/containerum/chkit/pkg/model"
+import (
+	"strconv"
+
+	"github.com/containerum/chkit/pkg/model"
+)
 
 var (
 	_ model.TableRenderer = &NamespaceList{}
 )
 
 func (_ NamespaceList) TableHeaders() []string {
-	return new(Namespace).TableHeaders()
+	return append([]string{"№"}, new(Namespace).TableHeaders()...)
 }
 
 func (list NamespaceList) TableRows() [][]string {
-	row := make([][]string, 0, len(list))
-	for _, ns := range list {
-		row = append(row, ns.TableRows()...)
+	rows := make([][]string, 0, len(list))
+	for i, ns := range list {
+		var nsRows = ns.TableRows()
+		for _, nsRows := range nsRows {
+			rows = append(rows, append([]string{strconv.Itoa(i + 1)}, nsRows...))
+		}
 	}
-	return row
+	return rows
 }
 
 func (list NamespaceList) RenderTable() string {

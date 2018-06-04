@@ -59,3 +59,7 @@ func (namespace Namespace) UsageMemory() string {
 func (namespace Namespace) LabelAndID() string {
 	return fmt.Sprintf("%s (%s)", namespace.Label, namespace.OwnerLogin)
 }
+
+func (namespace Namespace) OwnerAndLabel() string {
+	return fmt.Sprintf("%s/%s", namespace.OwnerLogin, namespace.Label)
+}
