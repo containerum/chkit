@@ -26,7 +26,21 @@ func configmapsMenu(oldCm []model.ContainerVolume, configmaps []string) []model.
 	}
 	for exit := false; !exit; {
 		(&activekit.Menu{
-			Items: items,
+			Title: `What's next? type "del OPTION" to delete configmap`,
+			Items: items.Append(&activekit.MenuItem{
+				Label: "Create configmap",
+				Action: func() error {
+					var configmapName string
+					(&activekit.Menu{
+						Title: "Select configmap",
+						Items: activekit.SelectString(configmaps, func(s string) error {
+							configmapName = s
+							return nil
+						}),
+					}).Run()
+					return nil
+				},
+			}),
 			CustomOptionHandler: func(query string) error {
 				var tokens = strings.Fields(query)
 				switch {
