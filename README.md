@@ -7,20 +7,25 @@ Chkit is desktop CLI client for [Containerum](https://github.com/containerum/con
 * Containerum
 * Windows/Linux/MacOS
 
-To specify the address of your cluster, run
-```
-команда
-```
-
-By default chkit connects to [Containerum.com](https://containerum.com) Online platform. To use it sign up on [Containerum.com](https://containerum.com).
-
-## Installation
+## Installation for self-hosted Containerum
+To use chkit with your own Kubernetes cluster:
 
 Buid with env
 ```fish
 set -x CONTAINERUM_API "https://api.containerum.io:8082"
 make release
 ```
+
+## Installation for Containerum Online
+By default chkit connects to Containerum Online platform. To install chkit run
+
+```
+команда для установки для онлайн
+```
+
+*or*
+
+* Launch from **[binaries](https://github.com/containerum/chkit/releases)**
 
 ## Docs
 To learn more about **chkit** commands, please refer to the [Docs section](https://docs.containerum.com/docs/about/) on our website.
