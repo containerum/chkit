@@ -29,8 +29,9 @@ func Create(ctx *context.Context) *cobra.Command {
 		Use:     "deployment",
 		Aliases: aliases,
 		Short:   "create new deployment",
-		Long: `Creates new deployment.
-Has an one-line mode, suitable for integration with other tools, and an interactive wizard mode`,
+		Long: "Creates new deployment.\n" +
+			"Has an one-line mode, suitable for integration with other tools,\n" +
+			"and an interactive wizard mod",
 		Run: func(cmd *cobra.Command, args []string) {
 			depl := deplactive.DefaultDeployment()
 			if cmd.Flag("file").Changed {
