@@ -181,6 +181,15 @@
   revision = "89890d029c9d148d992d886ee992cf3fb0883284"
 
 [[projects]]
+  name = "github.com/octago/sflags"
+  packages = [
+    ".",
+    "gen/gpflag"
+  ]
+  revision = "efb9cde83c817d30590cf630661142196dea4b6b"
+  version = "v0.2.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
@@ -315,6 +324,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1a7f43322e524e973a392aa8a44465e9791581df6ae5a1455cd6e979270836d4"
+  inputs-digest = "ef4c2164b20aa8ba279269c768bcdbd7208d7a7d77f82607f2771587b5b6f9cb"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -88,8 +88,14 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				fmt.Println("OK")
 				return
 			}
-			depl, err := deplactive.Wizard(deplactive.Config{
+			configmapList, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			depl, err = deplactive.Wizard(deplactive.Config{
 				Deployment: &depl,
+				Configmaps: configmapList,
 			})
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to create deployment")
