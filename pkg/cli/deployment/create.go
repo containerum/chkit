@@ -17,7 +17,7 @@ import (
 )
 
 func Create(ctx *context.Context) *cobra.Command {
-	var flags = deplactive.FlagsFromDeployment(deplactive.DefaultDeployment())
+	var flags deplactive.Flags
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
@@ -26,13 +26,24 @@ func Create(ctx *context.Context) *cobra.Command {
 			"Has an one-line mode, suitable for integration with other tools,\n" +
 			"and an interactive wizard mod",
 		Run: func(cmd *cobra.Command, args []string) {
-			if flags.Force {
-				var depl, err = flags.Deployment()
+			var depl deployment.Deployment
+			if flags.File != "" {
+				var depl, err = deplactive.FromFile(flags.File)
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				deplactive.Fill(&depl)
+				flags = deplactive.FlagsFromDeployment(depl)
+			} else {
+				var err error
+				depl, err = flags.Deployment()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+			}
+			deplactive.Fill(&depl)
+			if flags.Force {
 				if err := deplactive.ValidateDeployment(depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -45,12 +56,6 @@ func Create(ctx *context.Context) *cobra.Command {
 				fmt.Println("OK")
 				return
 			}
-			var depl, err = flags.Deployment()
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			deplactive.Fill(&depl)
 			fmt.Println(depl.RenderTable())
 		},
 	}

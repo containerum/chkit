@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
+	"fmt"
+	"path/filepath"
+
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"gopkg.in/yaml.v2"
 )
 
 func FromFile(filename string) (deployment.Deployment, error) {
@@ -13,7 +17,14 @@ func FromFile(filename string) (deployment.Deployment, error) {
 		return deployment.Deployment{}, err
 	}
 	kubeDepl := (&deployment.Deployment{}).ToKube()
-	err = json.Unmarshal(data, &kubeDepl)
+	switch filepath.Ext(filename) {
+	case "yaml", "yml":
+		err = yaml.Unmarshal(data, &kubeDepl)
+	case "json":
+		err = json.Unmarshal(data, &kubeDepl)
+	default:
+		return deployment.Deployment{}, fmt.Errorf("unknown format of file %q", filename)
+	}
 	if err != nil {
 		return deployment.Deployment{}, err
 	}
