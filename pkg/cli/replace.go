@@ -5,6 +5,7 @@ import (
 
 	"os"
 
+	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/prerun"
@@ -55,6 +56,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 		clideployment.Replace(ctx),
 		cliserv.Replace(ctx),
 		clingress.Replace(ctx),
+		cliconfigmap.Replace(ctx),
 	)
 	return command
 }

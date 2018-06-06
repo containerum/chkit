@@ -111,3 +111,33 @@ func (client *Client) DeleteConfigmap(namespace, cm string) error {
 	}
 	return err
 }
+
+func (client *Client) ReplaceConfigmap(namespaceID string, cm configmap.ConfigMap) error {
+	var err = retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.UpdateConfigMap(namespaceID, cm.Name, cm.Copy().Data)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			return false, ErrResourceNotExists.Wrap(err)
+		case cherry.In(err,
+			permErrors.ErrResourceNotOwned(),
+			rserrors.ErrPermissionDenied()):
+			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logrus.WithField("method", "ReplaceConfigmap").
+			WithError(err).
+			Errorf("unable to update configmap %q in %q", cm, namespaceID)
+	}
+	return err
+}

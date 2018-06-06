@@ -92,3 +92,9 @@ func (config ConfigMap) Age() string {
 	}
 	return model.Age(timestamp)
 }
+
+func (config ConfigMap) New() ConfigMap {
+	return ConfigMap{
+		Data: make(kubeModels.ConfigMapData, len(config.Data)),
+	}
+}
