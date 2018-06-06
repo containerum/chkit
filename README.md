@@ -18,13 +18,14 @@ make release
 ```
 
 ## Installation for Containerum Online
-By default chkit connects to Containerum Online platform. To install chkit run
+By default chkit connects to Containerum Online platform. To install chkit from Docker run
 
 ```
 команда для установки для онлайн **У ПАШИ**
 ```
 
 *or*
+To make build chkit from source run
 
 ```
 команда для локальной сборки **У ПАШИ**
