@@ -11,6 +11,7 @@ Chkit is desktop CLI client for [Containerum](https://github.com/containerum/con
 To use chkit with your own Kubernetes cluster:
 
 Buid with env
+**СПРОСИТЬ У ПАШИ**
 ```fish
 set -x CONTAINERUM_API "https://api.containerum.io:8082"
 make release
@@ -20,7 +21,13 @@ make release
 By default chkit connects to Containerum Online platform. To install chkit run
 
 ```
-команда для установки для онлайн
+команда для установки для онлайн **У ПАШИ**
+```
+
+*or*
+
+```
+команда для локальной сборки **У ПАШИ**
 ```
 
 *or*
