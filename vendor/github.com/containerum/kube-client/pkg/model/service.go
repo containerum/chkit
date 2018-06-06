@@ -35,6 +35,8 @@ type Service struct {
 	Deploy    string   `json:"deploy,omitempty"`
 	IPs       []string `json:"ips,omitempty"`
 	Domain    string   `json:"domain,omitempty"`
+	//Solution ID (only if service is part of solution)
+	SolutionID string `json:"solution_id,omitempty"`
 	// required: true
 	Ports []ServicePort `json:"ports"`
 	Owner string        `json:"owner,omitempty"`

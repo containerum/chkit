@@ -16,7 +16,7 @@ func (depl Deployment) RenderTable() string {
 }
 
 func (_ *Deployment) TableHeaders() []string {
-	return []string{"Label", "Status", "Containers", "Age"}
+	return []string{"Label", "Version", "Status", "Containers", "Age"}
 }
 
 func (depl *Deployment) TableRows() [][]string {
@@ -33,6 +33,7 @@ func (depl *Deployment) TableRows() [][]string {
 	}
 	return [][]string{{
 		depl.Name,
+		depl.Version.String(),
 		depl.StatusString(),
 		strings.Join(containers, "\n"),
 		age,

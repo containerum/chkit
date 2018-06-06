@@ -1,5 +1,7 @@
 package container
 
+import "github.com/containerum/kube-client/pkg/model"
+
 type ContainerList []Container
 
 func (containers ContainerList) Images() []string {
@@ -25,4 +27,24 @@ func (containers ContainerList) Names() []string {
 		names = append(names, container.Name)
 	}
 	return names
+}
+
+func (list ContainerList) ConfigMountsMap() map[string]model.ContainerVolume {
+	var mounts = make(map[string]model.ContainerVolume, len(list))
+	for _, container := range list {
+		for _, config := range container.ConfigMaps {
+			mounts[config.Name] = config
+		}
+	}
+	return mounts
+}
+
+func (list ContainerList) VolumeMountsMap() map[string]model.ContainerVolume {
+	var mounts = make(map[string]model.ContainerVolume, len(list))
+	for _, container := range list {
+		for _, volume := range container.VolumeMounts {
+			mounts[volume.Name] = volume
+		}
+	}
+	return mounts
 }

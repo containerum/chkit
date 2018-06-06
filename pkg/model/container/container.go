@@ -26,3 +26,19 @@ func (container Container) ConfigmapNames() []string {
 	}
 	return names
 }
+
+func (container Container) ConfigMountsMap() map[string]kubeModels.ContainerVolume {
+	var mounts = make(map[string]kubeModels.ContainerVolume, len(container.ConfigMaps))
+	for _, config := range container.ConfigMaps {
+		mounts[config.MountPath] = config
+	}
+	return mounts
+}
+
+func (container Container) VolumeMountsMap() map[string]kubeModels.ContainerVolume {
+	var mounts = make(map[string]kubeModels.ContainerVolume, len(container.VolumeMounts))
+	for _, volume := range container.VolumeMounts {
+		mounts[volume.MountPath] = volume
+	}
+	return mounts
+}

@@ -62,7 +62,7 @@ func (client *Client) GetConfigMapList(namespace string) (ret []model.ConfigMap,
 func (client *Client) UpdateConfigMap(namespace, name string, data model.ConfigMapData) error {
 	return client.RestAPI.Put(rest.Rq{
 		URL: rest.URL{
-			Path: configMapsPath,
+			Path: configMapPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"configmap": name,
