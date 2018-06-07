@@ -1,7 +1,7 @@
 # chkit
 [![Build Status](https://travis-ci.org/containerum/chkit.svg?branch=master)](https://travis-ci.org/containerum/chkit)
 
-Chkit is desktop CLI client for [Containerum](https://github.com/containerum/containerum).
+Chkit is a desktop CLI client for [Containerum](https://github.com/containerum/containerum).
 
 ## Prerequisites
 * Containerum
