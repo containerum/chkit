@@ -7,6 +7,7 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/docker/distribution/reference"
 	"github.com/ninedraft/ranger/intranger"
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -62,4 +63,9 @@ func DNSLabel(label string) error {
 		return ErrInvalidLabel.CommentF("must not consist of all numeric values")
 	}
 	return nil
+}
+
+func ValidateID(ID string) error {
+	_, err := uuid.FromString(ID)
+	return err
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func getContainers(conts []container.Container) []container.Container {
+func getContainers(conts []container.Container, config Config) []container.Container {
 	containers := make([]container.Container, len(conts))
 	copy(containers, conts)
 	ok := true
@@ -25,7 +25,7 @@ func getContainers(conts []container.Container) []container.Container {
 					Action: func(i int, cont container.Container) func() error {
 						return func() error {
 							logrus.Debugf("editing container %q", containerMenuItems[i])
-							edited, ok := getContainer(cont)
+							edited, ok := getContainer(cont, config)
 							if ok {
 								containers[i] = edited
 							}
@@ -49,7 +49,7 @@ func getContainers(conts []container.Container) []container.Container {
 								},
 								Ports: []model.ContainerPort(nil),
 							},
-						})
+						}, config)
 						if ok {
 							containers = append(containers, cont)
 							fmt.Printf("Container %q added to list\n", cont.Name)

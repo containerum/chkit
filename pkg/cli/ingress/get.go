@@ -28,14 +28,14 @@ func Get(ctx *context.Context) *cobra.Command {
 				switch len(args) {
 				case 0:
 					logrus.Debugf("getting ingress from %q", ctx.Namespace)
-					list, err := ctx.Client.GetIngressList(ctx.Namespace)
+					list, err := ctx.Client.GetIngressList(ctx.Namespace.ID)
 					if err != nil {
 						return nil, err
 					}
 					return list, nil
 				case 1:
 					logrus.Debugf("getting ingress from %q", ctx.Namespace)
-					ingr, err := ctx.Client.GetIngress(ctx.Namespace, args[0])
+					ingr, err := ctx.Client.GetIngress(ctx.Namespace.ID, args[0])
 					if err != nil {
 						return nil, err
 					}
@@ -43,7 +43,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				default:
 					deplNames := strset.NewSet(args)
 					var showList = make(ingress.IngressList, 0) // prevents panic
-					list, err := ctx.Client.GetIngressList(ctx.Namespace)
+					list, err := ctx.Client.GetIngressList(ctx.Namespace.ID)
 					if err != nil {
 						return nil, err
 					}

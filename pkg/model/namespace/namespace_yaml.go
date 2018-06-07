@@ -16,5 +16,5 @@ func (ns Namespace) RenderYAML() (string, error) {
 }
 
 func (ns Namespace) MarshalYAML() (interface{}, error) {
-	return ns.origin, nil
+	return ns.ToKube(), nil
 }

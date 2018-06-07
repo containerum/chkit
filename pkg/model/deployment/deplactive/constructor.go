@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
@@ -20,6 +21,7 @@ const (
 type Config struct {
 	Force      bool
 	Deployment *deployment.Deployment
+	Configmaps configmap.ConfigMapList
 }
 
 func Wizard(config Config) (deployment.Deployment, error) {
@@ -49,7 +51,7 @@ func Wizard(config Config) (deployment.Deployment, error) {
 				{
 					Label: fmt.Sprintf("Set containers: %v", activekit.OrValue(depl.Containers, "none (required)")),
 					Action: func() error {
-						depl.Containers = getContainers(depl.Containers)
+						depl.Containers = getContainers(depl.Containers, config)
 						return nil
 					},
 				},

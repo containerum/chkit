@@ -3,9 +3,10 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/service"
-	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -66,8 +67,7 @@ func (client *Client) DeleteService(namespace, service string) error {
 			return false, ErrResourceNotExists.
 				CommentF("service %q not found in %q", service, namespace)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while deleting service %q", service)
@@ -100,8 +100,7 @@ func (client *Client) CreateService(ns string, serv service.Service) error {
 				Debugf("error while creating service %q", serv.Name)
 			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while creating service %q", serv.Name)
@@ -134,8 +133,7 @@ func (client *Client) ReplaceService(ns string, serv service.Service) error {
 				Debugf("error while replacing service %q", serv.Name)
 			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while replacing service %q", serv.Name)

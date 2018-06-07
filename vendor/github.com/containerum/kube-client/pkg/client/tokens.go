@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	getCheckToken  = "/token/{access_token}"
-	getExtendToken = "/token/{refresh_token}"
-	userAgent      = "kube-client"
+	accessTokenPath  = "/token/{access_token}"
+	refreshTokenPath = "/token/{refresh_token}"
+	userAgent        = "kube-client"
 )
 
 // CheckToken -- consumes JWT token, user fingerprint
@@ -20,7 +20,7 @@ func (client *Client) CheckToken(token string) (model.CheckTokenResponse, error)
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &tokenResponse,
 		URL: rest.URL{
-			Path: getCheckToken,
+			Path: accessTokenPath,
 			Params: rest.P{
 				"access_token": token,
 			},
@@ -37,7 +37,7 @@ func (client *Client) ExtendToken(refreshToken string) (model.Tokens, error) {
 	err := client.RestAPI.Put(rest.Rq{
 		Result: &tokens,
 		URL: rest.URL{
-			Path: getExtendToken,
+			Path: refreshTokenPath,
 			Params: rest.P{
 				"refresh_token": refreshToken,
 			},

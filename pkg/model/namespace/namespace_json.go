@@ -17,6 +17,6 @@ func (ns Namespace) RenderJSON() (string, error) {
 }
 
 func (ns Namespace) MarshalJSON() ([]byte, error) {
-	data, err := json.MarshalIndent(ns.origin, "", model.Indent)
+	data, err := json.MarshalIndent(ns.ToKube(), "", model.Indent)
 	return data, err
 }

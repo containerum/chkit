@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/containerum/chkit/pkg/cli/configmap"
@@ -24,8 +25,9 @@ func Create(ctx *context.Context) *cobra.Command {
 				angel.Angel(ctx, err)
 				os.Exit(1)
 			}
-			if cmd.Flags().Changed("namespace") {
-				ctx.Namespace, _ = cmd.Flags().GetString("namespace")
+			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -36,7 +38,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		},
 	}
 	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace, "")
+		StringP("namespace", "n", ctx.Namespace.ID, "")
 	command.AddCommand(
 		cliconfigmap.Create(ctx),
 		clideployment.Create(ctx),

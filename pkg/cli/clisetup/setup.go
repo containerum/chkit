@@ -58,7 +58,7 @@ func Setup(ctx *context.Context) error {
 		return err
 	}
 
-	if ctx.Namespace == "" {
+	if ctx.Namespace.IsEmpty() {
 		return GetDefaultNS(ctx, false)
 	}
 	return nil

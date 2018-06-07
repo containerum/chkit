@@ -3,10 +3,11 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/namespace"
-	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,10 +25,10 @@ const (
 // 	- ErrNamespaceNotExists
 //  - ErrWrongPasswordLoginCombination
 //  - ErrUserNotExist
-func (client *Client) GetNamespace(label string) (namespace.Namespace, error) {
+func (client *Client) GetNamespace(ID string) (namespace.Namespace, error) {
 	var ns namespace.Namespace
 	err := retry(4, func() (bool, error) {
-		kubeNamespace, err := client.kubeAPIClient.GetNamespace(label)
+		kubeNamespace, err := client.kubeAPIClient.GetNamespace(ID)
 		switch {
 		case err == nil:
 			ns = namespace.NamespaceFromKube(kubeNamespace)
@@ -50,7 +51,7 @@ func (client *Client) GetNamespace(label string) (namespace.Namespace, error) {
 func (client *Client) GetNamespaceList() (namespace.NamespaceList, error) {
 	var list namespace.NamespaceList
 	err := retry(4, func() (bool, error) {
-		kubeList, err := client.kubeAPIClient.GetNamespaceList(nil)
+		kubeList, err := client.kubeAPIClient.GetNamespaceList()
 		switch {
 		case err == nil:
 			list = namespace.NamespaceListFromKube(kubeList)
@@ -69,23 +70,22 @@ func (client *Client) GetNamespaceList() (namespace.NamespaceList, error) {
 	return list, err
 }
 
-func (client *Client) DeleteNamespace(namespace string) error {
+func (client *Client) DeleteNamespace(ID string) error {
 	return retry(4, func() (bool, error) {
-		err := client.kubeAPIClient.DeleteNamespace(namespace)
+		err := client.kubeAPIClient.DeleteNamespace(ID)
 		switch {
 		case err == nil:
 			return false, nil
 		case cherry.In(err,
 			rserrors.ErrResourceNotExists()):
 			logrus.WithError(ErrResourceNotExists.Wrap(err)).
-				Debugf("error while deleting namespace %q", namespace)
+				Debugf("error while deleting ID %q", ID)
 			return false, ErrResourceNotExists
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
-				Debugf("error while deleting namespace %q", namespace)
+				Debugf("error while deleting ID %q", ID)
 			return false, ErrYouDoNotHaveAccessToResource
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
@@ -93,7 +93,7 @@ func (client *Client) DeleteNamespace(namespace string) error {
 			err = client.Auth()
 			if err != nil {
 				logrus.WithError(err).
-					Debugf("error while deleting namespace %q", namespace)
+					Debugf("error while deleting ID %q", ID)
 			}
 			return true, err
 		default:
@@ -102,9 +102,9 @@ func (client *Client) DeleteNamespace(namespace string) error {
 	})
 }
 
-func (client *Client) RenameNamespace(oldName, newName string) error {
+func (client *Client) RenameNamespace(ID, newName string) error {
 	err := retry(4, func() (bool, error) {
-		err := client.kubeAPIClient.RenameNamespace(oldName, newName)
+		err := client.kubeAPIClient.RenameNamespace(ID, newName)
 		switch {
 		case err == nil:
 			return false, nil
@@ -112,8 +112,7 @@ func (client *Client) RenameNamespace(oldName, newName string) error {
 			rserrors.ErrResourceNotExists()):
 			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
 		case cherry.In(err,
@@ -125,7 +124,7 @@ func (client *Client) RenameNamespace(oldName, newName string) error {
 		}
 	})
 	if err != nil {
-		logrus.WithError(err).Errorf("unable to rename namespace %q", oldName)
+		logrus.WithError(err).Errorf("unable to rename namespace %q", ID)
 	}
 	return err
 }

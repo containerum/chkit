@@ -3,9 +3,10 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/ingress"
-	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -75,8 +76,7 @@ func (client *Client) CreateIngress(ns string, ingr ingress.Ingress) error {
 			return false, nil
 		case cherry.In(err,
 			rserrors.ErrResourceNotExists(),
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			return false, err
 		case cherry.In(err,
@@ -104,8 +104,7 @@ func (client *Client) ReplaceIngress(ns string, ingr ingress.Ingress) error {
 			return false, nil
 		case cherry.In(err,
 			rserrors.ErrResourceNotExists(),
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			return false, err
 		case cherry.In(err,
@@ -139,8 +138,7 @@ func (client *Client) DeleteIngress(ns, domain string) error {
 		case cherry.In(err,
 			rserrors.ErrResourceNotExists(),
 			rserrors.ErrPermissionDenied(),
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists()):
+			permErrors.ErrResourceNotOwned()):
 			return false, err
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
