@@ -2,7 +2,7 @@ package deployment
 
 import (
 	"github.com/containerum/chkit/pkg/model"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -11,10 +11,10 @@ var (
 )
 
 func (depl Deployment) RenderYAML() (string, error) {
-	data, err := yaml.Marshal(depl.ToKube())
+	data, err := yaml.Marshal(depl)
 	return string(data), err
 }
 
 func (depl Deployment) MarshalYAML() (interface{}, error) {
-	return depl.origin, nil
+	return depl.ToKube(), nil
 }

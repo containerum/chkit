@@ -4,147 +4,166 @@ import (
 	"fmt"
 	"strings"
 
+	"strconv"
+
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/validation"
+	"github.com/containerum/kube-client/pkg/model"
 )
 
-func getContainer(con container.Container, config Config) (container.Container, bool) {
-	ok := true
-	for exit := false; !exit; {
-		(&activekit.Menu{
-			Items: []*activekit.MenuItem{
-				{
-					Label: fmt.Sprintf("Set name         : %s", con.Name),
-					Action: func() error {
-						con.Name = getContainerName(con.Name)
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set image        : %s",
-						activekit.OrString(con.Image, "none (required)")),
-					Action: func() error {
-						con.Image = getContainerImage()
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set memory limit : %d Mb", con.Limits.Memory),
-					Action: func() error {
-						con.Limits.Memory = getMemory(con.Limits.Memory)
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set CPU limit    : %d mCPU", con.Limits.CPU),
-					Action: func() error {
-						con.Limits.CPU = getCPU(con.Limits.CPU)
-						return nil
-					},
-				},
-				{
-					Label: "Edit environment variables",
-					Action: func() error {
-						editContainerEnvironmentVars(&con)
-						return nil
-					},
-				},
-				{
-					Label: "Edit configmaps",
-					Action: func() error {
-						con.ConfigMaps = configmapsMenu(con.ConfigMaps, config.Configmaps.Names())
-						return nil
-					},
-				},
-				{
-					Label: "Confirm",
-					Action: func() error {
-						if err := ValidateContainer(con); err != nil {
-							errText := err.Error()
-							attention := strings.Repeat("!", text.Width(errText))
-							fmt.Printf("%s\n%v\n%s\n", attention, errText, attention)
-							return nil
-						}
-						ok = true
-						exit = true
-						return nil
-					},
-				},
-				{
-					Label: "Return to previous menu",
-					Action: func() error {
-						ok = false
-						exit = true
-						return nil
-					},
-				},
-			},
-		}).Run()
+func componentEditContainers(config Wizard) activekit.MenuItems {
+	var menuItems = make(activekit.MenuItems, 0, len(config.Deployment.Containers))
+	for _, container := range config.Deployment.Containers {
+		menuItems = menuItems.Append(componentEditContainer(
+			&container,
+			config.Volumes,
+			config.Configmaps))
 	}
-	return con, ok
+	return menuItems.Append(&activekit.MenuItem{
+		Label: "Create container",
+		Action: func() error {
+			var cont = container.Container{
+				Container: model.Container{
+					Limits: model.Resource{
+						CPU:    20 * MIN_CPU,
+						Memory: 20 * MIN_MEM,
+					},
+					Name: namegen.Aster(),
+				},
+			}
+			componentEditContainer(&cont,
+				config.Volumes,
+				config.Configmaps).Action()
+			config.Deployment.Containers = append(config.Deployment.Containers, cont)
+			return nil
+		},
+	})
 }
 
-func getContainerName(defaultName string) string {
-	for {
-		name, _ := activekit.AskLine(fmt.Sprintf("Type container name (press Enter to use %q) > ", defaultName))
-		name = strings.TrimSpace(name)
-		if name == "" {
-			name = defaultName
-		}
-		if validation.ValidateContainerName(name) != nil {
-			fmt.Printf("Invalid name :( Try again.\n")
-			continue
-		}
-		return name
+func componentEditContainer(cont *container.Container, volumes, configmaps []string) *activekit.MenuItem {
+	return &activekit.MenuItem{
+		Label: fmt.Sprintf("Edit container %s [%s]", cont.Name,
+			activekit.OrString(cont.Image, "undefined image")),
+		Action: func() error {
+			for exit := false; !exit; {
+				(&activekit.Menu{
+					Title: "Deployment -> Container",
+					Items: activekit.MenuItems{
+						componentEditContainerName(cont),
+						componentEditContainerImage(cont),
+					}.
+						Append(componentEnvs(cont)...).
+						Append(
+							componentEditCPU(cont),
+							componentEditMemory(cont),
+						).
+						Append(componentEditContainerVolumes(cont, volumes)...).
+						Append(componentEditContainerConfigmaps(cont, configmaps)...).
+						Append(&activekit.MenuItem{
+							Label: "Confirm",
+							Action: func() error {
+								if err := ValidateContainer(*cont); err != nil {
+									fmt.Println(err)
+								} else {
+									exit = true
+								}
+								return nil
+							},
+						}),
+				}).Run()
+			}
+			return nil
+		},
 	}
 }
 
-func getContainerImage() string {
-	fmt.Printf("Which image do you want to use?\n")
-	for {
-		image, _ := activekit.AskLine("> ")
-		image = strings.TrimSpace(image)
-		if image == "" {
-			return ""
-		}
-		if validation.ValidateImageName(image) != nil {
-			fmt.Printf("Invalid image name :( Try again.\n")
-			continue
-		}
-		return image
+func componentEditContainerName(cont *container.Container) *activekit.MenuItem {
+	return &activekit.MenuItem{
+		Label: fmt.Sprintf("Edit name : %s",
+			activekit.OrString(cont.Name, "undefined, required")),
+		Action: func() error {
+			for {
+				var name = activekit.Promt("Type container name (hit Enter to leave %s): ",
+					activekit.OrString(cont.Name, "empty"))
+				name = strings.TrimSpace(name)
+				if err := validation.ValidateLabel(name); name != "" && err == nil {
+					cont.Name = name
+				} else if name != "" && err != nil {
+					fmt.Printf("%s is invalid container name\n", name)
+					continue
+				}
+				break
+			}
+			return nil
+		},
 	}
 }
 
-func getMemory(oldValue uint) uint {
-	for {
-		memStr, _ := activekit.AskLine(fmt.Sprintf("Memory (Mb, %v) > ", MemLimit))
-		memStr = strings.TrimSpace(memStr)
-		var mem uint
-		if memStr == "" {
-			return oldValue
-		}
-		if _, err := fmt.Sscanln(memStr, &mem); err != nil || !MemLimit.Containing(int(mem)) {
-			fmt.Printf("Memory must be interger number %v. Try again.\n", MemLimit)
-			continue
-		}
-		return mem
+func componentEditContainerImage(cont *container.Container) *activekit.MenuItem {
+	return &activekit.MenuItem{
+		Label: fmt.Sprintf("Set image : %s",
+			activekit.OrString(cont.Image, "undefined, required")),
+		Action: func() error {
+			var image = activekit.Promt("Type image (hit Enter to leave %s): ",
+				activekit.OrString(cont.Image, "empty"))
+			if err := validation.ValidateImageName(image); image != "" && err == nil {
+				cont.Image = image
+			} else if err != nil {
+				fmt.Println(err)
+			}
+			return nil
+		},
 	}
 }
 
-func getCPU(oldValue uint) uint {
-	for {
-		cpuStr, _ := activekit.AskLine(fmt.Sprintf("CPU (%v mCPU) > ", CPULimit))
-		cpuStr = strings.TrimSpace(cpuStr)
-		var cpu uint
-		if cpuStr == "" {
-			return oldValue
-		}
-		if _, err := fmt.Sscanln(cpuStr, &cpu); err != nil || !CPULimit.Containing(int(cpu)) {
-			fmt.Printf("CPU must be number %v. Try again.\n", CPULimit)
-			continue
-		}
-		return cpu
+func componentEditCPU(cont *container.Container) *activekit.MenuItem {
+	return &activekit.MenuItem{
+		Label: fmt.Sprintf("Set CPU limit: %d mCPU", cont.Limits.CPU),
+		Action: func() error {
+			for {
+				var cpuStr = activekit.Promt("Type mCPU (hit Enter to use %d mCPU, expected value in %v mCPU): ",
+					cont.Limits.CPU, CPULimit)
+				cpuStr = strings.TrimSpace(cpuStr)
+				if cpu, err := strconv.ParseUint(cpuStr, 10, 32); cpuStr != "" && err == nil {
+					if !CPULimit.Containing(int(cpu)) {
+						fmt.Printf("CPU limit must be number in %v\n", CPULimit)
+						continue
+					}
+					cont.Limits.CPU = uint(cpu)
+				} else if err != nil {
+					fmt.Printf("%q is invalid CPU limit\n", cpuStr)
+					continue
+				}
+				break
+			}
+			return nil
+		},
+	}
+}
+
+func componentEditMemory(cont *container.Container) *activekit.MenuItem {
+	return &activekit.MenuItem{
+		Label: fmt.Sprintf("Set memory limit: %d Mb", cont.Limits.Memory),
+		Action: func() error {
+			for {
+				var memoryStr = activekit.Promt("Type memory limit (hit Enter to use %d Mb, expected value in %v Mb): ",
+					cont.Limits.Memory, MemLimit)
+				memoryStr = strings.TrimSpace(memoryStr)
+				if memory, err := strconv.ParseUint(memoryStr, 10, 32); memoryStr != "" && err == nil {
+					if !MemLimit.Containing(int(memory)) {
+						fmt.Printf("Memory limit number must be number in %v\n", MemLimit)
+						continue
+					}
+					cont.Limits.Memory = uint(memory)
+				} else if err != nil {
+					fmt.Printf("%q is invalid memory limit\n", memoryStr)
+					continue
+				}
+				break
+			}
+			return nil
+		},
 	}
 }

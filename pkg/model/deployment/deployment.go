@@ -15,7 +15,6 @@ type Deployment struct {
 	Active     bool
 	Version    semver.Version
 	Containers container.ContainerList
-	origin     *model.Deployment
 }
 
 func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
@@ -35,7 +34,6 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 		Containers: containers,
 		Version:    kubeDeployment.Version,
 		Active:     kubeDeployment.Active,
-		origin:     &kubeDeployment,
 	}
 }
 
@@ -51,7 +49,6 @@ func (depl *Deployment) ToKube() model.Deployment {
 		Version:    depl.Version,
 		Active:     depl.Active,
 	}
-	depl.origin = &kubeDepl
 	return kubeDepl
 }
 

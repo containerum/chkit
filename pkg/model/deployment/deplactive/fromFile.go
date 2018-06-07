@@ -18,12 +18,12 @@ func FromFile(filename string) (deployment.Deployment, error) {
 	}
 	kubeDepl := (&deployment.Deployment{}).ToKube()
 	switch filepath.Ext(filename) {
-	case "yaml", "yml":
+	case ".yaml", ".yml":
 		err = yaml.Unmarshal(data, &kubeDepl)
-	case "json":
+	case ".json":
 		err = json.Unmarshal(data, &kubeDepl)
 	default:
-		return deployment.Deployment{}, fmt.Errorf("unknown format of file %q", filename)
+		return deployment.Deployment{}, fmt.Errorf("unknown format %q of file %q", filepath.Ext(filename), filename)
 	}
 	if err != nil {
 		return deployment.Deployment{}, err

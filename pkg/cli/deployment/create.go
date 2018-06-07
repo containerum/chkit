@@ -2,17 +2,18 @@ package clideployment
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
+
+	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/octago/sflags/gen/gpflag"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -27,8 +28,9 @@ func Create(ctx *context.Context) *cobra.Command {
 			"and an interactive wizard mod",
 		Run: func(cmd *cobra.Command, args []string) {
 			var depl deployment.Deployment
+			var err error
 			if flags.File != "" {
-				var depl, err = deplactive.FromFile(flags.File)
+				depl, err = deplactive.FromFile(flags.File)
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -48,82 +50,67 @@ func Create(ctx *context.Context) *cobra.Command {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				fmt.Println(depl.RenderYAML())
 				if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				fmt.Println("OK")
+				fmt.Printf("Deployment %s created\n", depl.Name)
 				return
 			}
+			configmapList, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			fmt.Println(depl.RenderTable())
+			depl = deplactive.Wizard{
+				EditName:   true,
+				Deployment: &depl,
+				Configmaps: configmapList.Names(),
+			}.Run()
+			fmt.Println(depl.RenderTable())
+			if !activekit.YesNo("Are you sure you want create deployment %s?", depl.Name) {
+				(&activekit.Menu{
+					Items: activekit.MenuItems{
+						{
+							Label: fmt.Sprintf("Save deployment %s to file", depl.Name),
+							Action: func() error {
+								for {
+									var fname = activekit.Promt("Type filename (if ext is yaml or yml then file encodes as YAML, JSON by default): ")
+									fname = strings.TrimSpace(fname)
+									var err error
+									var data string
+									switch strings.ToLower(filepath.Ext(fname)) {
+									case ".yaml", ".yml":
+										fmt.Println("Encoding deployment as YAML")
+										data, err = depl.RenderYAML()
+									default:
+										fmt.Println("Encoding deployment as JSON")
+										data, err = depl.RenderJSON()
+									}
+									if err != nil {
+										fmt.Println(err)
+									}
+									if err := ioutil.WriteFile(fname, []byte(data), os.ModePerm); err != nil {
+										fmt.Println(err)
+									}
+								}
+								return nil
+							},
+						},
+					},
+				}).Run()
+				return
+			}
+			if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Printf("Deployment %s created\n", depl.Name)
 		},
 	}
-
 	if err := gpflag.ParseTo(&flags, command.Flags()); err != nil {
-		panic(err)
+		angel.Angel(ctx, fmt.Errorf("it seems that the structure of the flags is set incorrectly: %v", err))
 	}
 	return command
-}
-
-func deploymentMenu(ctx *context.Context, depl deployment.Deployment, firstItem *activekit.MenuItem) *activekit.Menu {
-	return &activekit.Menu{
-		Items: []*activekit.MenuItem{
-			firstItem,
-			{
-				Label: "Edit deployment",
-				Action: func() error {
-					var err error
-					depl, err = deplactive.ReplaceWizard(deplactive.Config{
-						Deployment: &depl,
-					})
-					if err != nil {
-						logrus.WithError(err).Errorf("unable to create deployment")
-						fmt.Println(err)
-						os.Exit(1)
-					}
-					return nil
-				},
-			},
-			{
-				Label: "Print to terminal",
-				Action: activekit.ActionWithErr(func() error {
-					if data, err := depl.RenderYAML(); err != nil {
-						return err
-					} else {
-						upBorders := strings.Repeat("_", text.Width(data))
-						downBorders := strings.Repeat("_", text.Width(data))
-						fmt.Printf("%s\n\n%s\n%s\n", upBorders, data, downBorders)
-					}
-					return nil
-				}),
-			},
-			{
-				Label: "Save to file",
-				Action: func() error {
-					filename, _ := activekit.AskLine("Print filename: ")
-					data, err := depl.RenderJSON()
-					if err != nil {
-						return err
-					}
-					if err := ioutil.WriteFile(filename, []byte(data), os.ModePerm); err != nil {
-						logrus.WithError(err).Errorf("unable to save deployment %q to file", depl.Name)
-						fmt.Printf("Unable to save deployment to file :(\n%v", err)
-						return nil
-					}
-					fmt.Printf("OK\n")
-					return nil
-				},
-			},
-			{
-				Label: "Exit",
-				Action: func() error {
-					if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
-						os.Exit(0)
-					}
-					return nil
-				},
-			},
-		},
-	}
 }

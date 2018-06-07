@@ -15,7 +15,7 @@ func (depl Deployment) RenderTable() string {
 	return model.RenderTable(&depl)
 }
 
-func (_ *Deployment) TableHeaders() []string {
+func (Deployment) TableHeaders() []string {
 	return []string{"Label", "Version", "Status", "Containers", "Age"}
 }
 
