@@ -9,6 +9,6 @@ To use it sign up on [Containerum.com](https://containerum.com).
 
 Buid with env
 ```fish
-set -x CONTAINERUM_API "https://api.containerum.io:8082"
+set -x CONTAINERUM_API "https://api.containerum.io"
 make release
 ```
