@@ -17,7 +17,7 @@ make release
 ```
 
 ## Installation for Containerum Online
-By default chkit connects to Containerum Online platform. 
+By default chkit connects to [Containerum Online](https://containerum.com/price/online/) platform. 
 
 To install chkit from Docker run
 
