@@ -6,9 +6,35 @@ Chkit is desktop CLI client for [Containerum](https://github.com/containerum/con
 ## Prerequisites
 * Containerum
 * Windows/Linux/MacOS
+* Golang >= 1.8
 
-## Installation for self-hosted Containerum
-To use chkit with your own Kubernetes cluster:
+## Installation
+To instal chkit run:
+
+```bash
+go get -u -v github.com/containerum/chkit
+```
+*or*
+
+In your GOPATH/src run
+
+```bash
+git clone https://github.com/containerum/chkit.git
+```
+
+*or*
+
+* just launch from **[binaries](https://github.com/containerum/chkit/releases)** 
+
+
+### To use chkit with your own Kubernetes cluster:
+
+In chkit run
+```bash
+chkit set api YOUR_API_ADDRESS
+```
+
+*or* 
 
 Buid with env:
 ```bash
@@ -16,20 +42,8 @@ export CONTAINERUM_API="YOUR_API_ADDRESS"
 make release
 ```
 
-## Installation for Containerum Online
+### To use chkit with Containerum Online
 By default chkit connects to [Containerum Online](https://containerum.com/price/online/) platform. 
-
-To install chkit from Docker run
-
-```bash
-export CONTAINERUM_API="https://api.containerum.io:8082"
-make docker 
-docker run containerum/chkit
-```
-
-*or*
-
-* Launch from **[binaries](https://github.com/containerum/chkit/releases)**
 
 ## Docs
 To learn more about **chkit** commands, please refer to the [Docs section](https://docs.containerum.com/docs/about/) on our website.
