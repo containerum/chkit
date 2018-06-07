@@ -10,25 +10,21 @@ Chkit is desktop CLI client for [Containerum](https://github.com/containerum/con
 ## Installation for self-hosted Containerum
 To use chkit with your own Kubernetes cluster:
 
-Buid with env
-**СПРОСИТЬ У ПАШИ**
-```fish
-set -x CONTAINERUM_API "https://api.containerum.io:8082"
+Buid with env:
+```bash
+export CONTAINERUM_API="YOUR_API_ADDRESS"
 make release
 ```
 
 ## Installation for Containerum Online
-By default chkit connects to Containerum Online platform. To install chkit from Docker run
+By default chkit connects to Containerum Online platform. 
 
-```
-команда для установки для онлайн **У ПАШИ**
-```
+To install chkit from Docker run
 
-*or*
-To make build chkit from source run
-
-```
-команда для локальной сборки **У ПАШИ**
+```bash
+export CONTAINERUM_API="https://api.containerum.io:8082"
+make docker 
+docker run containerum/chkit
 ```
 
 *or*
@@ -39,9 +35,7 @@ To make build chkit from source run
 To learn more about **chkit** commands, please refer to the [Docs section](https://docs.containerum.com/docs/about/) on our website.
 
 ## Contributions
-Please submit all contributions concerning chkit component to this repository.
+Please submit all contributions concerning chkit component to this repository. If you want to make contributions to the project, please start by checking the source code at chkit/pkg/cli/.
 
 ## License
 Chkit project is licensed under the terms of the MIT license. Please see LICENSE in this repository for more details. 
-
-
