@@ -16,7 +16,7 @@ go get -u -v github.com/containerum/chkit
 ```
 *or*
 
-In your GOPATH/src run
+* in your GOPATH/src run
 
 ```bash
 git clone https://github.com/containerum/chkit.git
