@@ -27,7 +27,7 @@ git clone https://github.com/containerum/chkit.git
 * just launch from **[binaries](https://github.com/containerum/chkit/releases)** 
 
 
-### Using chkit with your own Kubernetes cluster:
+### Using chkit with your own Kubernetes cluster
 Before using chkit to work with Containerum you have to specify the address of your API. You can do that as follows:
 
 * run
