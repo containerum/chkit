@@ -9,7 +9,7 @@ Chkit is a desktop CLI client for [Containerum](https://github.com/containerum/c
 * Golang >= 1.8
 
 ## Installation
-To instal chkit run:
+* To instal chkit run:
 
 ```bash
 go get -u -v github.com/containerum/chkit
@@ -29,14 +29,14 @@ git clone https://github.com/containerum/chkit.git
 
 ### To use chkit with your own Kubernetes cluster:
 
-In chkit run
+* In chkit run
 ```bash
 chkit set api YOUR_API_ADDRESS
 ```
 
 *or* 
 
-Buid with env:
+* buid with env:
 ```bash
 export CONTAINERUM_API="YOUR_API_ADDRESS"
 make release
