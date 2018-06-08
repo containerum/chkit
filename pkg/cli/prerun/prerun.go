@@ -6,11 +6,11 @@ import (
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/clisetup"
+	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -22,9 +22,20 @@ const (
 
 func PreRun(ctx *context.Context) error {
 	clisetup.SetupLogs(ctx)
-	logrus.Debugf("loading config")
-	if err := configuration.SyncConfig(ctx); err != nil {
-		logrus.WithError(err).Errorf("unable to load config")
+	err := configuration.SyncConfig(ctx)
+	switch err {
+	case nil:
+		// pass
+	case configuration.ErrIncompatibleConfig:
+		fmt.Println("It looks like you ran the program with an incompatible configuration.\n" +
+			"Log in so that the program can create a valid configuration file.")
+		ctx.Namespace = context.Namespace{}
+		login.RunLogin(ctx, login.Flags{
+			Username: ctx.Client.Username,
+			Password: ctx.Client.Password,
+		})
+	default:
+		ctx.Log.WithError(err).Errorf("unable to load config")
 		return err
 	}
 	return clisetup.Setup(ctx)

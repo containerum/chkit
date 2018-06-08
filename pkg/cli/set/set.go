@@ -7,7 +7,6 @@ import (
 	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/replicas"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +18,7 @@ func Set(ctx *context.Context) *cobra.Command {
 			cmd.Help()
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			postrun.PostRun(coblog.Logger(cmd), ctx)
+			postrun.PostRun(ctx)
 		},
 	}
 	command.AddCommand(

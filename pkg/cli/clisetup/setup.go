@@ -4,7 +4,6 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/sirupsen/logrus"
 )
 
 var Config = struct {
@@ -25,36 +24,37 @@ const (
 )
 
 func Setup(ctx *context.Context) error {
-	logrus.Debugf("running setup")
+	var logger = ctx.Log.Component("Setup")
+	logger.Debugf("running setup")
 	err := SetupConfig(ctx)
 	switch {
 	case err == nil:
 		// pass
 	case ErrInvalidUserInfo.Match(err):
-		logrus.Debugf("invalid user information")
-		logrus.Debugf("running login")
+		logger.Debugf("invalid user information")
+		logger.Debugf("running login")
 		if err := InteractiveLogin(ctx); err != nil {
-			logrus.WithError(err).Errorf("unable to login")
+			logger.WithError(err).Errorf("unable to login")
 			return err
 		}
 	default:
-		logrus.WithError(ErrFatalError.Wrap(err)).Errorf("fatal error while config setup")
+		logger.WithError(ErrFatalError.Wrap(err)).Errorf("fatal error while config setup")
 		return ErrFatalError.Wrap(err)
 	}
 
-	logrus.Debugf("client initialisation")
+	logger.Debugf("client initialisation")
 	if err := SetupClient(ctx, false); err != nil {
-		logrus.WithError(err).Errorf("unable to init client")
+		logger.WithError(err).Errorf("unable to init client")
 		return err
 	}
 	if err := ctx.Client.Auth(); err != nil {
-		logrus.WithError(err).Errorf("unable to auth")
+		logger.WithError(err).Errorf("unable to auth")
 		return err
 	}
 
-	logrus.Debugf("saving tokens")
+	logger.Debugf("saving tokens")
 	if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
-		logrus.WithError(err).Errorf("unable to save tokens")
+		logger.WithError(err).Errorf("unable to save tokens")
 		return err
 	}
 

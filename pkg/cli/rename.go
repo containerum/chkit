@@ -9,7 +9,6 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +30,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 			cmd.Help()
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			postrun.PostRun(coblog.Logger(cmd), ctx)
+			postrun.PostRun(ctx)
 		},
 	}
 	command.AddCommand(

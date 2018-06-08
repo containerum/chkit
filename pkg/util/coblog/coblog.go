@@ -17,6 +17,24 @@ type Log struct {
 	logrus.FieldLogger
 }
 
+func Component(component string, optionalLogger ...logrus.FieldLogger) Log {
+	var logger logrus.FieldLogger
+	if len(optionalLogger) > 0 {
+		logger = optionalLogger[0]
+	} else {
+		logger = logrus.StandardLogger()
+	}
+	return Log{logger.WithField("component", component)}
+}
+
+func (log Log) Command(command string) Log {
+	return Log{FieldLogger: log.FieldLogger.WithField("command", command)}
+}
+
+func (log Log) Component(component string) Log {
+	return Log{FieldLogger: log.FieldLogger.WithField("component", component)}
+}
+
 func Logger(cmd *cobra.Command, optionalLogger ...logrus.FieldLogger) Log {
 	var logger logrus.FieldLogger
 	if len(optionalLogger) > 0 {

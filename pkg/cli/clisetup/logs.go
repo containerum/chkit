@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,5 +24,6 @@ func SetupLogs(ctx *context.Context) error {
 		logrus.Fatalf("error while creating log file: %v", err)
 	}
 	logrus.SetOutput(file)
+	ctx.Log = coblog.Log{logrus.StandardLogger()}
 	return nil
 }
