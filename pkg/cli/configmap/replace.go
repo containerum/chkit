@@ -37,7 +37,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				(&activekit.Menu{
 					Title: "Select configmap",
-					Items: activekit.SelectString(list.Names(), func(name string) error {
+					Items: activekit.StringSelector(list.Names(), func(name string) error {
 						cmName = name
 						return nil
 					}),

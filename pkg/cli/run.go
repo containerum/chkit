@@ -16,7 +16,7 @@ import (
 func Run(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "run",
-		Short: "Run solutions",
+		Short: "Run a solution",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
@@ -50,5 +50,7 @@ func Run(ctx *context.Context) *cobra.Command {
 	)
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.Namespace.ID, "")
+	command.PersistentFlags().
+		BoolP("help", "h", false, "Print help for chkit")
 	return command
 }

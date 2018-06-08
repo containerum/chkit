@@ -13,6 +13,7 @@ import (
 func Delete(ctx *context.Context) *cobra.Command {
 	var command = &cobra.Command{
 		Use:     "configmap",
+		Short:   "delete configmap",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {
 			var selectedCM string

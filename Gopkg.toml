@@ -58,3 +58,7 @@
 [[constraint]]
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
+
+[[constraint]]
+  name = "github.com/octago/sflags"
+  version = "~0.2.0"

@@ -31,7 +31,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 				}
 				(&activekit.Menu{
 					Title: "Select namespace to rename",
-					Items: activekit.SelectString(nsList.OwnersAndLabels(), func(label string) error {
+					Items: activekit.StringSelector(nsList.OwnersAndLabels(), func(label string) error {
 						ns, err := prerun.ResolveLabel(ctx, label)
 						if err != nil {
 							fmt.Println(err)

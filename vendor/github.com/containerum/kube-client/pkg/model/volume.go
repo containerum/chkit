@@ -16,13 +16,6 @@ type Volume struct {
 	Users       []UserAccess               `json:"users,omitempty"`
 }
 
-// DeploymentVersion -- model for deployment version update
-//
-// swagger:model
-type DeploymentVersion struct {
-	Version string `json:"version"`
-}
-
 // VolumesList -- model for volumes list
 //
 // swagger:model

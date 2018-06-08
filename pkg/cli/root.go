@@ -7,6 +7,7 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/cli/clisetup"
+	"github.com/containerum/chkit/pkg/cli/doc"
 	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/cli/mode"
 	"github.com/containerum/chkit/pkg/cli/prerun"
@@ -98,6 +99,7 @@ func Root() error {
 				fmt.Println(ctx.Version)
 			},
 		},
+		doc.Doc(ctx),
 	)
 	return root.Execute()
 }

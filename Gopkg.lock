@@ -69,8 +69,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "2b8f5ddce4423867372d607726e241df69b96f73"
-  version = "v0.19.6"
+  revision = "43bc2706e4163e6d26d2be0d559591c3c9a81c6b"
+  version = "v0.19.9"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -324,6 +324,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ef4c2164b20aa8ba279269c768bcdbd7208d7a7d77f82607f2771587b5b6f9cb"
+  inputs-digest = "dc73a1051a9c17b6448fe03d30102bbc0dbb8ce8072eb6d20625d8aade12f68c"
   solver-name = "gps-cdcl"
   solver-version = 1

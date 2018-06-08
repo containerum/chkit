@@ -3,6 +3,7 @@ package deployment
 import (
 	"fmt"
 
+	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/kube-client/pkg/model"
 )
@@ -11,8 +12,9 @@ type Deployment struct {
 	Name       string
 	Replicas   int
 	Status     *Status
+	Active     bool
+	Version    semver.Version
 	Containers container.ContainerList
-	origin     *model.Deployment
 }
 
 func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
@@ -30,7 +32,8 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 		Replicas:   kubeDeployment.Replicas,
 		Status:     status,
 		Containers: containers,
-		origin:     &kubeDeployment,
+		Version:    kubeDeployment.Version,
+		Active:     kubeDeployment.Active,
 	}
 }
 
@@ -43,15 +46,39 @@ func (depl *Deployment) ToKube() model.Deployment {
 		Name:       depl.Name,
 		Replicas:   int(depl.Replicas),
 		Containers: containers,
+		Version:    depl.Version,
+		Active:     depl.Active,
 	}
-	depl.origin = &kubeDepl
 	return kubeDepl
 }
 
 func (depl *Deployment) StatusString() string {
-	if depl.Status != nil {
-		return fmt.Sprintf("running %d/%d",
-			depl.Status.AvailableReplicas, depl.Replicas)
+	if depl.Active {
+		if depl.Status != nil {
+			return fmt.Sprintf("running %d/%d",
+				depl.Status.AvailableReplicas, depl.Replicas)
+		} else {
+			return fmt.Sprintf("local\nreplicas %d", depl.Replicas)
+		}
 	}
-	return fmt.Sprintf("local\nreplicas %d", depl.Replicas)
+	return "inactive"
+}
+
+func (depl Deployment) Copy() Deployment {
+	var status *Status
+	if depl.Status != nil {
+		var s = *depl.Status
+		status = &s
+	}
+	var version = depl.Version
+	version.Build = append([]string{}, version.Build...)
+	version.Pre = append([]semver.PRVersion{}, version.Pre...)
+	return Deployment{
+		Name:       depl.Name,
+		Replicas:   depl.Replicas,
+		Active:     depl.Active,
+		Status:     status,
+		Version:    version,
+		Containers: depl.Containers.Copy(),
+	}
 }
