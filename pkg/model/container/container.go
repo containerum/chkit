@@ -42,3 +42,13 @@ func (container Container) VolumeMountsMap() map[string]kubeModels.ContainerVolu
 	}
 	return mounts
 }
+
+func (container Container) Copy() Container {
+	var cp = container
+	cp.Commands = append([]string{}, cp.Commands...)
+	cp.Env = append([]kubeModels.Env{}, cp.Env...)
+	cp.ConfigMaps = append([]kubeModels.ContainerVolume{}, cp.ConfigMaps...)
+	cp.VolumeMounts = append([]kubeModels.ContainerVolume{}, cp.VolumeMounts...)
+	cp.Ports = append([]kubeModels.ContainerPort{}, cp.Ports...)
+	return cp
+}

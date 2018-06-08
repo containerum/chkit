@@ -6,6 +6,8 @@ import (
 
 	"strconv"
 
+	"io"
+
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
@@ -33,22 +35,26 @@ func componentEditContainers(config Wizard) activekit.MenuItems {
 					Name: namegen.Aster(),
 				},
 			}
-			componentEditContainer(&cont,
-				config.Volumes,
-				config.Configmaps).Action()
-			config.Deployment.Containers = append(config.Deployment.Containers, cont)
+			if componentEditContainer(&cont,
+				config.Volumes, config.Configmaps).Action() == nil {
+				config.Deployment.Containers = append(config.Deployment.Containers, cont)
+			}
 			return nil
 		},
 	})
 }
 
-func componentEditContainer(cont *container.Container, volumes, configmaps []string) *activekit.MenuItem {
+func componentEditContainer(oldCont *container.Container, volumes, configmaps []string) *activekit.MenuItem {
+	var cont = func() *container.Container {
+		var c = oldCont.Copy()
+		return &c
+	}()
 	return &activekit.MenuItem{
 		Label: fmt.Sprintf("Edit container %s [%s]", cont.Name,
 			activekit.OrString(cont.Image, "undefined image")),
 		Action: func() error {
 			for exit := false; !exit; {
-				(&activekit.Menu{
+				_, err := (&activekit.Menu{
 					Title: "Deployment -> Container",
 					Items: activekit.MenuItems{
 						componentEditContainerName(cont),
@@ -61,18 +67,30 @@ func componentEditContainer(cont *container.Container, volumes, configmaps []str
 						).
 						Append(componentEditContainerVolumes(cont, volumes)...).
 						Append(componentEditContainerConfigmaps(cont, configmaps)...).
-						Append(&activekit.MenuItem{
-							Label: "Confirm",
-							Action: func() error {
-								if err := ValidateContainer(*cont); err != nil {
-									fmt.Println(err)
-								} else {
-									exit = true
-								}
-								return nil
+						Append(
+							&activekit.MenuItem{
+								Label: "Confirm",
+								Action: func() error {
+									if err := ValidateContainer(*cont); err != nil {
+										fmt.Println(err)
+									} else {
+										exit = true
+										*oldCont = *cont
+									}
+									return nil
+								},
 							},
-						}),
+							&activekit.MenuItem{
+								Label: "Drop changes, return to previous menu",
+								Action: func() error {
+									exit = true
+									return io.EOF
+								},
+							}),
 				}).Run()
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		},

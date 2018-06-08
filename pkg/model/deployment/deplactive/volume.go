@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"io"
+
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/kube-client/pkg/model"
@@ -18,14 +20,16 @@ func componentEditContainerVolumes(cont *container.Container, volumes []string) 
 		Label: "Mount volume",
 		Action: func() error {
 			var vol = &model.ContainerVolume{}
-			componentContainerVolume(vol, volumes).Action()
-			cont.VolumeMounts = append(cont.VolumeMounts, *vol)
+			if componentContainerVolume(vol, volumes).Action() == nil {
+				cont.VolumeMounts = append(cont.VolumeMounts, *vol)
+			}
 			return nil
 		},
 	})
 }
 
-func componentContainerVolume(volume *model.ContainerVolume, volumes []string) *activekit.MenuItem {
+func componentContainerVolume(oldVolume *model.ContainerVolume, volumes []string) *activekit.MenuItem {
+	var volume = *oldVolume
 	return &activekit.MenuItem{
 		Label: fmt.Sprintf("Edit volume mount %s", func() string {
 			if volume.MountPath != "" && volume.Name != "" {
@@ -41,7 +45,7 @@ func componentContainerVolume(volume *model.ContainerVolume, volumes []string) *
 		}()),
 		Action: func() error {
 			for exit := false; !exit; {
-				(&activekit.Menu{
+				_, err := (&activekit.Menu{
 					Title: "Deployment -> Container -> Volume",
 					Items: activekit.MenuItems{
 						{
@@ -66,7 +70,7 @@ func componentContainerVolume(volume *model.ContainerVolume, volumes []string) *
 							Label: fmt.Sprintf("Set volume : %s",
 								activekit.OrString(volume.Name, "undefined. required")),
 							Action: func() error {
-								(&activekit.Menu{
+								_, err := (&activekit.Menu{
 									Title: "Select volume",
 									Items: activekit.StringSelector(volumes, func(volumeName string) error {
 										volume.Name = volumeName
@@ -74,20 +78,43 @@ func componentContainerVolume(volume *model.ContainerVolume, volumes []string) *
 											volume.MountPath = "/mnt/" + volume.Name
 										}
 										return nil
+									}).Append(&activekit.MenuItem{
+										Label: fmt.Sprintf("Return to previous menu, leave %s",
+											activekit.OrString(volume.Name, "empty")),
 									}),
 								}).Run()
-								return nil
+								return err
 							},
 						},
 						{
 							Label: "Confirm",
 							Action: func() error {
-								exit = true
+								if volume.Name != "" && volume.MountPath != "" {
+									exit = true
+									*oldVolume = volume
+									return nil
+								}
+								if volume.Name == "" {
+									fmt.Printf("Volume name must be non-empty!\n")
+								}
+								if volume.MountPath == "" {
+									fmt.Printf("Volume mountpath must be non-empty!\n")
+								}
 								return nil
+							},
+						},
+						{
+							Label: "Drop changes, return to previous menu",
+							Action: func() error {
+								exit = true
+								return io.EOF
 							},
 						},
 					},
 				}).Run()
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		},

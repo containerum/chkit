@@ -65,9 +65,20 @@ func (depl *Deployment) StatusString() string {
 }
 
 func (depl Deployment) Copy() Deployment {
-
+	var status *Status
+	if depl.Status != nil {
+		var s = *depl.Status
+		status = &s
+	}
+	var version = depl.Version
+	version.Build = append([]string{}, version.Build...)
+	version.Pre = append([]semver.PRVersion{}, version.Pre...)
 	return Deployment{
-		Name:     depl.Name,
-		Replicas: depl.Replicas,
+		Name:       depl.Name,
+		Replicas:   depl.Replicas,
+		Active:     depl.Active,
+		Status:     status,
+		Version:    version,
+		Containers: depl.Containers.Copy(),
 	}
 }

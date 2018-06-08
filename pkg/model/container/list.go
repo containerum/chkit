@@ -48,3 +48,11 @@ func (list ContainerList) VolumeMountsMap() map[string]model.ContainerVolume {
 	}
 	return mounts
 }
+
+func (list ContainerList) Copy() ContainerList {
+	var cp = make(ContainerList, 0, len(list))
+	for _, cont := range cp {
+		cp = append(cp, cont.Copy())
+	}
+	return cp
+}

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"io"
+
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/kube-client/pkg/model"
@@ -18,14 +20,16 @@ func componentEditContainerConfigmaps(cont *container.Container, configmaps []st
 		Label: "Mount configmap",
 		Action: func() error {
 			var vol = &model.ContainerVolume{}
-			componentContainerConfigmap(vol, configmaps).Action()
-			cont.ConfigMaps = append(cont.ConfigMaps, *vol)
+			if componentContainerConfigmap(vol, configmaps).Action() == nil {
+				cont.ConfigMaps = append(cont.ConfigMaps, *vol)
+			}
 			return nil
 		},
 	})
 }
 
-func componentContainerConfigmap(configmap *model.ContainerVolume, configmaps []string) *activekit.MenuItem {
+func componentContainerConfigmap(oldConfigmap *model.ContainerVolume, configmaps []string) *activekit.MenuItem {
+	var configmap = *oldConfigmap
 	return &activekit.MenuItem{
 		Label: fmt.Sprintf("Edit configmap mount %s", func() string {
 			if configmap.MountPath != "" && configmap.Name != "" {
@@ -41,7 +45,7 @@ func componentContainerConfigmap(configmap *model.ContainerVolume, configmaps []
 		}()),
 		Action: func() error {
 			for exit := false; !exit; {
-				(&activekit.Menu{
+				_, err := (&activekit.Menu{
 					Title: "Deployment -> Container -> Configmap",
 					Items: activekit.MenuItems{
 						{
@@ -66,7 +70,7 @@ func componentContainerConfigmap(configmap *model.ContainerVolume, configmaps []
 							Label: fmt.Sprintf("Set configmap : %s",
 								activekit.OrString(configmap.Name, "undefined. required")),
 							Action: func() error {
-								(&activekit.Menu{
+								_, err := (&activekit.Menu{
 									Title: "Select configmap",
 									Items: activekit.StringSelector(configmaps, func(configmapName string) error {
 										configmap.Name = configmapName
@@ -74,20 +78,44 @@ func componentContainerConfigmap(configmap *model.ContainerVolume, configmaps []
 											configmap.MountPath = "/etc/" + configmap.Name
 										}
 										return nil
+									}).Append(&activekit.MenuItem{
+										Label: fmt.Sprintf("Return to previous menu, leave %s",
+											activekit.OrString(configmap.Name, "empty")),
 									}),
 								}).Run()
-								return nil
+								return err
 							},
 						},
 						{
 							Label: "Confirm",
 							Action: func() error {
+								if configmap.Name != "" && configmap.MountPath != "" {
+									exit = true
+									*oldConfigmap = configmap
+									return nil
+								}
+								if configmap.Name == "" {
+									fmt.Printf("Volume name must be non-empty!\n")
+								}
+								if configmap.MountPath == "" {
+									fmt.Printf("Volume mountpath must be non-empty!\n")
+								}
 								exit = true
 								return nil
 							},
 						},
+						{
+							Label: "Drop changes, return to previous menu",
+							Action: func() error {
+								exit = true
+								return io.EOF
+							},
+						},
 					},
 				}).Run()
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		},
