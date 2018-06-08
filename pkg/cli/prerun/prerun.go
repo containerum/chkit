@@ -43,15 +43,14 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 	}
 	ns, ok := nsList.GetByUserFriendlyID(userfriendlyID)
 	if !ok {
-		return fmt.Errorf("unable to find deployment")
+		return fmt.Errorf("unable to find namespace %q", userfriendlyID)
 	}
 	ctx.SetNamespace(ns)
 	return nil
 }
 
-func WithInit(ctx *context.Context, action func(*context.Context) *cobra.Command) *cobra.Command {
-	var cmd = action(ctx)
-	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+func PreRunFunc(ctx *context.Context) func(cmd *cobra.Command, args []string) {
+	return func(cmd *cobra.Command, args []string) {
 		if err := PreRun(ctx); err != nil {
 			angel.Angel(ctx, err)
 			os.Exit(1)
@@ -61,6 +60,11 @@ func WithInit(ctx *context.Context, action func(*context.Context) *cobra.Command
 			os.Exit(1)
 		}
 	}
+}
+
+func WithInit(ctx *context.Context, action func(*context.Context) *cobra.Command) *cobra.Command {
+	var cmd = action(ctx)
+	cmd.PreRun = PreRunFunc(ctx)
 	return cmd
 }
 

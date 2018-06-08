@@ -15,9 +15,6 @@ func Set(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "set",
 		Short: "Set configuration variables",
-		PersistentPreRun: func(command *cobra.Command, args []string) {
-
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},

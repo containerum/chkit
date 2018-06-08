@@ -13,6 +13,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -27,6 +28,8 @@ func Create(ctx *context.Context) *cobra.Command {
 			"Has an one-line mode, suitable for integration with other tools,\n" +
 			"and an interactive wizard mod",
 		Run: func(cmd *cobra.Command, args []string) {
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
 			var depl deployment.Deployment
 			var err error
 			if flags.File != "" {
@@ -57,8 +60,10 @@ func Create(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Deployment %s created\n", depl.Name)
 				return
 			}
+			logger.Debugf("getting configmap list")
 			configmapList, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 			if err != nil {
+				logger.WithError(err).Errorf("unable to get configmap list")
 				fmt.Println(err)
 				os.Exit(1)
 			}
