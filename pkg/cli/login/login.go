@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/cli/clisetup"
+	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/octago/sflags/gen/gpflag"
@@ -37,6 +38,7 @@ func Login(ctx *context.Context) *cobra.Command {
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			ctx.Log.Command("login").Debugf("saving config")
+			postrun.PostRun(ctx)
 		},
 	}
 	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
@@ -51,6 +53,7 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 	defer logger.Debugf("end")
 	ctx.Client.Username = flags.Username
 	ctx.Client.Password = flags.Password
+	ctx.Changed = true
 	logger.Debugf("start app setup")
 	if err := Setup(ctx); err != nil {
 		angel.Angel(ctx, err)
@@ -71,12 +74,13 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		_, ok := nsList.GetByUserFriendlyID(flags.Namespace)
+		ns, ok := nsList.GetByUserFriendlyID(flags.Namespace)
 		if !ok {
 			fmt.Printf("Namespace %q not found!\n%s",
 				flags.Namespace, strings.Join(nsList.OwnersAndLabels(), "\n"))
 			os.Exit(1)
 		}
+		ctx.SetNamespace(ns)
 	}
 	return nil
 }

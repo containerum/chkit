@@ -49,11 +49,13 @@ func (log Log) Struct(v interface{}) {
 	var value = reflect.ValueOf(v)
 	if value.Kind() == reflect.Ptr {
 		if value.IsNil() {
+			log.Errorf("unable to encode nil %s", value.Kind())
 			return
 		}
 		value = value.Elem()
 	}
 	if value.Kind() != reflect.Struct {
+		log.Errorf("unable to encode non struct value %s", value.Type())
 		return
 	}
 	var tt = value.Type()

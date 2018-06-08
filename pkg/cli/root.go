@@ -34,14 +34,14 @@ func Root() error {
 		ConfigDir:  configdir.ConfigDir(),
 		ConfigPath: path.Join(configdir.ConfigDir(), "config.toml"),
 	}
+	clisetup.Config.DebugRequests = true
+	clisetup.SetupLogs(ctx)
 
 	root := &cobra.Command{
 		Use:     "chkit",
 		Short:   "Chkit is a terminal client for containerum.io powerful API",
 		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
-			clisetup.Config.DebugRequests = true
-			clisetup.SetupLogs(ctx)
 			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
 				if err := login.Setup(ctx); err != nil {
 					angel.Angel(ctx, err)

@@ -38,7 +38,7 @@ func SyncConfig(ctx *context.Context) error {
 	if err != nil && !os.IsExist(err) {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
-	config, err := loadConfig(ctx.ConfigPath)
+	config, err := ReadConfigFromDisk(ctx.ConfigPath)
 	switch {
 	case err == nil:
 		// pass
@@ -63,7 +63,7 @@ func SyncConfig(ctx *context.Context) error {
 	return nil
 }
 
-func loadConfig(configPath string) (context.Storable, error) {
+func ReadConfigFromDisk(configPath string) (context.Storable, error) {
 	config := context.Storable{}
 	_, err := toml.DecodeFile(configPath, &config)
 	if err != nil && !os.IsNotExist(err) {

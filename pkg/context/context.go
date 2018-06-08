@@ -53,8 +53,14 @@ type Storable struct {
 }
 
 func (config Storable) Merge(upd Storable) Storable {
-	if !upd.Namespace.IsEmpty() {
-		config.Namespace = upd.Namespace
+	if upd.Namespace.Label != "" {
+		config.Namespace.Label = upd.Namespace.Label
+	}
+	if upd.Namespace.ID != "" {
+		config.Namespace.ID = upd.Namespace.ID
+	}
+	if upd.Namespace.OwnerLogin != "" {
+		config.Namespace.OwnerLogin = upd.Namespace.OwnerLogin
 	}
 	if upd.API != "" {
 		config.API = upd.API
