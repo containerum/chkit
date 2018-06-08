@@ -12,6 +12,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 func Doc(ctx *context.Context) *cobra.Command {
@@ -73,12 +74,12 @@ func Doc(ctx *context.Context) *cobra.Command {
 
 func DocMD(cmd *cobra.Command) string {
 	var doc = &bytes.Buffer{}
-	fmt.Fprintf(doc, "\n##%s\n\n"+
-		"###Aliases:\n  %s\n"+
-		"###Usage  :\n %s\n"+
-		"###Example:\n  %s\n"+
-		"###Flags  :\n%s\n"+
-		"###Subcommands :\n%s\n",
+	fmt.Fprintf(doc, "\n## %s\n\n"+
+		"### Aliases:\n  %s\n"+
+		"### Usage  :\n %s\n"+
+		"### Example:\n  %s\n"+
+		"### Flags  :\n%s\n"+
+		"### Subcommands :\n%s\n",
 		func() string {
 			if cmd.Parent() != nil && cmd.Parent().Use != "chkit" {
 				return cmd.Parent().Use + " " + cmd.Use
@@ -88,7 +89,15 @@ func DocMD(cmd *cobra.Command) string {
 		strings.Join(cmd.Aliases, ", "),
 		activekit.OrString(cmd.Long, cmd.Short),
 		cmd.Example,
-		cmd.LocalFlags().FlagUsages(),
+		func() string {
+			var d string
+			cmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+				if !flag.Hidden {
+					d += fmt.Sprintf("+ %s %s : %s\n", flag.Name, flag.Shorthand, flag.Usage)
+				}
+			})
+			return text.Indent(d, 2)
+		}(),
 		func() string {
 			var d string
 			for _, sub := range cmd.Commands() {
