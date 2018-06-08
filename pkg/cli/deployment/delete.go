@@ -18,7 +18,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
-		Short:   "call to delete deployment in specific namespace",
+		Short:   "delete deployment in specific namespace",
 		Long: `Deletes deployment in specific namespace.
 Use --force flag to suppress confirmation`,
 		Run: func(cmd *cobra.Command, args []string) {

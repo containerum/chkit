@@ -18,7 +18,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "service",
 		Aliases: aliases,
-		Short:   "call to delete service in specific namespace",
+		Short:   "delete service in specific namespace",
 		Long:    "Deletes service in namespace",
 		Example: "chkit delete service service_label [-n namespace]",
 		Run: func(cmd *cobra.Command, args []string) {

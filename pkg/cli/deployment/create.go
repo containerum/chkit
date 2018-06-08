@@ -22,7 +22,7 @@ func Create(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
-		Short:   "create new deployment",
+		Short:   "create deployment",
 		Long: "Creates new deployment.\n" +
 			"Has an one-line mode, suitable for integration with other tools,\n" +
 			"and an interactive wizard mod",

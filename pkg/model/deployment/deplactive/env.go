@@ -2,11 +2,9 @@ package deplactive
 
 import (
 	"fmt"
-
+	"io"
 	"os"
 	"strings"
-
-	"io"
 
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"

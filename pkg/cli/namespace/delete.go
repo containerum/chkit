@@ -16,7 +16,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	}{}
 	command := &cobra.Command{
 		Use:     "namespace",
-		Short:   "call to delete namespace",
+		Short:   "delete namespace",
 		Long:    "delete namespace deletes namespace with name, provided by first arg. Aliases: " + strings.Join(aliases, ", "),
 		Example: "chkit delete namespace $ID",
 		Aliases: aliases,

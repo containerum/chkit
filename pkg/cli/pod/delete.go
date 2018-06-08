@@ -20,7 +20,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "pod",
 		Aliases: aliases,
-		Short:   "call to delete pod in specific namespace",
+		Short:   "delete pod in specific namespace",
 		Long:    "deletes pods. Aliases: " + strings.Join(aliases, ", "),
 		Example: "chkit delete pod pod_name [-n namespace]",
 		Run: func(cmd *cobra.Command, args []string) {

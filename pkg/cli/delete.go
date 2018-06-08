@@ -53,7 +53,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	}
 	command.AddCommand(
 		clinamespace.Delete(ctx),
-		clinamespace.DeleteAccess(ctx),
+		//	clinamespace.DeleteAccess(ctx),
 		cliserv.Delete(ctx),
 		clideployment.Delete(ctx),
 		clipod.Delete(ctx),

@@ -63,3 +63,11 @@ func (depl *Deployment) StatusString() string {
 	}
 	return "inactive"
 }
+
+func (depl Deployment) Copy() Deployment {
+
+	return Deployment{
+		Name:     depl.Name,
+		Replicas: depl.Replicas,
+	}
+}
