@@ -1,5 +1,5 @@
 # chkit
-[![Build Status](https://travis-ci.org/containerum/chkit.svg?branch=master)](https://travis-ci.org/containerum/chkit) [![LOC](https://tokei.rs/b1/github/containerum/chkit)(https://github.com/Aaronepower/tokei)]
+[![Build Status](https://travis-ci.org/containerum/chkit.svg?branch=master)](https://travis-ci.org/containerum/chkit) [![LOC](https://tokei.rs/b1/github/containerum/chkit)](https://github.com/Aaronepower/tokei)
 
 Desktop client for [Containerum.com](https://containerum.com) platform.
 
