@@ -23,8 +23,9 @@ const (
 )
 
 func Setup(ctx *context.Context) error {
-	var logger = ctx.Log.Component("Setup")
-	logger.Debugf("running setup")
+	var logger = ctx.Log.Component("clisetup.Setup")
+	logger.Debugf("START")
+	defer logger.Debugf("END")
 	err := SetupConfig(ctx)
 	switch {
 	case err == nil:

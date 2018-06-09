@@ -20,42 +20,67 @@ const (
 	ErrFatalError chkitErrors.Err = "fatal error"
 )
 
-func PreRun(ctx *context.Context) error {
-	clisetup.SetupLogs(ctx)
+type Config struct {
+	DoNotRunLoginOnIncompatibleConfig bool
+	SetupClient                       bool
+	AllowInvalidConfig                bool
+}
+
+func PreRun(ctx *context.Context, optional ...Config) error {
 	var logger = ctx.Log.Component("PreRun")
 	logger.Debugf("START")
 	defer logger.Debugf("END")
+	var config = Config{
+		DoNotRunLoginOnIncompatibleConfig: true,
+		SetupClient:                       true,
+	}
+	for _, c := range optional {
+		config = c
+	}
+	logger.StructFields(config)
+	clisetup.SetupLogs(ctx)
+
 	logger.Debugf("syncing config")
 	err := configuration.SyncConfig(ctx)
 	switch err {
 	case nil:
 		// pass
 	case configuration.ErrIncompatibleConfig:
-		logger.Debugf("incompatible config")
-		fmt.Println("It looks like you ran the program with an incompatible configuration.\n" +
-			"Log in so that the program can create a valid configuration file.")
-		ctx.Namespace = context.Namespace{}
-		logger.Debugf("run login")
-		if err := login.RunLogin(ctx, login.Flags{
-			Username:  ctx.Client.Username,
-			Password:  ctx.Client.Password,
-			Namespace: "",
-		}); err != nil {
-			logger.WithError(err).Errorf("unable to login")
-			return err
+		logger.WithError(err).Errorf("incompatible config")
+		if !config.DoNotRunLoginOnIncompatibleConfig {
+			fmt.Println("It looks like you ran the program with an incompatible configuration.\n" +
+				"Log in so that the program can create a valid configuration file.")
+			ctx.Namespace = context.Namespace{}
+			logger.Debugf("run login")
+			if err := login.RunLogin(ctx, login.Flags{
+				Username:  ctx.Client.Username,
+				Password:  ctx.Client.Password,
+				Namespace: "",
+			}); err != nil {
+				logger.WithError(err).Errorf("unable to login")
+				return err
+			}
+			logger.Debugf("end login")
 		}
-		logger.Debugf("end login")
 	default:
 		ctx.Log.WithError(err).Errorf("unable to load config")
 		return err
 	}
 	logger.Debugf("running setup")
 	defer logger.Debugf("end setup")
-	err = clisetup.Setup(ctx)
-	if err != nil {
-		logger.WithError(err).Errorf("unable to run setup")
+
+	err = clisetup.SetupConfig(ctx)
+	if err != nil && !config.AllowInvalidConfig {
+		logger.WithError(err).Errorf("unable to setup config")
+		return err
+	} else if err == nil && config.SetupClient {
+		err = clisetup.SetupClient(ctx, false)
+		if err != nil {
+			logger.WithError(err).Errorf("unable to setup client")
+			return err
+		}
 	}
-	return err
+	return nil
 }
 
 func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) error {
@@ -77,9 +102,9 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 	return nil
 }
 
-func PreRunFunc(ctx *context.Context) func(cmd *cobra.Command, args []string) {
+func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
-		if err := PreRun(ctx); err != nil {
+		if err := PreRun(ctx, optional...); err != nil {
 			angel.Angel(ctx, err)
 			os.Exit(1)
 		}

@@ -18,7 +18,11 @@ func Set(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "containerum-api",
 		Aliases: aliases,
-		PreRun:  prerun.PreRunFunc(ctx),
+		PreRun: prerun.PreRunFunc(ctx, prerun.Config{
+			DoNotRunLoginOnIncompatibleConfig: true,
+			SetupClient:                       false,
+			AllowInvalidConfig:                true,
+		}),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("set containerum-api")
 			logger.Debugf("START set containerum-api")
