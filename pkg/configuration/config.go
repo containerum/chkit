@@ -5,15 +5,20 @@ import (
 
 	"github.com/containerum/chkit/pkg/context"
 
+	"strings"
+
 	"github.com/BurntSushi/toml"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 )
 
 const (
 	// ErrUnableToSaveConfig -- unable to save config
-	ErrUnableToSaveConfig chkitErrors.Err = "unable to save config"
+	ErrUnableToSaveConfig chkitErrors.Err = "unable to sync config"
 	// ErrUnableToLoadConfig -- unable to load config
 	ErrUnableToLoadConfig chkitErrors.Err = "unable to load config"
+
+	ErrIncompatibleConfig chkitErrors.Err = "it seems you try to run chkit with incompatible config file. " +
+		"Please, delete config file and run 'chkit login'"
 )
 
 // LoadConfig -- loads config from fs
@@ -33,8 +38,13 @@ func SyncConfig(ctx *context.Context) error {
 	if err != nil && !os.IsExist(err) {
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
-	config, err := loadConfig(ctx.ConfigPath)
-	if err != nil && !os.IsExist(err) {
+	config, err := ReadConfigFromDisk(ctx.ConfigPath)
+	switch {
+	case err == nil:
+		// pass
+	case ErrIncompatibleConfig == err:
+		return err
+	case !os.IsExist(err):
 		return ErrUnableToSaveConfig.Wrap(err)
 	}
 	file, err := os.Create(ctx.ConfigPath)
@@ -53,10 +63,13 @@ func SyncConfig(ctx *context.Context) error {
 	return nil
 }
 
-func loadConfig(configPath string) (context.Storable, error) {
+func ReadConfigFromDisk(configPath string) (context.Storable, error) {
 	config := context.Storable{}
 	_, err := toml.DecodeFile(configPath, &config)
 	if err != nil && !os.IsNotExist(err) {
+		if strings.Contains(err.Error(), " type mismatch") {
+			return config, ErrIncompatibleConfig
+		}
 		return config, err
 	}
 	return config, nil

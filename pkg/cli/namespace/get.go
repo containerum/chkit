@@ -26,9 +26,9 @@ func Get(ctx *context.Context) *cobra.Command {
 		Long:    `shows namespace data or namespace list. Aliases: ` + strings.Join(aliases, ", "),
 		Example: "chkit get $ID... [-o yaml/json] [-f output_file]",
 		Run: func(command *cobra.Command, args []string) {
-			logrus.WithFields(logrus.Fields{
-				"command": "get namespace",
-			}).Debug("getting namespace data")
+			var logger = ctx.Log.Command("get namespace")
+			logger.Debugf("START")
+			defer logger.Debugf("END")
 			nsData, err := func() (model.Renderer, error) {
 				switch len(args) {
 				case 1:
@@ -36,7 +36,7 @@ func Get(ctx *context.Context) *cobra.Command {
 					logrus.Debugf("getting namespace %q", namespaceLabel)
 					nsList, err := ctx.Client.GetNamespaceList()
 					if err != nil {
-						logrus.WithError(err).Errorf("unable to get namespace %q", namespaceLabel)
+						logrus.WithError(err).Errorf("unable to get namespace list")
 						return nil, err
 					}
 					ns, ok := nsList.GetByUserFriendlyID(namespaceLabel)
@@ -61,12 +61,12 @@ func Get(ctx *context.Context) *cobra.Command {
 				fmt.Printf("%v\n", err)
 				return
 			}
+			logger.Debugf("exporting data")
 			err = configuration.ExportData(nsData, getNamespaceDataConfig.ExportConfig)
 			if err != nil {
-				logrus.Debugf("fatal error: %v", err)
+				logger.WithError(err).Errorf("fatal error: %v", err)
 				return
 			}
-			logrus.Debugf("OK")
 		},
 	}
 

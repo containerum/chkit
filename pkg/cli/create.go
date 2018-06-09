@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
 
@@ -33,9 +32,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PersistentPostRun: func(command *cobra.Command, args []string) {
-			postrun.PostRun(coblog.Logger(command), ctx)
-		},
+		PersistentPostRun: postrun.PostRunFunc(ctx),
 	}
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.Namespace.ID, "")

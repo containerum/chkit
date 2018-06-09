@@ -51,7 +51,10 @@
 
 [[projects]]
   name = "github.com/containerum/cherry"
-  packages = ["."]
+  packages = [
+    ".",
+    "adaptors/cherrylog"
+  ]
   revision = "34f7a2a139b36c20a34b93738dda33476efad47d"
   version = "v1.0.1"
 
@@ -190,6 +193,12 @@
   version = "v0.2.0"
 
 [[projects]]
+  name = "github.com/oleiade/reflections"
+  packages = ["."]
+  revision = "2b6ec3da648e3e834dc41bad8d9ed7f2dc6a9496"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
@@ -324,6 +333,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dc73a1051a9c17b6448fe03d30102bbc0dbb8ce8072eb6d20625d8aade12f68c"
+  inputs-digest = "e26d6ba52d2d54369dfea98fd29991f7797c0b7af0b5c986999535ff9be7d316"
   solver-name = "gps-cdcl"
   solver-version = 1
