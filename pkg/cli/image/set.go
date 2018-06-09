@@ -63,6 +63,7 @@ func Set(ctx *context.Context) *cobra.Command {
 					os.Exit(1)
 				}
 				fmt.Println("OK")
+				return
 			}
 			if flags.Deployment == "" {
 				var deplList, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
