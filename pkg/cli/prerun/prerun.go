@@ -23,6 +23,9 @@ const (
 func PreRun(ctx *context.Context) error {
 	clisetup.SetupLogs(ctx)
 	var logger = ctx.Log.Component("PreRun")
+	logger.Debugf("START")
+	defer logger.Debugf("END")
+	logger.Debugf("syncing config")
 	err := configuration.SyncConfig(ctx)
 	switch err {
 	case nil:

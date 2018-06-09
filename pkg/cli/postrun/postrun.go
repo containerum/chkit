@@ -9,7 +9,14 @@ import (
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/spf13/cobra"
 )
+
+func PostRunFunc(ctx *context.Context) func(*cobra.Command, []string) {
+	return func(command *cobra.Command, strings []string) {
+		PostRun(ctx)
+	}
+}
 
 func PostRun(ctx *context.Context) {
 	var logger = ctx.Log.Component("PostRun")

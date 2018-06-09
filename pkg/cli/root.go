@@ -10,10 +10,10 @@ import (
 	"github.com/containerum/chkit/pkg/cli/doc"
 	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/cli/mode"
+	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/set"
 	"github.com/containerum/chkit/pkg/configdir"
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/spf13/cobra"
@@ -60,14 +60,7 @@ func Root() error {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			if !ctx.Changed {
-				return
-			}
-			if err := configuration.SyncConfig(ctx); err != nil {
-				fmt.Printf("Unable to save config file: %v\n", err)
-			}
-		},
+		PostRun:          postrun.PostRunFunc(ctx),
 		TraverseChildren: true,
 	}
 	ctx.Client.APIaddr = mode.API_ADDR

@@ -2,7 +2,6 @@ package clisetup
 
 import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 )
 
@@ -47,16 +46,18 @@ func Setup(ctx *context.Context) error {
 		logger.WithError(err).Errorf("unable to init client")
 		return err
 	}
-	if err := ctx.Client.Auth(); err != nil {
-		logger.WithError(err).Errorf("unable to auth")
-		return err
-	}
+	/*
+		if err := ctx.Client.Auth(); err != nil {
+			logger.WithError(err).Errorf("unable to auth")
+			return err
+		}
 
-	logger.Debugf("saving tokens")
-	if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
-		logger.WithError(err).Errorf("unable to save tokens")
-		return err
-	}
+		logger.Debugf("saving tokens")
+		if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
+			logger.WithError(err).Errorf("unable to save tokens")
+			return err
+		}
+	*/
 
 	if ctx.Namespace.IsEmpty() {
 		return GetDefaultNS(ctx, false)
