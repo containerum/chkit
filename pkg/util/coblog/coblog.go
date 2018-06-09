@@ -2,15 +2,18 @@ package coblog
 
 import (
 	"fmt"
-
 	"reflect"
+	"strings"
 
+	"github.com/oleiade/reflections"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var (
 	_ logrus.FieldLogger = Log{}
+
+	Std = Log{logrus.StandardLogger()}
 )
 
 type Log struct {
@@ -45,27 +48,34 @@ func Logger(cmd *cobra.Command, optionalLogger ...logrus.FieldLogger) Log {
 	return Log{logger.WithField(Field(cmd))}
 }
 
+func (log Log) StructFields(v interface{}) {
+	var items, err = reflections.Items(v)
+	if err != nil {
+		log.WithError(err).Panicf("unable to encode value %v")
+	}
+	var structName = reflect.ValueOf(v).Type().Name()
+	if structName == "" {
+		structName = reflect.ValueOf(v).Kind().String()
+	}
+	var logger = log.WithField("data", structName)
+	logger.Debugf("%v:", structName)
+	var indent = strings.Repeat(" ", len(structName))
+	for name, field := range items {
+		logger.WithField(name, field).Infof(indent)
+	}
+}
+
 func (log Log) Struct(v interface{}) {
-	var value = reflect.ValueOf(v)
-	if value.Kind() == reflect.Ptr {
-		if value.IsNil() {
-			log.Errorf("unable to encode nil %s", value.Kind())
-			return
-		}
-		value = value.Elem()
+	var items, err = reflections.Items(v)
+	if err != nil {
+		log.WithError(err).Panicf("unable to encode value %v")
 	}
-	if value.Kind() != reflect.Struct {
-		log.Errorf("unable to encode non struct value %s", value.Type())
-		return
-	}
-	var tt = value.Type()
-	for fieldIndex := 0; fieldIndex < value.NumField(); fieldIndex++ {
-		var name = tt.Field(fieldIndex).Name
-		var field = value.Field(fieldIndex)
-		if !field.CanSet() {
-			continue
-		}
-		log.WithField("struct", tt.Name()).Printf("%s : %v", name, field.Interface())
+	var structName = reflect.ValueOf(v).Type().Name()
+	var logger = log.WithField("data", structName)
+	logger.Debugf("%v:", structName)
+	var indent = strings.Repeat(" ", len(structName))
+	for name, field := range items {
+		logger.Debugf("%s%s : %v", indent, name, field)
 	}
 }
 

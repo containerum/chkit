@@ -52,7 +52,12 @@ func Set(ctx *context.Context) *cobra.Command {
 			"If deployment contains only one container, then uses that container by default.",
 		PreRun: prerun.PreRunFunc(ctx),
 		Run: func(cmd *cobra.Command, args []string) {
+			var logger = ctx.Log.Command("set image")
+			logger.Debugf("START")
+			defer logger.Debugf("END")
+			logger.StructFields(flags)
 			if flags.Force {
+				logger.Debugf("run command with forcr")
 				var depl, image, err = buildImage()
 				if err != nil {
 					fmt.Println(err)

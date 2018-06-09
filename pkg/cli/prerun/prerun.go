@@ -34,8 +34,9 @@ func PreRun(ctx *context.Context) error {
 		ctx.Namespace = context.Namespace{}
 		logger.Debugf("run login")
 		if err := login.RunLogin(ctx, login.Flags{
-			Username: ctx.Client.Username,
-			Password: ctx.Client.Password,
+			Username:  ctx.Client.Username,
+			Password:  ctx.Client.Password,
+			Namespace: "",
 		}); err != nil {
 			logger.WithError(err).Errorf("unable to login")
 			return err
@@ -46,11 +47,10 @@ func PreRun(ctx *context.Context) error {
 		return err
 	}
 	logger.Debugf("running setup")
+	defer logger.Debugf("end setup")
 	err = clisetup.Setup(ctx)
 	if err != nil {
 		logger.WithError(err).Errorf("unable to run setup")
-	} else {
-		logger.Debugf("end setup")
 	}
 	return err
 }

@@ -62,3 +62,7 @@
 [[constraint]]
   name = "github.com/octago/sflags"
   version = "~0.2.0"
+
+[[constraint]]
+  name = "github.com/oleiade/reflections"
+  version = "~v1.0.0"
