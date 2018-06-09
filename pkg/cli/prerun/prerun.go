@@ -22,23 +22,37 @@ const (
 
 func PreRun(ctx *context.Context) error {
 	clisetup.SetupLogs(ctx)
+	var logger = ctx.Log.Component("PreRun")
 	err := configuration.SyncConfig(ctx)
 	switch err {
 	case nil:
 		// pass
 	case configuration.ErrIncompatibleConfig:
+		logger.Debugf("incompatible config")
 		fmt.Println("It looks like you ran the program with an incompatible configuration.\n" +
 			"Log in so that the program can create a valid configuration file.")
 		ctx.Namespace = context.Namespace{}
-		login.RunLogin(ctx, login.Flags{
+		logger.Debugf("run login")
+		if err := login.RunLogin(ctx, login.Flags{
 			Username: ctx.Client.Username,
 			Password: ctx.Client.Password,
-		})
+		}); err != nil {
+			logger.WithError(err).Errorf("unable to login")
+			return err
+		}
+		logger.Debugf("end login")
 	default:
 		ctx.Log.WithError(err).Errorf("unable to load config")
 		return err
 	}
-	return clisetup.Setup(ctx)
+	logger.Debugf("running setup")
+	err = clisetup.Setup(ctx)
+	if err != nil {
+		logger.WithError(err).Errorf("unable to run setup")
+	} else {
+		logger.Debugf("end setup")
+	}
+	return err
 }
 
 func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) error {
