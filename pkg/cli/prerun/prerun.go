@@ -31,7 +31,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 	logger.Debugf("START")
 	defer logger.Debugf("END")
 	var config = Config{
-		DoNotRunLoginOnIncompatibleConfig: true,
+		DoNotRunLoginOnIncompatibleConfig: false,
 		SetupClient:                       true,
 	}
 	for _, c := range optional {

@@ -7,6 +7,10 @@ import (
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
+var (
+	_ model.Renderer = Volume{}
+)
+
 type Volume kubeModels.Volume
 
 func VolumeFromKube(kv kubeModels.Volume) Volume {

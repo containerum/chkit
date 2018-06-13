@@ -33,7 +33,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				cmd.Help()
 				os.Exit(1)
 			} else if len(args) == 1 {
-				logger.Debugf("validating API URL")
+				logger.Debugf("validating API URL %q", args[0])
 				api, err := url.Parse(args[0])
 				if err != nil {
 					logger.WithError(err).Errorf("invalid API URL")
