@@ -2,7 +2,6 @@ package postrun
 
 import (
 	"fmt"
-
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -23,18 +22,20 @@ func PostRun(ctx *context.Context) {
 	logger.Debugf("START")
 	defer logger.Debugf("END")
 	if ctx.Changed {
-		logger.Debugf("reading old config from %q", ctx.ConfigPath)
-		oldConfig, err := configuration.ReadConfigFromDisk(ctx.ConfigPath)
-		switch err {
-		case nil, configuration.ErrIncompatibleConfig:
-			logger.Struct(oldConfig)
-			logger.Debugf("merging configs")
-			ctx.SetStorable(ctx.GetStorable().Merge(oldConfig))
-			logger.Struct(ctx.GetStorable())
-		default:
-			logger.WithError(err).Errorf("unable to read old config")
-			angel.Angel(ctx, err)
-		}
+		/*
+			logger.Debugf("reading old config from %q", ctx.ConfigPath)
+			oldConfig, err := configuration.ReadConfigFromDisk(ctx.ConfigPath)
+			switch err {
+			case nil, configuration.ErrIncompatibleConfig:
+				logger.Struct(oldConfig)
+				logger.Debugf("merging configs")
+				ctx.SetStorable(ctx.GetStorable().Merge(oldConfig))
+				logger.Struct(ctx.GetStorable())
+			default:
+				logger.WithError(err).Errorf("unable to read old config")
+				angel.Angel(ctx, err)
+			}
+		*/
 		logger.Debugf("writing new configuration")
 		configFile, err := os.Create(ctx.ConfigPath)
 		if err != nil {
