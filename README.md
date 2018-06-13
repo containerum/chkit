@@ -44,7 +44,7 @@ Before using chkit to work with Containerum you have to specify the address of y
 chkit set api YOUR_API_ADDRESS
 ```
 
-*or* 
+or 
 
 * buid chkit with env:
 ```bash
