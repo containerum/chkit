@@ -42,3 +42,11 @@ func (volume Volume) UserNames() []string {
 	}
 	return names
 }
+
+func (volume Volume) String() string {
+	return volume.OwnerAndName()
+}
+
+func (volume Volume) OwnerAndName() string {
+	return volume.OwnerLogin + "/" + volume.Name
+}

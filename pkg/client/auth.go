@@ -33,6 +33,7 @@ func (client *Client) Auth() error {
 		err := client.Extend()
 		switch {
 		case err == nil:
+			logger.Debugf("OK")
 			return nil
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
@@ -50,6 +51,7 @@ func (client *Client) Auth() error {
 			return ErrUnableToRefreshToken
 		}
 	}
+	logger.Debugf("empty refresh token, running login")
 	return client.Login()
 }
 
@@ -58,12 +60,14 @@ func (client *Client) Login() error {
 	var logger = coblog.Std.Component("client.Login")
 	logger.Debugf("START")
 	defer logger.Debugf("END")
+	logger.Debugf("running login as %q", client.Config.Username)
 	tokens, err := client.kubeAPIClient.Login(kubeClientModels.Login{
 		Login:    client.Config.Username,
 		Password: client.Config.Password,
 	})
 	switch {
 	case err == nil:
+		logger.Debugf("OK")
 		// pass
 	case cherry.Equals(err, umErrors.ErrInvalidLogin()):
 		logger.WithError(err).Errorf("invalid password login combination")

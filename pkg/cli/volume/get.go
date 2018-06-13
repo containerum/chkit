@@ -43,7 +43,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 				if flags.Names {
 					logger.Debugf("printing name")
-					fmt.Println(vol.Name)
+					fmt.Println(vol.OwnerAndName())
 					return
 				}
 			} else {
@@ -58,12 +58,12 @@ func Get(ctx *context.Context) *cobra.Command {
 					logger.Debugf("filtering volume list by names %v", args)
 					var volumeSet = strset.NewSet(args)
 					list = list.Filter(func(volume volume.Volume) bool {
-						return volumeSet.Have(volume.Name)
+						return volumeSet.Have(volume.Name) || volumeSet.Have(volume.OwnerAndName())
 					})
 				}
 				if flags.Names {
 					logger.Debugf("printing names")
-					fmt.Println(strings.Join(list.Names(), "\n"))
+					fmt.Println(strings.Join(list.OwnersAndNames(), "\n"))
 					return
 				}
 				renderable = list

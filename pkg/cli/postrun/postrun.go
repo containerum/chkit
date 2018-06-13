@@ -2,7 +2,6 @@ package postrun
 
 import (
 	"fmt"
-
 	"os"
 
 	"github.com/BurntSushi/toml"
