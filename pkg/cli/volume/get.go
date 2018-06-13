@@ -3,7 +3,6 @@ package volume
 import (
 	"fmt"
 	"os"
-
 	"strings"
 
 	"github.com/containerum/chkit/pkg/configuration"
@@ -26,6 +25,8 @@ func Get(ctx *context.Context) *cobra.Command {
 	var command = &cobra.Command{
 		Use:     "volume",
 		Aliases: aliases,
+		Short:   "get volume info",
+		Example: "chkit get volume [$VOLUME_NAME...] [-o yaml] [--file $VOLUME_DATA_FILE]",
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("get volumes")
 			logger.Debugf("START")
