@@ -19,6 +19,7 @@ func GetDefaultNS(ctx *context.Context, force bool) error {
 	}
 	if len(list) == 0 {
 		fmt.Printf("You have no namespaces!\n")
+		return fmt.Errorf("no namespaces")
 	} else if force {
 		ctx.SetNamespace(list[0])
 		return nil

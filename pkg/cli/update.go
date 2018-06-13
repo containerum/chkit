@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/update"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
 
@@ -37,9 +36,7 @@ func Update(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 			}
 		},
-		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			postrun.PostRun(coblog.Logger(cmd), ctx)
-		},
+		PersistentPostRun: postrun.PostRunFunc(ctx),
 	}
 	command.PersistentFlags().
 		BoolVarP(&debug, "debug", "", false, "print debug information")

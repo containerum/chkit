@@ -7,6 +7,10 @@ import (
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
+var (
+	_ model.Renderer = Volume{}
+)
+
 type Volume kubeModels.Volume
 
 func VolumeFromKube(kv kubeModels.Volume) Volume {
@@ -37,4 +41,12 @@ func (volume Volume) UserNames() []string {
 		names = append(names, user.Username)
 	}
 	return names
+}
+
+func (volume Volume) String() string {
+	return volume.OwnerAndName()
+}
+
+func (volume Volume) OwnerAndName() string {
+	return volume.OwnerLogin + "/" + volume.Name
 }

@@ -8,12 +8,11 @@ import (
 	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/ingress"
+	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -34,20 +33,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PersistentPostRun: func(command *cobra.Command, args []string) {
-			if ctx.Changed {
-				if err := configuration.SyncConfig(ctx); err != nil {
-					logrus.WithError(err).Errorf("unable to save config")
-					fmt.Printf("Unable to save config: %v\n", err)
-					return
-				}
-			}
-			if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
-				logrus.WithError(err).Errorf("unable to save tokens")
-				fmt.Printf("Unable to save tokens: %v\n", err)
-				return
-			}
-		},
+		PersistentPostRun: postrun.PostRunFunc(ctx),
 	}
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.Namespace.ID, "")

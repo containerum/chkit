@@ -4,9 +4,11 @@ import (
 	"github.com/containerum/chkit/pkg/client"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
+	"github.com/containerum/chkit/pkg/util/coblog"
 )
 
 type Context struct {
+	Log                coblog.Log
 	Version            string
 	ConfigPath         string
 	ConfigDir          string
@@ -15,6 +17,14 @@ type Context struct {
 	Changed            bool
 	Client             chClient.Client
 	AllowSelfSignedTLS bool
+}
+
+func (ctx *Context) StartCommand(command string) {
+	ctx.Log.FieldLogger = ctx.Log.FieldLogger.WithField("command", command)
+}
+
+func (ctx *Context) ExitCommand() {
+	ctx.Log.FieldLogger = ctx.Log.FieldLogger.WithField("command", nil)
 }
 
 func (ctx *Context) GetClient() *chClient.Client {
@@ -38,12 +48,19 @@ type Storable struct {
 	Username           string
 	Password           string
 	API                string
+	Version            string
 	AllowSelfSignedTLS bool
 }
 
 func (config Storable) Merge(upd Storable) Storable {
-	if !upd.Namespace.IsEmpty() {
-		config.Namespace = upd.Namespace
+	if upd.Namespace.Label != "" {
+		config.Namespace.Label = upd.Namespace.Label
+	}
+	if upd.Namespace.ID != "" {
+		config.Namespace.ID = upd.Namespace.ID
+	}
+	if upd.Namespace.OwnerLogin != "" {
+		config.Namespace.OwnerLogin = upd.Namespace.OwnerLogin
 	}
 	if upd.API != "" {
 		config.API = upd.API
@@ -60,6 +77,7 @@ func (config Storable) Merge(upd Storable) Storable {
 
 func (ctx *Context) GetStorable() Storable {
 	return Storable{
+		Version:            ctx.Version,
 		Namespace:          ctx.Namespace,
 		Username:           ctx.Client.Username,
 		Password:           ctx.Client.Password,
@@ -68,7 +86,7 @@ func (ctx *Context) GetStorable() Storable {
 	}
 }
 
-func (ctx *Context) SetStorable(config Storable) {
+func (ctx *Context) SetStorable(config Storable) (configVersion string) {
 	ctx.Namespace = config.Namespace
 	ctx.Client.UserInfo = model.UserInfo{
 		Username: config.Username,
@@ -78,4 +96,5 @@ func (ctx *Context) SetStorable(config Storable) {
 		ctx.Client.APIaddr = config.API
 	}
 	ctx.AllowSelfSignedTLS = config.AllowSelfSignedTLS
+	return config.Version
 }
