@@ -61,7 +61,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				cmd.Help()
 				os.Exit(1)
 			}
-			if flags.Force || activekit.YesNo("Are you sure you want to delete volume %q?", volumeID) {
+			if flags.Force || activekit.YesNo("Do you really want to delete volume %q?", volumeID) {
 				logger.Debugf("deleting volume %q in namespace %q", volumeID, ctx.Namespace)
 				if err := ctx.Client.DeleteVolume(ctx.Namespace.ID, volumeID); err != nil {
 					logger.WithError(err).Errorf("unable to delete volume %q in namespace %q", volumeID, ctx.Namespace)
