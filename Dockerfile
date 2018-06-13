@@ -1,8 +1,10 @@
 FROM golang:1.10-alpine AS builder
 RUN apk --no-cache add zip make git openssl
 WORKDIR /go/src/github.com/containerum/chkit
-ARG BUILD_CONTAINERUM_API=https://api.containerum.io:8082
+
+ARG BUILD_CONTAINERUM_API=https://api.containerum.io
 ENV CONTAINERUM_API=$BUILD_CONTAINERUM_API
+
 COPY . .
 RUN make build
 
