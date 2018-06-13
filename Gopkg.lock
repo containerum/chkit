@@ -51,10 +51,7 @@
 
 [[projects]]
   name = "github.com/containerum/cherry"
-  packages = [
-    ".",
-    "adaptors/cherrylog"
-  ]
+  packages = ["."]
   revision = "34f7a2a139b36c20a34b93738dda33476efad47d"
   version = "v1.0.1"
 
@@ -72,8 +69,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "43bc2706e4163e6d26d2be0d559591c3c9a81c6b"
-  version = "v0.19.9"
+  revision = "acd07e4012c051f415cb2954b0cd58ac51296961"
+  version = "v0.20.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -333,6 +330,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e26d6ba52d2d54369dfea98fd29991f7797c0b7af0b5c986999535ff9be7d316"
+  inputs-digest = "1a010483d82028e4ead8ec420c1ffea920bad8d4dc8d92b684d0dc6c602cbb36"
   solver-name = "gps-cdcl"
   solver-version = 1
