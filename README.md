@@ -9,23 +9,32 @@ Chkit is a desktop CLI client for [Containerum](https://github.com/containerum/c
 * Golang >= 1.8
 
 ## Installation
-* To instal chkit run:
+
+### To get chkit source:
 
 ```bash
 go get -u -v github.com/containerum/chkit
-```
-*or*
 
-* in your GOPATH/src run
+```
+or
 
 ```bash
+# in $GOPATH/src/containerum
 git clone https://github.com/containerum/chkit.git
 ```
 
-*or*
+### To build chkit from sources:
+```bash
+cd $GOPATH/src/containerum/chkit
+make single_release CONTAINERUM_API="https://api.containerum.io"  
+# or your Containerum API URL
+```
+then extract executable from tar.gz archive in ./build  to $GOPATH/bin or another $PATH dir
 
-* just launch from **[binaries](https://github.com/containerum/chkit/releases)** 
+### To delete chkit:
+Just delete executable file from your $GOPATH/bin
 
+## Configuring chkit
 
 ### Using chkit with your own Kubernetes cluster
 Before using chkit to work with Containerum you have to specify the address of your API. You can do that as follows:
@@ -45,6 +54,13 @@ make release
 
 ### Using chkit with Containerum Online
 By default chkit connects to [Containerum Online](https://containerum.com/price/online/) platform. 
+
+### Configuraton and logs
+|    OS   | Config file path | Logs path |
+| ------- | ---------------- | --------- |
+| Linux   | ~/.config/containerum/config.toml | ~/.config/containerum/support |
+| Windows | /Users/$USERNAME/AppData/Local/containerum/config.toml | /Users/$USERNAME/AppData/Local/containerum/suppport |
+| Mac OS | /Library/Application Support/containerum/config.toml | /Library/Logs/containerum
 
 ## Docs
 To learn more about **chkit** commands, please refer to the [Docs section](https://docs.containerum.com/docs/about/) on our website.
