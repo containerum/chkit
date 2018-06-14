@@ -1,15 +1,16 @@
 package clinamespace
 
 import (
-	"os"
-
 	"fmt"
+	"os"
+	"sort"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -21,12 +22,18 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 		Aliases:    accessAliases,
 		SuggestFor: accessAliases,
 		Short:      "set namespace access",
-		Example:    "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $ID]",
-		PreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
+		Long: "Set access level to namespace.\n" +
+			"Available access levels are:\n" + func() string {
+			var levels []string
+			for _, lvl := range model.Levels() {
+				levels = append(levels, lvl.String())
 			}
-		},
+			sort.Strings(levels)
+			var lvlsInfo = strings.Join(levels, "\n")
+			return text.Indent(lvlsInfo, 2)
+		}(),
+		Example: "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $ID]",
+		PreRun:  prerun.PreRunFunc(ctx),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			if len(args) != 2 {
