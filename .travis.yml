@@ -13,8 +13,8 @@ services:
 
 install:
   - sudo mkdir -p ${CONTAINERUM_HOME}
-  - echo ${KEY} | base64 -d > ${CONTAINERUM_HOME}/privkey.pem
-  - echo ${PUB_KEY} | base64 -d > ${CONTAINERUM_HOME}/pubkey.pem
+  - if [ "$TRAVIS_TAG" ]; then echo ${KEY} | base64 -d > ${CONTAINERUM_HOME}/privkey.pem; fi
+  - if [ "$TRAVIS_TAG" ]; then echo ${PUB_KEY} | base64 -d > ${CONTAINERUM_HOME}/pubkey.pem; fi
 
 script:
   - make release
@@ -28,5 +28,12 @@ before_deploy:
 deploy:
   provider: script
   script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
+  on:
+    tags: true
+- provider: releases
+  api_key: $GITHUB_TOKEN
+  file:
+    - "build/chkit_linux_386_${TRAVIS_TAG}.tar.gz"
+  skip_cleanup: true
   on:
     tags: true
