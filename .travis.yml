@@ -9,33 +9,33 @@ env:
   - CONTAINERUM_API="https://api.containerum.io"
 
 services:
-  - docker
+- docker
 
-install:
-  - sudo mkdir -p ${CONTAINERUM_HOME}
-  - sudo touch ${CONTAINERUM_HOME}/privkey.pem && sudo touch ${CONTAINERUM_HOME}/pubkey.pem
-  - echo ${KEY} | base64 -d | sudo dd of="${CONTAINERUM_HOME}/privkey.pem"
-  - echo ${PUB_KEY} | base64 -d | sudo dd of="${CONTAINERUM_HOME}/pubkey.pem"
+before_install:
+- sudo mkdir ${CONTAINERUM_HOME}
+- openssl aes-256-cbc -K $encrypted_a90173ef0ca0_key -iv $encrypted_a90173ef0ca0_iv
+  -in .enc/privkey.pem.enc -out ${CONTAINERUM_HOME}/privkey.pem -d
+- openssl aes-256-cbc -K $encrypted_a90173ef0ca0_key -iv $encrypted_a90173ef0ca0_iv
+  -in .enc/pubkey.pem.enc -out ${CONTAINERUM_HOME}/pubkey.pem -d
 
 script:
-  - make release
-  - docker build -t "$IMAGE_NAME" .
+- make release
+- docker build -t "$IMAGE_NAME" .
 
 before_deploy:
-  - docker login -u="$DOCKER_LOGIN" -p="$DOCKER_PASSWORD"
-  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
-  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
+- docker login -u="$DOCKER_LOGIN" -p="$DOCKER_PASSWORD"
+- docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+- docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
 
 deploy:
-  - provider: script
-    script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
-    on:
-      tags: true
-
-  - provider: releases
-    api_key: $GITHUB_TOKEN
-    file:
-      - "build/chkit_linux_386_${TRAVIS_TAG}.tar.gz"
-    skip_cleanup: true
-    on:
-      tags: true
+- provider: script
+  script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
+  on:
+    tags: true
+- provider: releases
+  api_key: "$GITHUB_TOKEN"
+  file:
+  - build/chkit_linux_386_${TRAVIS_TAG}.tar.gz
+  skip_cleanup: true
+  on:
+    tags: true
