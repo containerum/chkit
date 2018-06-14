@@ -35,8 +35,8 @@ deploy:
     tags: true
 - provider: releases
   api_key: "$GITHUB_TOKEN"
-  file:
-  - build/chkit_linux_386_${TRAVIS_TAG}.tar.gz
+  file_glob: true
+  file: build/*
   skip_cleanup: true
   on:
     tags: true
