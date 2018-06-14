@@ -42,6 +42,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		containerumapi.Get(ctx),                      //
 		prerun.WithInit(ctx, cliconfigmap.Get),       //
 		prerun.WithInit(ctx, volume.Get),             //
+		prerun.WithInit(ctx, clideployment.GetVersions),
 		&cobra.Command{
 			Use:     "default-namespace",
 			Short:   "print default",

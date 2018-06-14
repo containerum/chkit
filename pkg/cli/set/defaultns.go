@@ -25,9 +25,14 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 1 {
-				ns, err := ctx.Client.GetNamespace(args[0])
+				nsList, err := ctx.Client.GetNamespaceList()
 				if err != nil {
 					fmt.Println(err)
+					os.Exit(1)
+				}
+				var ns, ok = nsList.GetByUserFriendlyID(args[0])
+				if !ok {
+					fmt.Printf("Namespace %q not found!\n", args[0])
 					os.Exit(1)
 				}
 				ctx.SetNamespace(ns)

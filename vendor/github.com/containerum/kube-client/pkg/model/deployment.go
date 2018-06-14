@@ -11,15 +11,11 @@ import (
 //
 // swagger:model
 type DeploymentStatus struct {
-	//creation date in RFC3339 format
-	CreatedAt string `json:"created_at"`
-	//update date in RFC3339 format
-	UpdatedAt           string `json:"updated_at"`
-	Replicas            int    `json:"replicas"`
-	ReadyReplicas       int    `json:"ready_replicas"`
-	AvailableReplicas   int    `json:"available_replicas"`
-	UnavailableReplicas int    `json:"unavailable_replicas"`
-	UpdatedReplicas     int    `json:"updated_replicas"`
+	Replicas            int `json:"replicas"`
+	ReadyReplicas       int `json:"ready_replicas"`
+	AvailableReplicas   int `json:"available_replicas"`
+	UnavailableReplicas int `json:"unavailable_replicas"`
+	UpdatedReplicas     int `json:"updated_replicas"`
 }
 
 // DeploymentVersion -- model for deployment version update
@@ -48,7 +44,11 @@ type DeploymentsList struct {
 //
 // swagger:model
 type Deployment struct {
-	Status *DeploymentStatus `json:"status,omitempty"`
+	//creation date in RFC3339 format
+	CreatedAt string `json:"created_at,omitempty"`
+	//delete date in RFC3339 format
+	DeletedAt string            `json:"deleted_at,omitempty"`
+	Status    *DeploymentStatus `json:"status,omitempty"`
 	// required: true
 	Containers []Container `json:"containers"`
 	// required: true

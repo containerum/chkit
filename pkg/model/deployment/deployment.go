@@ -3,6 +3,8 @@ package deployment
 import (
 	"fmt"
 
+	"time"
+
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/kube-client/pkg/model"
@@ -14,6 +16,7 @@ type Deployment struct {
 	Status     *Status
 	Active     bool
 	Version    semver.Version
+	CreatedAt  time.Time
 	Containers container.ContainerList
 }
 
@@ -22,6 +25,10 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 	if kubeDeployment.Status != nil {
 		st := StatusFromKubeStatus(*kubeDeployment.Status)
 		status = &st
+	}
+	var timestamp time.Time
+	if t, err := time.Parse(time.RFC3339, kubeDeployment.CreatedAt); err == nil {
+		timestamp = t
 	}
 	containers := make([]container.Container, 0, len(kubeDeployment.Containers))
 	for _, kubeContainer := range kubeDeployment.Containers {
@@ -34,6 +41,7 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 		Containers: containers,
 		Version:    kubeDeployment.Version,
 		Active:     kubeDeployment.Active,
+		CreatedAt:  timestamp,
 	}
 }
 
@@ -56,7 +64,7 @@ func (depl *Deployment) StatusString() string {
 	if depl.Active {
 		if depl.Status != nil {
 			return fmt.Sprintf("running %d/%d",
-				depl.Status.AvailableReplicas, depl.Replicas)
+				depl.Status.NonTerminated, depl.Replicas)
 		} else {
 			return fmt.Sprintf("local\nreplicas %d", depl.Replicas)
 		}
