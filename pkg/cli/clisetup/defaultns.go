@@ -36,11 +36,11 @@ func GetDefaultNS(ctx *context.Context, force bool) error {
 				}(ns),
 			})
 		}
-		_, err := (&activekit.Menu{
+		(&activekit.Menu{
 			Title: "Select default namespace",
 			Items: menu,
 		}).Run()
-		return err
 	}
+	fmt.Println("OK")
 	return nil
 }

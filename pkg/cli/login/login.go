@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/cli/postrun"
@@ -74,14 +73,15 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		ns, ok := nsList.GetByUserFriendlyID(flags.Namespace)
-		if !ok {
-			fmt.Printf("Namespace %q not found!\n%s",
-				flags.Namespace, strings.Join(nsList.OwnersAndLabels(), "\n"))
-			os.Exit(1)
+		var nsName = flags.Namespace
+		ns, ok := nsList.GetByUserFriendlyID(nsName)
+		if ok {
+			ctx.SetNamespace(ns)
+			ctx.Changed = true
+		} else {
+			fmt.Printf("Namespace %q not found!\n", nsName)
+			clisetup.GetDefaultNS(ctx, false)
 		}
-		ctx.SetNamespace(ns)
-		ctx.Changed = true
 	}
 	return nil
 }
