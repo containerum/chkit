@@ -57,7 +57,19 @@ func Set(ctx *context.Context) *cobra.Command {
 			defer logger.Debugf("END")
 			logger.StructFields(flags)
 			if flags.Force {
-				logger.Debugf("run command with forcr")
+				logger.Debugf("run command with force")
+
+				if flags.Container == "" {
+					var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					if len(depl.Containers) == 1 {
+						flags.Container = depl.Containers[0].Name
+					}
+				}
+
 				var depl, image, err = buildImage()
 				if err != nil {
 					fmt.Println(err)
