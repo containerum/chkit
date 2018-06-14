@@ -5,7 +5,7 @@ language: go
 env:
   global:
   - IMAGE_NAME=containerum/chkit
-  - CONTAINERUM_HOME="~/.config/containerum"
+  - CONTAINERUM_HOME="/home/travis/.config/containerum/.chkit-sign"
   - CONTAINERUM_API="https://api.containerum.io"
 
 services:
