@@ -81,6 +81,7 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 			os.Exit(1)
 		}
 		ctx.SetNamespace(ns)
+		ctx.Changed = true
 	}
 	return nil
 }
