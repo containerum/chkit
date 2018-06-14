@@ -15,7 +15,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Force bool `desc:"suppress confirmation" flag:"force f"`
 	}
 	var command = &cobra.Command{
-		Use:     "delete",
+		Use:     "volume",
 		Short:   "delete volume",
 		Example: "chkit delete volume [--force]",
 		Aliases: aliases,
