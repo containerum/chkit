@@ -90,13 +90,17 @@ func Set(ctx *context.Context) *cobra.Command {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				(&activekit.Menu{
-					Title: "Select container",
-					Items: activekit.StringSelector(depl.Containers.Names(), func(s string) error {
-						flags.Container = s
-						return nil
-					}),
-				}).Run()
+				if len(depl.Containers) == 1 {
+					flags.Container = depl.Containers[0].Name
+				} else {
+					(&activekit.Menu{
+						Title: "Select container",
+						Items: activekit.StringSelector(depl.Containers.Names(), func(s string) error {
+							flags.Container = s
+							return nil
+						}),
+					}).Run()
+				}
 			}
 			if flags.Image == "" {
 				for {
