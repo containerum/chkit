@@ -5,16 +5,16 @@ language: go
 env:
   global:
   - IMAGE_NAME=containerum/chkit
-  - HOME="~/.config/containerum"
+  - CONTAINERUM_HOME="~/.config/containerum"
   - CONTAINERUM_API="https://api.containerum.io"
 
 services:
   - docker
 
 install:
-  # - sudo mkdir -p ${HOME}
-  # - echo ${KEY} | base64 -d > ${HOME}/privkey.pem
-  # - echo ${PUB_KEY} | base64 -d > ${HOME}/pubkey.pem
+  - sudo mkdir -p ${CONTAINERUM_HOME}
+  - echo ${KEY} | base64 -d > ${CONTAINERUM_HOME}/privkey.pem
+  - echo ${PUB_KEY} | base64 -d > ${CONTAINERUM_HOME}/pubkey.pem
 
 script:
   - make release
