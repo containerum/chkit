@@ -13,7 +13,8 @@ services:
 
 install:
   - sudo mkdir -p ${CONTAINERUM_HOME}
-  - sudo echo ${KEY} | base64 -d > ${CONTAINERUM_HOME}/privkey.pem
+  - sudo touch ${CONTAINERUM_HOME}/privkey.pem && sudo touch ${CONTAINERUM_HOME}/pubkey.pem
+  - echo ${KEY} | base64 -d > ${CONTAINERUM_HOME}/privkey.pem
   - if [ "$TRAVIS_TAG" ]; then sudo echo ${PUB_KEY} | base64 -d > ${CONTAINERUM_HOME}/pubkey.pem; fi
 
 script:
