@@ -6,241 +6,149 @@ import (
 	"os"
 	"strings"
 
+	"path/filepath"
+
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/text"
-	"github.com/containerum/kube-client/pkg/model"
-	"github.com/sirupsen/logrus"
+	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
 
 func Replace(ctx *context.Context) *cobra.Command {
-	var file string
-	var force bool
-	var flagCont container.Container
-	var flagDepl deployment.Deployment
-	var envs []string
+	var updFlags deplactive.UpdateFlags
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
 		Short:   "replace deployment",
-		Long: `Replaces deployment.
-Has an one-line mode, suitable for integration with other tools, and an interactive wizard mode`,
+		Long: "Replaces deployment with new.\n" +
+			"Has an one-line mode, suitable for integration with other tools,\n" +
+			"and an interactive wizard mod",
 		Run: func(cmd *cobra.Command, args []string) {
-			depl := deployment.Deployment{}
-			deplactive.Fill(&depl)
+			var logger = ctx.Log.Command("update deployment")
+			logger.Debugf("START")
+			defer logger.Debugf("END")
+			logger.Struct(updFlags)
+			var depl deployment.Deployment
+			var err error
+			var deplName string
 			switch len(args) {
 			case 1:
-				depl.Name = args[0]
-			default:
-				cmd.Help()
-			}
-			if cmd.Flag("file").Changed {
-				var err error
-				depl, err = deplactive.FromFile(file)
-				if err != nil {
-					logrus.WithError(err).Errorf("unable to load deployment data from file %s", file)
-					fmt.Printf("Unable to load deployment data from file :(\n%v", err)
+				deplName = args[0]
+			case 0:
+				if updFlags.File != "" {
+					depl, err = deplactive.FromFile(updFlags.File)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					updFlags = deplactive.FlagsFromDeployment(depl).UpdateFlags
+				}
+				if updFlags.Force {
+					fmt.Printf("deployment name must be provided as first argument")
 					os.Exit(1)
 				}
-			} else {
-				if cmd.Flag("env").Changed {
-					envMap := map[string]string{}
-					for _, env := range envs {
-						var tokens = strings.SplitN(env, ":", 2)
-						if len(tokens) != 2 {
-							fmt.Printf("Inavlid env kev-value pair %q", env)
-							os.Exit(1)
-						}
-						var k, v = tokens[0], tokens[1]
-						k = strings.TrimSpace(k)
-						v = strings.TrimSpace(v)
-						v = strings.TrimPrefix(v, "\"")
-						v = strings.TrimSuffix(v, "\"")
-						envMap[k] = v
-					}
-					for k, v := range envMap {
-						flagCont.Env = append(flagCont.Env, model.Env{
-							Name:  k,
-							Value: v,
-						})
-					}
-				}
-
-				oldDepl, err := ctx.Client.GetDeployment(ctx.Namespace.ID, depl.Name)
+				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
-					activekit.Attention("unable to get deploment %q: %v", depl.Name, err)
+					fmt.Println(err)
 					os.Exit(1)
 				}
-				if !cmd.Flag("replicas").Changed {
-					flagDepl.Replicas = oldDepl.Replicas
-				}
-				if !cmd.Flag("image").Changed {
-					flagDepl.Containers = oldDepl.Containers
-				} else {
-					flagDepl.Containers = []container.Container{flagCont}
-				}
-
-				depl = flagDepl
+				(&activekit.Menu{
+					Title: "Select deployment",
+					Items: activekit.StringSelector(deplList.Names(), func(s string) error {
+						deplName = s
+						return nil
+					}),
+				}).Run()
 			}
-			if cmd.Flag("force").Changed {
-				if len(args) != 1 {
-					cmd.Help()
-					return
-				}
-				depl.Name = args[0]
+			var flags = deplactive.Flags{
+				Name:        deplName,
+				UpdateFlags: updFlags,
+			}
+			depl, err = flags.Deployment()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			deplactive.Fill(&depl)
+			if flags.Force {
 				if err := deplactive.ValidateDeployment(depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				fmt.Println(depl.RenderTable())
 				if err := ctx.Client.ReplaceDeployment(ctx.Namespace.ID, depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				fmt.Println("OK")
+				fmt.Printf("Deployment %s created\n", depl.Name)
 				return
-			} else {
-				if len(args) == 0 {
-					list, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
-					if err != nil {
-						activekit.Attention(err.Error())
-						os.Exit(1)
-					}
-					var menu []*activekit.MenuItem
-					for _, d := range list {
-						menu = append(menu, &activekit.MenuItem{
-							Label: d.Name,
-							Action: func(d deployment.Deployment) func() error {
-								return func() error {
-									depl = d
-									return nil
-								}
-							}(d),
-						})
-					}
-					(&activekit.Menu{
-						Title: "Choose deployment to replace",
-						Items: menu,
-					}).Run()
-				} else {
-					var err error
-					depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, args[0])
-					if err != nil {
-						activekit.Attention(err.Error())
-						os.Exit(1)
-					}
-				}
 			}
+			logger.Debugf("getting configmap list")
+			configmapList, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
+			if err != nil {
+				logger.WithError(err).Errorf("unable to get configmap list")
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			logger.Debugf("getting volume list")
+			volumeList, err := ctx.Client.GetVolumeList(ctx.Namespace.ID)
+			if err != nil {
+				logger.WithError(err).Errorf("unable to get volume list")
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Println(depl.RenderTable())
 			depl = deplactive.Wizard{
+				EditName:   false,
 				Deployment: &depl,
+				Configmaps: configmapList.Names(),
+				Volumes:    volumeList.Names(),
 			}.Run()
-			for {
-				_, err := (&activekit.Menu{
-					Items: []*activekit.MenuItem{
+			fmt.Println(depl.RenderTable())
+			if !activekit.YesNo("Are you sure you want create deployment %s?", depl.Name) {
+				(&activekit.Menu{
+					Items: activekit.MenuItems{
 						{
-							Label: fmt.Sprintf("Update deployment %q on server", depl.Name),
+							Label: fmt.Sprintf("Save deployment %s to file", depl.Name),
 							Action: func() error {
-								fmt.Println(depl.RenderTable())
-								if activekit.YesNo(fmt.Sprintf("Are you sure you want to update deployment %q on server?", depl.Name)) {
-									err := ctx.Client.ReplaceDeployment(ctx.Namespace.ID, depl)
-									if err != nil {
-										logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
-										fmt.Println(err)
-										return nil
+								for {
+									var fname = activekit.Promt("Type filename (if ext is yaml or yml then file encodes as YAML, JSON by default): ")
+									fname = strings.TrimSpace(fname)
+									var err error
+									var data string
+									switch strings.ToLower(filepath.Ext(fname)) {
+									case ".yaml", ".yml":
+										fmt.Println("Encoding deployment as YAML")
+										data, err = depl.RenderYAML()
+									default:
+										fmt.Println("Encoding deployment as JSON")
+										data, err = depl.RenderJSON()
 									}
-									fmt.Printf("Congratulations! Deployment %q updated!\n", depl.Name)
-								}
-								return nil
-							},
-						},
-						{
-							Label: "Edit deployment",
-							Action: func() error {
-								var err error
-								depl = deplactive.Wizard{
-									Deployment: &depl,
-								}.Run()
-								if err != nil {
-									logrus.WithError(err).Errorf("unable to update deployment")
-									fmt.Println(err)
-									os.Exit(1)
-								}
-								return nil
-							},
-						},
-						{
-							Label: "Print to terminal",
-							Action: activekit.ActionWithErr(func() error {
-								if data, err := depl.RenderYAML(); err != nil {
-									return err
-								} else {
-									upBorders := strings.Repeat("_", text.Width(data))
-									downBorders := strings.Repeat("_", text.Width(data))
-									fmt.Printf("%s\n\n%s\n%s\n", upBorders, data, downBorders)
-								}
-								return nil
-							}),
-						},
-						{
-							Label: "Save to file",
-							Action: func() error {
-								filename, _ := activekit.AskLine("Print filename: ")
-								if filename == "" {
-									return nil
-								}
-								data, err := depl.RenderJSON()
-								if err != nil {
-									return err
-								}
-								if err := ioutil.WriteFile(filename, []byte(data), os.ModePerm); err != nil {
-									logrus.WithError(err).Errorf("unable to save deployment %q to file", depl.Name)
-									fmt.Printf("Unable to save deployment to file :(\n%v", err)
-									return nil
-								}
-								fmt.Printf("OK\n")
-								return nil
-							},
-						},
-						{
-							Label: "Exit",
-							Action: func() error {
-								if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
-									os.Exit(0)
+									if err != nil {
+										fmt.Println(err)
+									}
+									if err := ioutil.WriteFile(fname, []byte(data), os.ModePerm); err != nil {
+										fmt.Println(err)
+									}
 								}
 								return nil
 							},
 						},
 					},
 				}).Run()
-				if err != nil {
-					logrus.WithError(err).Errorf("error while menu execution")
-					angel.Angel(ctx, err)
-					os.Exit(1)
-				}
+				return
 			}
+			if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Printf("Deployment %s created\n", depl.Name)
 		},
 	}
-	command.PersistentFlags().
-		StringVar(&file, "file", "", "create deployment from file")
-	command.PersistentFlags().
-		BoolVarP(&force, "force", "f", false, "suppress confirmation")
-
-	command.PersistentFlags().
-		IntVar(&flagDepl.Replicas, "replicas", 1, "replicas, optional")
-	command.PersistentFlags().
-		StringVar(&flagCont.Name, "container-name", "", "container name, equal to image name by default")
-	command.PersistentFlags().
-		StringVar(&flagCont.Image, "image", "", "container image, optional")
-	command.PersistentFlags().
-		UintVar(&flagCont.Limits.Memory, "memory", 256, "container memory limit im Mb, optional")
-	command.PersistentFlags().
-		UintVar(&flagCont.Limits.CPU, "cpu", 200, "container CPU limit in mCPU, optional")
-	command.PersistentFlags().
-		StringArrayVar(&envs, "env", nil, "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
+	if err := gpflag.ParseTo(&updFlags, command.Flags()); err != nil {
+		angel.Angel(ctx, fmt.Errorf("it seems that the structure of the flags is set incorrectly: %v", err))
+	}
 	return command
 }

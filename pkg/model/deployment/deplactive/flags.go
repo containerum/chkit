@@ -18,12 +18,11 @@ func invalidFlagValueErr(flag, value, reason string) error {
 	return fmt.Errorf("invalid %s flag value %q: %s", flag, value, reason)
 }
 
-type Flags struct {
+type UpdateFlags struct {
 	Force bool   `flag:"force f" desc:"suppress confirmation, optional"`
 	File  string `desc:"file with configmap data, .json, .yaml, .yml, optional"`
 	// Output   string `flag:"output o" desc:"output format, json/yaml"`
-	Replicas uint   `desc:"deployment replicas, optional"` // deployment
-	Name     string `desc:"deployment name, optional"`     // deployment
+	Replicas uint `desc:"deployment replicas, optional"` // deployment
 
 	Image []string `desc:"container image,\nCONTAINER_NAME@IMAGE in case of multiple containers or IMAGE in case of one container"` // container +
 
@@ -36,7 +35,11 @@ type Flags struct {
 	Volume []string `desc:"container volume,\nCONTAINER_NAME@VOLUME_NAME@MOUNTPATH in case of multiple containers or\nVOLUME_NAME@MOUNTPATH or VOLUME_NAME in case of one container.\nIf MOUNTPATH is omitted, then use /mnt/VOLUME_NAME as mountpath"` // container +
 
 	Configmap []string `desc:"container configmap, CONTAINER_NAME@CONFIGMAP_NAME@MOUNTPATH in case of multiple containers or\nCONFIGMAP_NAME@MOUNTPATH or CONFIGMAP_NAME in case of one container.\nIf MOUNTPATH is omitted, then use /etc/CONFIGMAP_NAME as mountpath"` // container +
+}
 
+type Flags struct {
+	Name string `desc:"deployment name, optional"` // deployment
+	UpdateFlags
 	containers map[string]chkitContainer.Container
 }
 
@@ -46,9 +49,9 @@ func FlagsFromDeployment(depl deployment.Deployment) Flags {
 		containers[container.Name] = container
 	}
 	return Flags{
-		Name:       depl.Name,
-		Replicas:   uint(depl.Replicas),
-		containers: containers,
+		Name:        depl.Name,
+		UpdateFlags: UpdateFlags{Replicas: uint(depl.Replicas)},
+		containers:  containers,
 	}
 }
 

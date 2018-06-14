@@ -13,7 +13,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -28,7 +27,9 @@ func Create(ctx *context.Context) *cobra.Command {
 			"Has an one-line mode, suitable for integration with other tools,\n" +
 			"and an interactive wizard mod",
 		Run: func(cmd *cobra.Command, args []string) {
-			var logger = coblog.Logger(cmd)
+			var logger = ctx.Log.Command("create deployment")
+			logger.Debugf("START")
+			defer logger.Debugf("END")
 			logger.Struct(flags)
 			var depl deployment.Deployment
 			var err error
