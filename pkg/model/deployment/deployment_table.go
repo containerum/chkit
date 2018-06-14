@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"time"
+
 	"github.com/containerum/chkit/pkg/model"
 )
 
@@ -28,8 +30,8 @@ func (depl *Deployment) TableRows() [][]string {
 				container.Image))
 	}
 	age := "undefined"
-	if depl.Status != nil {
-		age = model.Age(depl.Status.UpdatedAt)
+	if depl.CreatedAt != (time.Time{}) {
+		age = model.Age(depl.CreatedAt)
 	}
 	return [][]string{{
 		depl.Name,

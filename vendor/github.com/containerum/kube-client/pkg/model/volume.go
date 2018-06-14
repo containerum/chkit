@@ -4,8 +4,12 @@ package model
 //
 //swagger:model
 type Volume struct {
-	Name        string                     `json:"name,omitempty"`
-	CreatedAt   *string                    `json:"created_at,omitempty"`
+	Name string `json:"name,omitempty"`
+	//creation date in RFC3339 format
+	CreatedAt string `json:"created_at,omitempty"`
+	//delete date in RFC3339 format
+	Status      string                     `json:"status,omitempty"`
+	DeletedAt   string                     `json:"deleted_at,omitempty"`
 	Owner       string                     `json:"owner,omitempty"`
 	OwnerLogin  string                     `json:"owner_login,omitempty"`
 	Access      AccessLevel                `json:"access,omitempty"`

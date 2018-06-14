@@ -44,6 +44,7 @@ type UserGroupMembers struct {
 //
 // swagger:model
 type UserGroupMember struct {
+	ID       string          `json:"id,omitempty"`
 	Username string          `json:"username"`
 	Access   UserGroupAccess `json:"access"`
 }

@@ -22,11 +22,10 @@ func (volume Volume) ToKube() kubeModels.Volume {
 }
 
 func (volume Volume) Age() string {
-	if volume.CreatedAt == nil {
-		return "undefined"
+	if timestamp, err := time.Parse(model.TimestampFormat, volume.CreatedAt); err == nil {
+		return model.Age(timestamp)
 	}
-	var timestamp, _ = time.Parse(*volume.CreatedAt, model.TimestampFormat)
-	return model.Age(timestamp)
+	return "undefined"
 }
 
 func (volume Volume) Copy() Volume {

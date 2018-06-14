@@ -8,6 +8,7 @@ import (
 	"regexp"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/util/validation"
 )
 
@@ -28,12 +29,8 @@ func (config ConfigMap) Validate() error {
 	if err := validation.ValidateLabel(config.Name); err != nil {
 		errors = append(errors, fmt.Errorf(" + invalid name %q\n", config.Name))
 	}
-	if config.CreatedAt != nil {
-		var timestamp = *config.CreatedAt
-		_, err := time.Parse(time.RFC3339, timestamp)
-		if err != nil {
-			errors = append(errors, fmt.Errorf(" + invalid timestamp format: %v\n", err))
-		}
+	if _, err := time.Parse(model.TimestampFormat, config.CreatedAt); err != nil && config.CreatedAt != "" {
+		errors = append(errors, fmt.Errorf(" + invalid timestamp format: %v\n", err))
 	}
 	if len(config.Data) == 0 {
 		errors = append(errors, fmt.Errorf(" + configmap must contains at least one item\n"))
