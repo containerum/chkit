@@ -25,7 +25,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 	var flagDepl deployment.Deployment
 	var envs []string
 	command := &cobra.Command{
-		Use:     "deployment",
+		Use:     "deployment-container",
 		Aliases: aliases,
 		Short:   "replace deployment",
 		Long: `Replaces deployment.
