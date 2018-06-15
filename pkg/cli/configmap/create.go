@@ -129,7 +129,8 @@ func getFileItems(rawItems []string) ([]configmap.Item, error) {
 			key = path.Base(tokens[0])
 			filepath = tokens[0]
 		} else {
-			logrus.Panicf("[chkit/pkg/cli/configmap.getFileItems] ivalid token number in raw file item", len(tokens))
+			fmt.Printf("Invalid token %q in raw file item\n", rawItem)
+			os.Exit(1)
 		}
 		value, err := ioutil.ReadFile(filepath)
 		if err != nil {
@@ -152,7 +153,8 @@ func getStringItems(rawItems []string) ([]configmap.Item, error) {
 			key = strings.TrimSpace(tokens[0])
 			value = strings.TrimSpace(tokens[1])
 		} else {
-			logrus.Panicf("[chkit/pkg/cli/configmap.getStringItems] ivalid token number in raw string item", len(tokens))
+			fmt.Printf("Invalid token %q in raw string item\n", rawItem)
+			os.Exit(1)
 		}
 		items = append(items, configmap.NewItem(
 			key,
