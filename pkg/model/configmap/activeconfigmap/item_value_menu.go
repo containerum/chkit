@@ -19,7 +19,7 @@ func itemValueMenu(value string) string {
 	var oldValue = value
 	for exit := false; !exit; {
 		(&activekit.Menu{
-			Title: fmt.Sprintf("Value : %q", text.Crop(interview.View(value), 64)),
+			Title: fmt.Sprintf("value : %q", text.Crop(interview.View(value), 64)),
 			Items: activekit.MenuItems{
 				{
 					Label: "Load from file",

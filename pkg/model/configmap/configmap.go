@@ -3,6 +3,8 @@ package configmap
 import (
 	"time"
 
+	"encoding/base64"
+
 	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
@@ -28,14 +30,14 @@ func (config ConfigMap) Copy() ConfigMap {
 
 func (config ConfigMap) Set(key string, value string) ConfigMap {
 	config = config.Copy()
-	config.Data[key] = value
+	config.Data[key] = base64.StdEncoding.EncodeToString([]byte(value))
 	return config
 }
 
 func (config ConfigMap) Add(data map[string]string) ConfigMap {
 	config = config.Copy()
 	for k, v := range data {
-		config.Data[k] = v
+		config.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
 	}
 	return config
 }
@@ -43,7 +45,7 @@ func (config ConfigMap) Add(data map[string]string) ConfigMap {
 func (config ConfigMap) AddItems(items ...Item) ConfigMap {
 	config = config.Copy()
 	for _, item := range items {
-		config.Data[item.Key] = item.Value
+		config.Data[item.key] = item.value
 	}
 	return config
 }
@@ -52,8 +54,8 @@ func (config ConfigMap) Items() []Item {
 	var items = make([]Item, 0, len(config.Data))
 	for k, v := range config.Data {
 		items = append(items, Item{
-			Key:   k,
-			Value: v,
+			key:   k,
+			value: v,
 		})
 	}
 	return items

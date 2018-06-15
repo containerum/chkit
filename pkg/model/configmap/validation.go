@@ -36,8 +36,8 @@ func (config ConfigMap) Validate() error {
 		errors = append(errors, fmt.Errorf(" + configmap must contains at least one item\n"))
 	}
 	for _, item := range config.Items() {
-		if !keyRe.MatchString(item.Key) {
-			errors = append(errors, fmt.Errorf(" + invalid configmap key %q: key must match %q\n", item.Key, keyRe))
+		if !keyRe.MatchString(item.key) {
+			errors = append(errors, fmt.Errorf(" + invalid configmap key %q: key must match %q\n", item.key, keyRe))
 		}
 	}
 	if len(errors) == 0 {

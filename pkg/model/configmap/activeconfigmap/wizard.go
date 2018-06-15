@@ -42,7 +42,8 @@ func (c Config) Wizard() configmap.ConfigMap {
 				Action: func(item configmap.Item) func() error {
 					return func() error {
 						if i := itemMenu(item); i != nil {
-							config.Data[i.Key] = i.Value
+							var key, value = i.Data()
+							config.Data[key] = value
 						}
 						return nil
 					}
@@ -75,7 +76,7 @@ func (c Config) Wizard() configmap.ConfigMap {
 						Label: "Add item",
 						Action: func() error {
 							if i := itemMenu(configmap.Item{}); i != nil {
-								config.Data[i.Key] = i.Value
+								config.Data[i.Key()] = i.Value()
 							}
 							return nil
 						},

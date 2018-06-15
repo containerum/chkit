@@ -1,23 +1,86 @@
 package configmap
 
-import "fmt"
+import (
+	"encoding/base64"
+	"encoding/json"
+)
 
 type Item struct {
+	key   string
+	value string
+}
+
+func (item Item) MarshalJSON() ([]byte, error) {
+	return json.MarshalIndent(item.toJSON(), "", "  ")
+}
+
+func (item *Item) UnmarshalJSON(b []byte) error {
+	var i _jsonItem
+	if err := json.Unmarshal(b, &i); err != nil {
+		return err
+	}
+	*item = fromJSON(i)
+	return nil
+}
+
+type _jsonItem struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
-func NewItem(key string, value string) Item {
-	return Item{
-		Key:   key,
-		Value: value,
+func (item Item) toJSON() _jsonItem {
+	return _jsonItem{
+		Key:   item.key,
+		Value: item.value,
 	}
 }
 
+func fromJSON(jsItem _jsonItem) Item {
+	return Item{
+		key:   jsItem.Key,
+		value: jsItem.Value,
+	}
+}
+
+func NewItem(key string, value string) Item {
+	var encodedValue = base64.StdEncoding.EncodeToString([]byte(value))
+	return Item{
+		key:   key,
+		value: encodedValue,
+	}
+}
+
+func (item Item) Key() string {
+	return item.key
+}
+
+func (item Item) Value() string {
+	var decodedValue, err = base64.StdEncoding.DecodeString(item.value)
+	if err == nil {
+		return string(decodedValue)
+	}
+	return item.value
+}
+
 func (item Item) Data() (key string, value string) {
-	return item.Key, item.Value
+	return item.key, item.Value()
 }
 
 func (item Item) String() string {
-	return fmt.Sprintf("%s : %q", item.Key, item.Value)
+	var key, value = item.Data()
+	return key + ":" + value
+}
+
+func (item Item) WithKey(key string) Item {
+	return Item{
+		key:   key,
+		value: item.value,
+	}
+}
+
+func (item Item) WithValue(value string) Item {
+	return NewItem(
+		item.key,
+		value,
+	)
 }

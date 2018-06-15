@@ -135,10 +135,10 @@ func getFileItems(rawItems []string) ([]configmap.Item, error) {
 		if err != nil {
 			return nil, err
 		}
-		items = append(items, configmap.Item{
-			Key:   key,
-			Value: base64.StdEncoding.EncodeToString(value),
-		})
+		items = append(items, configmap.NewItem(
+			key,
+			base64.StdEncoding.EncodeToString(value),
+		))
 	}
 	return items, nil
 }
@@ -154,10 +154,10 @@ func getStringItems(rawItems []string) ([]configmap.Item, error) {
 		} else {
 			logrus.Panicf("[chkit/pkg/cli/configmap.getStringItems] ivalid token number in raw string item", len(tokens))
 		}
-		items = append(items, configmap.Item{
-			Key:   key,
-			Value: value,
-		})
+		items = append(items, configmap.NewItem(
+			key,
+			value,
+		))
 	}
 	return items, nil
 }
