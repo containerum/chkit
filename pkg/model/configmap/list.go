@@ -70,3 +70,24 @@ func (list ConfigMapList) Filter(pred func(ConfigMap) bool) ConfigMapList {
 	}
 	return filtered
 }
+
+func (list ConfigMapList) Get(i int) ConfigMap {
+	return list[i]
+}
+
+func (list ConfigMapList) GetDefault(i int, defaultCm ConfigMap) (ConfigMap, bool) {
+	if i >= 0 && i < list.Len() {
+		return list.Get(i), true
+	}
+	return defaultCm, false
+}
+
+func (list ConfigMapList) Head() (ConfigMap, bool) {
+	return list.GetDefault(0, ConfigMap{})
+}
+
+func (list ConfigMapList) GetByName(name string) (ConfigMap, bool) {
+	return list.Filter(func(configMap ConfigMap) bool {
+		return configMap.Name == name
+	}).Head()
+}

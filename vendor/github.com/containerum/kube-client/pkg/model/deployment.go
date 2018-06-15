@@ -23,6 +23,13 @@ type UpdateReplicas struct {
 	Replicas int `json:"replicas"`
 }
 
+// DeploymentsList -- model for deployments list
+//
+// swagger:model
+type DeploymentsList struct {
+	Deployments []Deployment `json:"deployments"`
+}
+
 // Deployment -- model for deployments
 //
 // swagger:model
@@ -37,7 +44,8 @@ type Deployment struct {
 	//total CPU usage by all containers in this deployment
 	TotalCPU uint `json:"total_cpu,omitempty"`
 	//total RAM usage by all containers in this deployment
-	TotalMemory uint `json:"total_memory,omitempty"`
+	TotalMemory uint   `json:"total_memory,omitempty"`
+	Owner       string `json:"owner,omitempty"`
 }
 
 // Container -- model for container in deployment
@@ -57,7 +65,7 @@ type Container struct {
 	ConfigMaps   []ContainerVolume `json:"config_maps,omitempty"`
 }
 
-// Env -- key-value pair of enviroment variables
+// Env -- key-value pair of environment variables
 //
 // swagger:model
 type Env struct {
@@ -87,6 +95,12 @@ type ContainerVolume struct {
 	Name string  `json:"name"`
 	Mode *string `json:"mode,omitempty"`
 	// required: true
-	MountPath string  `json:"mount_path"`
-	SubPath   *string `json:"sub_path,omitempty"`
+	MountPath                 string  `json:"mount_path"`
+	SubPath                   *string `json:"sub_path,omitempty"`
+	PersistentVolumeClaimName *string `json:"pvc_name,omitempty"`
+}
+
+// Mask removes information not interesting for users
+func (deploy *Deployment) Mask() {
+	deploy.Owner = ""
 }

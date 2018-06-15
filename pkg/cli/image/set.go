@@ -34,14 +34,14 @@ If deployment contains only one container, then uses that container by default.`
 		Run: func(cmd *cobra.Command, args []string) {
 			if force {
 				if img.Container == "" {
-					depl, err := ctx.Client.GetDeployment(ctx.Namespace, deplName)
-					if err!=nil {
+					depl, err := ctx.Client.GetDeployment(ctx.Namespace.ID, deplName)
+					if err != nil {
 						fmt.Println(err)
 						os.Exit(1)
 					}
 					img.Container = depl.Containers.Names()[0]
 				}
-				if err := ctx.Client.SetContainerImage(ctx.Namespace, deplName, img); err != nil {
+				if err := ctx.Client.SetContainerImage(ctx.Namespace.ID, deplName, img); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -50,7 +50,7 @@ If deployment contains only one container, then uses that container by default.`
 			config := image.Config{}
 
 			if !cmd.Flag("deployment").Changed {
-				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace)
+				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
 					activekit.Attention(err.Error())
 				}
@@ -75,7 +75,7 @@ If deployment contains only one container, then uses that container by default.`
 			if cmd.Flag("container").Changed {
 				config.UpdateImage.Container = img.Container
 			} else {
-				depl, err := ctx.Client.GetDeployment(ctx.Namespace, deplName)
+				depl, err := ctx.Client.GetDeployment(ctx.Namespace.ID, deplName)
 				if err != nil {
 					activekit.Attention(err.Error())
 					os.Exit(1)
@@ -86,7 +86,7 @@ If deployment contains only one container, then uses that container by default.`
 				config.UpdateImage.Image = img.Image
 			}
 			if force {
-				if err := ctx.Client.SetContainerImage(ctx.Namespace, deplName, img); err != nil {
+				if err := ctx.Client.SetContainerImage(ctx.Namespace.ID, deplName, img); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -102,7 +102,7 @@ If deployment contains only one container, then uses that container by default.`
 								if !activekit.YesNo(fmt.Sprintf("Do you really want to update image of container %q?", img.Container)) {
 									return nil
 								}
-								if err := ctx.Client.SetContainerImage(ctx.Namespace, deplName, img); err != nil {
+								if err := ctx.Client.SetContainerImage(ctx.Namespace.ID, deplName, img); err != nil {
 									activekit.Attention(err.Error())
 									return nil
 								}

@@ -17,6 +17,13 @@ const (
 	TCP Protocol = "TCP"
 )
 
+// ServicesList -- model for services list
+//
+// swagger:model
+type ServicesList struct {
+	Services []Service `json:"services"`
+}
+
 // represents service
 //
 // swagger:model
@@ -30,6 +37,7 @@ type Service struct {
 	Domain    string   `json:"domain,omitempty"`
 	// required: true
 	Ports []ServicePort `json:"ports"`
+	Owner string        `json:"owner,omitempty"`
 }
 
 // represent service port
@@ -43,4 +51,9 @@ type ServicePort struct {
 	TargetPort int `json:"target_port"`
 	// required: true
 	Protocol Protocol `json:"protocol"`
+}
+
+// Mask removes information not interesting for users
+func (svc *Service) Mask() {
+	svc.Owner = ""
 }

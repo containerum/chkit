@@ -18,3 +18,11 @@ func (container Container) String() string {
 		fmt.Sprintf("MEM %d", container.Limits.Memory),
 	}, " ") + "; "
 }
+
+func (container Container) ConfigmapNames() []string {
+	var names = make([]string, 0, len(container.ConfigMaps))
+	for _, cm := range container.ConfigMaps {
+		names = append(names, cm.Name)
+	}
+	return names
+}

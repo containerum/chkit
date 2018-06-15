@@ -10,7 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/validation"
 )
 
-func getContainer(con container.Container) (container.Container, bool) {
+func getContainer(con container.Container, config Config) (container.Container, bool) {
 	ok := true
 	for exit := false; !exit; {
 		(&activekit.Menu{
@@ -48,6 +48,13 @@ func getContainer(con container.Container) (container.Container, bool) {
 					Label: "Edit environment variables",
 					Action: func() error {
 						editContainerEnvironmentVars(&con)
+						return nil
+					},
+				},
+				{
+					Label: "Edit configmaps",
+					Action: func() error {
+						con.ConfigMaps = configmapsMenu(con.ConfigMaps, config.Configmaps.Names())
 						return nil
 					},
 				},

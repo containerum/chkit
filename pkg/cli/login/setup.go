@@ -41,13 +41,13 @@ func Setup(ctx *context.Context) error {
 		logrus.WithError(err).Errorf("unable to save tokens")
 		return err
 	}
-	switch ctx.Namespace {
+	switch ctx.Namespace.ID {
 	case "-":
 		return clisetup.GetDefaultNS(ctx, true)
 	case "":
 		return clisetup.GetDefaultNS(ctx, false)
 	default:
-		_, err := ctx.Client.GetNamespace(ctx.Namespace)
+		_, err := ctx.Client.GetNamespace(ctx.Namespace.ID)
 		if err != nil {
 			return err
 		}

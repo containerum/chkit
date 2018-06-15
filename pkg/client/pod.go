@@ -5,9 +5,10 @@ import (
 
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/pod"
-	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	"github.com/containerum/kube-client/pkg/client"
 	"github.com/sirupsen/logrus"
 )
@@ -65,8 +66,7 @@ func (client *Client) DeletePod(namespace, pod string) error {
 				Debugf("error while deleting pod %q", pod)
 			return false, ErrResourceNotExists
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while deleting pod %q", pod)

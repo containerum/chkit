@@ -7,10 +7,10 @@ import (
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/model/access"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +21,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 		Aliases:    accessAliases,
 		SuggestFor: accessAliases,
 		Short:      "set namespace access",
-		Example:    "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $NAMESPACE]",
+		Example:    "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $ID]",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
@@ -34,14 +34,10 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 				os.Exit(1)
 			}
 			var username = args[0]
-			accessLevel, err := access.LevelFromString(args[1])
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+			accessLevel := model.AccessLevel(args[1])
 			if force, _ := cmd.Flags().GetBool("force"); force ||
 				activekit.YesNo("Are you sure you want give %s %v access to %s?", username, accessLevel, ctx.Namespace) {
-				if err := ctx.Client.SetAccess(ctx.Namespace, username, accessLevel); err != nil {
+				if err := ctx.Client.SetAccess(ctx.Namespace.ID, username, accessLevel); err != nil {
 					logger.WithError(err).Errorf("unable to update access to %q for user %q", username, accessLevel)
 					fmt.Println(err)
 					os.Exit(1)

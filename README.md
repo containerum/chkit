@@ -46,7 +46,7 @@ chkit set api YOUR_API_ADDRESS
 
 or 
 
-* buid chkit with env:
+* build chkit with env:
 ```bash
 export CONTAINERUM_API="YOUR_API_ADDRESS"
 make release

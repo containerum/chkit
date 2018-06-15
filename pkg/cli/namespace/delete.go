@@ -18,7 +18,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Use:     "namespace",
 		Short:   "call to delete namespace",
 		Long:    "delete namespace deletes namespace with name, provided by first arg. Aliases: " + strings.Join(aliases, ", "),
-		Example: "chkit delete namespace _label_",
+		Example: "chkit delete namespace $ID",
 		Aliases: aliases,
 		Run: func(command *cobra.Command, args []string) {
 			logrus.WithFields(logrus.Fields{

@@ -3,9 +3,10 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/deployment"
-	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 )
@@ -66,8 +67,7 @@ func (client *Client) DeleteDeployment(namespace, deplName string) error {
 			rserrors.ErrResourceNotExists()):
 			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists()):
+			permErrors.ErrResourceNotOwned()):
 			return false, ErrYouDoNotHaveAccessToResource
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
@@ -90,8 +90,7 @@ func (client *Client) CreateDeployment(ns string, depl deployment.Deployment) er
 				Debugf("error while creating service %q", depl.Name)
 			return false, ErrResourceNotExists.CommentF("namespace %q doesn't exist", ns)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while creating service %q", depl.Name)
@@ -124,8 +123,7 @@ func (client *Client) SetContainerImage(ns, depl string, image kubeModels.Update
 				Errorf("unable to set image")
 			return false, err
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Errorf("unable to set container image")
@@ -158,8 +156,7 @@ func (client *Client) ReplaceDeployment(ns string, newDepl deployment.Deployment
 				Debugf("error while creating service %q", newDepl.Name)
 			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while creating deployment %q", newDepl.Name)

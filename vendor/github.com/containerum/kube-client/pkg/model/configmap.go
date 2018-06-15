@@ -1,7 +1,5 @@
 package model
 
-//go:generate swagger generate spec -m -o ../../swagger.json
-
 // ConfigMapData -- model for config map data
 //
 // swagger:model
@@ -18,5 +16,23 @@ type ConfigMap struct {
 	// key-value data
 	//
 	// required: true
-	Data ConfigMapData `json:"data"`
+	Data  ConfigMapData `json:"data"`
+	Owner string        `json:"owner,omitempty"`
+}
+
+// SelectedConfigMapsList -- model for config maps list from all namespaces
+//
+// swagger:model
+type SelectedConfigMapsList map[string]ConfigMapsList
+
+// ConfigMapsList -- model for config maps list
+//
+// swagger:model
+type ConfigMapsList struct {
+	ConfigMaps []ConfigMap `json:"configmaps"`
+}
+
+// Mask removes information not interesting for users
+func (cm *ConfigMap) Mask() {
+	cm.Owner = ""
 }

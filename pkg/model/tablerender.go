@@ -19,11 +19,11 @@ func RenderTable(renderer TableItem) string {
 
 	table := tablewriter.NewWriter(buf)
 	table.SetAutoWrapText(true)
-	table.SetRowSeparator("-")
+	table.SetRowSeparator("_")
 	table.SetRowLine(true)
 	table.SetReflowDuringAutoWrap(true)
-	table.SetCenterSeparator("-")
-
+	table.SetCenterSeparator("_")
+	table.SetColumnSeparator(" ")
 	table.SetHeader(renderer.TableHeaders())
 	table.AppendBulk(renderer.TableRows())
 	table.Render()
