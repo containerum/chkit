@@ -20,6 +20,7 @@ func Update(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "update",
 		Short:   "update chkit client",
+		Long:    `Use "chkit update [command] --help" for more information about the command.`,
 		Example: "chkit update [from github|dir <path>] [--debug]",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
