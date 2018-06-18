@@ -1,25 +1,35 @@
+---
+title: Update From
+linktitle: update from
+description: 
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### update from
 
-**Aliases**   :
+**Description**:
 
 
 
-**Usage**     :
+**Example**:
 
 
 
-**Example**   :
+**Flags**:
+
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
 
-
-**Flags**     :
-
-  
-
-**Subcommand**:
-
-  + dir : update from local directory
-  + github : update from github releases
-  
 

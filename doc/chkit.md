@@ -1,40 +1,39 @@
+---
+title: Chkit
+linktitle: chkit
+description: Chkit is a terminal client for containerum
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### chkit
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Chkit is a terminal client for containerum.io powerful API
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  + namespace n : 
-  + password p : account password
-  + quiet q : quiet mode
-  + username u : account username
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -n | namespace |  |  |
+| -p | password | account password |  |
+| -q | quiet | quiet mode | false |
+| -u | username | account username |  |
 
-**Subcommand**:
 
-  + create : Create resource (deployment, service...)
-  + delete : Delete resource
-  + doc : Print full chkit help
-  + get : Get resource data
-  + help [command] : Help about any command
-  + login : Login to system
-  + logs : View pod logs
-  + rename : Rename resource
-  + replace : Replace deployment or service
-  + run : Run solution from public template.
-  + set : Set configuration variables
-  + update : Update chkit client
-  + version : Print version
-  
 

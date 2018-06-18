@@ -1,23 +1,35 @@
+---
+title: Rename Namespace
+linktitle: rename namespace
+description: chkit rename ns $ID $NEW_NAME
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### rename namespace
 
-**Aliases**   :
-
-ns, namespaces
-
-**Usage**     :
-
-
-
-**Example**   :
+**Description**:
 
 chkit rename ns $ID $NEW_NAME
 
-**Flags**     :
+**Example**:
 
-  
+chkit rename ns $ID $NEW_NAME
 
-**Subcommand**:
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+
+
 

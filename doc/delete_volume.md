@@ -1,24 +1,36 @@
+---
+title: Delete Volume
+linktitle: delete volume
+description: delete volume
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### delete volume
 
-**Aliases**   :
-
-volumes, vol
-
-**Usage**     :
+**Description**:
 
 delete volume
 
-**Example**   :
+**Example**:
 
 chkit delete volume [--force]
 
-**Flags**     :
+**Flags**:
 
-  + force f : suppress confirmation
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | force | suppress confirmation | false |
 
-**Subcommand**:
 
-  
 

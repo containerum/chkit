@@ -1,30 +1,35 @@
+---
+title: Delete
+linktitle: delete
+description: Delete resource
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### delete
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Delete resource
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  + configmap : delete configmap
-  + deployment : delete deployment in specific namespace
-  + ingress : delete ingress
-  + namespace : delete namespace
-  + pod : delete pod in specific namespace
-  + service : delete service in specific namespace
-  + volume : delete volume
-  
 

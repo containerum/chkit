@@ -1,24 +1,35 @@
+---
+title: Rename
+linktitle: rename
+description: Rename resource
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### rename
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Rename resource
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  + namespace : 
-  
 

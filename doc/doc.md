@@ -1,28 +1,41 @@
+---
+title: Doc
+linktitle: doc
+description: Print full chkit help
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### doc
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Print full chkit help
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  + command  : print docs for command and its subcommands, example 'chkit doc --command "create depl"'
-  + help h : help for doc
-  + list  : print command names
-  + md  : generate markdown docs
-  + output  : output file, STDOUT by default
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+|  | command | print docs for command and its subcommands, example 'chkit doc --command "create depl"' |  |
+|  | format |  |  |
+| -h | help | help for doc | false |
+|  | list | print command names | false |
+|  | md | generate markdown docs | false |
+|  | output | output file, STDOUT by default |  |
 
-**Subcommand**:
 
-  
 

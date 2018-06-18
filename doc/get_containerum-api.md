@@ -1,23 +1,35 @@
+---
+title: Get Containerum-Api
+linktitle: get containerum-api
+description: print Containerum API URL
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### get containerum-api
 
-**Aliases**   :
-
-api, current-api, api-addr, API
-
-**Usage**     :
+**Description**:
 
 print Containerum API URL
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  
 

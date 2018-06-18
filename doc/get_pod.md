@@ -1,25 +1,37 @@
+---
+title: Get Pod
+linktitle: get pod
+description: Show pod info
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### get pod
 
-**Aliases**   :
-
-po, pods
-
-**Usage**     :
+**Description**:
 
 Show pod info.
 
-**Example**   :
+**Example**:
 
 chkit get pod pod_label [-o yaml/json] [-f output_file]
 
-**Flags**     :
+**Flags**:
 
-  + file f : output file
-  + output o : output format (json/yaml)
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | file | output file | - |
+| -o | output | output format (json/yaml) |  |
 
-**Subcommand**:
 
-  
 

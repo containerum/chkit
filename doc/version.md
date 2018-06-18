@@ -1,23 +1,35 @@
+---
+title: Version
+linktitle: version
+description: Print version
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### version
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Print version
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  
 

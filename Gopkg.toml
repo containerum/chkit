@@ -66,3 +66,7 @@
 [[constraint]]
   name = "github.com/oleiade/reflections"
   version = "~v1.0.0"
+
+[[constraint]]
+  name = "github.com/ninedraft/boxofstuff"
+  version = "~v0.2.0"

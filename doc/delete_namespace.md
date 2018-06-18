@@ -1,24 +1,36 @@
+---
+title: Delete Namespace
+linktitle: delete namespace
+description: Delete namespace provided in the first arg
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### delete namespace
 
-**Aliases**   :
-
-ns, namespaces
-
-**Usage**     :
+**Description**:
 
 Delete namespace provided in the first arg.
 
-**Example**   :
+**Example**:
 
 chkit delete namespace $ID
 
-**Flags**     :
+**Flags**:
 
-  + force f : force delete without confirmation
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | force | force delete without confirmation | false |
 
-**Subcommand**:
 
-  
 

@@ -1,28 +1,35 @@
+---
+title: Set
+linktitle: set
+description: Set configuration variables
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### set
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Set configuration variables
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  + access : Set namespace access rights
-  + containerum-api : Set Containerum API URL
-  + default-namespace : Set default namespace
-  + image : Set container image for specific deployment.
-  + replicas : Set deployment replicas
-  
 

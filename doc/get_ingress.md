@@ -1,25 +1,37 @@
+---
+title: Get Ingress
+linktitle: get ingress
+description: Print ingress data
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### get ingress
 
-**Aliases**   :
-
-ingr, ingresses, ing
-
-**Usage**     :
+**Description**:
 
 Print ingress data.
 
-**Example**   :
+**Example**:
 
 chkit get ingress ingress_names... [-n namespace_label] [-o yaml/json]
 
-**Flags**     :
+**Flags**:
 
-  + file f : output file
-  + output o : output format (yaml/json)
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | file | output file |  |
+| -o | output | output format (yaml/json) |  |
 
-**Subcommand**:
 
-  
 

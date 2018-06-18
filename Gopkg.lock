@@ -169,10 +169,13 @@
   version = "1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/ninedraft/boxofstuff"
-  packages = ["strset"]
-  revision = "402d25bcc03750de7fc34975a397beb9ea32d17e"
+  packages = [
+    "str",
+    "strset"
+  ]
+  revision = "96bbe73a017b7babd6c6e6e3c90f56c3322e142b"
+  version = "v0.2.1"
 
 [[projects]]
   branch = "master"
@@ -330,6 +333,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4c1f3e42a26107a055a0e7b08bc1e34d5dad7bbf1730372ee805ead06f5150ea"
+  inputs-digest = "24ab5ec9f49c4e388bad20df68eb81e47a71d2dc0c4d313741c1a0eeb8b60472"
   solver-name = "gps-cdcl"
   solver-version = 1
