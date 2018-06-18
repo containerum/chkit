@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"time"
+
 	"github.com/containerum/chkit/pkg/model"
 )
 
@@ -15,8 +17,8 @@ func (depl Deployment) RenderTable() string {
 	return model.RenderTable(&depl)
 }
 
-func (_ *Deployment) TableHeaders() []string {
-	return []string{"Label", "Status", "Containers", "Age"}
+func (Deployment) TableHeaders() []string {
+	return []string{"Label", "Version", "Status", "Containers", "Age"}
 }
 
 func (depl *Deployment) TableRows() [][]string {
@@ -28,11 +30,12 @@ func (depl *Deployment) TableRows() [][]string {
 				container.Image))
 	}
 	age := "undefined"
-	if depl.Status != nil {
-		age = model.Age(depl.Status.UpdatedAt)
+	if depl.CreatedAt != (time.Time{}) {
+		age = model.Age(depl.CreatedAt)
 	}
 	return [][]string{{
 		depl.Name,
+		depl.Version.String(),
 		depl.StatusString(),
 		strings.Join(containers, "\n"),
 		age,

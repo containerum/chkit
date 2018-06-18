@@ -5,17 +5,15 @@ import (
 
 	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
-	"github.com/sirupsen/logrus"
 )
 
 type Service struct {
 	Name      string
-	CreatedAt *time.Time
+	CreatedAt time.Time
 	Deploy    string
 	IPs       []string
 	Domain    string
 	Ports     []Port
-	origin    *kubeModels.Service
 }
 
 func ServiceFromKube(kubeService kubeModels.Service) Service {
@@ -23,14 +21,9 @@ func ServiceFromKube(kubeService kubeModels.Service) Service {
 	for _, kubePort := range kubeService.Ports {
 		ports = append(ports, PortFromKube(kubePort))
 	}
-	var createdAt *time.Time
-	if kubeService.CreatedAt != nil {
-		t, err := time.Parse(model.TimestampFormat, *kubeService.CreatedAt)
-		if err != nil {
-			logrus.WithError(err).Debugf("invalid created_at timestamp")
-		} else {
-			createdAt = &t
-		}
+	var createdAt time.Time
+	if t, err := time.Parse(model.TimestampFormat, kubeService.CreatedAt); err == nil {
+		createdAt = t
 	}
 	return Service{
 		Name:      kubeService.Name,
@@ -39,7 +32,6 @@ func ServiceFromKube(kubeService kubeModels.Service) Service {
 		IPs:       kubeService.IPs,
 		Domain:    kubeService.Domain,
 		Ports:     ports,
-		origin:    &kubeService,
 	}
 }
 
@@ -60,8 +52,7 @@ func (serv *Service) ToKube() kubeModels.Service {
 		}))
 	}
 	kubeServ.Ports = ports
-	serv.origin = &kubeServ
-	return *serv.origin
+	return kubeServ
 }
 
 func (service Service) Copy() Service {

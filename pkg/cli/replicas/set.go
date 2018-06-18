@@ -17,8 +17,8 @@ func Set(ctx *context.Context) *cobra.Command {
 	var replicas uint64
 	command := &cobra.Command{
 		Use:     "replicas",
-		Short:   "set deployment replicas",
-		Long:    "Sets deployment replicas",
+		Short:   "Set deployment replicas",
+		Long:    "Set deployment replicas.",
 		Example: "chkit set replicas [-n namespace_label] [-d depl_label] [N_replicas]",
 		Aliases: []string{"re", "rep", "repl", "replica"},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -29,7 +29,7 @@ func Set(ctx *context.Context) *cobra.Command {
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if !cmd.Flag("deployment").Changed {
-				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace)
+				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
 					activekit.Attention(fmt.Sprintf("Unable to get deployment list:\n%v", err))
 					os.Exit(1)
@@ -66,7 +66,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				activekit.Attention(fmt.Sprintf("replicas parameter must be number 1..15, but it %d\n", replicas))
 				os.Exit(1)
 			}
-			if err := ctx.Client.SetReplicas(ctx.Namespace, deplName, replicas); err != nil {
+			if err := ctx.Client.SetReplicas(ctx.Namespace.ID, deplName, replicas); err != nil {
 				activekit.Attention(err.Error())
 				os.Exit(1)
 			}

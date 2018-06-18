@@ -1,8 +1,6 @@
 package clipod
 
 import (
-	"strings"
-
 	"os"
 
 	"fmt"
@@ -20,8 +18,8 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "pod",
 		Aliases: aliases,
-		Short:   "call to delete pod in specific namespace",
-		Long:    "deletes pods. Aliases: " + strings.Join(aliases, ", "),
+		Short:   "delete pod in specific namespace",
+		Long:    "Delete pods.",
 		Example: "chkit delete pod pod_name [-n namespace]",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 1 {
@@ -33,7 +31,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				WithField("command", "delete pod").
 				Debugf("start deleting pod %q", podName)
 			if deletePodConfig.Force || activekit.YesNo(fmt.Sprintf("Are you sure you want to delete pod %q? [Y/N]: ", podName)) {
-				if err := ctx.Client.DeletePod(ctx.Namespace, podName); err != nil {
+				if err := ctx.Client.DeletePod(ctx.Namespace.ID, podName); err != nil {
 					logrus.WithError(err).Debugf("unable to delete pod %q in namespace %q", podName, ctx.Namespace)
 					activekit.Attention(err.Error())
 					os.Exit(1)

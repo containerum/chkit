@@ -1,16 +1,17 @@
 package clinamespace
 
 import (
-	"os"
-
 	"fmt"
+	"os"
+	"sort"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/model/access"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -20,13 +21,19 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 		Use:        "access",
 		Aliases:    accessAliases,
 		SuggestFor: accessAliases,
-		Short:      "set namespace access",
-		Example:    "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $NAMESPACE]",
-		PreRun: func(cmd *cobra.Command, args []string) {
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
+		Short:      "Set namespace access rights",
+		Long: "Set namespace access rights.\n" +
+			"Available access levels are:\n" + func() string {
+			var levels []string
+			for _, lvl := range model.Levels() {
+				levels = append(levels, lvl.String())
 			}
-		},
+			sort.Strings(levels)
+			var lvlsInfo = strings.Join(levels, "\n")
+			return text.Indent(lvlsInfo, 2)
+		}(),
+		Example: "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $ID]",
+		PreRun:  prerun.PreRunFunc(ctx),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			if len(args) != 2 {
@@ -34,14 +41,10 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 				os.Exit(1)
 			}
 			var username = args[0]
-			accessLevel, err := access.LevelFromString(args[1])
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+			accessLevel := model.AccessLevel(args[1])
 			if force, _ := cmd.Flags().GetBool("force"); force ||
 				activekit.YesNo("Are you sure you want give %s %v access to %s?", username, accessLevel, ctx.Namespace) {
-				if err := ctx.Client.SetAccess(ctx.Namespace, username, accessLevel); err != nil {
+				if err := ctx.Client.SetAccess(ctx.Namespace.ID, username, accessLevel); err != nil {
 					logger.WithError(err).Errorf("unable to update access to %q for user %q", username, accessLevel)
 					fmt.Println(err)
 					os.Exit(1)

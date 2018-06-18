@@ -16,20 +16,32 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "access",
 		Aliases: accessAliases,
-		Short:   "get namespace access",
+		Short:   "print namespace access data",
+		Long:    "Print namespace access data.",
+		Example: "chkit get ns-access $ID",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
-			var nsName = ctx.Namespace
+			var nsID = ctx.Namespace.ID
 			if len(args) == 1 {
-				nsName = args[0]
+				nsList, err := ctx.Client.GetNamespaceList()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				ns, ok := nsList.GetByUserFriendlyID(args[0])
+				if !ok {
+					fmt.Printf("namespace %q not found\n", args[0])
+					os.Exit(1)
+				}
+				nsID = ns.ID
 			} else if len(args) > 1 {
 				cmd.Help()
 				os.Exit(1)
 			}
 			logger.Debugf("getting namespace %q access", ctx.Namespace)
-			acc, err := ctx.Client.GetAccess(nsName)
+			acc, err := ctx.Client.GetAccess(nsID)
 			if err != nil {
-				logger.WithError(err).Errorf("unable to get namespace %q access", nsName)
+				logger.WithError(err).Errorf("unable to get namespace %q access", nsID)
 				fmt.Println(err)
 				os.Exit(1)
 			}

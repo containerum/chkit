@@ -6,15 +6,15 @@ import (
 )
 
 const (
-	kubeAPIconfigMapsPath = "/namespaces/{namespace}/configmaps"
-	kubeAPIconfigMapPath  = "/namespaces/{namespace}/configmaps/{configmap}"
+	configMapsPath = "/namespaces/{namespace}/configmaps"
+	configMapPath  = "/namespaces/{namespace}/configmaps/{configmap}"
 )
 
 // CreateConfigMap -- creates a ConfigMap in provided namespace.
 func (client *Client) CreateConfigMap(namespace, name string, data model.ConfigMapData) error {
 	return client.RestAPI.Post(rest.Rq{
 		URL: rest.URL{
-			Path: kubeAPIconfigMapsPath,
+			Path: configMapsPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -31,7 +31,7 @@ func (client *Client) GetConfigMap(namespace, name string) (ret model.ConfigMap,
 	err = client.RestAPI.Get(rest.Rq{
 		Result: &ret,
 		URL: rest.URL{
-			Path: kubeAPIconfigMapPath,
+			Path: configMapPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"configmap": name,
@@ -49,7 +49,7 @@ func (client *Client) GetConfigMapList(namespace string) (ret []model.ConfigMap,
 	err = client.RestAPI.Get(rest.Rq{
 		Result: &jsonAdaptor,
 		URL: rest.URL{
-			Path: kubeAPIconfigMapsPath,
+			Path: configMapsPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -62,7 +62,7 @@ func (client *Client) GetConfigMapList(namespace string) (ret []model.ConfigMap,
 func (client *Client) UpdateConfigMap(namespace, name string, data model.ConfigMapData) error {
 	return client.RestAPI.Put(rest.Rq{
 		URL: rest.URL{
-			Path: kubeAPIconfigMapsPath,
+			Path: configMapPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"configmap": name,
@@ -78,7 +78,7 @@ func (client *Client) UpdateConfigMap(namespace, name string, data model.ConfigM
 func (client *Client) DeleteConfigMap(namespace, name string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: kubeAPIconfigMapPath,
+			Path: configMapPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"configmap": name,

@@ -5,6 +5,7 @@ import (
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/access"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -13,8 +14,7 @@ func (client *Client) GetAccess(nsName string) (access.AccessList, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return access.AccessFromNamespace(nswp), err
+	return access.AccessListFromKube(nswp), err
 }
 
 /*func (client *Client) GetAccessList() (access.AccessList, error) {
@@ -22,9 +22,9 @@ func (client *Client) GetAccess(nsName string) (access.AccessList, error) {
 	return access.AccessListFromNamespaces(list), err
 }*/
 
-func (client *Client) SetAccess(ns, username string, acc access.AccessLevel) error {
+func (client *Client) SetAccess(ns, username string, acc model.AccessLevel) error {
 	err := retry(4, func() (bool, error) {
-		err := client.kubeAPIClient.SetNamespaceAccess(ns, username, acc.String())
+		err := client.kubeAPIClient.SetNamespaceAccess(ns, username, acc)
 		switch {
 		case err == nil:
 			return false, nil

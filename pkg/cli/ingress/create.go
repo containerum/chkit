@@ -26,7 +26,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Use:     "ingress",
 		Aliases: aliases,
 		Short:   "create ingress",
-		Long:    "Creates ingress. TLS with LetsEncrypt and custom cert is available",
+		Long:    "Create ingress. Available options: TLS with LetsEncrypt and custom certs.",
 		Example: "chkit create ingress [--force] [--filename ingress.json] [-n prettyNamespace]",
 		Run: func(cmd *cobra.Command, args []string) {
 			if !cmd.Flag("tls-secret").Changed {
@@ -61,13 +61,13 @@ func Create(ctx *context.Context) *cobra.Command {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				if err := ctx.Client.CreateIngress(ctx.Namespace, flagIngress); err != nil {
+				if err := ctx.Client.CreateIngress(ctx.Namespace.ID, flagIngress); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
 				return
 			}
-			services, err := ctx.Client.GetServiceList(ctx.Namespace)
+			services, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
 			if err != nil {
 				activekit.Attention(fmt.Sprintf("Unable to get service list!\n%v", err))
 				os.Exit(1)
@@ -82,7 +82,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			}
 			fmt.Println(ingr.RenderTable())
 			if activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
-				if err := ctx.Client.CreateIngress(ctx.Namespace, ingr); err != nil {
+				if err := ctx.Client.CreateIngress(ctx.Namespace.ID, ingr); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}

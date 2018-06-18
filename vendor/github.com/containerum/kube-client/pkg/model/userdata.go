@@ -12,7 +12,7 @@ type UserHeaderData struct {
 	Label string `json:"label"`
 	// one of: "owner", "read", "write", "read-delete", "none"
 	// required: true
-	Access string `json:"access"`
+	Access AccessLevel `json:"access"`
 }
 
 // User --

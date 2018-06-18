@@ -36,3 +36,28 @@ func (items MenuItems) NotNil() MenuItems {
 	}
 	return cp
 }
+
+func StringSelector(items []string, action func(string) error) MenuItems {
+	var menuItems = make(MenuItems, 0, len(items))
+	for _, item := range items {
+		menuItems = menuItems.Append(&MenuItem{
+			Label: item,
+			Action: func(item string) func() error {
+				return func() error { return action(item) }
+			}(item),
+		})
+	}
+	return menuItems
+}
+
+func HandleString(promt string, handler func(string) bool) func() error {
+	return func() error {
+		for {
+			var str = Promt(promt)
+			if !handler(str) {
+				break
+			}
+		}
+		return nil
+	}
+}

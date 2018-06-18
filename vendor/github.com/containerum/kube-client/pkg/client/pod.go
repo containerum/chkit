@@ -7,15 +7,15 @@ import (
 )
 
 const (
-	kubeAPIpodRootPath = "/namespaces/{namespace}/pods"
-	kubeAPIpodPath     = "/namespaces/{namespace}/pods/{pod}"
+	podsPath = "/namespaces/{namespace}/pods"
+	podPath  = "/namespaces/{namespace}/pods/{pod}"
 )
 
 // DeletePod -- deletes pod in provided namespace
 func (client *Client) DeletePod(namespace, pod string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: kubeAPIpodPath,
+			Path: podPath,
 			Params: rest.P{
 				"pod":       pod,
 				"namespace": namespace,
@@ -30,7 +30,7 @@ func (client *Client) GetPod(namespace, pod string) (model.Pod, error) {
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &gainedPod,
 		URL: rest.URL{
-			Path: kubeAPIpodPath,
+			Path: podPath,
 			Params: rest.P{
 				"namespace": namespace,
 				"pod":       pod,
@@ -41,15 +41,12 @@ func (client *Client) GetPod(namespace, pod string) (model.Pod, error) {
 }
 
 // GetPodList -- returns list of pods in provided namespace
-func (client *Client) GetPodList(namespace string) ([]model.Pod, error) {
-	var podList []model.Pod
-	jsonAdaptor := struct {
-		Pods *[]model.Pod `json:"pods"`
-	}{&podList}
+func (client *Client) GetPodList(namespace string) (model.PodsList, error) {
+	var podList model.PodsList
 	err := client.RestAPI.Get(rest.Rq{
-		Result: &jsonAdaptor,
+		Result: &podList,
 		URL: rest.URL{
-			Path: kubeAPIpodRootPath,
+			Path: podsPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},

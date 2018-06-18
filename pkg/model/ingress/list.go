@@ -4,20 +4,22 @@ import kubeModels "github.com/containerum/kube-client/pkg/model"
 
 type IngressList []Ingress
 
-func IngressListFromKube(kubeList []kubeModels.Ingress) IngressList {
-	var list IngressList = make([]Ingress, 0, len(kubeList))
-	for _, kubeIngress := range kubeList {
+func IngressListFromKube(kubeList kubeModels.IngressesList) IngressList {
+	var list IngressList = make([]Ingress, 0, len(kubeList.Ingress))
+	for _, kubeIngress := range kubeList.Ingress {
 		list = append(list, IngressFromKube(kubeIngress))
 	}
 	return list
 }
 
-func (list IngressList) ToKube() []kubeModels.Ingress {
+func (list IngressList) ToKube() kubeModels.IngressesList {
 	var kubeList = make([]kubeModels.Ingress, 0, len(list))
 	for _, ingr := range list {
 		kubeList = append(kubeList, ingr.ToKube())
 	}
-	return kubeList
+	return kubeModels.IngressesList{
+		Ingress: kubeList,
+	}
 }
 
 func (list IngressList) Len() int {

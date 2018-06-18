@@ -3,9 +3,11 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/deployment"
-	"github.com/containerum/kube-client/pkg/cherry/resource-service"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 )
@@ -22,7 +24,7 @@ func (client *Client) GetDeployment(namespace, deplName string) (deployment.Depl
 			kubeErrors.ErrResourceNotExist(),
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableGetResource()):
-			return false, ErrResourceNotExists
+			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
 			return true, client.Auth()
@@ -66,8 +68,7 @@ func (client *Client) DeleteDeployment(namespace, deplName string) error {
 			rserrors.ErrResourceNotExists()):
 			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists()):
+			permErrors.ErrResourceNotOwned()):
 			return false, ErrYouDoNotHaveAccessToResource
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
@@ -90,8 +91,7 @@ func (client *Client) CreateDeployment(ns string, depl deployment.Deployment) er
 				Debugf("error while creating service %q", depl.Name)
 			return false, ErrResourceNotExists.CommentF("namespace %q doesn't exist", ns)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while creating service %q", depl.Name)
@@ -124,8 +124,7 @@ func (client *Client) SetContainerImage(ns, depl string, image kubeModels.Update
 				Errorf("unable to set image")
 			return false, err
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Errorf("unable to set container image")
@@ -158,8 +157,7 @@ func (client *Client) ReplaceDeployment(ns string, newDepl deployment.Deployment
 				Debugf("error while creating service %q", newDepl.Name)
 			return false, ErrResourceNotExists.Wrap(err)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			logrus.WithError(ErrYouDoNotHaveAccessToResource.Wrap(err)).
 				Debugf("error while creating deployment %q", newDepl.Name)
@@ -178,4 +176,34 @@ func (client *Client) ReplaceDeployment(ns string, newDepl deployment.Deployment
 			return true, ErrFatalError.Wrap(err)
 		}
 	})
+}
+
+func (client *Client) GetDeploymentVersions(namespaceID, deploymentName string) (deployment.DeploymentList, error) {
+	var list deployment.DeploymentList
+	var logger = coblog.Std.Component("chClient.GetDeploymentVersions")
+	err := retry(4, func() (bool, error) {
+		kubeList, err := client.kubeAPIClient.GetDeploymentVersions(namespaceID, deploymentName)
+		switch {
+		case err == nil:
+			list = deployment.DeploymentListFromKube(kubeList)
+			return false, nil
+		case cherry.In(err,
+			kubeErrors.ErrResourceNotExist(),
+			kubeErrors.ErrAccessError(),
+			kubeErrors.ErrUnableGetResource()):
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
+			return true, client.Auth()
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logger.WithError(err).WithField("namespace", namespaceID).
+			Errorf("unable to get versions of deployment %q", deploymentName)
+	}
+	return list, err
 }

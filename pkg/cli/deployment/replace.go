@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -24,15 +23,22 @@ func Replace(ctx *context.Context) *cobra.Command {
 	var force bool
 	var flagCont container.Container
 	var flagDepl deployment.Deployment
-	var envs string
+	var envs []string
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
-		Short:   "replace deployment",
-		Long: `Replaces deployment.
-Has an one-line mode, suitable for integration with other tools, and an interactive wizard mode`,
+		Short:   "Replace deployment.",
+		Long: "Replaces deployment.\n" +
+			"Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.",
 		Run: func(cmd *cobra.Command, args []string) {
-			depl := deplactive.DefaultDeployment()
+			depl := deployment.Deployment{}
+			deplactive.Fill(&depl)
+			switch len(args) {
+			case 1:
+				depl.Name = args[0]
+			default:
+				cmd.Help()
+			}
 			if cmd.Flag("file").Changed {
 				var err error
 				depl, err = deplactive.FromFile(file)
@@ -41,12 +47,21 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					fmt.Printf("Unable to load deployment data from file :(\n%v", err)
 					os.Exit(1)
 				}
-			} else if cmd.Flag("force").Changed {
+			} else {
 				if cmd.Flag("env").Changed {
-					envMap, err := pairs.ParseMap(envs, ":")
-					if err != nil {
-						fmt.Printf("invalid env flag\n")
-						os.Exit(1)
+					envMap := map[string]string{}
+					for _, env := range envs {
+						var tokens = strings.SplitN(env, ":", 2)
+						if len(tokens) != 2 {
+							fmt.Printf("Inavlid env kev-value pair %q", env)
+							os.Exit(1)
+						}
+						var k, v = tokens[0], tokens[1]
+						k = strings.TrimSpace(k)
+						v = strings.TrimSpace(v)
+						v = strings.TrimPrefix(v, "\"")
+						v = strings.TrimSuffix(v, "\"")
+						envMap[k] = v
 					}
 					for k, v := range envMap {
 						flagCont.Env = append(flagCont.Env, model.Env{
@@ -56,9 +71,9 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					}
 				}
 
-				oldDepl, err := ctx.Client.GetDeployment(ctx.Namespace, depl.Name)
+				oldDepl, err := ctx.Client.GetDeployment(ctx.Namespace.ID, depl.Name)
 				if err != nil {
-					activekit.Attention(err.Error())
+					activekit.Attention("unable to get deploment %q: %v", depl.Name, err)
 					os.Exit(1)
 				}
 				if !cmd.Flag("replicas").Changed {
@@ -83,7 +98,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					os.Exit(1)
 				}
 				fmt.Println(depl.RenderTable())
-				if err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl); err != nil {
+				if err := ctx.Client.ReplaceDeployment(ctx.Namespace.ID, depl); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -91,7 +106,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				return
 			} else {
 				if len(args) == 0 {
-					list, err := ctx.Client.GetDeploymentList(ctx.Namespace)
+					list, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 					if err != nil {
 						activekit.Attention(err.Error())
 						os.Exit(1)
@@ -114,21 +129,16 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					}).Run()
 				} else {
 					var err error
-					depl, err = ctx.Client.GetDeployment(ctx.Namespace, args[0])
+					depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, args[0])
 					if err != nil {
 						activekit.Attention(err.Error())
 						os.Exit(1)
 					}
 				}
 			}
-			depl, err := deplactive.ReplaceWizard(deplactive.Config{
+			depl = deplactive.Wizard{
 				Deployment: &depl,
-			})
-			if err != nil {
-				logrus.WithError(err).Errorf("unable to replace deployment")
-				fmt.Println(err)
-				os.Exit(1)
-			}
+			}.Run()
 			for {
 				_, err := (&activekit.Menu{
 					Items: []*activekit.MenuItem{
@@ -137,7 +147,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 							Action: func() error {
 								fmt.Println(depl.RenderTable())
 								if activekit.YesNo(fmt.Sprintf("Are you sure you want to update deployment %q on server?", depl.Name)) {
-									err := ctx.Client.ReplaceDeployment(ctx.Namespace, depl)
+									err := ctx.Client.ReplaceDeployment(ctx.Namespace.ID, depl)
 									if err != nil {
 										logrus.WithError(err).Errorf("unable to update deployment %q", depl.Name)
 										fmt.Println(err)
@@ -152,9 +162,9 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 							Label: "Edit deployment",
 							Action: func() error {
 								var err error
-								depl, err = deplactive.ReplaceWizard(deplactive.Config{
+								depl = deplactive.Wizard{
 									Deployment: &depl,
-								})
+								}.Run()
 								if err != nil {
 									logrus.WithError(err).Errorf("unable to update deployment")
 									fmt.Println(err)
@@ -231,6 +241,6 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 	command.PersistentFlags().
 		UintVar(&flagCont.Limits.CPU, "cpu", 200, "container CPU limit in mCPU, optional")
 	command.PersistentFlags().
-		StringVar(&envs, "env", "", "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
+		StringArrayVar(&envs, "env", nil, "container env variable in KEY0:VALUE0 KEY1:VALUE1 format")
 	return command
 }

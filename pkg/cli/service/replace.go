@@ -26,9 +26,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "service",
 		Aliases: aliases,
-		Short:   "replace service",
-		Long: `Replaces service.
-Has an one-line mode, suitable for integration with other tools, and an interactive wizard mode`,
+		Short:   "Replace service.",
+		Long: `Replace service.\n` +
+			`Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			serv := service.Service{}
 			if cmd.Flag("file").Changed {
@@ -50,7 +50,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				serv.Name = args[0]
 				serv.Ports = []service.Port{flagPort}
 
-				oldServ, err := ctx.Client.GetService(ctx.Namespace, args[0])
+				oldServ, err := ctx.Client.GetService(ctx.Namespace.ID, args[0])
 				if err != nil {
 					activekit.Attention(err.Error())
 					os.Exit(1)
@@ -72,7 +72,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					os.Exit(1)
 				}
 				fmt.Println(serv.RenderTable())
-				if err := ctx.Client.ReplaceService(ctx.Namespace, serv); err != nil {
+				if err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -80,7 +80,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 				return
 			} else {
 				if len(args) == 0 {
-					list, err := ctx.Client.GetServiceList(ctx.Namespace)
+					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
 					if err != nil {
 						activekit.Attention(err.Error())
 						os.Exit(1)
@@ -103,7 +103,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					}).Run()
 				} else {
 					var err error
-					serv, err = ctx.Client.GetService(ctx.Namespace, args[0])
+					serv, err = ctx.Client.GetService(ctx.Namespace.ID, args[0])
 					if err != nil {
 						activekit.Attention(err.Error())
 						os.Exit(1)
@@ -126,7 +126,7 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 							Action: func() error {
 								fmt.Println(serv.RenderTable())
 								if activekit.YesNo(fmt.Sprintf("Are you sure you want to update service %q on server?", serv.Name)) {
-									err := ctx.Client.ReplaceService(ctx.Namespace, serv)
+									err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv)
 									if err != nil {
 										logrus.WithError(err).Errorf("unable to replace service %q", serv.Name)
 										fmt.Println(err)

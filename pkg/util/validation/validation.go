@@ -7,6 +7,7 @@ import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/docker/distribution/reference"
 	"github.com/ninedraft/ranger/intranger"
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -24,6 +25,7 @@ var (
 )
 
 func ValidateContainerName(name string) error {
+	name = strings.TrimSpace(name)
 	if !containerNameRe.MatchString(name) {
 		return ErrInvalidContainerName
 	}
@@ -31,7 +33,8 @@ func ValidateContainerName(name string) error {
 }
 
 func ValidateImageName(image string) error {
-	if !reference.NameRegexp.MatchString(image) || strings.TrimSpace(image) == "" {
+	image = strings.TrimSpace(image)
+	if !reference.NameRegexp.MatchString(image) || image == "" {
 		return ErrInvalidImageName
 	}
 	return nil
@@ -60,4 +63,9 @@ func DNSLabel(label string) error {
 		return ErrInvalidLabel.CommentF("must not consist of all numeric values")
 	}
 	return nil
+}
+
+func ValidateID(ID string) error {
+	_, err := uuid.FromString(ID)
+	return err
 }

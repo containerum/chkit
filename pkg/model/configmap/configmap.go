@@ -1,7 +1,6 @@
 package configmap
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/containerum/chkit/pkg/model"
@@ -83,12 +82,14 @@ func (config ConfigMap) SetName(name string) ConfigMap {
 }
 
 func (config ConfigMap) Age() string {
-	if config.CreatedAt == nil {
-		return "undefined"
+	if timestamp, err := time.Parse(model.TimestampFormat, config.CreatedAt); err == nil {
+		return model.Age(timestamp)
 	}
-	timestamp, err := time.Parse(time.RFC3339, *config.CreatedAt)
-	if err != nil {
-		return fmt.Sprintf("invlalid timestamp %q", *config.CreatedAt)
+	return "undefined"
+}
+
+func (config ConfigMap) New() ConfigMap {
+	return ConfigMap{
+		Data: make(kubeModels.ConfigMapData, len(config.Data)),
 	}
-	return model.Age(timestamp)
 }

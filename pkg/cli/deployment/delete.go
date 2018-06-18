@@ -18,13 +18,13 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
-		Short:   "call to delete deployment in specific namespace",
-		Long: `Deletes deployment in specific namespace.
-Use --force flag to suppress confirmation`,
+		Short:   "delete deployment in specific namespace",
+		Long: "Delete deployment in specific namespace.\n" +
+			"Use --force flag to suppress confirmation.",
 		Run: func(cmd *cobra.Command, args []string) {
 			switch len(args) {
 			case 0:
-				list, err := ctx.Client.GetDeploymentList(ctx.Namespace)
+				list, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to get deployment list")
 					activekit.Attention(err.Error())
@@ -36,7 +36,7 @@ Use --force flag to suppress confirmation`,
 						Action: func(depl deployment.Deployment) func() error {
 							return func() error {
 								if activekit.YesNo(fmt.Sprintf("Are you sure you want to delete deployment %q?", depl.Name)) {
-									if err := ctx.Client.DeleteDeployment(ctx.Namespace, depl.Name); err != nil {
+									if err := ctx.Client.DeleteDeployment(ctx.Namespace.ID, depl.Name); err != nil {
 										logrus.WithError(err).Debugf("unable to delete deployment %q in namespace %q", depl.Name, ctx.Namespace)
 										activekit.Attention(err.Error())
 										os.Exit(1)
@@ -62,7 +62,7 @@ Use --force flag to suppress confirmation`,
 					WithField("command", "delete deployment").
 					Debugf("start deleting deployment %q", deplName)
 				if deleteDeplConfig.Force || activekit.YesNo(fmt.Sprintf("Are you sure you want to delete deployment %q?", deplName)) {
-					if err := ctx.Client.DeleteDeployment(ctx.Namespace, deplName); err != nil {
+					if err := ctx.Client.DeleteDeployment(ctx.Namespace.ID, deplName); err != nil {
 						logrus.WithError(err).Debugf("unable to delete deployment %q in namespace %q", deplName, ctx.Namespace)
 						activekit.Attention(err.Error())
 						os.Exit(1)

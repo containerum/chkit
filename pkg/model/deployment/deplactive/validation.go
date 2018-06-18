@@ -3,9 +3,16 @@ package deplactive
 import (
 	"fmt"
 
+	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/chkit/pkg/util/validation"
+)
+
+const (
+	ErrInvalidContainer  chkitErrors.Err = "invalid container"
+	ErrInvalidDeployment chkitErrors.Err = "invalid deployment"
 )
 
 func ValidateContainer(cont container.Container) error {
@@ -42,7 +49,7 @@ func ValidateDeployment(depl deployment.Deployment) error {
 	}
 	for _, cont := range depl.Containers {
 		if err := ValidateContainer(cont); err != nil {
-			errs = append(errs, fmt.Errorf("\n + %s", indent("  ", err.Error())))
+			errs = append(errs, fmt.Errorf("\n + %s", text.Indent(err.Error(), 2)))
 		}
 	}
 	if len(errs) > 0 {

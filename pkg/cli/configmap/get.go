@@ -15,13 +15,14 @@ import (
 func Get(ctx *context.Context) *cobra.Command {
 	var command = &cobra.Command{
 		Use:     "configmap",
+		Short:   "show configmap data",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			var data model.Renderer
 			switch len(args) {
 			case 0:
-				cm, err := ctx.Client.GetConfigmapList(ctx.Namespace)
+				cm, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap list")
 					fmt.Printf("Unable to get configmap list:\n%v\n", err)
@@ -29,7 +30,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 				data = cm
 			case 1:
-				cm, err := ctx.Client.GetConfigmap(ctx.Namespace, args[0])
+				cm, err := ctx.Client.GetConfigmap(ctx.Namespace.ID, args[0])
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap %q", args[0])
 					fmt.Printf("Unable to get configmap %q:\n%v\n", args[0], err)

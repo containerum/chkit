@@ -1,8 +1,6 @@
 package clipod
 
 import (
-	"strings"
-
 	"fmt"
 
 	"os"
@@ -29,13 +27,13 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "pod",
 		Aliases: aliases,
-		Short:   "shows pod info",
-		Long:    "shows pod info. Aliases: " + strings.Join(aliases, ", "),
+		Short:   "show pod info",
+		Long:    "Show pod info.",
 		Example: "chkit get pod pod_label [-o yaml/json] [-f output_file]",
 		Run: func(cmd *cobra.Command, args []string) {
 			switch len(args) {
 			case 0:
-				polist, err := ctx.Client.GetPodList(ctx.Namespace)
+				polist, err := ctx.Client.GetPodList(ctx.Namespace.ID)
 				if err != nil {
 					fmt.Printf("Unable to get pod list from namespace %q :(\n", ctx.Namespace)
 					os.Exit(1)
@@ -46,7 +44,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 				return
 			case 1:
-				po, err := ctx.Client.GetPod(ctx.Namespace, args[0])
+				po, err := ctx.Client.GetPod(ctx.Namespace.ID, args[0])
 				if err != nil {
 					fmt.Printf("Unable to get pod from namespace %q :(\n", ctx.Namespace)
 					os.Exit(1)
@@ -56,7 +54,7 @@ func Get(ctx *context.Context) *cobra.Command {
 					os.Exit(1)
 				}
 			default:
-				polist, err := ctx.Client.GetPodList(ctx.Namespace)
+				polist, err := ctx.Client.GetPodList(ctx.Namespace.ID)
 				if err != nil {
 					fmt.Printf("Unable to get pod list from namespace %q :(\n", ctx.Namespace)
 					os.Exit(1)

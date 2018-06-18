@@ -9,15 +9,7 @@
 
 [[constraint]]
   name = "github.com/containerum/kube-client"
-  version = "~0.14.2"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/containerum/solutions"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/kardianos/osext"
+  version = "~0.21.0"
 
 [[constraint]]
   branch = "master"
@@ -54,3 +46,23 @@
 [[constraint]]
   name = "github.com/vbauerster/mpb"
   version = "3.2.0"
+
+[[constraint]]
+  name = "git.containerum.net/ch/api-gateway"
+  branch = "develop"
+  
+[[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/auth"
+
+[[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/resource-service"
+
+[[constraint]]
+  name = "github.com/octago/sflags"
+  version = "~0.2.0"
+
+[[constraint]]
+  name = "github.com/oleiade/reflections"
+  version = "~v1.0.0"

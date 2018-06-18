@@ -18,6 +18,6 @@ func (serv Service) RenderJSON() (string, error) {
 
 func (serv Service) MarshalJSON() ([]byte, error) {
 	serv.ToKube()
-	data, err := json.MarshalIndent(serv.origin, "", model.Indent)
+	data, err := json.MarshalIndent(serv.ToKube(), "", model.Indent)
 	return data, err
 }

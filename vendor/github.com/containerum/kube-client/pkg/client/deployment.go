@@ -1,18 +1,18 @@
 package client
 
 import (
+	"github.com/blang/semver"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/kube-client/pkg/rest"
 )
 
 const (
-	kubeAPIdeploymentPath  = "/namespaces/{namespace}/deployments/{deployment}"
-	kubeAPIdeploymentsPath = "/namespaces/{namespace}/deployments"
-
-	resourceDeploymentRootPath = "/namespace/{namespace}/deployment"
-	resourceDeploymentPath     = "/namespace/{namespace}/deployment/{deployment}"
-	resourceImagePath          = "/namespace/{namespace}/deployment/{deployment}/image"
-	resourceReplicasPath       = "/namespace/{namespace}/deployment/{deployment}/replicas"
+	deploymentsPath        = "/namespaces/{namespace}/deployments"
+	deploymentPath         = "/namespaces/{namespace}/deployments/{deployment}"
+	deploymentVersionsPath = "/namespaces/{namespace}/deployments/{deployment}/versions"
+	deploymentVersionPath  = "/namespaces/{namespace}/deployments/{deployment}/versions/{version}"
+	imagePath              = "/namespaces/{namespace}/deployments/{deployment}/image"
+	replicasPath           = "/namespaces/{namespace}/deployments/{deployment}/replicas"
 )
 
 // GetDeployment -- consumes a namespace and a deployment names,
@@ -22,7 +22,7 @@ func (client *Client) GetDeployment(namespace, deployment string) (model.Deploym
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &depl,
 		URL: rest.URL{
-			Path: kubeAPIdeploymentPath,
+			Path: deploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -34,15 +34,12 @@ func (client *Client) GetDeployment(namespace, deployment string) (model.Deploym
 
 // GetDeploymentList -- consumes a namespace and a deployment names,
 // returns a list of Deployments OR nil slice AND an error
-func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, error) {
-	var depls []model.Deployment
-	jsonAdaptor := struct {
-		Deployments *[]model.Deployment `json:"deployments"`
-	}{&depls}
+func (client *Client) GetDeploymentList(namespace string) (model.DeploymentsList, error) {
+	var depls model.DeploymentsList
 	err := client.RestAPI.Get(rest.Rq{
-		Result: &jsonAdaptor,
+		Result: &depls,
 		URL: rest.URL{
-			Path: kubeAPIdeploymentsPath,
+			Path: deploymentsPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -56,7 +53,7 @@ func (client *Client) GetDeploymentList(namespace string) ([]model.Deployment, e
 func (client *Client) DeleteDeployment(namespace, deployment string) error {
 	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
-			Path: resourceDeploymentPath,
+			Path: deploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -71,7 +68,7 @@ func (client *Client) CreateDeployment(namespace string, deployment model.Deploy
 	return client.RestAPI.Post(rest.Rq{
 		Body: deployment,
 		URL: rest.URL{
-			Path: resourceDeploymentRootPath,
+			Path: deploymentsPath,
 			Params: rest.P{
 				"namespace": namespace,
 			},
@@ -85,7 +82,7 @@ func (client *Client) SetContainerImage(namespace, deployment string, updateImag
 	return client.RestAPI.Put(rest.Rq{
 		Body: updateImage,
 		URL: rest.URL{
-			Path: resourceImagePath,
+			Path: imagePath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
@@ -99,7 +96,7 @@ func (client *Client) ReplaceDeployment(namespace string, deployment model.Deplo
 	return client.RestAPI.Put(rest.Rq{
 		Body: deployment,
 		URL: rest.URL{
-			Path: resourceDeploymentPath,
+			Path: deploymentPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment.Name,
@@ -115,10 +112,39 @@ func (client *Client) SetReplicas(namespace, deployment string, replicas int) er
 			Replicas: replicas,
 		},
 		URL: rest.URL{
-			Path: resourceReplicasPath,
+			Path: replicasPath,
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
+			},
+		},
+	})
+}
+
+// Returns list of defferent deployment versions
+func (client *Client) GetDeploymentVersions(namespace, deplName string) (model.DeploymentsList, error) {
+	var list model.DeploymentsList
+	return list, client.RestAPI.Get(rest.Rq{
+		Result: &list,
+		URL: rest.URL{
+			Path: deploymentVersionsPath,
+			Params: rest.P{
+				"namespace":  namespace,
+				"deployment": deplName,
+			},
+		},
+	})
+}
+
+// Create pods from deployment with specific version
+func (client *Client) RunDeploymentVersion(namespace, deplName string, version semver.Version) error {
+	return client.RestAPI.Post(rest.Rq{
+		URL: rest.URL{
+			Path: deploymentVersionPath,
+			Params: rest.P{
+				"namespace":  namespace,
+				"deployment": deplName,
+				"version":    version.String(),
 			},
 		},
 	})

@@ -18,6 +18,6 @@ func (depl Deployment) RenderJSON() (string, error) {
 }
 
 func (depl Deployment) MarshalJSON() ([]byte, error) {
-	data, err := json.MarshalIndent(depl.origin, "", model.Indent)
+	data, err := json.MarshalIndent(depl.ToKube(), "", model.Indent)
 	return data, err
 }

@@ -81,7 +81,7 @@ func ValidateContainer(container model.Container) error {
 			errs = append(errs, fmt.Errorf(fieldShouldExist, "Env: Value"))
 		}
 		if v.Name == "" {
-			errs = append(errs, fmt.Errorf(fieldShouldExist, "Env: Name"))
+			errs = append(errs, fmt.Errorf(fieldShouldExist, "Env: ID"))
 		}
 	}
 

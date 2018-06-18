@@ -3,9 +3,10 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/configmap"
-	"github.com/containerum/kube-client/pkg/cherry/resource-service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,8 +20,7 @@ func (client *Client) CreateConfigMap(ns string, config configmap.ConfigMap) err
 			rserrors.ErrResourceNotExists()):
 			return false, ErrResourceNotExists.CommentF("namespace %q doesn't exist", ns)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
 		case cherry.In(err,
@@ -92,8 +92,7 @@ func (client *Client) DeleteConfigmap(namespace, cm string) error {
 			return false, ErrResourceNotExists.
 				CommentF("service %q not found in %q", cm, namespace)
 		case cherry.In(err,
-			rserrors.ErrResourceNotOwned(),
-			rserrors.ErrAccessRecordNotExists(),
+			permErrors.ErrResourceNotOwned(),
 			rserrors.ErrPermissionDenied()):
 
 			return false, ErrYouDoNotHaveAccessToResource.
@@ -109,6 +108,36 @@ func (client *Client) DeleteConfigmap(namespace, cm string) error {
 	})
 	if err != nil {
 		logrus.WithError(err).Errorf("unable to delete configmap %q in %q", cm, namespace)
+	}
+	return err
+}
+
+func (client *Client) ReplaceConfigmap(namespaceID string, cm configmap.ConfigMap) error {
+	var err = retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.UpdateConfigMap(namespaceID, cm.Name, cm.Copy().Data)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists()):
+			return false, ErrResourceNotExists.Wrap(err)
+		case cherry.In(err,
+			permErrors.ErrResourceNotOwned(),
+			rserrors.ErrPermissionDenied()):
+			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			err = client.Auth()
+			return true, err
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logrus.WithField("method", "ReplaceConfigmap").
+			WithError(err).
+			Errorf("unable to update configmap %q in %q", cm, namespaceID)
 	}
 	return err
 }
