@@ -17,6 +17,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var aliases = []string{"sol", "solutions", "sols", "solu", "so"}
+
 func Run(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "solution",

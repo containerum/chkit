@@ -1,4 +1,4 @@
-package clisolution
+package clitemplate
 
 import (
 	"os"
@@ -11,11 +11,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var aliases = []string{"sol", "solutions", "sols", "solu", "so"}
+var aliases = []string{"tmpl", "templates", "tmpls", "tmp", "tmps"}
 
 func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
-		Use:     "solution",
+		Use:     "template",
 		Aliases: aliases,
 		Short:   "get solutions",
 		Long:    "Show list of available solutions templates. To search solution by name add arg.",
