@@ -19,40 +19,55 @@ func Doc(ctx *context.Context) *cobra.Command {
 	var flags struct {
 		Output  string `desc:"output file, STDOUT by default"`
 		Command string `desc:"print docs for command and its subcommands, example 'chkit doc --command \"create depl\"'"`
+		List    bool   `desc:"print command names"`
 		MD      bool   `desc:"generate markdown docs"`
 	}
 	var cmd = &cobra.Command{
 		Use:   "doc",
 		Short: "Print full chkit help",
 		Run: func(cmd *cobra.Command, args []string) {
-			var currentCommand *cobra.Command
-			if flags.Command == "" {
-				currentCommand = cmd.Root()
-			} else {
-				currentCommand, _, _ = cmd.Parent().Find(strings.Fields(flags.Command))
-			}
+			var currentCommand = cmd.Root()
 			var doc = &bytes.Buffer{}
-			var stack = []*cobra.Command{currentCommand}
-			for len(stack) > 0 {
-				var head = func() *cobra.Command {
-					var cmd = stack[len(stack)-1]
-					stack = stack[:len(stack)-1]
-					return cmd
-				}()
-				head.SetOutput(doc)
-				stack = append(stack, head.Commands()...)
+			switch {
+			case flags.List:
+				for _, command := range getCommandList(currentCommand) {
+					fmt.Fprintf(doc, "%s\n", func() string {
+						if command.Parent() != nil && command.Parent().Use != "chkit" {
+							return command.Parent().Use + " " + command.Use
+						}
+						return command.Use
+					}())
+				}
+			case flags.Command != "":
+				command, _, _ := cmd.Parent().Find(strings.Fields(flags.Command))
+				command.SetOutput(doc)
 				if flags.MD {
-					doc.WriteString(DocMD(head))
+					doc.WriteString(DocMD(command))
 				} else {
 					fmt.Fprintf(doc, "\n------------------------\nCommand : %s\n", func() string {
-						if head.Parent() != nil && head.Parent().Use != "chkit" {
-							return head.Parent().Use + " " + head.Use
+						if command.Parent() != nil && command.Parent().Use != "chkit" {
+							return command.Parent().Use + " " + command.Use
 						}
-						return head.Use
+						return command.Use
 					}())
-
 					//doc.WriteString(getDoc(head))
-					head.Usage()
+					command.Usage()
+				}
+			case flags.Command == "":
+				for _, command := range getCommandList(currentCommand) {
+					command.SetOutput(doc)
+					if flags.MD {
+						doc.WriteString(DocMD(command))
+					} else {
+						fmt.Fprintf(doc, "\n------------------------\nCommand : %s\n", func() string {
+							if command.Parent() != nil && command.Parent().Use != "chkit" {
+								return command.Parent().Use + " " + command.Use
+							}
+							return command.Use
+						}())
+						//doc.WriteString(getDoc(head))
+						command.Usage()
+					}
 				}
 			}
 			if flags.Output == "" {
@@ -74,12 +89,12 @@ func Doc(ctx *context.Context) *cobra.Command {
 
 func DocMD(cmd *cobra.Command) string {
 	var doc = &bytes.Buffer{}
-	fmt.Fprintf(doc, "\n## %s\n\n"+
-		"### Aliases:\n  %s\n"+
-		"### Usage  :\n %s\n"+
-		"### Example:\n  %s\n"+
-		"### Flags  :\n%s\n"+
-		"### Subcommands :\n%s\n",
+	fmt.Fprintf(doc, "\n### %s\n\n"+
+		"**Aliases**   :\n  %s\n"+
+		"**Usage**     :\n %s\n"+
+		"**Example**   :\n  %s\n"+
+		"**Flags**     :\n%s\n"+
+		"**Subcommand**:\n%s\n",
 		func() string {
 			if cmd.Parent() != nil && cmd.Parent().Use != "chkit" {
 				return cmd.Parent().Use + " " + cmd.Use
@@ -106,4 +121,20 @@ func DocMD(cmd *cobra.Command) string {
 			return text.Indent(d, 2)
 		}())
 	return doc.String()
+}
+
+func getCommandList(root *cobra.Command) []*cobra.Command {
+	var stack = []*cobra.Command{root}
+	var commands []*cobra.Command
+	for len(stack) > 0 {
+		var head = func() *cobra.Command {
+			var cmd = stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			return cmd
+		}()
+		commands = append(commands, head)
+		stack = append(stack, head.Commands()...)
+		commands = append(commands, head.Commands()...)
+	}
+	return commands
 }
