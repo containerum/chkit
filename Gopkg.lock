@@ -20,10 +20,10 @@
   revision = "765f4d41b76cccef7ed6c696cb7aebf45528b579"
 
 [[projects]]
-  branch = "87-add-change-access-to-a-group-member-method"
+  branch = "93-add-request-to-solutions-in-delete-namespace-method"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "d51d225e69d3d486dbb021c789b0e83398c0ca37"
+  revision = "a1088df873cb8b6bf213bde8ace36b36c25bc226"
 
 [[projects]]
   branch = "develop"
@@ -42,12 +42,6 @@
   packages = ["."]
   revision = "b26d9c308763d68093482582cea63d69be07a0f0"
   version = "v0.3.0"
-
-[[projects]]
-  name = "github.com/VividCortex/ewma"
-  packages = ["."]
-  revision = "b24eb346a94c3ba12c1da1e564dbac1b498a77ce"
-  version = "v1.1.1"
 
 [[projects]]
   name = "github.com/blang/semver"
@@ -147,8 +141,8 @@
 [[projects]]
   name = "github.com/ninedraft/boxofstuff"
   packages = ["strset"]
-  revision = "a57c6ea397e253eec08da7ff4305febfd0db5f7e"
-  version = "v0.1.1"
+  revision = "96bbe73a017b7babd6c6e6e3c90f56c3322e142b"
+  version = "v0.2.1"
 
 [[projects]]
   branch = "master"
@@ -224,11 +218,10 @@
   packages = [
     ".",
     "cwriter",
-    "decor",
-    "internal"
+    "decor"
   ]
-  revision = "ce3babcffca1ffe715ad144c755e4e3f7f21d6b0"
-  version = "v3.3.0"
+  revision = "23769ee3856b917f8a1ae929ca1c6f408ebdaefe"
+  version = "v3.2.0"
 
 [[projects]]
   branch = "master"
@@ -307,6 +300,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "201b2732b01181ff3563dc7cf0e345e9753073e5a9adcb1cbb4457615c92bfd8"
+  inputs-digest = "1bb7f0a24b8af24c2e567d694cfcfcc7fff36f089bdb3b16ae56081e4f243f38"
   solver-name = "gps-cdcl"
   solver-version = 1

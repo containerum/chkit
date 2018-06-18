@@ -13,10 +13,10 @@ const (
 	ErrUnableToRunAllSolutionComponents chkitErrors.Err = "unable to run all solution components"
 )
 
-func (client *Client) GetSolutionList() (solution.SolutionList, error) {
+func (client *Client) GetSolutionsTemplatesList() (solution.SolutionList, error) {
 	var gainedList solution.SolutionList
 	err := retry(4, func() (bool, error) {
-		kubeList, err := client.kubeAPIClient.GetSolutionList()
+		kubeList, err := client.kubeAPIClient.GetSolutionsTemplatesList()
 		switch {
 		case err == nil:
 			gainedList = solution.SolutionListFromKube(kubeList)
@@ -41,7 +41,7 @@ func (client *Client) GetSolutionList() (solution.SolutionList, error) {
 
 func (client *Client) RunSolution(sol solution.UserSolution) error {
 	err := retry(4, func() (bool, error) {
-		kubeResp, err := client.kubeAPIClient.RunSolution(sol.ToKube())
+		kubeResp, err := client.kubeAPIClient.RunSolution(sol.ToKube(), sol.Namespace)
 		switch {
 		case err == nil:
 			if kubeResp.NotCreated != 0 || len(kubeResp.Errors) != 0 {

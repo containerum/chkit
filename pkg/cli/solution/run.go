@@ -21,7 +21,7 @@ func Run(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "solution",
 		Aliases: aliases,
-		Short:   "run solution from public template",
+		Short:   "run solution from template",
 		Example: "chkit run solution [$PUBLIC_SOLUTION] [--env=KEY1:VALUE1,KEY2:VALUE2] [--file $FILENAME] [--force]",
 		Run: func(cmd *cobra.Command, args []string) {
 			sol := buildSolution(ctx, cmd, args)
@@ -33,7 +33,7 @@ func Run(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Solution %s is ready to run\n", sol.Name)
 				return
 			}
-			solutions, err := ctx.Client.GetSolutionList()
+			solutions, err := ctx.Client.GetSolutionsTemplatesList()
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)

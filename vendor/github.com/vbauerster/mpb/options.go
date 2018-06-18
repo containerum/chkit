@@ -2,6 +2,7 @@ package mpb
 
 import (
 	"io"
+	"io/ioutil"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -68,30 +69,20 @@ func WithShutdownNotifier(ch chan struct{}) ProgressOption {
 	}
 }
 
-// WithOutput overrides default output os.Stdout
-func WithOutput(w io.Writer) ProgressOption {
+// Output overrides default output os.Stdout
+func Output(w io.Writer) ProgressOption {
 	return func(s *pState) {
 		if w == nil {
-			return
+			w = ioutil.Discard
 		}
 		s.cw = cwriter.New(w)
 	}
 }
 
-// WithDebugOutput sets debug output.
-func WithDebugOutput(w io.Writer) ProgressOption {
-	return func(s *pState) {
-		if w == nil {
-			return
-		}
-		s.debugOut = w
-	}
-}
-
-// WithInterceptors provides a way to write to the underlying progress pool's
+// OutputInterceptors provides a way to write to the underlying progress pool's
 // writer. Could be useful if you want to output something below the bars, while
 // they're rendering.
-func WithInterceptors(interseptors ...func(io.Writer)) ProgressOption {
+func OutputInterceptors(interseptors ...func(io.Writer)) ProgressOption {
 	return func(s *pState) {
 		s.interceptors = interseptors
 	}

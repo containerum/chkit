@@ -1,40 +1,22 @@
 package mpb
 
-import (
-	"github.com/vbauerster/mpb/decor"
-)
+import "github.com/vbauerster/mpb/decor"
 
 // BarOption is a function option which changes the default behavior of a bar,
 // if passed to p.AddBar(int64, ...BarOption)
 type BarOption func(*bState)
 
 // AppendDecorators let you inject decorators to the bar's right side
-func AppendDecorators(appenders ...decor.Decorator) BarOption {
+func AppendDecorators(appenders ...decor.DecoratorFunc) BarOption {
 	return func(s *bState) {
-		for _, decorator := range appenders {
-			if ar, ok := decorator.(decor.AmountReceiver); ok {
-				s.amountReceivers = append(s.amountReceivers, ar)
-			}
-			if sl, ok := decorator.(decor.ShutdownListener); ok {
-				s.shutdownListeners = append(s.shutdownListeners, sl)
-			}
-			s.aDecorators = append(s.aDecorators, decorator)
-		}
+		s.aDecorators = append(s.aDecorators, appenders...)
 	}
 }
 
 // PrependDecorators let you inject decorators to the bar's left side
-func PrependDecorators(prependers ...decor.Decorator) BarOption {
+func PrependDecorators(prependers ...decor.DecoratorFunc) BarOption {
 	return func(s *bState) {
-		for _, decorator := range prependers {
-			if ar, ok := decorator.(decor.AmountReceiver); ok {
-				s.amountReceivers = append(s.amountReceivers, ar)
-			}
-			if sl, ok := decorator.(decor.ShutdownListener); ok {
-				s.shutdownListeners = append(s.shutdownListeners, sl)
-			}
-			s.pDecorators = append(s.pDecorators, decorator)
-		}
+		s.pDecorators = append(s.pDecorators, prependers...)
 	}
 }
 
@@ -67,55 +49,29 @@ func BarID(id int) BarOption {
 	}
 }
 
-// BarDynamicTotal is a flag, if set enables dynamic total behaviour.
-// If provided total <= 0, it is set implicitly.
+// BarEtaAlpha option is a way to adjust ETA behavior.
+// You can play with it, if you're not satisfied with default behavior.
+// Default value is 0.25.
+func BarEtaAlpha(a float64) BarOption {
+	return func(s *bState) {
+		s.etaAlpha = a
+	}
+}
+
+// BarDynamicTotal enables dynamic total behaviour.
 func BarDynamicTotal() BarOption {
 	return func(s *bState) {
 		s.dynamic = true
 	}
 }
 
-// BarAutoIncrTotal auto increment total by n, when trigger percentage remained till bar completion.
+// BarAutoIncrTotal auto increment total by amount, when trigger percentage remained till bar completion.
 // In other words: say you've set trigger = 10, then auto increment will start after bar reaches 90 %.
-// Effective only if BarDynamicTotal option is set.
-func BarAutoIncrTotal(trigger, n int64) BarOption {
+func BarAutoIncrTotal(trigger, amount int64) BarOption {
 	return func(s *bState) {
+		s.dynamic = true
 		s.totalAutoIncrTrigger = trigger
-		s.totalAutoIncrBy = n
-	}
-}
-
-// BarRemoveOnComplete is a flag, if set whole bar line will be removed on complete event.
-// If both BarRemoveOnComplete and BarClearOnComplete are set, first bar section gets cleared
-// and then whole bar line gets removed completely.
-func BarRemoveOnComplete() BarOption {
-	return func(s *bState) {
-		s.removeOnComplete = true
-	}
-}
-
-// BarReplaceOnComplete is indicator for delayed bar start, after the `runningBar` is complete.
-// To achieve bar replacement effect, `runningBar` should has its `BarRemoveOnComplete` option set.
-func BarReplaceOnComplete(runningBar *Bar) BarOption {
-	return func(s *bState) {
-		s.runningBar = runningBar
-	}
-}
-
-// BarClearOnComplete is a flag, if set will clear bar section on complete event.
-// If you need to remove a whole bar line, refer to BarRemoveOnComplete.
-func BarClearOnComplete() BarOption {
-	return func(s *bState) {
-		s.barClearOnComplete = true
-	}
-}
-
-// BarPriority sets bar's priority.
-// Zero is highest priority, i.e. bar will be on top.
-// If `BarReplaceOnComplete` option is supplied, this option is ignored.
-func BarPriority(priority int) BarOption {
-	return func(s *bState) {
-		s.priority = priority
+		s.totalAutoIncrBy = amount
 	}
 }
 
@@ -127,6 +83,6 @@ func barWidth(w int) BarOption {
 
 func barFormat(format string) BarOption {
 	return func(s *bState) {
-		s.runes = strToBarRunes(format)
+		s.updateFormat(format)
 	}
 }
