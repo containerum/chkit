@@ -6,12 +6,13 @@ import (
 
 	"strings"
 
+	"errors"
+
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"github.com/containerum/kube-client/pkg/model"
-	"github.com/go-siris/siris/core/errors"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
