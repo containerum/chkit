@@ -2,12 +2,22 @@
 ### rename namespace
 
 **Aliases**   :
-  ns, namespaces
+
+ns, namespaces
+
 **Usage**     :
- 
+
+
+
 **Example**   :
-  chkit rename ns $ID $NEW_NAME
+
+chkit rename ns $ID $NEW_NAME
+
 **Flags**     :
+
   
+
 **Subcommand**:
+
   
+

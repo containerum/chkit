@@ -2,14 +2,23 @@
 ### delete
 
 **Aliases**   :
-  
+
+
+
 **Usage**     :
- Delete resource
+
+Delete resource
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   
+
 **Subcommand**:
+
   + configmap : delete configmap
   + deployment : delete deployment in specific namespace
   + ingress : delete ingress
@@ -18,3 +27,4 @@
   + service : delete service in specific namespace
   + volume : delete volume
   
+

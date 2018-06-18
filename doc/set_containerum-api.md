@@ -2,13 +2,23 @@
 ### set containerum-api
 
 **Aliases**   :
-  api, current-api, api-addr, API
+
+api, current-api, api-addr, API
+
 **Usage**     :
- Set Containerum API URL
+
+Set Containerum API URL
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   + allow-self-signed-certs  : 
   
+
 **Subcommand**:
+
   
+

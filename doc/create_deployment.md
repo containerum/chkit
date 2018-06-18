@@ -2,13 +2,20 @@
 ### create deployment
 
 **Aliases**   :
-  depl, deployments, deploy
+
+depl, deployments, deploy
+
 **Usage**     :
- Create a new deployment.
+
+Create a new deployment.
 Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   + configmap  : container configmap, CONTAINER_NAME@CONFIGMAP_NAME@MOUNTPATH in case of multiple containers or
   CONFIGMAP_NAME@MOUNTPATH or CONFIGMAP_NAME in case of one container.
   If MOUNTPATH is omitted, then use /etc/CONFIGMAP_NAME as mountpath
@@ -29,5 +36,8 @@ Runs in one-line mode, suitable for integration with other tools, and in interac
   VOLUME_NAME@MOUNTPATH or VOLUME_NAME in case of one container.
   If MOUNTPATH is omitted, then use /mnt/VOLUME_NAME as mountpath
   
+
 **Subcommand**:
+
   
+

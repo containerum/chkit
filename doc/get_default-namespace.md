@@ -2,12 +2,22 @@
 ### get default-namespace
 
 **Aliases**   :
-  default-ns, def-ns
+
+default-ns, def-ns
+
 **Usage**     :
- Print default namespace.
+
+Print default namespace.
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   
+
 **Subcommand**:
+
   
+

@@ -31,7 +31,7 @@ func Doc(ctx *context.Context) *cobra.Command {
 			switch {
 			case flags.List:
 				for _, command := range getCommandList(currentCommand) {
-					fmt.Fprintf(doc, "%s\n", func() string {
+					fmt.Fprintf(doc, "%s\n\n", func() string {
 						if command.Parent() != nil && command.Parent().Use != "chkit" {
 							return command.Parent().Use + " " + command.Use
 						}
@@ -44,7 +44,7 @@ func Doc(ctx *context.Context) *cobra.Command {
 				if flags.MD {
 					doc.WriteString(DocMD(command))
 				} else {
-					fmt.Fprintf(doc, "\n------------------------\nCommand : %s\n", func() string {
+					fmt.Fprintf(doc, "Command : %s\n\n", func() string {
 						if command.Parent() != nil && command.Parent().Use != "chkit" {
 							return command.Parent().Use + " " + command.Use
 						}
@@ -59,7 +59,7 @@ func Doc(ctx *context.Context) *cobra.Command {
 					if flags.MD {
 						doc.WriteString(DocMD(command))
 					} else {
-						fmt.Fprintf(doc, "\n------------------------\nCommand : %s\n", func() string {
+						fmt.Fprintf(doc, "Command : %s\n\n", func() string {
 							if command.Parent() != nil && command.Parent().Use != "chkit" {
 								return command.Parent().Use + " " + command.Use
 							}
@@ -90,11 +90,11 @@ func Doc(ctx *context.Context) *cobra.Command {
 func DocMD(cmd *cobra.Command) string {
 	var doc = &bytes.Buffer{}
 	fmt.Fprintf(doc, "\n### %s\n\n"+
-		"**Aliases**   :\n  %s\n"+
-		"**Usage**     :\n %s\n"+
-		"**Example**   :\n  %s\n"+
-		"**Flags**     :\n%s\n"+
-		"**Subcommand**:\n%s\n",
+		"**Aliases**   :\n\n%s\n\n"+
+		"**Usage**     :\n\n%s\n\n"+
+		"**Example**   :\n\n%s\n\n"+
+		"**Flags**     :\n\n%s\n\n"+
+		"**Subcommand**:\n\n%s\n\n",
 		func() string {
 			if cmd.Parent() != nil && cmd.Parent().Use != "chkit" {
 				return cmd.Parent().Use + " " + cmd.Use

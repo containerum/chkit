@@ -2,18 +2,27 @@
 ### chkit
 
 **Aliases**   :
-  
+
+
+
 **Usage**     :
- Chkit is a terminal client for containerum.io powerful API
+
+Chkit is a terminal client for containerum.io powerful API
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   + namespace n : 
   + password p : account password
   + quiet q : quiet mode
   + username u : account username
   
+
 **Subcommand**:
+
   + create : Create resource (deployment, service...)
   + delete : Delete resource
   + doc : Print full chkit help
@@ -28,3 +37,4 @@
   + update : Update chkit client
   + version : Print version
   
+

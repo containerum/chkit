@@ -2,12 +2,19 @@
 ### create service
 
 **Aliases**   :
-  srv, services, svc, serv
+
+srv, services, svc, serv
+
 **Usage**     :
- Create service for the specified pod in the specified namespace.
+
+Create service for the specified pod in the specified namespace.
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   + deploy  : service deployment, required
   + file f : file with service data
   + force  : create service without confirmation
@@ -17,5 +24,8 @@
   + proto  : service protocol, optional
   + target-port  : service target port, optional
   
+
 **Subcommand**:
+
   
+

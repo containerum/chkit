@@ -2,12 +2,19 @@
 ### replace service
 
 **Aliases**   :
-  srv, services, svc, serv
+
+srv, services, svc, serv
+
 **Usage**     :
- Replace service.\nRuns in one-line mode, suitable for integration with other tools, and in interactive wizard mode.
+
+Replace service.\nRuns in one-line mode, suitable for integration with other tools, and in interactive wizard mode.
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   + deployment  : deployment name, optional
   + domain  : service domain, optional
   + file  : create service from file
@@ -17,5 +24,8 @@
   + protocol  : service port protocol, optional
   + target-port  : service target port, optional
   
+
 **Subcommand**:
+
   
+

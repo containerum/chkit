@@ -2,14 +2,23 @@
 ### get
 
 **Aliases**   :
-  
+
+
+
 **Usage**     :
- Get resource data
+
+Get resource data
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   
+
 **Subcommand**:
+
   + access : print namespace access data
   + configmap : show configmap data
   + containerum-api : print Containerum API URL
@@ -23,3 +32,4 @@
   + service : show service info
   + solution : get solutions
   
+

@@ -2,12 +2,22 @@
 ### get profile
 
 **Aliases**   :
-  me, user
+
+me, user
+
 **Usage**     :
- Shows profile info.
+
+Shows profile info.
+
 **Example**   :
-  chkit get profile
+
+chkit get profile
+
 **Flags**     :
+
   
+
 **Subcommand**:
+
   
+

@@ -2,12 +2,22 @@
 ### set default-namespace
 
 **Aliases**   :
-  def-ns, default-ns, defns, def-namespace
+
+def-ns, default-ns, defns, def-namespace
+
 **Usage**     :
- Set default namespace
+
+Set default namespace
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   
+
 **Subcommand**:
+
   
+

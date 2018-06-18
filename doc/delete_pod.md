@@ -2,13 +2,23 @@
 ### delete pod
 
 **Aliases**   :
-  po, pods
+
+po, pods
+
 **Usage**     :
- Delete pods.
+
+Delete pods.
+
 **Example**   :
-  chkit delete pod pod_name [-n namespace]
+
+chkit delete pod pod_name [-n namespace]
+
 **Flags**     :
+
   + force f : delete pod without confirmation
   
+
 **Subcommand**:
+
   
+

@@ -2,9 +2,12 @@
 ### get deployment-versions
 
 **Aliases**   :
-  depl-ver, depvers, deployment-version
+
+depl-ver, depvers, deployment-version
+
 **Usage**     :
- Get deployment versions.
+
+Get deployment versions.
 You can filter versions by specifying version query (--version):
 Valid queries are:
 
@@ -23,12 +26,19 @@ Queries can also be linked by logical OR:
 AND has a higher precedence than OR. It's not possible to use brackets.
 Queries can be combined by both AND and OR
  - `>1.0.0 <2.0.0 || >3.0.0 !4.2.1` would match `1.2.3`, `1.9.9`, `3.1.1`, but not `4.2.1`, `2.1.1`
+
 **Example**   :
-  chkit get deployment-versions MY_DEPLOYMENT [--last-n 4] [--version >=1.0.0] [--output yaml] [--file versions.yaml]
+
+chkit get deployment-versions MY_DEPLOYMENT [--last-n 4] [--version >=1.0.0] [--output yaml] [--file versions.yaml]
+
 **Flags**     :
+
   + file  : output file, optional, default is STDOUT
   + last-n  : limit n versions to show
   + version  : version query, examples: <1.0.0, <=1.0.0, !1.0.0
   
+
 **Subcommand**:
+
   
+

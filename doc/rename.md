@@ -2,13 +2,23 @@
 ### rename
 
 **Aliases**   :
-  
+
+
+
 **Usage**     :
- Rename resource
+
+Rename resource
+
 **Example**   :
-  
+
+
+
 **Flags**     :
+
   
+
 **Subcommand**:
+
   + namespace : 
   
+

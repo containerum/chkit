@@ -2,13 +2,23 @@
 ### delete volume
 
 **Aliases**   :
-  volumes, vol
+
+volumes, vol
+
 **Usage**     :
- delete volume
+
+delete volume
+
 **Example**   :
-  chkit delete volume [--force]
+
+chkit delete volume [--force]
+
 **Flags**     :
+
   + force f : suppress confirmation
   
+
 **Subcommand**:
+
   
+

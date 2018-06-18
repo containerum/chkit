@@ -2,12 +2,19 @@
 ### create ingress
 
 **Aliases**   :
-  ingr, ingresses, ing
+
+ingr, ingresses, ing
+
 **Usage**     :
- Create ingress. Available options: TLS with LetsEncrypt and custom certs.
+
+Create ingress. Available options: TLS with LetsEncrypt and custom certs.
+
 **Example**   :
-  chkit create ingress [--force] [--filename ingress.json] [-n prettyNamespace]
+
+chkit create ingress [--force] [--filename ingress.json] [-n prettyNamespace]
+
 **Flags**     :
+
   + force f : create ingress without confirmation
   + host  : ingress host (example: prettyblog.io), required
   + path  : path to endpoint (example: /content/pages), optional
@@ -16,5 +23,8 @@
   + tls-cert  : TLS cert file, optional
   + tls-secret  : TLS secret string, optional
   
+
 **Subcommand**:
+
   
+
