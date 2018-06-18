@@ -18,12 +18,12 @@ func Get(ctx *context.Context) *cobra.Command {
 		Use:     "solution",
 		Aliases: aliases,
 		Short:   "get solutions",
-		Long:    "Show list of available solutions. To search solution by name add arg.",
+		Long:    "Show list of available solutions templates. To search solution by name add arg.",
 		Example: "chkit get solution [name]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
 			logger.Debugf("loading solution info")
-			var solutions, err = ctx.Client.GetSolutionList()
+			var solutions, err = ctx.Client.GetSolutionsTemplatesList()
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get solution list")
 				activekit.Attention("Unable to get solution list:\n%v", err)

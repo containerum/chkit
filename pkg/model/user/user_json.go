@@ -1,8 +1,9 @@
 package user
 
 import (
+	"encoding/json"
+
 	"github.com/containerum/chkit/pkg/model"
-	"github.com/gin-gonic/gin/json"
 )
 
 var (

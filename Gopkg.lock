@@ -5,37 +5,37 @@
   branch = "develop"
   name = "git.containerum.net/ch/api-gateway"
   packages = ["pkg/gatewayErrors"]
-  revision = "5faa89b30076cd0fe69dc9f44c64e12602ad8011"
+  revision = "ffa1d50fd77c65865324c15a9883c818642d6efa"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/auth"
   packages = ["pkg/errors"]
-  revision = "f5be2683b112903d242654db72e9b21d060555d4"
-
-[[projects]]
-  name = "git.containerum.net/ch/kube-api"
-  packages = ["pkg/kubeErrors"]
-  revision = "bb4ec38ff060c55d3e7983f4919088e6fe88922d"
-  version = "v1.0.0"
+  revision = "5ec6f11de6e7d388b0d877593cccbdeebfce8558"
 
 [[projects]]
   branch = "develop"
+  name = "git.containerum.net/ch/kube-api"
+  packages = ["pkg/kubeErrors"]
+  revision = "765f4d41b76cccef7ed6c696cb7aebf45528b579"
+
+[[projects]]
+  branch = "93-add-request-to-solutions-in-delete-namespace-method"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "f9f444b6bb19ed6f7fcc251243f98d52d731b00a"
+  revision = "a1088df873cb8b6bf213bde8ace36b36c25bc226"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
   packages = ["pkg/rsErrors"]
-  revision = "f763a4536868dc97ac69cd738431148b5bfe5921"
+  revision = "9ef4a8845704cac6bf82c7afea269418f7cbe48e"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/user-manager"
   packages = ["pkg/umErrors"]
-  revision = "ecbf4d476f6ccfd53e92c6425b52fd9b54d3f78a"
+  revision = "a6183da4b26b6150d849445839066239cea61ae8"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -69,8 +69,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "98e5397873b0e25dfa83fee83f28e7b7a7e10479"
-  version = "v0.21.1"
+  revision = "dbfd7cb7735022ac3e819a199a4e07a44772bb45"
+  version = "v0.23.2"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -88,22 +88,10 @@
   version = "v2.6.2"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/gin-gonic/gin"
-  packages = ["json"]
-  revision = "bf7803815b0baa22ff7a10457932882dfbf09925"
-
-[[projects]]
   name = "github.com/go-resty/resty"
   packages = ["."]
-  revision = "f0976a825c7520308909ce5a9e8b4f8675fdd6de"
-  version = "v1.5"
-
-[[projects]]
-  name = "github.com/go-siris/siris"
-  packages = ["core/errors"]
-  revision = "bf3b6eec68567b4a1c7b4a26c9dd87815abb363c"
-  version = "v7.3.4"
+  revision = "fc3ad735b5565cada42d34bc298573fd3fe5adc6"
+  version = "v1.6"
 
 [[projects]]
   name = "github.com/gorilla/websocket"
@@ -127,12 +115,6 @@
   version = "v1.0"
 
 [[projects]]
-  name = "github.com/json-iterator/go"
-  packages = ["."]
-  revision = "ca39e5af3ece67bbcda3d0f4f56a8e24d9f2dad4"
-  version = "1.1.3"
-
-[[projects]]
   branch = "master"
   name = "github.com/matishsiao/goInfo"
   packages = ["."]
@@ -154,26 +136,11 @@
   branch = "master"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
-  revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
-
-[[projects]]
-  name = "github.com/modern-go/concurrent"
-  packages = ["."]
-  revision = "bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94"
-  version = "1.0.3"
-
-[[projects]]
-  name = "github.com/modern-go/reflect2"
-  packages = ["."]
-  revision = "1df9eeb2bb81f327b96228865c5687bc2194af3f"
-  version = "1.0.0"
+  revision = "3864e76763d94a6df2f9960b16a20a33da9f9a66"
 
 [[projects]]
   name = "github.com/ninedraft/boxofstuff"
-  packages = [
-    "str",
-    "strset"
-  ]
+  packages = ["strset"]
   revision = "96bbe73a017b7babd6c6e6e3c90f56c3322e142b"
   version = "v0.2.1"
 
@@ -243,8 +210,8 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   name = "github.com/vbauerster/mpb"
@@ -260,7 +227,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
+  revision = "027cca12c2d63e3d62b670d901e8a2c95854feec"
 
 [[projects]]
   branch = "master"
@@ -269,7 +236,7 @@
     "idna",
     "publicsuffix"
   ]
-  revision = "8e0cdda24ed423affc8f35c241e5e9b16180338e"
+  revision = "db08ff08e8622530d9ed3a0e8ac279f6d4c02196"
 
 [[projects]]
   branch = "master"
@@ -278,7 +245,7 @@
     "unix",
     "windows"
   ]
-  revision = "89da893103a6ed6c87fb4bb5c19fcf97812df621"
+  revision = "6c888cc515d3ed83fc103cf1d84468aad274b0a7"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -304,8 +271,8 @@
 [[projects]]
   name = "gopkg.in/resty.v1"
   packages = ["."]
-  revision = "f0976a825c7520308909ce5a9e8b4f8675fdd6de"
-  version = "v1.5"
+  revision = "fc3ad735b5565cada42d34bc298573fd3fe5adc6"
+  version = "v1.6"
 
 [[projects]]
   branch = "v2"
@@ -328,11 +295,11 @@
     "pkg/util/validation",
     "pkg/util/validation/field"
   ]
-  revision = "d3a2c12799ab9db57db937746b671a1594aad117"
+  revision = "5a8013207d0d28c7fe98193e5b6cdbf92e98a000"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "24ab5ec9f49c4e388bad20df68eb81e47a71d2dc0c4d313741c1a0eeb8b60472"
+  inputs-digest = "1bb7f0a24b8af24c2e567d694cfcfcc7fff36f089bdb3b16ae56081e4f243f38"
   solver-name = "gps-cdcl"
   solver-version = 1

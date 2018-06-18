@@ -18,7 +18,6 @@ type Pod struct {
 	Containers      []Container        `json:"containers"`
 	ImagePullSecret *map[string]string `json:"image_pull_secret,omitempty"`
 	Status          *PodStatus         `json:"status,omitempty"`
-	Hostname        *string            `json:"hostname,omitempty"`
 	Deploy          *string            `json:"deploy,omitempty"`
 	//total CPU usage by all containers in this pod
 	TotalCPU uint `json:"total_cpu,omitempty"`

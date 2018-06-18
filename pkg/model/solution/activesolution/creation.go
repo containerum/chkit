@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/containerum/chkit/pkg/context"
+
 	"github.com/containerum/chkit/pkg/model/solution"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
@@ -18,7 +20,7 @@ type WizardConfig struct {
 	EditName   bool
 }
 
-func Wizard(config WizardConfig) solution.UserSolution {
+func Wizard(ctx *context.Context, config WizardConfig) solution.UserSolution {
 	var sol = func() solution.UserSolution {
 		if config.Solution != nil {
 			return *config.Solution
@@ -28,6 +30,11 @@ func Wizard(config WizardConfig) solution.UserSolution {
 			Branch: "master",
 		}
 	}()
+
+	userEnv := make(map[string]string, 0)
+	for k, v := range sol.Env {
+		userEnv[k] = v
+	}
 
 	for exit := false; !exit; {
 		var envItems activekit.MenuItems
@@ -42,8 +49,10 @@ func Wizard(config WizardConfig) solution.UserSolution {
 							Value: v,
 						})
 						delete(sol.Env, k)
+						delete(userEnv, k)
 						if env != nil {
 							sol.Env[k] = v
+							userEnv[k] = v
 						} else {
 							envItems.Delete(i)
 						}
@@ -81,6 +90,12 @@ func Wizard(config WizardConfig) solution.UserSolution {
 							Action: func(templ string) func() error {
 								return func() error {
 									sol.Template = templ
+									if env, err := ctx.Client.GetSolutionsTemplatesEnvs(templ); err == nil {
+										sol.Env = env.Env
+									}
+									for k, v := range userEnv {
+										sol.Env[k] = v
+									}
 									return nil
 								}
 							}(templ),
@@ -123,6 +138,7 @@ func Wizard(config WizardConfig) solution.UserSolution {
 						return nil
 					}
 					sol.Env[env.Name] = env.Value
+					userEnv[env.Name] = env.Value
 					menu.Append(&activekit.MenuItem{
 						Label: fmt.Sprintf("Edit env      : %s", text.Crop(fmt.Sprintf("%s:%q", env.Name, env.Value), 32)),
 						Action: func(i int) func() error {
@@ -132,8 +148,10 @@ func Wizard(config WizardConfig) solution.UserSolution {
 									Value: env.Value,
 								})
 								delete(sol.Env, env.Name)
+								delete(userEnv, env.Name)
 								if env != nil {
 									sol.Env[env.Name] = env.Value
+									userEnv[env.Name] = env.Value
 								} else {
 									envItems.Delete(i)
 								}

@@ -100,7 +100,7 @@ func ErrResourceNotExists(params ...func(*cherry.Err)) *cherry.Err {
 }
 
 func ErrSetOwnerAccess(params ...func(*cherry.Err)) *cherry.Err {
-	err := &cherry.Err{Message: "Owner can`t set access to its resource", StatusHTTP: 400, ID: cherry.ErrID{SID: "permissions", Kind: 0x8}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	err := &cherry.Err{Message: "Owner can`t change own permissions", StatusHTTP: 400, ID: cherry.ErrID{SID: "permissions", Kind: 0x8}, Details: []string(nil), Fields: cherry.Fields(nil)}
 	for _, param := range params {
 		param(err)
 	}

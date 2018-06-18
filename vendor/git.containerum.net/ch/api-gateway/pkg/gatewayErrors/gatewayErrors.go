@@ -3,8 +3,9 @@ package gatewayErrors
 
 import (
 	bytes "bytes"
-	cherry "github.com/containerum/cherry"
 	template "text/template"
+
+	cherry "github.com/containerum/cherry"
 )
 
 const ()
@@ -59,6 +60,30 @@ func ErrHeaderNotProvided(params ...func(*cherry.Err)) *cherry.Err {
 
 func ErrInvalidformat(params ...func(*cherry.Err)) *cherry.Err {
 	err := &cherry.Err{Message: "invalid request body format", StatusHTTP: 400, ID: cherry.ErrID{SID: "api-gateway", Kind: 0x5}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrMethodNotAllowed(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "http method not allowed", StatusHTTP: 405, ID: cherry.ErrID{SID: "api-gateway", Kind: 0x6}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrRouteNotFound(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "route not found", StatusHTTP: 404, ID: cherry.ErrID{SID: "api-gateway", Kind: 0x7}, Details: []string(nil), Fields: cherry.Fields(nil)}
 	for _, param := range params {
 		param(err)
 	}

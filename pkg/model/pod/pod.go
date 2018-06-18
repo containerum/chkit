@@ -26,9 +26,6 @@ func PodFromKube(pod kubeModel.Pod) Pod {
 				container.Image))
 	}
 	hostname := ""
-	if pod.Hostname != nil {
-		hostname = *pod.Hostname
-	}
 	var status Status
 	if pod.Status != nil {
 		status = StatusFromKube(*pod.Status)
