@@ -16,7 +16,8 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "access",
 		Aliases: accessAliases,
-		Short:   "get namespace access",
+		Short:   "print namespace access data",
+		Long:    "Print namespace access data.",
 		Example: "chkit get ns-access $ID",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)

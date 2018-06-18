@@ -16,7 +16,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "ingress",
 		Short:   "delete ingress",
-		Long:    "Deletes ingress",
+		Long:    "Delete ingress.",
 		Example: "chkit delete ingress $INGRESS [-n $NAMESPACE] [--force]",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {

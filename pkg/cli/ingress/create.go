@@ -26,7 +26,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Use:     "ingress",
 		Aliases: aliases,
 		Short:   "create ingress",
-		Long:    "Creates ingress. TLS with LetsEncrypt and custom cert is available",
+		Long:    "Create ingress. Available options: TLS with LetsEncrypt and custom certs.",
 		Example: "chkit create ingress [--force] [--filename ingress.json] [-n prettyNamespace]",
 		Run: func(cmd *cobra.Command, args []string) {
 			if !cmd.Flag("tls-secret").Changed {

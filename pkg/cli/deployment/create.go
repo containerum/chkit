@@ -24,9 +24,9 @@ func Create(ctx *context.Context) *cobra.Command {
 		Use:     "deployment",
 		Aliases: aliases,
 		Short:   "create deployment",
-		Long: "Creates new deployment.\n" +
-			"Has an one-line mode, suitable for integration with other tools,\n" +
-			"and an interactive wizard mod",
+		Long: "Create a new deployment.\n" +
+			"Runs in one-line mode, suitable for integration with other tools, " +
+			"and in interactive wizard mode.",
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			logger.Struct(flags)

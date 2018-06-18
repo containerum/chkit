@@ -2,7 +2,6 @@ package clinamespace
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -17,7 +16,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "namespace",
 		Short:   "delete namespace",
-		Long:    "delete namespace deletes namespace with name, provided by first arg. Aliases: " + strings.Join(aliases, ", "),
+		Long:    "Delete namespace provided in the first arg.",
 		Example: "chkit delete namespace $ID",
 		Aliases: aliases,
 		Run: func(command *cobra.Command, args []string) {

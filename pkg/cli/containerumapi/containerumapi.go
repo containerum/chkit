@@ -17,6 +17,7 @@ func Set(ctx *context.Context) *cobra.Command {
 	}
 	command := &cobra.Command{
 		Use:     "containerum-api",
+		Short:   "Set Containerum API URL",
 		Aliases: aliases,
 		PreRun: prerun.PreRunFunc(ctx, prerun.Config{
 			DoNotRunLoginOnIncompatibleConfig: true,

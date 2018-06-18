@@ -20,9 +20,9 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "service",
 		Aliases: aliases,
-		Short:   "shows service info",
-		Long:    "chkit get service service_label [-o yaml/json] [-f output_file]",
-		Example: "Shows service info",
+		Short:   "show service info",
+		Long:    "Show service info.",
+		Example: "chkit get service service_label [-o yaml/json] [-f output_file]",
 		Run: func(cmd *cobra.Command, args []string) {
 			serviceData, err := func() (model.Renderer, error) {
 				switch len(args) {

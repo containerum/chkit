@@ -27,9 +27,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
-		Short:   "replace deployment",
-		Long: `Replaces deployment.
-Has an one-line mode, suitable for integration with other tools, and an interactive wizard mode`,
+		Short:   "Replace deployment.",
+		Long: "Replaces deployment.\n" +
+			"Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.",
 		Run: func(cmd *cobra.Command, args []string) {
 			depl := deployment.Deployment{}
 			deplactive.Fill(&depl)

@@ -19,7 +19,7 @@ func Update(ctx *context.Context) *cobra.Command {
 	var debug bool
 	command := &cobra.Command{
 		Use:     "update",
-		Short:   "update chkit client",
+		Short:   "Update chkit client",
 		Long:    `Use "chkit update [command] --help" for more information about the command.`,
 		Example: "chkit update [from github|dir <path>] [--debug]",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -58,6 +58,7 @@ func updateFromGithubCommand(ctx *context.Context, debug *bool) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "github",
 		Short: "update from github releases",
+		Long:  "Update from github releases.",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := updateFromGithub(ctx, *debug); err != nil {
 				activekit.Attention(err.Error())
@@ -72,6 +73,7 @@ func updateFromDirCommand(ctx *context.Context, debug *bool) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "dir",
 		Short:   "update from local directory",
+		Long:    "Update from local directory.",
 		Example: "chkit update from dir <path> [--debug]",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) <= 0 {

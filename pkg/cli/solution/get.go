@@ -18,7 +18,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Use:     "solution",
 		Aliases: aliases,
 		Short:   "get solutions",
-		Long:    "Show solution list, available for run. To search solution by name add arg",
+		Long:    "Show list of available solutions. To search solution by name add arg.",
 		Example: "chkit get solution [name]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)

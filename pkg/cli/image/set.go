@@ -47,9 +47,9 @@ func Set(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "image",
 		Aliases: setAliases,
-		Short:   "set container image in specific deployment",
-		Long: "Sets container image in specific deployment.\n" +
-			"If deployment contains only one container, then uses that container by default.",
+		Short:   "Set container image for specific deployment.",
+		Long: "Set container image for specific deployment\n" +
+			"If a deployment contains only one container, the command will use that container by default.",
 		PreRun: prerun.PreRunFunc(ctx),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("set image")
