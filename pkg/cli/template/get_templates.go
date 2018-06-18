@@ -17,9 +17,9 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "template",
 		Aliases: aliases,
-		Short:   "get solutions",
+		Short:   "get solutions templates",
 		Long:    "Show list of available solutions templates. To search solution by name add arg.",
-		Example: "chkit get solution [name]",
+		Example: "chkit get template [name]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
 			logger.Debugf("loading solution info")
