@@ -6,6 +6,7 @@ import (
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/solution"
+	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,6 +38,32 @@ func (client *Client) GetSolutionsTemplatesList() (solution.SolutionList, error)
 		logrus.WithError(err).Errorf("unable to get solution list")
 	}
 	return gainedList, err
+}
+
+func (client *Client) GetSolutionsTemplatesEnvs(template string) (model.SolutionEnv, error) {
+	var kubeList model.SolutionEnv
+	err := retry(4, func() (bool, error) {
+		var err error
+		kubeList, err = client.kubeAPIClient.GetSolutionsTemplateEnv(template)
+		switch {
+		case err == nil:
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound()):
+			logrus.Debugf("running auth")
+			er := client.Auth()
+			return true, er
+		case cherry.In(err, kubeErrors.ErrAccessError()):
+			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logrus.WithError(err).Errorf("unable to get solution list")
+	}
+	return kubeList, err
 }
 
 func (client *Client) RunSolution(sol solution.UserSolution) error {

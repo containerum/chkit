@@ -43,7 +43,7 @@ func Run(ctx *context.Context) *cobra.Command {
 				Templates: solutions.Names(),
 				Solution:  &sol,
 			}
-			sol = activesolution.Wizard(config)
+			sol = activesolution.Wizard(ctx, config)
 			if activekit.YesNo("Are you sure you want to run solution %s?", sol.Name) {
 				if err := ctx.Client.RunSolution(sol); err != nil {
 					fmt.Println(err)
@@ -88,6 +88,8 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 	}
 	if flags.Changed("branch") {
 		sol.Branch, _ = flags.GetString("branch")
+	} else {
+		sol.Branch = "master"
 	}
 	if flags.Changed("env") {
 		envString, _ := flags.GetString("env")
