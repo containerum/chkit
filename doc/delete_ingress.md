@@ -1,24 +1,36 @@
+---
+title: Delete Ingress
+linktitle: delete ingress
+description: Delete ingress
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### delete ingress
 
-**Aliases**   :
-
-ingr, ingresses, ing
-
-**Usage**     :
+**Description**:
 
 Delete ingress.
 
-**Example**   :
+**Example**:
 
 chkit delete ingress $INGRESS [-n $NAMESPACE] [--force]
 
-**Flags**     :
+**Flags**:
 
-  + force f : delete ingress without confirmation
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | force | delete ingress without confirmation | false |
 
-**Subcommand**:
 
-  
 

@@ -1,23 +1,35 @@
+---
+title: Get Solution
+linktitle: get solution
+description: Show list of available solutions
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### get solution
 
-**Aliases**   :
-
-sol, solutions, sols, solu, so
-
-**Usage**     :
+**Description**:
 
 Show list of available solutions. To search solution by name add arg.
 
-**Example**   :
+**Example**:
 
 chkit get solution [name]
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  
 

@@ -20,10 +20,10 @@
   revision = "765f4d41b76cccef7ed6c696cb7aebf45528b579"
 
 [[projects]]
-  branch = "93-add-request-to-solutions-in-delete-namespace-method"
+  branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "a1088df873cb8b6bf213bde8ace36b36c25bc226"
+  revision = "c4491d2946859e230dc2c5b87ce125fe6836311c"
 
 [[projects]]
   branch = "develop"
@@ -140,7 +140,10 @@
 
 [[projects]]
   name = "github.com/ninedraft/boxofstuff"
-  packages = ["strset"]
+  packages = [
+    "str",
+    "strset"
+  ]
   revision = "96bbe73a017b7babd6c6e6e3c90f56c3322e142b"
   version = "v0.2.1"
 
@@ -300,6 +303,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1bb7f0a24b8af24c2e567d694cfcfcc7fff36f089bdb3b16ae56081e4f243f38"
+  inputs-digest = "9cd5f95877d1005382b89932a83a52b2c0310173b711bfc9d8a09d7d31b0ce3a"
   solver-name = "gps-cdcl"
   solver-version = 1

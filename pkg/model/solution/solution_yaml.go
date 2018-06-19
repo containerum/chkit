@@ -6,15 +6,15 @@ import (
 )
 
 var (
-	_ model.YAMLrenderer = Solution{}
-	_ yaml.Marshaler     = Solution{}
+	_ model.YAMLrenderer = UserSolution{}
+	_ yaml.Marshaler     = UserSolution{}
 )
 
-func (solution Solution) RenderYAML() (string, error) {
+func (solution UserSolution) RenderYAML() (string, error) {
 	data, err := yaml.Marshal(solution)
 	return string(data), err
 }
 
-func (solution Solution) MarshalYAML() (interface{}, error) {
+func (solution UserSolution) MarshalYAML() (interface{}, error) {
 	return solution.ToKube(), nil
 }

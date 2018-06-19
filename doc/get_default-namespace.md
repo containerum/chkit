@@ -1,23 +1,35 @@
+---
+title: Get Default-Namespace
+linktitle: get default-namespace
+description: Print default namespace
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### get default-namespace
 
-**Aliases**   :
-
-default-ns, def-ns
-
-**Usage**     :
+**Description**:
 
 Print default namespace.
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  
 

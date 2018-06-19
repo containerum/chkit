@@ -1,27 +1,39 @@
+---
+title: Replace Configmap
+linktitle: replace configmap
+description: 
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### replace configmap
 
-**Aliases**   :
-
-cm, confmap, conf-map, comap
-
-**Usage**     :
+**Description**:
 
 
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  + file  : file with configmap data, .json, .yaml, .yml
-  + file-item  : configmap file item: $KEY:$FILENAME
-  + force  : suppress confirmation
-  + item  : configmap item: $KEY:$VALUE
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+|  | file | file with configmap data, .json, .yaml, .yml |  |
+|  | file-item | configmap file item: $KEY:$FILENAME |  |
+|  | force | suppress confirmation | false |
+|  | item | configmap item: $KEY:$VALUE |  |
 
-**Subcommand**:
 
-  
 

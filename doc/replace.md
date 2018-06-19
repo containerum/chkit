@@ -1,27 +1,35 @@
+---
+title: Replace
+linktitle: replace
+description: Replace deployment or service
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### replace
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Replace deployment or service
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  + configmap : 
-  + deployment : Replace deployment.
-  + ingress : Replace ingress with a new one.
-  + service : Replace service.
-  
 

@@ -1,25 +1,37 @@
+---
+title: Get Deployment
+linktitle: get deployment
+description: Print deployment data
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### get deployment
 
-**Aliases**   :
-
-depl, deployments, deploy
-
-**Usage**     :
+**Description**:
 
 Print deployment data.
 
-**Example**   :
+**Example**:
 
 namespace deployment_names... [-n namespace_label]
 
-**Flags**     :
+**Flags**:
 
-  + file f : output file
-  + output o : output format (yaml/json)
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | file | output file |  |
+| -o | output | output format (yaml/json) |  |
 
-**Subcommand**:
 
-  
 

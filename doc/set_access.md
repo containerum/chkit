@@ -1,30 +1,36 @@
+---
+title: Set Access
+linktitle: set access
+description: Set namespace access rights
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### set access
 
-**Aliases**   :
+**Description**:
 
-namespace-access, ns-access
+Set namespace access rights. Available access levels are:   none   owner   read   read-delete   write
 
-**Usage**     :
-
-Set namespace access rights.
-Available access levels are:
-  none
-  owner
-  read
-  read-delete
-  write
-
-**Example**   :
+**Example**:
 
 chkit set access $USERNAME $ACCESS_LEVEL [--namespace $ID]
 
-**Flags**     :
+**Flags**:
 
-  + force f : suppress confirmation
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | force | suppress confirmation | false |
 
-**Subcommand**:
 
-  
 

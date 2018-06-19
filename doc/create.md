@@ -1,27 +1,35 @@
+---
+title: Create
+linktitle: create
+description: Create resource (deployment, service
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### create
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Create resource (deployment, service...)
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  + configmap : 
-  + deployment : create deployment
-  + ingress : create ingress
-  + service : create service
-  
 

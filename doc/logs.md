@@ -1,25 +1,37 @@
+---
+title: Logs
+linktitle: logs
+description: view pod logs
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### logs
 
-**Aliases**   :
-
-log
-
-**Usage**     :
+**Description**:
 
 view pod logs. Aliases: log
 
-**Example**   :
+**Example**:
 
 logs pod_label [container] [--follow] [--prev] [--tail n] [--quiet]
 
-**Flags**     :
+**Flags**:
 
-  + follow f : follow pod logs
-  + tail t : print last <value> log lines
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | follow | follow pod logs | false |
+| -t | tail | print last <value> log lines | 100 |
 
-**Subcommand**:
 
-  
 

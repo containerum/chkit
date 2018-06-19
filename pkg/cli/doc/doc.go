@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
+	chkitDoc "github.com/containerum/chkit/pkg/model/doc"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/octago/sflags/gen/gpflag"
@@ -20,7 +21,8 @@ func Doc(ctx *context.Context) *cobra.Command {
 		Output  string `desc:"output file, STDOUT by default"`
 		Command string `desc:"print docs for command and its subcommands, example 'chkit doc --command \"create depl\"'"`
 		List    bool   `desc:"print command names"`
-		MD      bool   `desc:"generate markdown docs"`
+		Format  string
+		MD      bool `desc:"generate markdown docs"`
 	}
 	var cmd = &cobra.Command{
 		Use:   "doc",
@@ -31,33 +33,26 @@ func Doc(ctx *context.Context) *cobra.Command {
 			switch {
 			case flags.List:
 				for _, command := range getCommandList(currentCommand) {
-					fmt.Fprintf(doc, "%s\n\n", func() string {
-						if command.Parent() != nil && command.Parent().Use != "chkit" {
-							return command.Parent().Use + " " + command.Use
-						}
-						return command.Use
-					}())
+					if flags.Format == "" {
+						doc.WriteString(chkitDoc.Command{*command}.Doc().Path + "\n")
+						continue
+					}
+					var str, err = chkitDoc.Command{*command}.Format(flags.Format)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					doc.WriteString(str + "\n")
 				}
 			case flags.Command != "":
 				command, _, _ := cmd.Parent().Find(strings.Fields(flags.Command))
-				command.SetOutput(doc)
-				if flags.MD {
-					doc.WriteString(DocMD(command))
-				} else {
-					fmt.Fprintf(doc, "Command : %s\n\n", func() string {
-						if command.Parent() != nil && command.Parent().Use != "chkit" {
-							return command.Parent().Use + " " + command.Use
-						}
-						return command.Use
-					}())
-					//doc.WriteString(getDoc(head))
-					command.Usage()
-				}
+				var md = chkitDoc.Command{*command}.Markdown()
+				doc.WriteString(md)
 			case flags.Command == "":
 				for _, command := range getCommandList(currentCommand) {
 					command.SetOutput(doc)
 					if flags.MD {
-						doc.WriteString(DocMD(command))
+						doc.WriteString(chkitDoc.Command{*command}.Markdown())
 					} else {
 						fmt.Fprintf(doc, "Command : %s\n\n", func() string {
 							if command.Parent() != nil && command.Parent().Use != "chkit" {

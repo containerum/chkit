@@ -1,23 +1,35 @@
+---
+title: Login
+linktitle: login
+description: Login to system
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### login
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Login to system
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  
 

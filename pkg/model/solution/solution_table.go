@@ -1,27 +1,44 @@
 package solution
 
 import (
-	"strings"
+	"bytes"
+
+	"fmt"
 
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/util/text"
 )
 
-func (solution Solution) RenderTable() string {
+var (
+	_ model.TableRenderer = UserSolution{}
+)
+
+func (solution UserSolution) RenderTable() string {
 	return model.RenderTable(solution)
 }
 
-func (Solution) TableHeaders() []string {
+func (UserSolution) TableHeaders() []string {
 	return []string{
 		"Name",
-		"URL",
-		"Images",
+		"Template",
+		"Namespace",
+		"ENV",
 	}
 }
 
-func (solution Solution) TableRows() [][]string {
+func (solution UserSolution) TableRows() [][]string {
+	const envWidth = 32
 	return [][]string{{
 		solution.Name,
-		solution.URL,
-		strings.Join(solution.Images, "\n"),
+		solution.Template,
+		solution.Namespace,
+		func() string {
+			buf := bytes.NewBuffer(make([]byte, 0, (envWidth+1)*len(solution.Env)))
+			for k, v := range solution.Env {
+				env := text.Crop(fmt.Sprintf("%s->%q", k, v), envWidth) + "\n"
+				buf.WriteString(env)
+			}
+			return buf.String()
+		}(),
 	}}
 }

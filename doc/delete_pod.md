@@ -1,24 +1,36 @@
+---
+title: Delete Pod
+linktitle: delete pod
+description: Delete pods
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### delete pod
 
-**Aliases**   :
-
-po, pods
-
-**Usage**     :
+**Description**:
 
 Delete pods.
 
-**Example**   :
+**Example**:
 
 chkit delete pod pod_name [-n namespace]
 
-**Flags**     :
+**Flags**:
 
-  + force f : delete pod without confirmation
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | force | delete pod without confirmation | false |
 
-**Subcommand**:
 
-  
 

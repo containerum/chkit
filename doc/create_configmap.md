@@ -1,28 +1,40 @@
+---
+title: Create Configmap
+linktitle: create configmap
+description: 
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### create configmap
 
-**Aliases**   :
-
-cm, confmap, conf-map, comap
-
-**Usage**     :
+**Description**:
 
 
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  + file  : file with configmap data
-  + force f : suppress confirmation
-  + item-file  : configmap file, KEY:FILE_PATH or FILE_PATH
-  + item-string  : configmap item, KEY:VALUE string pair
-  + name  : configmap name
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+|  | file | file with configmap data |  |
+| -f | force | suppress confirmation | false |
+|  | item-file | configmap file, KEY:FILE_PATH or FILE_PATH |  |
+|  | item-string | configmap item, KEY:VALUE string pair |  |
+|  | name | configmap name | boitsov-gambling |
 
-**Subcommand**:
 
-  
 

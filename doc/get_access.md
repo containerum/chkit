@@ -1,23 +1,35 @@
+---
+title: Get Access
+linktitle: get access
+description: Print namespace access data
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### get access
 
-**Aliases**   :
-
-namespace-access, ns-access
-
-**Usage**     :
+**Description**:
 
 Print namespace access data.
 
-**Example**   :
+**Example**:
 
 chkit get ns-access $ID
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  
 

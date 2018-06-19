@@ -1,25 +1,36 @@
+---
+title: Update
+linktitle: update
+description: Use \chkit update [command] --help\ for more information about the command
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### update
 
-**Aliases**   :
-
-
-
-**Usage**     :
+**Description**:
 
 Use "chkit update [command] --help" for more information about the command.
 
-**Example**   :
+**Example**:
 
 chkit update [from github|dir <path>] [--debug]
 
-**Flags**     :
+**Flags**:
 
-  + debug  : print debug information
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+|  | debug | print debug information | false |
 
-**Subcommand**:
 
-  + from : 
-  
 

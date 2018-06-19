@@ -1,23 +1,35 @@
+---
+title: Set Default-Namespace
+linktitle: set default-namespace
+description: Set default namespace
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### set default-namespace
 
-**Aliases**   :
-
-def-ns, default-ns, defns, def-namespace
-
-**Usage**     :
+**Description**:
 
 Set default namespace
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  
 

@@ -1,24 +1,36 @@
+---
+title: Set Containerum-Api
+linktitle: set containerum-api
+description: Set Containerum API URL
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### set containerum-api
 
-**Aliases**   :
-
-api, current-api, api-addr, API
-
-**Usage**     :
+**Description**:
 
 Set Containerum API URL
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  + allow-self-signed-certs  : 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+|  | allow-self-signed-certs |  | false |
 
-**Subcommand**:
 
-  
 

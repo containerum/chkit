@@ -1,23 +1,35 @@
+---
+title: Get Profile
+linktitle: get profile
+description: Shows profile info
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### get profile
 
-**Aliases**   :
-
-me, user
-
-**Usage**     :
+**Description**:
 
 Shows profile info.
 
-**Example**   :
+**Example**:
 
 chkit get profile
 
-**Flags**     :
+**Flags**:
 
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
 
-**Subcommand**:
 
-  
 

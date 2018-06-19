@@ -1,24 +1,36 @@
+---
+title: Delete Configmap
+linktitle: delete configmap
+description: delete configmap
+
+categories: []
+keywords: []
+
+menu:
+  docs:
+    parent: "commands"
+    weight: 5
+
+weight: 2
+
+draft: false
+---
 
 ### delete configmap
 
-**Aliases**   :
-
-cm, confmap, conf-map, comap
-
-**Usage**     :
+**Description**:
 
 delete configmap
 
-**Example**   :
+**Example**:
 
 
 
-**Flags**     :
+**Flags**:
 
-  + force f : suppress confirmation
-  
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | force | suppress confirmation | false |
 
-**Subcommand**:
 
-  
 
