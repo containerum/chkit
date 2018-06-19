@@ -23,8 +23,12 @@ func (solutionEnv SolutionEnv) String() string {
 }
 
 type Env struct {
-	Name  string
 	Value string
+	Name  string
+}
+
+func (env Env) ToKube() kubeModels.Env {
+	return kubeModels.Env(env)
 }
 
 func (env Env) String() string {
@@ -66,4 +70,19 @@ func (envs Envs) Map() map[string]string {
 		m[env.Name] = env.Value
 	}
 	return m
+}
+
+func (envs Envs) ToKube() kubeModels.SolutionEnv {
+	return kubeModels.SolutionEnv{
+		Env: envs.Map(),
+	}
+}
+
+func (envs Envs) Get(name string) string {
+	for _, env := range envs {
+		if env.Name == name {
+			return env.Value
+		}
+	}
+	return ""
 }

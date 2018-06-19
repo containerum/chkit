@@ -35,3 +35,7 @@ func (solution Solution) Describe() string {
 		solution.URL,
 		text.Indent(SolutionEnvFromKube(env).String(), uint(len(env.Env))))
 }
+
+func (solution Solution) EnvironmentVars() Envs {
+	return EnvsFromMap(solution.Env).Sorted()
+}

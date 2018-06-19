@@ -39,20 +39,17 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 	for exit := false; !exit; {
 		var envItems activekit.MenuItems
 		var ind = 0
-		for k, v := range sol.Env {
+		for _, env := range sol.EnvironmentVars() {
 			envItems = envItems.Append(&activekit.MenuItem{
-				Label: fmt.Sprintf("Edit env      : %s", text.Crop(fmt.Sprintf("%s:%q", k, v), 32)),
+				Label: fmt.Sprintf("Edit env      : %s", text.Crop(env.String(), 32)),
 				Action: func(i int) func() error {
 					return func() error {
-						env := envMenu(model.Env{
-							Name:  k,
-							Value: v,
-						})
-						delete(sol.Env, k)
-						delete(userEnv, k)
+						env := envMenu(env.ToKube())
+						delete(sol.Env, env.Name)
+						delete(userEnv, env.Name)
 						if env != nil {
-							sol.Env[k] = v
-							userEnv[k] = v
+							sol.Env[env.Name] = env.Value
+							userEnv[env.Name] = env.Value
 						} else {
 							envItems.Delete(i)
 						}
