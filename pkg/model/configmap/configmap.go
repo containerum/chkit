@@ -48,7 +48,7 @@ func (config ConfigMap) AddItems(items ...Item) ConfigMap {
 	return config
 }
 
-func (config ConfigMap) Items() []Item {
+func (config ConfigMap) Items() Items {
 	var items = make([]Item, 0, len(config.Data))
 	for k, v := range config.Data {
 		items = append(items, Item{
