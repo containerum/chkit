@@ -14,18 +14,18 @@ import (
 )
 
 type WizardConfig struct {
-	Solution   *solution.UserSolution
+	Solution   *solution.Solution
 	Namespaces []string
 	Templates  []string
 	EditName   bool
 }
 
-func Wizard(ctx *context.Context, config WizardConfig) solution.UserSolution {
-	var sol = func() solution.UserSolution {
+func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
+	var sol = func() solution.Solution {
 		if config.Solution != nil {
 			return *config.Solution
 		}
-		return solution.UserSolution{
+		return solution.Solution{
 			Name:   namegen.Aster() + "-" + namegen.Color(),
 			Branch: "master",
 		}

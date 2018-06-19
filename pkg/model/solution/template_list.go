@@ -6,38 +6,38 @@ import (
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
-type SolutionList kubeModels.AvailableSolutionsList
+type TemplatesList kubeModels.AvailableSolutionsList
 
-func SolutionListFromKube(kubeList kubeModels.AvailableSolutionsList) SolutionList {
-	return SolutionList(kubeList)
+func TemplatesListFromKube(kubeList kubeModels.AvailableSolutionsList) TemplatesList {
+	return TemplatesList(kubeList)
 }
 
-func (list SolutionList) Len() int {
+func (list TemplatesList) Len() int {
 	return kubeModels.AvailableSolutionsList(list).Len()
 }
 
-func (list SolutionList) Filter(pred func(Solution) bool) SolutionList {
-	return SolutionList(kubeModels.AvailableSolutionsList(list).Filter(func(solution kubeModels.AvailableSolution) bool {
-		return pred(Solution(solution))
+func (list TemplatesList) Filter(pred func(template SolutionTemplate) bool) TemplatesList {
+	return TemplatesList(kubeModels.AvailableSolutionsList(list).Filter(func(solution kubeModels.AvailableSolution) bool {
+		return pred(SolutionTemplate(solution))
 	}))
 }
 
-func (list SolutionList) SearchByName(name string) SolutionList {
+func (list TemplatesList) SearchByName(name string) TemplatesList {
 	name = strings.ToLower(name)
-	return list.Filter(func(solution Solution) bool {
+	return list.Filter(func(solution SolutionTemplate) bool {
 		return strings.Contains(strings.ToLower(solution.Name), name)
 	})
 }
 
-func (list SolutionList) String() string {
+func (list TemplatesList) String() string {
 	var strs = make([]string, 0, list.Len())
 	for _, sol := range list.Solutions {
-		strs = append(strs, SolutionFromKube(sol).String())
+		strs = append(strs, SolutionTemplateFromKube(sol).String())
 	}
 	return strings.Join(strs, "\n")
 }
 
-func (list SolutionList) Names() []string {
+func (list TemplatesList) Names() []string {
 	var names = make([]string, 0, list.Len())
 	for _, sol := range list.Solutions {
 		names = append(names, sol.Name)

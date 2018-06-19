@@ -7,15 +7,15 @@ import (
 )
 
 var (
-	_ model.JSONrenderer = TemplatesList{}
+	_ model.JSONrenderer = SolutionsList{}
 )
 
-func (list TemplatesList) RenderJSON() (string, error) {
+func (list SolutionsList) RenderJSON() (string, error) {
 	data, err := list.MarshalJSON()
 	return string(data), err
 }
 
-func (list TemplatesList) MarshalJSON() ([]byte, error) {
+func (list SolutionsList) MarshalJSON() ([]byte, error) {
 	data, err := json.MarshalIndent(list, "", model.Indent)
 	return data, err
 }

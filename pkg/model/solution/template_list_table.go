@@ -2,18 +2,18 @@ package solution
 
 import "github.com/containerum/chkit/pkg/model"
 
-func (solution SolutionList) RenderTable() string {
+func (solution TemplatesList) RenderTable() string {
 	return model.RenderTable(solution)
 }
 
-func (SolutionList) TableHeaders() []string {
-	return (Solution{}).TableHeaders()
+func (TemplatesList) TableHeaders() []string {
+	return (SolutionTemplate{}).TableHeaders()
 }
 
-func (list SolutionList) TableRows() [][]string {
+func (list TemplatesList) TableRows() [][]string {
 	var rows = make([][]string, 0, list.Len())
 	for _, solution := range list.Solutions {
-		rows = append(rows, SolutionFromKube(solution).TableRows()...)
+		rows = append(rows, SolutionTemplateFromKube(solution).TableRows()...)
 	}
 	return rows
 }

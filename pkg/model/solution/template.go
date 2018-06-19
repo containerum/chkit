@@ -8,26 +8,26 @@ import (
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
-type Solution kubeModels.AvailableSolution
+type SolutionTemplate kubeModels.AvailableSolution
 
-func SolutionFromKube(kubeSolution kubeModels.AvailableSolution) Solution {
-	return Solution(kubeSolution.Copy())
+func SolutionTemplateFromKube(kubeSolution kubeModels.AvailableSolution) SolutionTemplate {
+	return SolutionTemplate(kubeSolution.Copy())
 }
 
-func (solution Solution) ToKube() kubeModels.AvailableSolution {
+func (solution SolutionTemplate) ToKube() kubeModels.AvailableSolution {
 	return kubeModels.AvailableSolution(solution).Copy()
 }
 
-func (solution Solution) Copy() Solution {
-	return SolutionFromKube(kubeModels.AvailableSolution(solution))
+func (solution SolutionTemplate) Copy() SolutionTemplate {
+	return SolutionTemplateFromKube(kubeModels.AvailableSolution(solution))
 }
 
-func (solution Solution) String() string {
+func (solution SolutionTemplate) String() string {
 	return fmt.Sprintf(`%s <%s> [%s]`,
 		solution.Name, solution.URL, solution.ImagePreview())
 }
 
-func (solution Solution) ImagePreview() string {
+func (solution SolutionTemplate) ImagePreview() string {
 	view := strings.Join(solution.Images, ", ")
 	width := text.Width(view)
 	const max = 32
@@ -37,7 +37,7 @@ func (solution Solution) ImagePreview() string {
 	return view
 }
 
-func (solution Solution) Describe() string {
+func (solution SolutionTemplate) Describe() string {
 	imgs := "Images:"
 	return fmt.Sprintf("Name: %s"+
 		"URL : %s"+

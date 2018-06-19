@@ -6,11 +6,11 @@ import (
 	"github.com/containerum/chkit/pkg/model"
 )
 
-func (solution Solution) RenderTable() string {
+func (solution SolutionTemplate) RenderTable() string {
 	return model.RenderTable(solution)
 }
 
-func (Solution) TableHeaders() []string {
+func (SolutionTemplate) TableHeaders() []string {
 	return []string{
 		"Name",
 		"URL",
@@ -18,7 +18,7 @@ func (Solution) TableHeaders() []string {
 	}
 }
 
-func (solution Solution) TableRows() [][]string {
+func (solution SolutionTemplate) TableRows() [][]string {
 	return [][]string{{
 		solution.Name,
 		solution.URL,

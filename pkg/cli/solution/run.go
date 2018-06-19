@@ -69,8 +69,8 @@ func Run(ctx *context.Context) *cobra.Command {
 	return command
 }
 
-func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solution.UserSolution {
-	var sol solution.UserSolution
+func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solution.Solution {
+	var sol solution.Solution
 	var flags = cmd.Flags()
 	if flags.Changed("file") {
 		sol = solutionFromFile(cmd)
@@ -105,7 +105,7 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 	return sol
 }
 
-func solutionFromFile(cmd *cobra.Command) solution.UserSolution {
+func solutionFromFile(cmd *cobra.Command) solution.Solution {
 	flags := cmd.Flags()
 	fName, _ := flags.GetString("file")
 	var data = func() []byte {
@@ -125,7 +125,7 @@ func solutionFromFile(cmd *cobra.Command) solution.UserSolution {
 		}
 		return data
 	}()
-	var sol solution.UserSolution
+	var sol solution.Solution
 	if path.Ext(fName) == "json" {
 		if err := json.Unmarshal(data, &sol); err != nil {
 			fmt.Println(err)

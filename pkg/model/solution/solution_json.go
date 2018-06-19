@@ -7,15 +7,15 @@ import (
 )
 
 var (
-	_ model.JSONrenderer = UserSolution{}
-	_ json.Marshaler     = UserSolution{}
+	_ model.JSONrenderer = Solution{}
+	_ json.Marshaler     = Solution{}
 )
 
-func (solution UserSolution) RenderJSON() (string, error) {
+func (solution Solution) RenderJSON() (string, error) {
 	data, err := solution.MarshalJSON()
 	return string(data), err
 }
 
-func (solution UserSolution) MarshalJSON() ([]byte, error) {
+func (solution Solution) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent(solution.ToKube(), "", model.Indent)
 }
