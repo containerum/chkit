@@ -15,7 +15,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	var force = false
 	var command = &cobra.Command{
 		Use:     "solution",
-		Short:   "delete solution",
+		Short:   "Delete running solution",
 		Example: "chkit delete solution [--force]",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {

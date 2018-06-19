@@ -25,8 +25,7 @@ func GetSvc(ctx *context.Context) *cobra.Command {
 	}
 	command := &cobra.Command{
 		Use:     "solsvc",
-		Short:   "show solution services data",
-		Long:    "Print solutions services data.",
+		Short:   "Show solution services data",
 		Example: "chkit get solution_svc solution_name [-o yaml/json] [-f output_file]",
 		Aliases: aliases_svc,
 		Run: func(command *cobra.Command, args []string) {

@@ -18,8 +18,7 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "solution",
 		Aliases: aliases,
-		Short:   "show solution info",
-		Long:    "Show solution info.",
+		Short:   "Show running solutions info",
 		Example: "chkit get solution solution_name [-o yaml/json] [-f output_file]",
 		Run: func(cmd *cobra.Command, args []string) {
 			serviceData, err := func() (model.Renderer, error) {

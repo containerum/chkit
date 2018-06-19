@@ -25,8 +25,7 @@ func GetDepl(ctx *context.Context) *cobra.Command {
 	}
 	command := &cobra.Command{
 		Use:     "soldepl",
-		Short:   "show solution deployments data",
-		Long:    "Print solutions deployments data.",
+		Short:   "Show solution deployments data",
 		Example: "chkit get solution_deploy solution_name [-o yaml/json] [-f output_file]",
 		Aliases: aliases_depl,
 		Run: func(command *cobra.Command, args []string) {

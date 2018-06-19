@@ -19,7 +19,8 @@ func GetEnvs(ctx *context.Context) *cobra.Command {
 		Use:     "template_envs",
 		Aliases: aliases_envs,
 		Short:   "get solutions template envs",
-		Long:    "Show list of solution environments.",
+		Long: "Show list of solution environments." +
+			"You can select specific branch specifying branch query (--branch). Default branch is 'master':\n",
 		Example: "chkit get template_envs [name]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
@@ -40,6 +41,6 @@ func GetEnvs(ctx *context.Context) *cobra.Command {
 		},
 	}
 	command.PersistentFlags().
-		String("branch", "", "branch")
+		String("branch", "", "solution template branch")
 	return command
 }
