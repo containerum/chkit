@@ -19,7 +19,7 @@ func GetEnvs(ctx *context.Context) *cobra.Command {
 		Use:     "template_envs",
 		Aliases: aliases_envs,
 		Short:   "get solutions template envs",
-		Long:    "Show list of solution enviroments.",
+		Long:    "Show list of solution environments.",
 		Example: "chkit get template_envs [name]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
