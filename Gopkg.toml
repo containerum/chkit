@@ -9,7 +9,7 @@
 
 [[constraint]]
   name = "github.com/containerum/kube-client"
-  version = "~0.23.4"
+  version = "~0.23.5"
 
 [[constraint]]
   branch = "master"
