@@ -25,7 +25,8 @@ func GetEnvs(ctx *context.Context) *cobra.Command {
 			logger := coblog.Logger(cmd)
 			logger.Debugf("loading solution info")
 			if len(args) == 1 {
-				var envs, err = ctx.Client.GetSolutionsTemplatesEnvs(args[0])
+				//TODO
+				var envs, err = ctx.Client.GetSolutionsTemplatesEnvs(args[0], "master")
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get solution list")
 					activekit.Attention("Unable to get solution list:\n%v", err)

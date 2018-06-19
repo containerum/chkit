@@ -3,6 +3,7 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -42,11 +43,11 @@ func (client *Client) GetSolutionsTemplatesList() (solution.TemplatesList, error
 	return gainedList, err
 }
 
-func (client *Client) GetSolutionsTemplatesEnvs(template string) (model.SolutionEnv, error) {
+func (client *Client) GetSolutionsTemplatesEnvs(template, branch string) (model.SolutionEnv, error) {
 	var kubeList model.SolutionEnv
 	err := retry(4, func() (bool, error) {
 		var err error
-		kubeList, err = client.kubeAPIClient.GetSolutionsTemplateEnv(template)
+		kubeList, err = client.kubeAPIClient.GetSolutionsTemplateEnv(template, branch)
 		switch {
 		case err == nil:
 			return false, err
@@ -69,8 +70,8 @@ func (client *Client) GetSolutionsTemplatesEnvs(template string) (model.Solution
 }
 
 func (client *Client) RunSolution(sol solution.Solution) error {
-	err := retry(4, func() (bool, error) {
-		kubeResp, err := client.kubeAPIClient.RunSolution(sol.ToKube(), sol.Namespace)
+	err := retry(0, func() (bool, error) {
+		kubeResp, err := client.kubeAPIClient.RunSolution(sol.ToKube(), sol.Namespace, sol.Branch)
 		switch {
 		case err == nil:
 			if kubeResp.NotCreated != 0 || len(kubeResp.Errors) != 0 {
@@ -179,15 +180,43 @@ func (client *Client) GetSolutionServices(namespace, solutionName string) (servi
 			gainedList = service.ServiceListFromKube(kubeLsit)
 			return false, err
 		case cherry.In(err,
-			autherr.ErrInvalidToken(),
+			kubeErrors.ErrResourceNotExist(),
+			kubeErrors.ErrAccessError(),
+			kubeErrors.ErrUnableGetResource()):
+			return false, ErrNamespaceNotExists
+		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
-			er := client.Auth()
-			return true, er
-		case cherry.In(err, kubeErrors.ErrAccessError()):
-			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
+			return true, client.Auth()
 		default:
 			return true, ErrFatalError.Wrap(err)
 		}
 	})
 	return gainedList, err
+}
+
+func (client *Client) DeleteSolution(namespace, solutionName string) error {
+	err := retry(4, func() (bool, error) {
+		err := client.kubeAPIClient.DeleteSolution(namespace, solutionName)
+		switch {
+		case err == nil:
+			return false, nil
+		case cherry.In(err,
+			rserrors.ErrResourceNotExists(),
+			kubeErrors.ErrAccessError(),
+			kubeErrors.ErrUnableDeleteResource()):
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
+			return true, client.Auth()
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logrus.WithError(err).WithField("namespace", namespace).
+			Errorf("unable to get solution")
+	}
+	return err
 }

@@ -41,6 +41,8 @@ func Get(ctx *context.Context) *cobra.Command {
 		prerun.WithInit(ctx, clitemplate.Get),        //
 		prerun.WithInit(ctx, clitemplate.GetEnvs),    //
 		prerun.WithInit(ctx, clisolution.Get),        //
+		prerun.WithInit(ctx, clisolution.GetDepl),    //
+		prerun.WithInit(ctx, clisolution.GetSvc),     //
 		containerumapi.Get(ctx),                      //
 		prerun.WithInit(ctx, cliconfigmap.Get),       //
 		//prerun.WithInit(ctx, volume.Get),             //

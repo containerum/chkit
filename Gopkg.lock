@@ -23,7 +23,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "c4491d2946859e230dc2c5b87ce125fe6836311c"
+  revision = "73629c81d6e4bf6e96e7c4e6b6832e3023d9186b"
 
 [[projects]]
   branch = "develop"
@@ -69,8 +69,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "dbfd7cb7735022ac3e819a199a4e07a44772bb45"
-  version = "v0.23.2"
+  revision = "b93e2664555d463aa293f7ba19d09a622c305b9b"
+  version = "v0.23.4"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -144,8 +144,8 @@
     "str",
     "strset"
   ]
-  revision = "96bbe73a017b7babd6c6e6e3c90f56c3322e142b"
-  version = "v0.2.1"
+  revision = "55d5ed8ca33a5833adafd0b96faa50bcb5f62db1"
+  version = "v0.2.3"
 
 [[projects]]
   branch = "master"
@@ -303,6 +303,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9cd5f95877d1005382b89932a83a52b2c0310173b711bfc9d8a09d7d31b0ce3a"
+  inputs-digest = "5c88840ff84e46e64e7999ee138cf3cbe621ebf9b4ccb466c24c984a49e3d0d4"
   solver-name = "gps-cdcl"
   solver-version = 1

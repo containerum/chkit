@@ -47,6 +47,12 @@ func Run(ctx *context.Context) *cobra.Command {
 			}
 			sol = activesolution.Wizard(ctx, config)
 			if activekit.YesNo("Are you sure you want to run solution %s?", sol.Name) {
+				for k := range sol.Env {
+					if sol.Env[k] == "" {
+						delete(sol.Env, k)
+					}
+				}
+
 				if err := ctx.Client.RunSolution(sol); err != nil {
 					fmt.Println(err)
 					os.Exit(1)

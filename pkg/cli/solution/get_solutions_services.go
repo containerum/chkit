@@ -13,9 +13,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var aliases_depl = []string{"sol_depl", "solution_deploy", "solution_deployments", "sol_deploy", "soldeploy"}
+var aliases_svc = []string{"sol_svc", "solution_svc", "solution_services"}
 
-func GetDepl(ctx *context.Context) *cobra.Command {
+func GetSvc(ctx *context.Context) *cobra.Command {
 	var getDeplDataConfig = struct {
 		configuration.ExportConfig
 	}{
@@ -24,16 +24,16 @@ func GetDepl(ctx *context.Context) *cobra.Command {
 		},
 	}
 	command := &cobra.Command{
-		Use:     "soldepl",
-		Short:   "show solution deployments data",
-		Long:    "Print solutions deployments data.",
-		Example: "chkit get solution_deploy solution_name [-o yaml/json] [-f output_file]",
-		Aliases: aliases_depl,
+		Use:     "solsvc",
+		Short:   "show solution services data",
+		Long:    "Print solutions services data.",
+		Example: "chkit get solution_svc solution_name [-o yaml/json] [-f output_file]",
+		Aliases: aliases_svc,
 		Run: func(command *cobra.Command, args []string) {
 			deplData, err := func() (model.Renderer, error) {
 				if len(args) == 1 {
-					logrus.Debugf("getting deployment from %q", ctx.Namespace)
-					list, err := ctx.Client.GetSolutionDeployments(ctx.Namespace.ID, args[0])
+					logrus.Debugf("getting services from %q", ctx.Namespace)
+					list, err := ctx.Client.GetSolutionServices(ctx.Namespace.ID, args[0])
 					if err != nil {
 						return nil, err
 					}
