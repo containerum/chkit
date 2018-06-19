@@ -127,6 +127,18 @@ func (list UserSolutionsList) Get(i int) UserSolution {
 	return list.Solutions[i]
 }
 
+func (list UserSolutionsList) Filter(pred func(UserSolution) bool) UserSolutionsList {
+	solutions := make([]UserSolution, 0, list.Len())
+	for _, sol := range list.Solutions {
+		if pred(sol.Copy()) {
+			solutions = append(solutions, sol.Copy())
+		}
+	}
+	return UserSolutionsList{
+		Solutions: solutions,
+	}
+}
+
 // UserSolution -- running solution
 //
 // swagger:model

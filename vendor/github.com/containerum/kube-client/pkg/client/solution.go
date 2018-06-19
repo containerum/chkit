@@ -28,12 +28,12 @@ func (client *Client) GetSolutionsTemplatesList() (model.AvailableSolutionsList,
 }
 
 // GetSolutionsTemplateEnv -- returns list of public solution template envs
-func (client *Client) GetSolutionsTemplateEnv(templateName string) (model.SolutionEnv, error) {
+func (client *Client) GetSolutionsTemplateEnv(templateName, branch string) (model.SolutionEnv, error) {
 	var solutionEnv model.SolutionEnv
 	err := client.RestAPI.Get(rest.Rq{
 		Result: &solutionEnv,
 		URL: rest.URL{
-			Path: templateEnvPath,
+			Path: templateEnvPath + "?branch=" + branch,
 			Params: rest.P{
 				"template": templateName,
 			},
@@ -58,13 +58,13 @@ func (client *Client) GetSolutionsTemplateResources(templateName string) (model.
 }
 
 // RunSolution -- creates new solution
-func (client *Client) RunSolution(solution model.UserSolution, namespace string) (model.RunSolutionResponse, error) {
+func (client *Client) RunSolution(solution model.UserSolution, namespace, branch string) (model.RunSolutionResponse, error) {
 	var resp model.RunSolutionResponse
 	err := client.RestAPI.Post(rest.Rq{
 		Result: &resp,
 		Body:   solution.Copy(),
 		URL: rest.URL{
-			Path: solutionsPath,
+			Path: solutionsPath + "?branch=" + branch,
 			Params: rest.P{
 				"namespace": namespace,
 			},

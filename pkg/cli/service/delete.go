@@ -68,7 +68,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 						return
 					}
 				}
-				logrus.Debugf("deleting service %q from %q", svcName)
+				logrus.Debugf("deleting service %q from %q", svcName, ctx.Namespace.ID)
 				err := ctx.Client.DeleteService(ctx.Namespace.ID, svcName)
 				if err != nil {
 					logrus.WithError(err).Debugf("error while deleting service")
