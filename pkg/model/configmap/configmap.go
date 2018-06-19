@@ -49,14 +49,14 @@ func (config ConfigMap) AddItems(items ...Item) ConfigMap {
 }
 
 func (config ConfigMap) Items() Items {
-	var items = make([]Item, 0, len(config.Data))
+	var items = make(Items, 0, len(config.Data))
 	for k, v := range config.Data {
 		items = append(items, Item{
 			Key:   k,
 			Value: v,
 		})
 	}
-	return items
+	return items.Sorted()
 }
 
 //  Get -- if defaultValues passed, then first return
