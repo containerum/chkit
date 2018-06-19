@@ -144,8 +144,8 @@
     "str",
     "strset"
   ]
-  revision = "96bbe73a017b7babd6c6e6e3c90f56c3322e142b"
-  version = "v0.2.1"
+  revision = "55d5ed8ca33a5833adafd0b96faa50bcb5f62db1"
+  version = "v0.2.3"
 
 [[projects]]
   branch = "master"
@@ -157,6 +157,7 @@
   name = "github.com/octago/sflags"
   packages = [
     ".",
+    "gen/gflag",
     "gen/gpflag"
   ]
   revision = "efb9cde83c817d30590cf630661142196dea4b6b"
@@ -303,6 +304,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9cd5f95877d1005382b89932a83a52b2c0310173b711bfc9d8a09d7d31b0ce3a"
+  inputs-digest = "0615c82afb2cc32024cf7fa2c09af905ab2e02ce50e121e4019f1ef87102bb5f"
   solver-name = "gps-cdcl"
   solver-version = 1

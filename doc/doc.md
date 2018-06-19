@@ -1,22 +1,17 @@
 ---
-title: Doc
-linktitle: doc
 description: Print full chkit help
-
-categories: []
-keywords: []
-
+draft: false
+linktitle: doc
 menu:
   docs:
-    parent: "commands"
+    parent: commands
     weight: 5
-
+title: Doc
 weight: 2
 
-draft: false
 ---
 
-### doc
+#### <a name="doc">doc</a>
 
 **Description**:
 
@@ -30,12 +25,14 @@ Print full chkit help
 
 | Short | Name | Usage | Default value |
 | ----- | ---- | ----- | ------------- |
-|  | command | print docs for command and its subcommands, example 'chkit doc --command "create depl"' |  |
-|  | format |  |  |
-| -h | help | help for doc | false |
-|  | list | print command names | false |
-|  | md | generate markdown docs | false |
-|  | output | output file, STDOUT by default |  |
+|  | --command | print docs for command and its subcommands, example 'chkit doc --command "create depl"' |  |
+|  | --format |  |  |
+|  | --list | print command names | false |
+|  | --md | generate markdown docs | false |
+|  | --output | output file, STDOUT by default |  |
+
+
+**Subcommands**:
 
 
 

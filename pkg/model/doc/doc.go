@@ -6,6 +6,8 @@ import (
 
 	"strings"
 
+	"fmt"
+
 	"github.com/ninedraft/boxofstuff/str"
 	"github.com/octago/sflags"
 	"github.com/spf13/cobra"
@@ -13,8 +15,8 @@ import (
 )
 
 const (
-	ListFormat       = "{{.Name}}"
-	MarkdownTemplate = "### {{.Path}}\n\n" +
+	ListFormat       = "{{.Path}}"
+	MarkdownTemplate = `#### <a name="{{.Link}}">{{.Path}}</a>` + "\n\n" +
 		"**Description**:\n\n{{.Description}}\n\n" +
 		"**Example**:\n\n{{.Example}}\n\n" +
 		"**Flags**:\n\n" +
@@ -22,11 +24,26 @@ const (
 		"| ----- | ---- | ----- | ------------- |\n" +
 		"{{range .Flags}}" +
 		"| {{if .Short}}-{{.Short}}{{end}} " +
-		"| {{.Name}} " +
+		"| --{{.Name}} " +
 		"| {{.Usage}} " +
 		"| {{if ne .DefValue \"[]\"}}{{.DefValue}}{{end}} " +
 		"|\n" +
+		"{{end}}\n\n" +
+		"**Subcommands**:\n\n" +
+		"{{range .Subcommands}}" +
+		"* **[{{.Name}}](#{{.Link}})** {{.ShortDescription}}\n" +
 		"{{end}}\n\n"
+	TextTamplate = "Command: {{.Path}}\n" +
+		"Description:\n{{.Description}}\n" +
+		"Example:\n{{.Example}}\n" +
+		"Flags:\n" +
+		"{{range .Flags}}" +
+		"{{if .Short}}-{{.Short}}{{else}}  {{end}} " +
+		"--{{.Name}} " +
+		"{{.Usage}} " +
+		"{{if ne .DefValue \"[]\"}}{{.DefValue}}{{end}} " +
+		"\n" +
+		"{{end}}\n"
 )
 
 type Command struct {
@@ -34,11 +51,27 @@ type Command struct {
 }
 
 type Doc struct {
+	Link        string        `json:"link"`
 	Path        string        `json:"path"`
 	Name        string        `json:"name"`
 	Description string        `json:"help"`
 	Example     string        `json:"example"`
 	Flags       []sflags.Flag `json:"flags"`
+	Subcommands []SubCommand  `json:"subcommands,omitempty"`
+}
+
+type SubCommand struct {
+	Link             string `json:"link"`
+	Name             string `json:"name"`
+	ShortDescription string `json:"short_description"`
+}
+
+func (cmd Command) String() string {
+	var str, err = cmd.Format(TextTamplate)
+	if err != nil {
+		panic(fmt.Errorf("Command.String: %v", err))
+	}
+	return str
 }
 
 func (cmd Command) Doc() Doc {
@@ -53,16 +86,30 @@ func (cmd Command) Doc() Doc {
 			})
 		}
 	})
+	var subc = make([]SubCommand, 0, len(cmd.Commands()))
+	for _, sc := range cmd.Commands() {
+		subc = append(subc, SubCommand{
+			Link: str.Vector{sc.CommandPath()}.
+				Map(str.TrimPrefix("chkit ")).
+				Map(strings.NewReplacer(" ", "_").Replace).
+				FirstNonEmpty(),
+			Name:             strings.TrimPrefix(sc.CommandPath(), "chkit "),
+			ShortDescription: sc.Short,
+		})
+	}
+	var cmdPath = strings.TrimPrefix(cmd.CommandPath(), "chkit ")
 	return Doc{
-		Path: strings.TrimPrefix(cmd.CommandPath(), "chkit "),
+		Link: strings.Replace(cmdPath, " ", "_", -1),
+		Path: cmdPath,
 		Name: cmd.Name(),
 		Description: strings.Replace(str.Vector{
 			cmd.Long,
 			cmd.Short,
 			cmd.Example,
 		}.FirstNonEmpty(), "\n", " ", -1),
-		Example: cmd.Example,
-		Flags:   cmdFlags,
+		Example:     cmd.Example,
+		Flags:       cmdFlags,
+		Subcommands: subc,
 	}
 }
 
@@ -79,7 +126,7 @@ func (cmd Command) Format(format string) (string, error) {
 func (cmd Command) Markdown() string {
 	var str, err = cmd.Format(MarkdownTemplate)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("Command.Markdown: %v", err))
 	}
 	return str
 }

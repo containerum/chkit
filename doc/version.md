@@ -1,22 +1,17 @@
 ---
-title: Version
-linktitle: version
 description: Print version
-
-categories: []
-keywords: []
-
+draft: false
+linktitle: version
 menu:
   docs:
-    parent: "commands"
+    parent: commands
     weight: 5
-
+title: Version
 weight: 2
 
-draft: false
 ---
 
-### version
+#### <a name="version">version</a>
 
 **Description**:
 
@@ -30,6 +25,9 @@ Print version
 
 | Short | Name | Usage | Default value |
 | ----- | ---- | ----- | ------------- |
+
+
+**Subcommands**:
 
 
 

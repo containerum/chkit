@@ -1,22 +1,17 @@
 ---
-title: Login
-linktitle: login
 description: Login to system
-
-categories: []
-keywords: []
-
+draft: false
+linktitle: login
 menu:
   docs:
-    parent: "commands"
+    parent: commands
     weight: 5
-
+title: Login
 weight: 2
 
-draft: false
 ---
 
-### login
+#### <a name="login">login</a>
 
 **Description**:
 
@@ -30,6 +25,11 @@ Login to system
 
 | Short | Name | Usage | Default value |
 | ----- | ---- | ----- | ------------- |
+| -p | --password |  |  |
+| -u | --username |  |  |
+
+
+**Subcommands**:
 
 
 

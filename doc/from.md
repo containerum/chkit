@@ -1,21 +1,21 @@
 ---
-description: Rename resource
+description: ""
 draft: false
-linktitle: rename
+linktitle: update from
 menu:
   docs:
     parent: commands
     weight: 5
-title: Rename
+title: Update From
 weight: 2
 
 ---
 
-#### <a name="rename">rename</a>
+#### <a name="update_from">update from</a>
 
 **Description**:
 
-Rename resource
+
 
 **Example**:
 
@@ -29,18 +29,19 @@ Rename resource
 
 **Subcommands**:
 
-* **[rename namespace](#rename_namespace)** 
+* **[update from dir](#update_from_dir)** update from local directory
+* **[update from github](#update_from_github)** update from github releases
 
 
-#### <a name="rename_namespace">rename namespace</a>
+#### <a name="update_from_dir">update from dir</a>
 
 **Description**:
 
-chkit rename ns $ID $NEW_NAME
+Update from local directory.
 
 **Example**:
 
-chkit rename ns $ID $NEW_NAME
+chkit update from dir <path> [--debug]
 
 **Flags**:
 
