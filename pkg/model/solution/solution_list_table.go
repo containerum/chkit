@@ -2,15 +2,15 @@ package solution
 
 import "github.com/containerum/chkit/pkg/model"
 
-func (solution SolutionList) RenderTable() string {
-	return model.RenderTable(solution)
+func (list SolutionsList) RenderTable() string {
+	return model.RenderTable(list)
 }
 
-func (SolutionList) TableHeaders() []string {
+func (SolutionsList) TableHeaders() []string {
 	return (Solution{}).TableHeaders()
 }
 
-func (list SolutionList) TableRows() [][]string {
+func (list SolutionsList) TableRows() [][]string {
 	var rows = make([][]string, 0, list.Len())
 	for _, solution := range list.Solutions {
 		rows = append(rows, SolutionFromKube(solution).TableRows()...)

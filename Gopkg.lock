@@ -23,19 +23,19 @@
   branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "c4491d2946859e230dc2c5b87ce125fe6836311c"
+  revision = "4c8a08f1b7ca2fff70f8b6b28058d4e9d44d0bc7"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
   packages = ["pkg/rsErrors"]
-  revision = "9ef4a8845704cac6bf82c7afea269418f7cbe48e"
+  revision = "caae867329e6040b42119a47482bfdea8c36a1f9"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/user-manager"
   packages = ["pkg/umErrors"]
-  revision = "a6183da4b26b6150d849445839066239cea61ae8"
+  revision = "70d4bb67c9a7c200ca753a6e695b80ee1e2a7fc6"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -69,8 +69,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "dbfd7cb7735022ac3e819a199a4e07a44772bb45"
-  version = "v0.23.2"
+  revision = "d58259f4bcfeac52fbfda0db4f10d90adafecf27"
+  version = "v0.23.5"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -144,8 +144,8 @@
     "str",
     "strset"
   ]
-  revision = "96bbe73a017b7babd6c6e6e3c90f56c3322e142b"
-  version = "v0.2.1"
+  revision = "55d5ed8ca33a5833adafd0b96faa50bcb5f62db1"
+  version = "v0.2.3"
 
 [[projects]]
   branch = "master"
@@ -303,6 +303,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9cd5f95877d1005382b89932a83a52b2c0310173b711bfc9d8a09d7d31b0ce3a"
+  inputs-digest = "7897622140e59ea9873900defb19dd7b38ab0adbea895ff599927245e386900f"
   solver-name = "gps-cdcl"
   solver-version = 1

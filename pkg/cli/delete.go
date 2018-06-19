@@ -13,6 +13,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
+	"github.com/containerum/chkit/pkg/cli/solution"
 	"github.com/containerum/chkit/pkg/cli/volume"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -47,6 +48,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		clipod.Delete(ctx),
 		clingress.Delete(ctx),
 		cliconfigmap.Delete(ctx),
+		clisolution.Delete(ctx),
 	)
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.Namespace.ID, "")

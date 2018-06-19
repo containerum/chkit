@@ -14,18 +14,18 @@ import (
 )
 
 type WizardConfig struct {
-	Solution   *solution.UserSolution
+	Solution   *solution.Solution
 	Namespaces []string
 	Templates  []string
 	EditName   bool
 }
 
-func Wizard(ctx *context.Context, config WizardConfig) solution.UserSolution {
-	var sol = func() solution.UserSolution {
+func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
+	var sol = func() solution.Solution {
 		if config.Solution != nil {
 			return *config.Solution
 		}
-		return solution.UserSolution{
+		return solution.Solution{
 			Name:   namegen.Aster() + "-" + namegen.Color(),
 			Branch: "master",
 		}
@@ -90,7 +90,12 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.UserSolution {
 							Action: func(templ string) func() error {
 								return func() error {
 									sol.Template = templ
-									if env, err := ctx.Client.GetSolutionsTemplatesEnvs(templ); err == nil {
+									if env, err := ctx.Client.GetSolutionsTemplatesEnvs(sol.Template, sol.Branch); err == nil {
+										for k, v := range env.Env {
+											if strings.HasPrefix(v, "{{") {
+												env.Env[k] = ""
+											}
+										}
 										sol.Env = env.Env
 									}
 									for k, v := range userEnv {
@@ -125,6 +130,17 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.UserSolution {
 						return nil
 					}
 					sol.Branch = branch
+					if env, err := ctx.Client.GetSolutionsTemplatesEnvs(sol.Template, sol.Branch); err == nil {
+						for k, v := range env.Env {
+							if strings.HasPrefix(v, "{{") {
+								env.Env[k] = ""
+							}
+						}
+						sol.Env = env.Env
+					}
+					for k, v := range userEnv {
+						sol.Env[k] = v
+					}
 					return nil
 				},
 			},
