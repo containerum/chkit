@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/blang/semver"
+	model2 "github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/kube-client/pkg/model"
 )
@@ -56,6 +57,7 @@ func (depl *Deployment) ToKube() model.Deployment {
 		Containers: containers,
 		Version:    depl.Version,
 		Active:     depl.Active,
+		CreatedAt:  depl.CreatedAt.Format(model2.TimestampFormat),
 	}
 	return kubeDepl
 }
@@ -83,6 +85,7 @@ func (depl Deployment) Copy() Deployment {
 	version.Pre = append([]semver.PRVersion{}, version.Pre...)
 	return Deployment{
 		Name:       depl.Name,
+		CreatedAt:  depl.CreatedAt,
 		Replicas:   depl.Replicas,
 		Active:     depl.Active,
 		Status:     status,
