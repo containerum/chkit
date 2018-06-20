@@ -65,7 +65,7 @@ func (menu *Menu) Run() (*MenuItem, error) {
 	for {
 		fmt.Printf("%s\n", menu.Title)
 		for i, item := range menu.Items {
-			fmt.Printf("%d) %s\n", i+1, item.String())
+			fmt.Printf("%2d) %s\n", i+1, item.String())
 		}
 		fmt.Printf("%s", menu.Promt)
 		input, err := menu.scanLine()

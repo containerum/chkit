@@ -41,8 +41,10 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 		var envItems activekit.MenuItems
 		var i = 0
 		for k, v := range sol.Env {
+		var ind = 0
+		for _, env := range sol.EnvironmentVars() {
 			envItems = envItems.Append(&activekit.MenuItem{
-				Label: fmt.Sprintf("Edit env      : %s", text.Crop(fmt.Sprintf("%s:%q", k, v), 32)),
+				Label: fmt.Sprintf("Edit env      : %s", text.Crop(env.String(), 32)),
 				Action: func(i int) func() error {
 					kItem := k
 					vItem := v
@@ -53,6 +55,9 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 						})
 						delete(sol.Env, kItem)
 						delete(userEnv, kItem)
+						env := envMenu(env.ToKube())
+						delete(sol.Env, env.Name)
+						delete(userEnv, env.Name)
 						if env != nil {
 							sol.Env[env.Name] = env.Value
 							userEnv[env.Name] = env.Value
@@ -166,12 +171,12 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 									Name:  env.Name,
 									Value: env.Value,
 								})
+								delete(sol.Env, env.Name)
+								delete(userEnv, env.Name)
 								if env != nil {
 									sol.Env[env.Name] = env.Value
 									userEnv[env.Name] = env.Value
 								} else {
-									delete(sol.Env, env.Name)
-									delete(userEnv, env.Name)
 									envItems.Delete(i)
 								}
 								return nil
