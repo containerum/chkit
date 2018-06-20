@@ -156,7 +156,7 @@ func getStringItems(rawItems []string) ([]configmap.Item, error) {
 		}
 		items = append(items, configmap.Item{
 			Key:   key,
-			Value: value,
+			Value: base64.StdEncoding.EncodeToString([]byte(value)),
 		})
 	}
 	return items, nil
