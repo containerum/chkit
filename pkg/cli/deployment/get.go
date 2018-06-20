@@ -39,24 +39,32 @@ func Get(ctx *context.Context) *cobra.Command {
 			defer logrus.Debugf("END")
 			var deplData model.Renderer
 			if len(args) == 1 {
+				logger.Debugf("getting deployment %q from namespace %q", args[0], ctx.Namespace)
 				var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, args[0])
 				if err != nil {
+					logger.WithError(err).Errorf("unable to get deployment %q from namespace %q", args[0], ctx.Namespace)
 					ferr.Println(err)
 					os.Exit(1)
 				}
 				deplData = depl
 			} else {
+				logrus.Debugf("getting deployment list from namespace %q", ctx.Namespace)
 				var list, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
+					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
 					ferr.Println(err)
 					os.Exit(1)
 				}
-				var names = strset.NewSet(args)
-				list = list.Filter(func(depl deployment.Deployment) bool {
-					return names.Have(depl.Name)
-				})
+				if len(args) > 0 {
+					logrus.Debugf("filtering deployment list: including only %v", args)
+					var names = strset.NewSet(args)
+					list = list.Filter(func(depl deployment.Deployment) bool {
+						return names.Have(depl.Name)
+					})
+				}
 				deplData = list
 			}
+			logger.Debugf("exporting deployment data")
 			if err := configuration.ExportData(deplData, configuration.ExportConfig{
 				Format:   configuration.ExportFormat(flags.Output),
 				Filename: flags.File,
