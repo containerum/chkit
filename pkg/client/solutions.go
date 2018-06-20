@@ -3,7 +3,7 @@ package chClient
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
 	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
-	"git.containerum.net/ch/resource-service/pkg/rsErrors"
+	"git.containerum.net/ch/solutions/pkg/sErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -15,6 +15,7 @@ import (
 
 const (
 	ErrUnableToRunAllSolutionComponents chkitErrors.Err = "unable to run all solution components"
+	ErrSolutionNotExists                chkitErrors.Err = "solution not exists\n"
 )
 
 func (client *Client) GetSolutionsTemplatesList() (solution.TemplatesList, error) {
@@ -110,6 +111,9 @@ func (client *Client) GetRunningSolution(namespace, solutionName string) (soluti
 			logrus.Debugf("running auth")
 			er := client.Auth()
 			return true, er
+		case cherry.In(err,
+			sErrors.ErrSolutionNotExist()):
+			return false, ErrSolutionNotExists
 		case cherry.In(err, kubeErrors.ErrAccessError()):
 			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
 		default:
@@ -161,6 +165,9 @@ func (client *Client) GetSolutionDeployments(namespace, solutionName string) (de
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableGetResource()):
 			return false, ErrNamespaceNotExists
+		case cherry.In(err,
+			sErrors.ErrSolutionNotExist()):
+			return false, ErrSolutionNotExists
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
 			return true, client.Auth()
@@ -184,6 +191,9 @@ func (client *Client) GetSolutionServices(namespace, solutionName string) (servi
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableGetResource()):
 			return false, ErrNamespaceNotExists
+		case cherry.In(err,
+			sErrors.ErrSolutionNotExist()):
+			return false, ErrSolutionNotExists
 		case cherry.In(err, autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound()):
 			return true, client.Auth()
@@ -201,10 +211,12 @@ func (client *Client) DeleteSolution(namespace, solutionName string) error {
 		case err == nil:
 			return false, nil
 		case cherry.In(err,
-			rserrors.ErrResourceNotExists(),
 			kubeErrors.ErrAccessError(),
 			kubeErrors.ErrUnableDeleteResource()):
 			return false, err
+		case cherry.In(err,
+			sErrors.ErrSolutionNotExist()):
+			return false, ErrSolutionNotExists
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
 			autherr.ErrTokenNotFound(),
