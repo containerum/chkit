@@ -174,3 +174,24 @@ func (vector Vector) Classify(key func(str string) string) map[string][]string {
 	}
 	return classes
 }
+
+func (vector Vector) Inverse() Vector {
+	var inversed = vector.Copy()
+	var vLen = vector.Len()
+	for i := 0; i < vLen/2; i++ {
+		inversed[i], inversed[vLen-i-1] = inversed[vLen-i-1], inversed[i]
+	}
+	return inversed
+}
+
+func (vector Vector) Eq(v Vector) bool {
+	if vector.Len() != v.Len() {
+		return false
+	}
+	for i, str := range vector {
+		if v[i] != str {
+			return false
+		}
+	}
+	return true
+}
