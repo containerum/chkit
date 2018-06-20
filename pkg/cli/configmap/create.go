@@ -152,11 +152,11 @@ func getStringItems(rawItems []string) ([]configmap.Item, error) {
 			key = strings.TrimSpace(tokens[0])
 			value = strings.TrimSpace(tokens[1])
 		} else {
-			logrus.Panicf("[chkit/pkg/cli/configmap.getStringItems] ivalid token number in raw string item", len(tokens))
+			return nil, fmt.Errorf("invalid token number in raw string item (got %v, required 2)", len(tokens))
 		}
 		items = append(items, configmap.Item{
 			Key:   key,
-			Value: value,
+			Value: base64.StdEncoding.EncodeToString([]byte(value)),
 		})
 	}
 	return items, nil
