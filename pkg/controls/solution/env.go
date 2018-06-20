@@ -1,4 +1,4 @@
-package activesolution
+package solution
 
 import (
 	"fmt"
