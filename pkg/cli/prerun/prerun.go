@@ -98,7 +98,7 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 	if !ok {
 		return fmt.Errorf("unable to find namespace %q", userfriendlyID)
 	}
-	ctx.SetNamespace(ns)
+	ctx.Namespace = context.NamespaceFromModel(ns)
 	return nil
 }
 
@@ -128,7 +128,7 @@ func ResolveLabel(ctx *context.Context, label string) (namespace.Namespace, erro
 	}
 	ns, ok := nsList.GetByUserFriendlyID(label)
 	if !ok {
-		return namespace.Namespace{}, fmt.Errorf("unable to find deployment")
+		return namespace.Namespace{}, fmt.Errorf("unable to find deployment %q", ns)
 	}
 	return ns, nil
 }
