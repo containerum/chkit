@@ -20,7 +20,7 @@ type WizardConfig struct {
 	EditName   bool
 }
 
-func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
+func WizardF(ctx *context.Context, config WizardConfig) solution.Solution {
 	var sol = func() solution.Solution {
 		if config.Solution != nil {
 			return *config.Solution

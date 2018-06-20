@@ -46,3 +46,38 @@ func (solution SolutionTemplate) Describe() string {
 		solution.URL,
 		text.Indent(strings.Join(solution.Images, "\n"), uint(len(imgs))))
 }
+
+type SolutionTemplates []SolutionTemplate
+
+func (list SolutionTemplates) Len() int {
+	return len(list)
+}
+
+func (list SolutionTemplates) New() SolutionTemplates {
+	return make(SolutionTemplates, 0, list.Len())
+}
+
+func (list SolutionTemplates) Copy() SolutionTemplates {
+	var cp = list.New()
+	for _, templ := range list {
+		cp = append(cp, templ.Copy())
+	}
+	return cp
+}
+
+func (list SolutionTemplates) Names() []string {
+	var names = make([]string, list.Len())
+	for _, templ := range list {
+		names = append(names, templ.Name)
+	}
+	return names
+}
+
+func (list SolutionTemplates) GetByName(name string) (SolutionTemplate, bool) {
+	for _, templ := range list {
+		if templ.Name == name {
+			return templ.Copy(), true
+		}
+	}
+	return SolutionTemplate{}, false
+}

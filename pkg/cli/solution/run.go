@@ -9,8 +9,8 @@ import (
 	"path"
 
 	"github.com/containerum/chkit/pkg/context"
+	solutionControls "github.com/containerum/chkit/pkg/controls/solution"
 	"github.com/containerum/chkit/pkg/model/solution"
-	"github.com/containerum/chkit/pkg/model/solution/activesolution"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/spf13/cobra"
@@ -40,12 +40,12 @@ func Run(ctx *context.Context) *cobra.Command {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			config := activesolution.WizardConfig{
+			config := solutionControls.WizardConfig{
 				EditName:  true,
 				Templates: solutions.Names(),
 				Solution:  &sol,
 			}
-			sol = activesolution.Wizard(ctx, config)
+			sol = solutionControls.WizardF(ctx, config)
 			if activekit.YesNo("Are you sure you want to run solution %s?", sol.Name) {
 				for k := range sol.Env {
 					if sol.Env[k] == "" {

@@ -33,7 +33,7 @@ func configmapsMenu(oldCm []model.ContainerVolume, configmaps []string) []model.
 					var configmapName string
 					(&activekit.Menu{
 						Title: "Select configmap",
-						Items: activekit.SelectString(configmaps, func(s string) error {
+						Items: activekit.StringSelector(configmaps, func(s string) error {
 							configmapName = s
 							return nil
 						}),
