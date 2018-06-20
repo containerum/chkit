@@ -6,6 +6,54 @@ import (
 	"unicode/utf8"
 )
 
+func SplitS(str, delim string, n int) Vector {
+	return strings.SplitN(str, delim, n)
+}
+
+func Split(delim string, n int) func(str string) []string {
+	return func(str string) []string {
+		return strings.SplitN(str, delim, n)
+	}
+}
+
+func Fields(str string) Vector {
+	return strings.Fields(str)
+}
+
+func FieldsFunc(str string, fieldFunc func(r rune) bool) Vector {
+	return strings.FieldsFunc(str, fieldFunc)
+}
+
+func Replace(oldStr, newStr string, n int) func(str string) string {
+	return func(str string) string {
+		return strings.Replace(str, oldStr, newStr, n)
+	}
+}
+
+func HasSuffix(suffix string) func(str string) bool {
+	return func(str string) bool {
+		return strings.HasSuffix(str, suffix)
+	}
+}
+
+func NotHasSuffix(suffix string) func(str string) bool {
+	return func(str string) bool {
+		return !strings.HasSuffix(str, suffix)
+	}
+}
+
+func HasPrefix(prefix string) func(str string) bool {
+	return func(str string) bool {
+		return strings.HasSuffix(str, prefix)
+	}
+}
+
+func NotHasPrefix(prefix string) func(str string) bool {
+	return func(str string) bool {
+		return !strings.HasSuffix(str, prefix)
+	}
+}
+
 func Match(re string) func(str string) bool {
 	var reg = regexp.MustCompile(re)
 	return func(str string) bool {
