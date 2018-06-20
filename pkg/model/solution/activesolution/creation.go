@@ -30,34 +30,35 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 			Branch: "master",
 		}
 	}()
-
 	userEnv := make(map[string]string, 0)
+	sol.Env = make(map[string]string, 0)
 	for k, v := range sol.Env {
 		userEnv[k] = v
 	}
 
 	for exit := false; !exit; {
 		var envItems activekit.MenuItems
-		var ind = 0
+		var i = 0
 		for _, env := range sol.EnvironmentVars() {
 			envItems = envItems.Append(&activekit.MenuItem{
 				Label: fmt.Sprintf("Edit env      : %s", text.Crop(env.String(), 32)),
 				Action: func(i int) func() error {
+					envItem := env
 					return func() error {
-						env := envMenu(env.ToKube())
-						delete(sol.Env, env.Name)
-						delete(userEnv, env.Name)
-						if env != nil {
-							sol.Env[env.Name] = env.Value
-							userEnv[env.Name] = env.Value
+						envupd := envMenu(envItem.ToKube())
+						delete(sol.Env, envItem.Name)
+						delete(userEnv, envItem.Name)
+						if envupd != nil {
+							sol.Env[envItem.Name] = envupd.Value
+							userEnv[envItem.Name] = envupd.Value
 						} else {
 							envItems.Delete(i)
 						}
 						return nil
 					}
-				}(ind),
+				}(i),
 			})
-			ind++
+			i++
 		}
 		var menu = activekit.MenuItems{
 			func() *activekit.MenuItem {
