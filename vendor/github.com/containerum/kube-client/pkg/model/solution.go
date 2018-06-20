@@ -46,7 +46,7 @@ type AvailableSolution struct {
 	Limits *SolutionLimits `json:"limits"`
 	Images []string        `json:"images"`
 	URL    string          `json:"url"`
-	Active bool            `json:"active,omitempty"`
+	Active bool            `json:"active"`
 }
 
 func (solution AvailableSolution) Copy() AvailableSolution {
@@ -127,6 +127,18 @@ func (list UserSolutionsList) Get(i int) UserSolution {
 	return list.Solutions[i]
 }
 
+func (list UserSolutionsList) Filter(pred func(UserSolution) bool) UserSolutionsList {
+	solutions := make([]UserSolution, 0, list.Len())
+	for _, sol := range list.Solutions {
+		if pred(sol.Copy()) {
+			solutions = append(solutions, sol.Copy())
+		}
+	}
+	return UserSolutionsList{
+		Solutions: solutions,
+	}
+}
+
 // UserSolution -- running solution
 //
 // swagger:model
@@ -134,6 +146,7 @@ type UserSolution struct {
 	ID     string            `json:"id,omitempty"`
 	Branch string            `json:"branch"`
 	Env    map[string]string `json:"env"`
+	URL    string            `json:"url"`
 	// required: true
 	Template string `json:"template"`
 	// required: true

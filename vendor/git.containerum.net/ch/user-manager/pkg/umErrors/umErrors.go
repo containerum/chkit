@@ -340,7 +340,7 @@ func ErrUserNotBlacklisted(params ...func(*cherry.Err)) *cherry.Err {
 }
 
 func ErrUnableBlacklistDomain(params ...func(*cherry.Err)) *cherry.Err {
-	err := &cherry.Err{Message: "User is already blacklisted", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x1b}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	err := &cherry.Err{Message: "Unable to blacklist domain", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x1b}, Details: []string(nil), Fields: cherry.Fields(nil)}
 	for _, param := range params {
 		param(err)
 	}
@@ -352,7 +352,7 @@ func ErrUnableBlacklistDomain(params ...func(*cherry.Err)) *cherry.Err {
 }
 
 func ErrUnableUnblacklistDomain(params ...func(*cherry.Err)) *cherry.Err {
-	err := &cherry.Err{Message: "User is not blacklisted", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x1c}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	err := &cherry.Err{Message: "Unable to unblacklist domain", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x1c}, Details: []string(nil), Fields: cherry.Fields(nil)}
 	for _, param := range params {
 		param(err)
 	}
@@ -364,7 +364,7 @@ func ErrUnableUnblacklistDomain(params ...func(*cherry.Err)) *cherry.Err {
 }
 
 func ErrDomainAlreadyBlacklisted(params ...func(*cherry.Err)) *cherry.Err {
-	err := &cherry.Err{Message: "User is already blacklisted", StatusHTTP: 409, ID: cherry.ErrID{SID: "UserManager", Kind: 0x1d}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	err := &cherry.Err{Message: "Domain is already blacklisted", StatusHTTP: 409, ID: cherry.ErrID{SID: "UserManager", Kind: 0x1d}, Details: []string(nil), Fields: cherry.Fields(nil)}
 	for _, param := range params {
 		param(err)
 	}
@@ -376,7 +376,7 @@ func ErrDomainAlreadyBlacklisted(params ...func(*cherry.Err)) *cherry.Err {
 }
 
 func ErrDomainNotBlacklisted(params ...func(*cherry.Err)) *cherry.Err {
-	err := &cherry.Err{Message: "User is not blacklisted", StatusHTTP: 404, ID: cherry.ErrID{SID: "UserManager", Kind: 0x1e}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	err := &cherry.Err{Message: "Domain is not blacklisted", StatusHTTP: 404, ID: cherry.ErrID{SID: "UserManager", Kind: 0x1e}, Details: []string(nil), Fields: cherry.Fields(nil)}
 	for _, param := range params {
 		param(err)
 	}
@@ -461,6 +461,150 @@ func ErrAccountBlocked(params ...func(*cherry.Err)) *cherry.Err {
 
 func ErrUserAlreadyActivated(params ...func(*cherry.Err)) *cherry.Err {
 	err := &cherry.Err{Message: "User is already activated", StatusHTTP: 400, ID: cherry.ErrID{SID: "UserManager", Kind: 0x25}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrGroupNotExist(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Group with such id doesn't exist", StatusHTTP: 404, ID: cherry.ErrID{SID: "UserManager", Kind: 0x26}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUnableGetGroup(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Unable get group", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x27}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUnableCreateGroup(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Unable create group", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x28}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUnableAddGroupMember(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Unable add group member", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x29}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrAlreadyExists(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Already exists", StatusHTTP: 409, ID: cherry.ErrID{SID: "UserManager", Kind: 0x2a}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrAlreadyInGroup(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "User is already in this group", StatusHTTP: 409, ID: cherry.ErrID{SID: "UserManager", Kind: 0x2b}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrNotGroupOwner(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Only group owner can do this", StatusHTTP: 403, ID: cherry.ErrID{SID: "UserManager", Kind: 0x2c}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUnableDeleteGroupMember(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Unable delete group member", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x2d}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrNotInGroup(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "User is not in this group", StatusHTTP: 404, ID: cherry.ErrID{SID: "UserManager", Kind: 0x2e}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUnableDeleteGroup(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Unable delete group", StatusHTTP: 500, ID: cherry.ErrID{SID: "UserManager", Kind: 0x2f}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUnableRemoveOwner(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Unable remove owner from group", StatusHTTP: 403, ID: cherry.ErrID{SID: "UserManager", Kind: 0x30}, Details: []string(nil), Fields: cherry.Fields(nil)}
+	for _, param := range params {
+		param(err)
+	}
+	for i, detail := range err.Details {
+		det := renderTemplate(detail)
+		err.Details[i] = det
+	}
+	return err
+}
+
+func ErrUnableChangeOwnerPermissions(params ...func(*cherry.Err)) *cherry.Err {
+	err := &cherry.Err{Message: "Unable change owners permissions", StatusHTTP: 403, ID: cherry.ErrID{SID: "UserManager", Kind: 0x31}, Details: []string(nil), Fields: cherry.Fields(nil)}
 	for _, param := range params {
 		param(err)
 	}

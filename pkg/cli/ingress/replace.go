@@ -18,9 +18,10 @@ func Replace(ctx *context.Context) *cobra.Command {
 	}{}
 	command := &cobra.Command{
 		Use:     "ingress",
-		Short:   "patch ingress with new attributes",
+		Short:   "Replace ingress with a new one.",
 		Aliases: aliases,
-		Long:    "Replaces ingress with new, use --force flag to write one-liner command, omitted attributes are inherited from previous ingress.",
+		Long: "Replace ingress with a new one, use --force flag to write one-liner command, " +
+			"omitted attributes are inherited from the previous ingress.",
 		Example: "chkit replace ingress $INGRESS [--force] [--service $SERVICE] [--port 80] [--tls-secret letsencrypt]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
@@ -123,6 +124,6 @@ func Replace(ctx *context.Context) *cobra.Command {
 	command.PersistentFlags().
 		Int("port", 8080, "ingress endpoint port, optional")
 	command.PersistentFlags().
-		String("service", "", "ingress endpoin service, optional")
+		String("service", "", "ingress endpoint service, optional")
 	return command
 }

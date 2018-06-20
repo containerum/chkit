@@ -17,11 +17,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var aliases = []string{"sol", "solutions", "sols", "solu", "so"}
+
 func Run(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "solution",
 		Aliases: aliases,
-		Short:   "run solution from public template",
+		Short:   "Run solution from template",
 		Example: "chkit run solution [$PUBLIC_SOLUTION] [--env=KEY1:VALUE1,KEY2:VALUE2] [--file $FILENAME] [--force]",
 		Run: func(cmd *cobra.Command, args []string) {
 			sol := buildSolution(ctx, cmd, args)
@@ -33,7 +35,7 @@ func Run(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Solution %s is ready to run\n", sol.Name)
 				return
 			}
-			solutions, err := ctx.Client.GetSolutionList()
+			solutions, err := ctx.Client.GetSolutionsTemplatesList()
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -43,8 +45,14 @@ func Run(ctx *context.Context) *cobra.Command {
 				Templates: solutions.Names(),
 				Solution:  &sol,
 			}
-			sol = activesolution.Wizard(config)
+			sol = activesolution.Wizard(ctx, config)
 			if activekit.YesNo("Are you sure you want to run solution %s?", sol.Name) {
+				for k := range sol.Env {
+					if sol.Env[k] == "" {
+						delete(sol.Env, k)
+					}
+				}
+
 				if err := ctx.Client.RunSolution(sol); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -67,8 +75,8 @@ func Run(ctx *context.Context) *cobra.Command {
 	return command
 }
 
-func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solution.UserSolution {
-	var sol solution.UserSolution
+func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solution.Solution {
+	var sol solution.Solution
 	var flags = cmd.Flags()
 	if flags.Changed("file") {
 		sol = solutionFromFile(cmd)
@@ -88,6 +96,8 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 	}
 	if flags.Changed("branch") {
 		sol.Branch, _ = flags.GetString("branch")
+	} else {
+		sol.Branch = "master"
 	}
 	if flags.Changed("env") {
 		envString, _ := flags.GetString("env")
@@ -101,7 +111,7 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 	return sol
 }
 
-func solutionFromFile(cmd *cobra.Command) solution.UserSolution {
+func solutionFromFile(cmd *cobra.Command) solution.Solution {
 	flags := cmd.Flags()
 	fName, _ := flags.GetString("file")
 	var data = func() []byte {
@@ -121,7 +131,7 @@ func solutionFromFile(cmd *cobra.Command) solution.UserSolution {
 		}
 		return data
 	}()
-	var sol solution.UserSolution
+	var sol solution.Solution
 	if path.Ext(fName) == "json" {
 		if err := json.Unmarshal(data, &sol); err != nil {
 			fmt.Println(err)

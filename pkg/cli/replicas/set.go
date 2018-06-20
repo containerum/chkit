@@ -17,8 +17,8 @@ func Set(ctx *context.Context) *cobra.Command {
 	var replicas uint64
 	command := &cobra.Command{
 		Use:     "replicas",
-		Short:   "set deployment replicas",
-		Long:    "Sets deployment replicas",
+		Short:   "Set deployment replicas",
+		Long:    "Set deployment replicas.",
 		Example: "chkit set replicas [-n namespace_label] [-d depl_label] [N_replicas]",
 		Aliases: []string{"re", "rep", "repl", "replica"},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {

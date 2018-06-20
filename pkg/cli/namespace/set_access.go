@@ -21,8 +21,8 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 		Use:        "access",
 		Aliases:    accessAliases,
 		SuggestFor: accessAliases,
-		Short:      "set namespace access",
-		Long: "Set access level to namespace.\n" +
+		Short:      "Set namespace access rights",
+		Long: "Set namespace access rights.\n" +
 			"Available access levels are:\n" + func() string {
 			var levels []string
 			for _, lvl := range model.Levels() {

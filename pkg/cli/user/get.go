@@ -18,7 +18,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Use:     "profile",
 		Aliases: aliases,
 		Short:   "show profile info",
-		Long:    "Shows profile info",
+		Long:    "Shows profile info.",
 		Example: "chkit get profile",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)

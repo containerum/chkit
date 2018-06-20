@@ -3,6 +3,8 @@ package configmap
 import (
 	"encoding/base64"
 	"encoding/json"
+	"sort"
+	"fmt"
 )
 
 type Item struct {
@@ -83,4 +85,30 @@ func (item Item) WithValue(value string) Item {
 		item.key,
 		value,
 	)
+}
+
+type Items []Item
+
+func (items Items) New() Items {
+	return make(Items, 0, len(items))
+}
+
+func (items Items) Copy() Items {
+	return append(items.New(), items...)
+}
+
+func (items Items) Sorted() Items {
+	var cp = items.Copy()
+	sort.Slice(cp, func(i, j int) bool {
+		return cp[i].Key < cp[j].Key
+	})
+	return cp
+}
+
+func (items Items) Map() map[string]string {
+	var m = make(map[string]string, len(items))
+	for _, item := range items {
+		m[item.Key] = item.Value
+	}
+	return m
 }

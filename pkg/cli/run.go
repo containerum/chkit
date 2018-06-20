@@ -15,7 +15,7 @@ import (
 func Run(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "run",
-		Short: "Run a solution",
+		Short: "Run solution from public template.",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)

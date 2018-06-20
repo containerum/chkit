@@ -2,13 +2,13 @@ package clinamespace
 
 import (
 	"fmt"
-	"strings"
+
+	"errors"
 
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
-	"github.com/go-siris/siris/core/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -22,8 +22,8 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "namespace",
 		Aliases: aliases,
-		Short:   `shows namespace data or namespace list`,
-		Long:    `shows namespace data or namespace list. Aliases: ` + strings.Join(aliases, ", "),
+		Short:   `show namespace data or namespace list`,
+		Long:    "show namespace data or namespace list.",
 		Example: "chkit get $ID... [-o yaml/json] [-f output_file]",
 		Run: func(command *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("get namespace")

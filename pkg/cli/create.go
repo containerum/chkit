@@ -18,7 +18,7 @@ import (
 func Create(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "create",
-		Short: "Create deployment or service",
+		Short: "Create resource (deployment, service...)",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)

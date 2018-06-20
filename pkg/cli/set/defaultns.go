@@ -15,7 +15,7 @@ import (
 func DefaultNamespace(ctx *context.Context) *cobra.Command {
 	return &cobra.Command{
 		Use:     "default-namespace",
-		Short:   "set default namespace",
+		Short:   "Set default namespace",
 		Aliases: []string{"def-ns", "default-ns", "defns", "def-namespace"},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {

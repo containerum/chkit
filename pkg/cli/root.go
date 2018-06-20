@@ -96,3 +96,27 @@ func Root() error {
 	)
 	return root.Execute()
 }
+
+func RootCommands() []*cobra.Command {
+	var ctx = &context.Context{}
+	return []*cobra.Command{
+		login.Login(ctx),
+		Get(ctx),
+		Delete(ctx),
+		Create(ctx),
+		Replace(ctx),
+		set.Set(ctx),
+		Logs(ctx),
+		Run(ctx),
+		Rename(ctx),
+		Update(ctx),
+		{
+			Use:   "version",
+			Short: "Print version",
+			Run: func(cmd *cobra.Command, args []string) {
+				fmt.Println(ctx.Version)
+			},
+		},
+		doc.Doc(ctx),
+	}
+}

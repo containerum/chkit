@@ -6,12 +6,13 @@ import (
 
 	"strings"
 
+	"errors"
+
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"github.com/containerum/kube-client/pkg/model"
-	"github.com/go-siris/siris/core/errors"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -47,9 +48,9 @@ func Set(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "image",
 		Aliases: setAliases,
-		Short:   "set container image in specific deployment",
-		Long: "Sets container image in specific deployment.\n" +
-			"If deployment contains only one container, then uses that container by default.",
+		Short:   "Set container image for specific deployment.",
+		Long: "Set container image for specific deployment\n" +
+			"If a deployment contains only one container, the command will use that container by default.",
 		PreRun: prerun.PreRunFunc(ctx),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("set image")

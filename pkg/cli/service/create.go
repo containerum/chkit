@@ -33,7 +33,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Use:     "service",
 		Aliases: aliases,
 		Short:   "create service",
-		Long:    "create service for provided pod in provided namespace",
+		Long:    "Create service for the specified pod in the specified namespace.",
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.WithField("command", "create serv").Debugf("start serv creation")
 			depList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)

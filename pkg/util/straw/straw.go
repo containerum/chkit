@@ -3,7 +3,7 @@ package straw
 import (
 	"fmt"
 
-	"github.com/go-siris/siris/core/errors"
+	"errors"
 )
 
 func Catch(fun func()) (err error) {

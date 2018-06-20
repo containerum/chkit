@@ -6,15 +6,15 @@ import (
 )
 
 var (
-	_ model.YAMLrenderer = SolutionList{}
-	_ yaml.Marshaler     = SolutionList{}
+	_ model.YAMLrenderer = SolutionsList{}
+	_ yaml.Marshaler     = SolutionsList{}
 )
 
-func (list SolutionList) RenderYAML() (string, error) {
+func (list SolutionsList) RenderYAML() (string, error) {
 	data, err := yaml.Marshal(list)
 	return string(data), err
 }
 
-func (list SolutionList) MarshalYAML() (interface{}, error) {
+func (list SolutionsList) MarshalYAML() (interface{}, error) {
 	return list, nil
 }
