@@ -30,7 +30,6 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 			Branch: "master",
 		}
 	}()
-
 	userEnv := make(map[string]string, 0)
 	sol.Env = make(map[string]string, 0)
 	for k, v := range sol.Env {
@@ -40,27 +39,18 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 	for exit := false; !exit; {
 		var envItems activekit.MenuItems
 		var i = 0
-		for k, v := range sol.Env {
-		var ind = 0
 		for _, env := range sol.EnvironmentVars() {
 			envItems = envItems.Append(&activekit.MenuItem{
 				Label: fmt.Sprintf("Edit env      : %s", text.Crop(env.String(), 32)),
 				Action: func(i int) func() error {
-					kItem := k
-					vItem := v
+					envItem := env
 					return func() error {
-						env := envMenu(model.Env{
-							Name:  kItem,
-							Value: vItem,
-						})
-						delete(sol.Env, kItem)
-						delete(userEnv, kItem)
-						env := envMenu(env.ToKube())
-						delete(sol.Env, env.Name)
-						delete(userEnv, env.Name)
-						if env != nil {
-							sol.Env[env.Name] = env.Value
-							userEnv[env.Name] = env.Value
+						envupd := envMenu(envItem.ToKube())
+						delete(sol.Env, envItem.Name)
+						delete(userEnv, envItem.Name)
+						if envupd != nil {
+							sol.Env[env.Name] = envupd.Value
+							userEnv[env.Name] = envupd.Value
 						} else {
 							envItems.Delete(i)
 						}
