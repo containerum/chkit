@@ -27,11 +27,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
-		Short:   "replace deployment",
-		Long: `Replaces deployment.
-Has an one-line mode, suitable for integration with other tools, and an interactive wizard mode`,
+		Short:   "Replace deployment.",
+		Long: "Replaces deployment.\n" +
+			"Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.",
 		Run: func(cmd *cobra.Command, args []string) {
-			depl := deplactive.DefaultDeployment()
+			depl := deployment.Deployment{}
+			deplactive.Fill(&depl)
 			switch len(args) {
 			case 1:
 				depl.Name = args[0]
@@ -135,14 +136,9 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					}
 				}
 			}
-			depl, err := deplactive.ReplaceWizard(deplactive.Config{
+			depl = deplactive.Wizard{
 				Deployment: &depl,
-			})
-			if err != nil {
-				logrus.WithError(err).Errorf("unable to replace deployment")
-				fmt.Println(err)
-				os.Exit(1)
-			}
+			}.Run()
 			for {
 				_, err := (&activekit.Menu{
 					Items: []*activekit.MenuItem{
@@ -166,9 +162,9 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 							Label: "Edit deployment",
 							Action: func() error {
 								var err error
-								depl, err = deplactive.ReplaceWizard(deplactive.Config{
+								depl = deplactive.Wizard{
 									Deployment: &depl,
-								})
+								}.Run()
 								if err != nil {
 									logrus.WithError(err).Errorf("unable to update deployment")
 									fmt.Println(err)

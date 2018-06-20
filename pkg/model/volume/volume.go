@@ -7,6 +7,10 @@ import (
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
+var (
+	_ model.Renderer = Volume{}
+)
+
 type Volume kubeModels.Volume
 
 func VolumeFromKube(kv kubeModels.Volume) Volume {
@@ -18,11 +22,10 @@ func (volume Volume) ToKube() kubeModels.Volume {
 }
 
 func (volume Volume) Age() string {
-	if volume.CreatedAt == nil {
-		return "undefined"
+	if timestamp, err := time.Parse(model.TimestampFormat, volume.CreatedAt); err == nil {
+		return model.Age(timestamp)
 	}
-	var timestamp, _ = time.Parse(*volume.CreatedAt, model.TimestampFormat)
-	return model.Age(timestamp)
+	return "undefined"
 }
 
 func (volume Volume) Copy() Volume {
@@ -37,4 +40,12 @@ func (volume Volume) UserNames() []string {
 		names = append(names, user.Username)
 	}
 	return names
+}
+
+func (volume Volume) String() string {
+	return volume.OwnerAndName()
+}
+
+func (volume Volume) OwnerAndName() string {
+	return volume.OwnerLogin + "/" + volume.Name
 }

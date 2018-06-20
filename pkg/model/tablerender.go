@@ -21,6 +21,7 @@ func RenderTable(renderer TableItem) string {
 	table.SetAutoWrapText(true)
 	table.SetRowSeparator("_")
 	table.SetRowLine(true)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
 	table.SetReflowDuringAutoWrap(true)
 	table.SetCenterSeparator("_")
 	table.SetColumnSeparator(" ")

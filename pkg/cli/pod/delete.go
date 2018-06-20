@@ -1,8 +1,6 @@
 package clipod
 
 import (
-	"strings"
-
 	"os"
 
 	"fmt"
@@ -20,8 +18,8 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "pod",
 		Aliases: aliases,
-		Short:   "call to delete pod in specific namespace",
-		Long:    "deletes pods. Aliases: " + strings.Join(aliases, ", "),
+		Short:   "delete pod in specific namespace",
+		Long:    "Delete pods.",
 		Example: "chkit delete pod pod_name [-n namespace]",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 1 {

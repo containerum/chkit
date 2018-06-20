@@ -20,7 +20,7 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "ingress",
 		Short:   "show ingress data",
-		Long:    "Shows ingress data",
+		Long:    "Print ingress data.",
 		Example: "chkit get ingress ingress_names... [-n namespace_label] [-o yaml/json]",
 		Aliases: aliases,
 		Run: func(command *cobra.Command, args []string) {

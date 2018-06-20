@@ -1,15 +1,18 @@
 package client
 
 import (
+	"github.com/blang/semver"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/containerum/kube-client/pkg/rest"
 )
 
 const (
-	deploymentsPath = "/namespaces/{namespace}/deployments"
-	deploymentPath  = "/namespaces/{namespace}/deployments/{deployment}"
-	imagePath       = "/namespaces/{namespace}/deployments/{deployment}/image"
-	replicasPath    = "/namespaces/{namespace}/deployments/{deployment}/replicas"
+	deploymentsPath        = "/namespaces/{namespace}/deployments"
+	deploymentPath         = "/namespaces/{namespace}/deployments/{deployment}"
+	deploymentVersionsPath = "/namespaces/{namespace}/deployments/{deployment}/versions"
+	deploymentVersionPath  = "/namespaces/{namespace}/deployments/{deployment}/versions/{version}"
+	imagePath              = "/namespaces/{namespace}/deployments/{deployment}/image"
+	replicasPath           = "/namespaces/{namespace}/deployments/{deployment}/replicas"
 )
 
 // GetDeployment -- consumes a namespace and a deployment names,
@@ -113,6 +116,35 @@ func (client *Client) SetReplicas(namespace, deployment string, replicas int) er
 			Params: rest.P{
 				"namespace":  namespace,
 				"deployment": deployment,
+			},
+		},
+	})
+}
+
+// Returns list of defferent deployment versions
+func (client *Client) GetDeploymentVersions(namespace, deplName string) (model.DeploymentsList, error) {
+	var list model.DeploymentsList
+	return list, client.RestAPI.Get(rest.Rq{
+		Result: &list,
+		URL: rest.URL{
+			Path: deploymentVersionsPath,
+			Params: rest.P{
+				"namespace":  namespace,
+				"deployment": deplName,
+			},
+		},
+	})
+}
+
+// Create pods from deployment with specific version
+func (client *Client) RunDeploymentVersion(namespace, deplName string, version semver.Version) error {
+	return client.RestAPI.Post(rest.Rq{
+		URL: rest.URL{
+			Path: deploymentVersionPath,
+			Params: rest.P{
+				"namespace":  namespace,
+				"deployment": deplName,
+				"version":    version.String(),
 			},
 		},
 	})

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"time"
+
 	"github.com/containerum/chkit/pkg/model"
 )
 
@@ -29,9 +31,9 @@ func (serv *Service) TableRows() [][]string {
 		ports = append(ports,
 			fmt.Sprintf("%d:%d/%s", optPort, port.TargetPort, port.Protocol))
 	}
-	age := "none"
-	if serv.CreatedAt != nil {
-		age = model.Age(*serv.CreatedAt)
+	age := "undefine"
+	if serv.CreatedAt != (time.Time{}) {
+		age = model.Age(serv.CreatedAt)
 	}
 	return [][]string{{
 		serv.Name,

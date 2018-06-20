@@ -6,30 +6,30 @@ import (
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
-type SolutionList kubeModels.AvailableSolutionsList
+type SolutionsList kubeModels.UserSolutionsList
 
-func SolutionListFromKube(kubeList kubeModels.AvailableSolutionsList) SolutionList {
-	return SolutionList(kubeList)
+func SolutionsListFromKube(kubeList kubeModels.UserSolutionsList) SolutionsList {
+	return SolutionsList(kubeList)
 }
 
-func (list SolutionList) Len() int {
-	return kubeModels.AvailableSolutionsList(list).Len()
+func (list SolutionsList) Len() int {
+	return kubeModels.UserSolutionsList(list).Len()
 }
 
-func (list SolutionList) Filter(pred func(Solution) bool) SolutionList {
-	return SolutionList(kubeModels.AvailableSolutionsList(list).Filter(func(solution kubeModels.AvailableSolution) bool {
+func (list SolutionsList) Filter(pred func(Solution) bool) SolutionsList {
+	return SolutionsList(kubeModels.UserSolutionsList(list).Filter(func(solution kubeModels.UserSolution) bool {
 		return pred(Solution(solution))
 	}))
 }
 
-func (list SolutionList) SearchByName(name string) SolutionList {
+func (list SolutionsList) SearchByName(name string) SolutionsList {
 	name = strings.ToLower(name)
 	return list.Filter(func(solution Solution) bool {
 		return strings.Contains(strings.ToLower(solution.Name), name)
 	})
 }
 
-func (list SolutionList) String() string {
+func (list SolutionsList) String() string {
 	var strs = make([]string, 0, list.Len())
 	for _, sol := range list.Solutions {
 		strs = append(strs, SolutionFromKube(sol).String())
@@ -37,7 +37,7 @@ func (list SolutionList) String() string {
 	return strings.Join(strs, "\n")
 }
 
-func (list SolutionList) Names() []string {
+func (list SolutionsList) Names() []string {
 	var names = make([]string, 0, list.Len())
 	for _, sol := range list.Solutions {
 		names = append(names, sol.Name)

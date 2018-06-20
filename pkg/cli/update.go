@@ -12,7 +12,6 @@ import (
 	"github.com/containerum/chkit/pkg/update"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +19,8 @@ func Update(ctx *context.Context) *cobra.Command {
 	var debug bool
 	command := &cobra.Command{
 		Use:     "update",
-		Short:   "update chkit client",
+		Short:   "Update chkit client",
+		Long:    `Use "chkit update [command] --help" for more information about the command.`,
 		Example: "chkit update [from github|dir <path>] [--debug]",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
@@ -37,9 +37,7 @@ func Update(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 			}
 		},
-		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			postrun.PostRun(coblog.Logger(cmd), ctx)
-		},
+		PersistentPostRun: postrun.PostRunFunc(ctx),
 	}
 	command.PersistentFlags().
 		BoolVarP(&debug, "debug", "", false, "print debug information")
@@ -60,6 +58,7 @@ func updateFromGithubCommand(ctx *context.Context, debug *bool) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "github",
 		Short: "update from github releases",
+		Long:  "Update from github releases.",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := updateFromGithub(ctx, *debug); err != nil {
 				activekit.Attention(err.Error())
@@ -74,6 +73,7 @@ func updateFromDirCommand(ctx *context.Context, debug *bool) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "dir",
 		Short:   "update from local directory",
+		Long:    "Update from local directory.",
 		Example: "chkit update from dir <path> [--debug]",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) <= 0 {

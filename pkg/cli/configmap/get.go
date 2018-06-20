@@ -15,6 +15,7 @@ import (
 func Get(ctx *context.Context) *cobra.Command {
 	var command = &cobra.Command{
 		Use:     "configmap",
+		Short:   "show configmap data",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)

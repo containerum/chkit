@@ -17,6 +17,5 @@ func (solution Solution) RenderJSON() (string, error) {
 }
 
 func (solution Solution) MarshalJSON() ([]byte, error) {
-	data, err := json.MarshalIndent(solution.ToKube(), "", model.Indent)
-	return data, err
+	return json.MarshalIndent(solution.ToKube(), "", model.Indent)
 }

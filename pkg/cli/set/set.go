@@ -7,7 +7,6 @@ import (
 	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/replicas"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
 )
 
@@ -15,14 +14,11 @@ func Set(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "set",
 		Short: "Set configuration variables",
-		PersistentPreRun: func(command *cobra.Command, args []string) {
-
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			postrun.PostRun(coblog.Logger(cmd), ctx)
+			postrun.PostRun(ctx)
 		},
 	}
 	command.AddCommand(

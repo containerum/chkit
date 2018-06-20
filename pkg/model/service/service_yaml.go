@@ -12,10 +12,10 @@ var (
 
 func (serv Service) RenderYAML() (string, error) {
 	serv.ToKube()
-	data, err := yaml.Marshal(serv.origin)
+	data, err := yaml.Marshal(serv)
 	return string(data), err
 }
 
 func (serv Service) MarshalYAML() (interface{}, error) {
-	return serv.origin, nil
+	return serv.ToKube(), nil
 }

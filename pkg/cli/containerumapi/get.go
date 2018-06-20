@@ -12,6 +12,7 @@ var aliases = []string{"api", "current-api", "api-addr", "API"}
 func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "containerum-api",
+		Short:   "print Containerum API URL",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(ctx.Client.APIaddr)

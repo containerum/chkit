@@ -29,6 +29,6 @@ func (volume Volume) TableRows() [][]string {
 	}}
 }
 
-func (volume *Volume) RenderTable() string {
+func (volume Volume) RenderTable() string {
 	return model.RenderTable(volume)
 }

@@ -18,8 +18,8 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "service",
 		Aliases: aliases,
-		Short:   "call to delete service in specific namespace",
-		Long:    "Deletes service in namespace",
+		Short:   "delete service in specific namespace",
+		Long:    "Delete service in namespace.",
 		Example: "chkit delete service service_label [-n namespace]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.Debugf("running command delete service")
@@ -68,7 +68,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 						return
 					}
 				}
-				logrus.Debugf("deleting service %q from %q", svcName)
+				logrus.Debugf("deleting service %q from %q", svcName, ctx.Namespace.ID)
 				err := ctx.Client.DeleteService(ctx.Namespace.ID, svcName)
 				if err != nil {
 					logrus.WithError(err).Debugf("error while deleting service")

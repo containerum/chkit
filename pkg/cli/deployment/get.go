@@ -31,8 +31,8 @@ func Get(ctx *context.Context) *cobra.Command {
 	}
 	command := &cobra.Command{
 		Use:     "deployment",
-		Short:   "shows deployment data",
-		Long:    "Shows deployment data",
+		Short:   "show deployment data",
+		Long:    "Print deployment data.",
 		Example: "namespace deployment_names... [-n namespace_label]",
 		Aliases: aliases,
 		Run: func(command *cobra.Command, args []string) {

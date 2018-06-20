@@ -7,6 +7,7 @@ import (
 	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 )
@@ -175,4 +176,34 @@ func (client *Client) ReplaceDeployment(ns string, newDepl deployment.Deployment
 			return true, ErrFatalError.Wrap(err)
 		}
 	})
+}
+
+func (client *Client) GetDeploymentVersions(namespaceID, deploymentName string) (deployment.DeploymentList, error) {
+	var list deployment.DeploymentList
+	var logger = coblog.Std.Component("chClient.GetDeploymentVersions")
+	err := retry(4, func() (bool, error) {
+		kubeList, err := client.kubeAPIClient.GetDeploymentVersions(namespaceID, deploymentName)
+		switch {
+		case err == nil:
+			list = deployment.DeploymentListFromKube(kubeList)
+			return false, nil
+		case cherry.In(err,
+			kubeErrors.ErrResourceNotExist(),
+			kubeErrors.ErrAccessError(),
+			kubeErrors.ErrUnableGetResource()):
+			return false, err
+		case cherry.In(err,
+			autherr.ErrInvalidToken(),
+			autherr.ErrTokenNotFound(),
+			autherr.ErrTokenNotOwnedBySender()):
+			return true, client.Auth()
+		default:
+			return true, ErrFatalError.Wrap(err)
+		}
+	})
+	if err != nil {
+		logger.WithError(err).WithField("namespace", namespaceID).
+			Errorf("unable to get versions of deployment %q", deploymentName)
+	}
+	return list, err
 }

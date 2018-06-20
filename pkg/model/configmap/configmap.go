@@ -1,7 +1,6 @@
 package configmap
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/containerum/chkit/pkg/model"
@@ -49,15 +48,15 @@ func (config ConfigMap) AddItems(items ...Item) ConfigMap {
 	return config
 }
 
-func (config ConfigMap) Items() []Item {
-	var items = make([]Item, 0, len(config.Data))
+func (config ConfigMap) Items() Items {
+	var items = make(Items, 0, len(config.Data))
 	for k, v := range config.Data {
 		items = append(items, Item{
 			Key:   k,
 			Value: v,
 		})
 	}
-	return items
+	return items.Sorted()
 }
 
 //  Get -- if defaultValues passed, then first return
@@ -83,14 +82,10 @@ func (config ConfigMap) SetName(name string) ConfigMap {
 }
 
 func (config ConfigMap) Age() string {
-	if config.CreatedAt == nil {
-		return "undefined"
+	if timestamp, err := time.Parse(model.TimestampFormat, config.CreatedAt); err == nil {
+		return model.Age(timestamp)
 	}
-	timestamp, err := time.Parse(time.RFC3339, *config.CreatedAt)
-	if err != nil {
-		return fmt.Sprintf("invlalid timestamp %q", *config.CreatedAt)
-	}
-	return model.Age(timestamp)
+	return "undefined"
 }
 
 func (config ConfigMap) New() ConfigMap {
