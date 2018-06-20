@@ -49,7 +49,13 @@ func Get(ctx *context.Context) *cobra.Command {
 				deplData = depl
 			} else {
 				logrus.Debugf("getting deployment list from namespace %q", ctx.Namespace)
-				var list, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				var list deployment.DeploymentList
+				var err error
+				if solutionName, _ := command.Flags().GetString("solution_name"); solutionName != "" {
+					list, err = ctx.Client.GetSolutionDeployments(ctx.Namespace.ID, solutionName)
+				} else {
+					list, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				}
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
 					ferr.Println(err)
@@ -77,5 +83,7 @@ func Get(ctx *context.Context) *cobra.Command {
 	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
 		panic(err)
 	}
+	command.PersistentFlags().
+		StringP("solution_name", "s", "", "solution name")
 	return command
 }
