@@ -27,7 +27,13 @@ func Get(ctx *context.Context) *cobra.Command {
 			serviceData, err := func() (model.Renderer, error) {
 				switch len(args) {
 				case 0:
-					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+					var list service.ServiceList
+					var err error
+					if solutionName, _ := cmd.Flags().GetString("solution_name"); solutionName != "" {
+						list, err = ctx.Client.GetSolutionServices(ctx.Namespace.ID, solutionName)
+					} else {
+						list, err = ctx.Client.GetServiceList(ctx.Namespace.ID)
+					}
 					return list, err
 				case 1:
 					svc, err := ctx.Client.GetService(ctx.Namespace.ID, args[0])
@@ -59,5 +65,8 @@ func Get(ctx *context.Context) *cobra.Command {
 		StringVarP((*string)(&getServiceConfig.Format), "output", "o", "", "output format [yaml/json]")
 	command.PersistentFlags().
 		StringVarP(&getServiceConfig.Filename, "file", "f", "-", "output file")
+	command.PersistentFlags().
+		StringP("solution_name", "s", "", "solution name")
+
 	return command
 }

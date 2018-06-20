@@ -40,11 +40,14 @@ func Get(ctx *context.Context) *cobra.Command {
 				switch len(args) {
 				case 0:
 					logrus.Debugf("getting deployment from %q", ctx.Namespace)
-					list, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
-					if err != nil {
-						return nil, err
+					var list deployment.DeploymentList
+					var err error
+					if solutionName, _ := command.Flags().GetString("solution_name"); solutionName != "" {
+						list, err = ctx.Client.GetSolutionDeployments(ctx.Namespace.ID, solutionName)
+					} else {
+						list, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 					}
-					return list, nil
+					return list, err
 				default:
 					deplNames := strset.NewSet(args)
 					var showList deployment.DeploymentList = make([]deployment.Deployment, 0) // prevents panic
@@ -76,6 +79,8 @@ func Get(ctx *context.Context) *cobra.Command {
 		StringVarP((*string)(&getDeplDataConfig.Format), "output", "o", "", "output format (yaml/json)")
 	command.PersistentFlags().
 		StringVarP(&getDeplDataConfig.Filename, "file", "f", "", "output file")
+	command.PersistentFlags().
+		StringP("solution_name", "s", "", "solution name")
 
 	return command
 }
