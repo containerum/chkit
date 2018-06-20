@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"sort"
-	"fmt"
 )
 
 type Item struct {
@@ -100,7 +99,7 @@ func (items Items) Copy() Items {
 func (items Items) Sorted() Items {
 	var cp = items.Copy()
 	sort.Slice(cp, func(i, j int) bool {
-		return cp[i].Key < cp[j].Key
+		return cp[i].Key() < cp[j].Key()
 	})
 	return cp
 }
@@ -108,7 +107,7 @@ func (items Items) Sorted() Items {
 func (items Items) Map() map[string]string {
 	var m = make(map[string]string, len(items))
 	for _, item := range items {
-		m[item.Key] = item.Value
+		m[item.Key()] = item.Value()
 	}
 	return m
 }
