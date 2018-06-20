@@ -32,35 +32,38 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 	}()
 
 	userEnv := make(map[string]string, 0)
+	sol.Env = make(map[string]string, 0)
 	for k, v := range sol.Env {
 		userEnv[k] = v
 	}
 
 	for exit := false; !exit; {
 		var envItems activekit.MenuItems
-		var ind = 0
+		var i = 0
 		for k, v := range sol.Env {
 			envItems = envItems.Append(&activekit.MenuItem{
 				Label: fmt.Sprintf("Edit env      : %s", text.Crop(fmt.Sprintf("%s:%q", k, v), 32)),
 				Action: func(i int) func() error {
+					kItem := k
+					vItem := v
 					return func() error {
 						env := envMenu(model.Env{
-							Name:  k,
-							Value: v,
+							Name:  kItem,
+							Value: vItem,
 						})
-						delete(sol.Env, k)
-						delete(userEnv, k)
+						delete(sol.Env, kItem)
+						delete(userEnv, kItem)
 						if env != nil {
-							sol.Env[k] = v
-							userEnv[k] = v
+							sol.Env[env.Name] = env.Value
+							userEnv[env.Name] = env.Value
 						} else {
 							envItems.Delete(i)
 						}
 						return nil
 					}
-				}(ind),
+				}(i),
 			})
-			ind++
+			i++
 		}
 		var menu = activekit.MenuItems{
 			func() *activekit.MenuItem {
@@ -163,12 +166,12 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 									Name:  env.Name,
 									Value: env.Value,
 								})
-								delete(sol.Env, env.Name)
-								delete(userEnv, env.Name)
 								if env != nil {
 									sol.Env[env.Name] = env.Value
 									userEnv[env.Name] = env.Value
 								} else {
+									delete(sol.Env, env.Name)
+									delete(userEnv, env.Name)
 									envItems.Delete(i)
 								}
 								return nil
