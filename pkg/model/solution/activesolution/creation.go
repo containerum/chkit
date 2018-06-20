@@ -49,8 +49,8 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 						delete(sol.Env, envItem.Name)
 						delete(userEnv, envItem.Name)
 						if envupd != nil {
-							sol.Env[env.Name] = envupd.Value
-							userEnv[env.Name] = envupd.Value
+							sol.Env[envItem.Name] = envupd.Value
+							userEnv[envItem.Name] = envupd.Value
 						} else {
 							envItems.Delete(i)
 						}
