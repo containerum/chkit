@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 
+	"fmt"
+
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/docker/distribution/reference"
 	"github.com/ninedraft/ranger/intranger"
@@ -42,7 +44,7 @@ func ValidateImageName(image string) error {
 
 func ValidateLabel(label string) error {
 	if !labelRe.MatchString(label) {
-		return ErrInvalidLabel
+		return fmt.Errorf("%v: must satsify %v", ErrInvalidLabel, labelRe)
 	}
 	return nil
 }

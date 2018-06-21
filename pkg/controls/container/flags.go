@@ -2,9 +2,8 @@ package container
 
 import (
 	"fmt"
-	"strings"
-
 	"os"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/kube-client/pkg/model"
@@ -12,40 +11,38 @@ import (
 )
 
 type Flags struct {
-	Image     string
-	Memory    uint
-	CPU       uint
-	Env       []string
-	Volume    []string
-	Configmap []string
+	Image     string   `desc:"container image"`
+	Memory    uint     `desc:"container memory limit, Mb"`
+	CPU       uint     `desc:"container CPU limit, mCPU"`
+	Env       []string `desc:"container environment variables, NAME:VALUE, 'NAME:$HOST_ENV' or '$HOST_ENV' (to user host env). WARNING: single quotes are required to prevent env from interpolation"`
+	Volume    []string `desc:"container volume mounts, VOLUME:MOUNT_PATH or VOLUME (then MOUNT_PATH is /mnt/VOLUME)"`
+	Configmap []string `desc:"container configmap mount, CONFIG:MOUNT_PATH or CONFIG (then MOUNTPATH is /etc/CONFIG)"`
 }
 
 func (flags Flags) Container() (container.Container, error) {
-	var errs []string
+	var errs []error
 	var cont = container.Container{}
 
 	if volumes, err := flags.volumes(); err == nil {
 		cont.VolumeMounts = volumes
 	} else {
-		errs = append(errs, err.Error())
+		errs = append(errs, err)
 	}
 
 	if configs, err := flags.configs(); err == nil {
 		cont.ConfigMaps = configs
 	} else {
-		errs = append(errs, err.Error())
+		errs = append(errs, err)
 	}
 
 	if envs, err := flags.envs(); err == nil {
 		cont.Env = envs
 	} else {
-		errs = append(errs, err.Error())
+		errs = append(errs, err)
 	}
 	if len(errs) > 0 {
 		return container.Container{}, fmt.Errorf("unable to build container:\n%s\n",
-			str.Vector(errs).Map(func(str string) string {
-				return " + " + str
-			}).Join("\n"))
+			str.FromErrs(errs...).Map(str.Prefix(" + ")).Join("\n"))
 	}
 	return cont, nil
 }
@@ -77,18 +74,34 @@ func (flags Flags) configs() ([]model.ContainerVolume, error) {
 func (flags Flags) envs() ([]model.Env, error) {
 	var envs = make([]model.Env, 0, len(flags.Env))
 	for _, envString := range flags.Env {
-		var tokens = str.SplitS(envString, ":", 2).
-			Map(strings.TrimSpace).
-			Map(os.ExpandEnv)
-		if tokens.Len() != 2 {
-			return nil, fmt.Errorf("invalid env flag %q: expected NAME:VALUE notation", envString)
+		var env, err = parseContainerEnv(envString)
+		if err != nil {
+			return nil, err
 		}
-		envs = append(envs, model.Env{
-			Name:  tokens[0],
-			Value: tokens[1],
-		})
+		envs = append(envs, env)
 	}
 	return envs, nil
+}
+
+func parseContainerEnv(envStr string) (model.Env, error) {
+	var tokens = str.SplitS(envStr, ":", 2).
+		Map(strings.TrimSpace)
+
+	switch tokens.Len() {
+	case 1:
+		var name = strings.TrimPrefix(tokens[0], "$")
+		return model.Env{
+			Name:  name,
+			Value: os.Getenv(name),
+		}, nil
+	case 2:
+		return model.Env{
+			Name:  tokens[0],
+			Value: os.ExpandEnv(tokens[1]),
+		}, nil
+	default:
+		return model.Env{}, fmt.Errorf("invalid env %q: expected NAME:VALUE, NAME:$HOST_ENV or $HOST_ENV", envStr)
+	}
 }
 
 // NAME:PATH
@@ -107,6 +120,6 @@ func parseContainerVolume(volumeStr, defaultMountPath string) (model.ContainerVo
 			MountPath: tokens[1],
 		}, nil
 	default:
-		return model.ContainerVolume{}, fmt.Errorf("unable to parse %q", volumeStr)
+		return model.ContainerVolume{}, fmt.Errorf("invalid volume %q: expected NAME:PATH or NAME", volumeStr)
 	}
 }

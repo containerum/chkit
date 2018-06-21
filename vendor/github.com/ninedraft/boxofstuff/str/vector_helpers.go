@@ -6,6 +6,26 @@ import (
 	"unicode/utf8"
 )
 
+func FromErrs(errs ...error) Vector {
+	var vector = make(Vector, 0, len(errs))
+	for _, err := range errs {
+		vector = append(vector, err.Error())
+	}
+	return vector
+}
+
+func Prefix(prefix string) func(str string) string {
+	return func(str string) string {
+		return prefix + str
+	}
+}
+
+func Suffix(suffix string) func(str string) string {
+	return func(str string) string {
+		return str + suffix
+	}
+}
+
 func SplitS(str, delim string, n int) Vector {
 	return strings.SplitN(str, delim, n)
 }
@@ -160,6 +180,15 @@ func Chop(l uint) func(str string) []string {
 			}
 			return chunks
 		}
+	}
+}
+
+func ReplaceTable(replaceTable map[string]string) func(str string) string {
+	return func(str string) string {
+		if repl, ok := replaceTable[str]; ok {
+			return repl
+		}
+		return str
 	}
 }
 

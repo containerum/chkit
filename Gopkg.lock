@@ -144,8 +144,8 @@
     "str",
     "strset"
   ]
-  revision = "dadbacbb75d2fc004675de3a2c98509db44935be"
-  version = "v0.2.4"
+  revision = "fe09821415d47659b606dc73dce196a111ca3c42"
+  version = "v0.3.2"
 
 [[projects]]
   branch = "master"
@@ -304,6 +304,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fdee68c5c48f7e37df6db5f052351918ff9e701d6d439fee12de12c5436ba46b"
+  inputs-digest = "b32bc351993cac9142a695f7711478aa7e6859cf4a75f3ae9a213e45706e1349"
   solver-name = "gps-cdcl"
   solver-version = 1
