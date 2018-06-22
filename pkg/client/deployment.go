@@ -239,3 +239,16 @@ func (client *Client) CreateDeploymentContainer(ns, deplName string, cont contai
 	depl.Containers = append(depl.Containers, cont)
 	return client.ReplaceDeployment(ns, depl)
 }
+
+func (client *Client) DeleteDeploymentContainer(ns, deplName, cont string) error {
+	var depl, err = client.GetDeployment(ns, deplName)
+	if err != nil {
+		return err
+	}
+	var _, ok = depl.Containers.GetByName(cont)
+	if ok {
+		return ErrContainerAlreadyExists.CommentF("container:%q, deployment:%q", cont, depl.Name)
+	}
+	depl.Containers = depl.Containers.DeleteByName(cont)
+	return client.ReplaceDeployment(ns, depl)
+}

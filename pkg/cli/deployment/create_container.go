@@ -11,7 +11,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
-	"github.com/containerum/chkit/pkg/util/reactor"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -19,18 +18,18 @@ import (
 func CreateContainer(ctx *context.Context) *cobra.Command {
 	var flags struct {
 		Force         bool   `flag:"force f" desc:"suppress confirmation"`
-		ContainerName string `flag:"container" desc:"container name"`
-		Deployment    string `desc:"deployment name"`
+		ContainerName string `flag:"container" desc:"container name, required on --force"`
+		Deployment    string `desc:"deployment name, required on --force"`
 		containerControl.Flags
 	}
 	command := &cobra.Command{
 		Use:     "deployment-container",
 		Aliases: []string{"depl-cont", "container", "dc"},
-		Short:   "Create deployment container.",
+		Short:   "create deployment container.",
 		Long: "Create deployment container.\n" +
 			"Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.",
 		Run: func(cmd *cobra.Command, args []string) {
-			var logger = ctx.Log.Command("replace deployment container")
+			var logger = ctx.Log.Command("create deployment container")
 			logger.Debugf("START")
 			defer logger.Debugf("END")
 
@@ -38,14 +37,18 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				ferr.Printf("deployment name must be provided as --deployment while using --force")
 				os.Exit(1)
 			} else if flags.Deployment == "" {
+				logger.Debugf("getting deployment list from namespace %q", ctx.Namespace)
 				var depl, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
+					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
 					ferr.Println(err)
 					os.Exit(1)
 				}
+				logger.Debugf("selecting deployment")
 				(&activekit.Menu{
 					Title: "Select deployment",
 					Items: activekit.StringSelector(depl.Names(), func(s string) error {
+						logger.Debugf("deployment %q selected", s)
 						flags.Deployment = s
 						return nil
 					}),
@@ -57,8 +60,10 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				os.Exit(1)
 			}
 
+			logger.Debugf("building container from flags")
 			var cont, err = flags.Container()
 			if err != nil {
+				logger.WithError(err).Errorf("unable to build container from flags")
 				ferr.Println(err)
 				os.Exit(1)
 			}
@@ -66,18 +71,21 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 			fmt.Println(cont.RenderTable())
 
 			if flags.Force {
+				logger.Debugf("running in --force mode")
+				logger.Debugf("validating changed container %q", cont.Name)
 				if err := cont.Validate(); err != nil {
+					logger.WithError(err).Errorf("invalid container %q", cont.Name)
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				if err := ctx.Client.ReplaceDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
+				logger.Debugf("creating container %q", cont.Name)
+				if err := ctx.Client.CreateDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
+					logger.WithError(err).Errorf("unable to replace container %q", cont.Name)
 					fmt.Println(err)
 					os.Exit(1)
 				}
 				fmt.Println("Ok")
 			}
-
-			var requests reactor.Reactor
 
 			//	volumes, err := ctx.Client.GetVolumeList(ctx.Namespace.ID)
 			//	if err != nil {
@@ -86,28 +94,35 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 			//	}
 
 			var deployments = make(chan deployment.DeploymentList)
-			requests.Add(func() {
+			go func() {
+				logger := logger.Component("getting deployment list")
+				logger.Debugf("START")
+				defer logger.Debugf("END")
 				defer close(deployments)
 				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
+					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
 					ferr.Println(err)
 					os.Exit(1)
 				}
 				deployments <- deplList
-			})
+			}()
 
 			var configs = make(chan configmap.ConfigMapList)
-			requests.Add(func() {
+			go func() {
+				logger := logger.Component("getting configmap list")
+				logger.Debugf("START")
+				defer logger.Debugf("END")
 				defer close(configs)
 				configList, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
+					logger.WithError(err).Errorf("unable to get configmap list")
 					ferr.Println(err)
 					os.Exit(1)
 				}
 				configs <- configList
-			})
-
-			requests.Run()
+			}()
+			logger.Debugf("running wizard")
 			containerControl.Wizard{
 				EditName:   true,
 				Container:  cont,
@@ -118,7 +133,9 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 			}.Run()
 
 			if activekit.YesNo("Are you sure you want to create container %q in deployment %q?", cont.Name, flags.Deployment) {
-				if err := ctx.Client.ReplaceDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
+				logger.Debugf("creating container %q in deployment %q", cont.Name, flags.Deployment)
+				if err := ctx.Client.CreateDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
+					logger.WithError(err).Errorf("unable to replace container %q in deployment %q", cont.Name, flags.Deployment)
 					ferr.Println(err)
 				}
 			}

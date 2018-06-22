@@ -45,6 +45,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		volume.Delete(ctx),
 		cliserv.Delete(ctx),
 		clideployment.Delete(ctx),
+		clideployment.DeleteContainer(ctx),
 		clipod.Delete(ctx),
 		clingress.Delete(ctx),
 		cliconfigmap.Delete(ctx),
