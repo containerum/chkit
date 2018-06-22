@@ -6,11 +6,16 @@ import (
 	permErrors "git.containerum.net/ch/permissions/pkg/errors"
 	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
+	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	ErrContainerAlreadyExists chkitErrors.Err = "container already exists in deployment"
 )
 
 func (client *Client) GetDeployment(namespace, deplName string) (deployment.Deployment, error) {
@@ -219,5 +224,18 @@ func (client *Client) ReplaceDeploymentContainer(ns, deplName string, cont conta
 		return ErrResourceNotExists.CommentF("container %q not found in deployment %q", cont.Name, depl.Name)
 	}
 	depl.Containers = updated
+	return client.ReplaceDeployment(ns, depl)
+}
+
+func (client *Client) CreateDeploymentContainer(ns, deplName string, cont container.Container) error {
+	var depl, err = client.GetDeployment(ns, deplName)
+	if err != nil {
+		return err
+	}
+	var _, ok = depl.Containers.GetByName(cont.Name)
+	if ok {
+		return ErrContainerAlreadyExists.CommentF("container:%q, deployment:%q", cont.Name, depl.Name)
+	}
+	depl.Containers = append(depl.Containers, cont)
 	return client.ReplaceDeployment(ns, depl)
 }
