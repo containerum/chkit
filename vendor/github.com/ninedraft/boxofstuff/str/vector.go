@@ -196,6 +196,7 @@ func (vector Vector) Eq(v Vector) bool {
 	}
 	return true
 }
+<<<<<<< HEAD
 
 func (vector Vector) Contains(str string) bool {
 	for _, s := range vector {
@@ -227,3 +228,5 @@ func (vector Vector) Tail(n uint) Vector {
 	}
 	return vector[n:].Copy()
 }
+=======
+>>>>>>> ecc808bcae28035832156ca455b462b122676839

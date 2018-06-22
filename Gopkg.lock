@@ -11,7 +11,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/auth"
   packages = ["pkg/errors"]
-  revision = "5ec6f11de6e7d388b0d877593cccbdeebfce8558"
+  revision = "fedb35e2736478939249210ce458bf136fd1bdf5"
 
 [[projects]]
   branch = "develop"
@@ -23,7 +23,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "4c8a08f1b7ca2fff70f8b6b28058d4e9d44d0bc7"
+  revision = "2df09ef109b940cd114e554b57b7c11eb27fd751"
 
 [[projects]]
   branch = "develop"
@@ -33,9 +33,15 @@
 
 [[projects]]
   branch = "develop"
+  name = "git.containerum.net/ch/solutions"
+  packages = ["pkg/sErrors"]
+  revision = "9fe6cc0f67acd4210519a14412ce63c91788a584"
+
+[[projects]]
+  branch = "develop"
   name = "git.containerum.net/ch/user-manager"
   packages = ["pkg/umErrors"]
-  revision = "70d4bb67c9a7c200ca753a6e695b80ee1e2a7fc6"
+  revision = "b8bfce569c124c4efcda3b2bb352a89f5a536c20"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -144,8 +150,8 @@
     "str",
     "strset"
   ]
-  revision = "fe09821415d47659b606dc73dce196a111ca3c42"
-  version = "v0.3.2"
+  revision = "dadbacbb75d2fc004675de3a2c98509db44935be"
+  version = "v0.2.4"
 
 [[projects]]
   branch = "master"
@@ -231,7 +237,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "027cca12c2d63e3d62b670d901e8a2c95854feec"
+  revision = "7f39a6fea4fe9364fb61e1def6a268a51b4f3a06"
 
 [[projects]]
   branch = "master"
@@ -249,7 +255,7 @@
     "unix",
     "windows"
   ]
-  revision = "6c888cc515d3ed83fc103cf1d84468aad274b0a7"
+  revision = "ad87a3a340fa7f3bed189293fbfa7a9b7e021ae1"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -304,6 +310,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b32bc351993cac9142a695f7711478aa7e6859cf4a75f3ae9a213e45706e1349"
+  inputs-digest = "0e9d0a7c7a0897b1ffb4c1bc20d51e9d67edafcc554501749681f4e7eff44814"
   solver-name = "gps-cdcl"
   solver-version = 1

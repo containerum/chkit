@@ -129,8 +129,7 @@ func getFileItems(rawItems []string) ([]configmap.Item, error) {
 			key = path.Base(tokens[0])
 			filepath = tokens[0]
 		} else {
-			fmt.Printf("Invalid token %q in raw file item\n", rawItem)
-			os.Exit(1)
+			return nil, fmt.Errorf("invalid token number in raw file item (got %v, required 2)", len(tokens))
 		}
 		value, err := ioutil.ReadFile(filepath)
 		if err != nil {
@@ -153,8 +152,7 @@ func getStringItems(rawItems []string) ([]configmap.Item, error) {
 			key = strings.TrimSpace(tokens[0])
 			value = strings.TrimSpace(tokens[1])
 		} else {
-			fmt.Printf("Invalid token %q in raw string item\n", rawItem)
-			os.Exit(1)
+			return nil, fmt.Errorf("invalid token number in raw string item (got %v, required 2)", len(tokens))
 		}
 		items = append(items, configmap.NewItem(
 			key,
