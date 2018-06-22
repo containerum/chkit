@@ -5,8 +5,8 @@ import (
 
 	"fmt"
 
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/spf13/cobra"
@@ -43,9 +43,9 @@ func Get(ctx *context.Context) *cobra.Command {
 			}
 			var file, _ = cmd.Flags().GetString("file")
 			var format, _ = cmd.Flags().GetString("output")
-			if err := configuration.ExportData(data, configuration.ExportConfig{
+			if err := export.ExportData(data, export.ExportConfig{
 				Filename: file,
-				Format:   configuration.ExportFormat(format),
+				Format:   export.ExportFormat(format),
 			}); err != nil {
 				fmt.Println(err)
 				os.Exit(1)

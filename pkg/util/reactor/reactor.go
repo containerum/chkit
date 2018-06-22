@@ -6,6 +6,7 @@ import (
 )
 
 type Reactor struct {
+	m     sync.RWMutex
 	n     int32
 	group sync.WaitGroup
 	tasks []func()
@@ -13,7 +14,9 @@ type Reactor struct {
 
 func (reactor *Reactor) Add(task func()) {
 	reactor.group.Add(1)
-	reactor.n++
+	atomic.AddInt32(&reactor.n, 1)
+	reactor.m.Lock()
+	defer reactor.m.Unlock()
 	reactor.tasks = append(reactor.tasks, func() {
 		defer func() {
 			reactor.group.Done()
@@ -24,10 +27,21 @@ func (reactor *Reactor) Add(task func()) {
 }
 
 func (reactor *Reactor) Run() {
-	go func() {
+	func() {
+		reactor.m.RLock()
+		defer reactor.m.RUnlock()
 		for _, task := range reactor.tasks {
 			go task()
 		}
+		reactor.tasks = []func(){}
 	}()
 	reactor.group.Wait()
+}
+
+func (reactor *Reactor) Done() bool {
+	return reactor.n == 0
+}
+
+func (reactor *Reactor) Tasks() int {
+	return int(reactor.n)
 }

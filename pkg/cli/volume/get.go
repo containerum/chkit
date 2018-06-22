@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/volume"
 	"github.com/ninedraft/boxofstuff/strset"
@@ -69,9 +69,9 @@ func Get(ctx *context.Context) *cobra.Command {
 				renderable = list
 			}
 			logger.Debugf("exporting data")
-			if err := configuration.ExportData(renderable, configuration.ExportConfig{
+			if err := export.ExportData(renderable, export.ExportConfig{
 				Filename: flags.File,
-				Format:   configuration.ExportFormat(flags.Output),
+				Format:   export.ExportFormat(flags.Output),
 			}); err != nil {
 				logger.WithError(err).Errorf("unable to export data")
 				fmt.Println(err)

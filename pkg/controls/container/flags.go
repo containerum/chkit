@@ -14,7 +14,7 @@ type Flags struct {
 	Image     string   `desc:"container image"`
 	Memory    uint     `desc:"container memory limit, Mb"`
 	CPU       uint     `desc:"container CPU limit, mCPU"`
-	Env       []string `desc:"container environment variables, NAME:VALUE, 'NAME:$HOST_ENV' or '$HOST_ENV' (to user host env). WARNING: single quotes are required to prevent env from interpolation"`
+	Env       []string `desc:"container environment variables, NAME:VALUE, 'NAME:$HOST_ENV' or '$HOST_ENV' (to user host env).\nWARNING: single quotes are required to prevent env from interpolation"`
 	Volume    []string `desc:"container volume mounts, VOLUME:MOUNT_PATH or VOLUME (then MOUNT_PATH is /mnt/VOLUME)"`
 	Configmap []string `desc:"container configmap mount, CONFIG:MOUNT_PATH or CONFIG (then MOUNTPATH is /etc/CONFIG)"`
 }

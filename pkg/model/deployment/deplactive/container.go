@@ -2,13 +2,12 @@ package deplactive
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 	"strings"
 
-	"strconv"
-
-	"io"
-
 	"github.com/containerum/chkit/pkg/model/container"
+	"github.com/containerum/chkit/pkg/model/limits"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/validation"
@@ -29,8 +28,8 @@ func componentEditContainers(config Wizard) activekit.MenuItems {
 			var cont = container.Container{
 				Container: model.Container{
 					Limits: model.Resource{
-						CPU:    20 * MIN_CPU,
-						Memory: 20 * MIN_MEM,
+						CPU:    20 * limits.MIN_CPU,
+						Memory: 20 * limits.MIN_MEM,
 					},
 					Name: namegen.Aster(),
 				},
@@ -142,11 +141,11 @@ func componentEditCPU(cont *container.Container) *activekit.MenuItem {
 		Action: func() error {
 			for {
 				var cpuStr = activekit.Promt("Type mCPU (hit Enter to use %d mCPU, expected value in %v mCPU): ",
-					cont.Limits.CPU, CPULimit)
+					cont.Limits.CPU, limits.CPULimit)
 				cpuStr = strings.TrimSpace(cpuStr)
 				if cpu, err := strconv.ParseUint(cpuStr, 10, 32); cpuStr != "" && err == nil {
-					if !CPULimit.Containing(int(cpu)) {
-						fmt.Printf("CPU limit must be number in %v\n", CPULimit)
+					if !limits.CPULimit.Containing(int(cpu)) {
+						fmt.Printf("CPU limit must be number in %v\n", limits.CPULimit)
 						continue
 					}
 					cont.Limits.CPU = uint(cpu)
@@ -167,11 +166,11 @@ func componentEditMemory(cont *container.Container) *activekit.MenuItem {
 		Action: func() error {
 			for {
 				var memoryStr = activekit.Promt("Type memory limit (hit Enter to use %d Mb, expected value in %v Mb): ",
-					cont.Limits.Memory, MemLimit)
+					cont.Limits.Memory, limits.MemLimit)
 				memoryStr = strings.TrimSpace(memoryStr)
 				if memory, err := strconv.ParseUint(memoryStr, 10, 32); memoryStr != "" && err == nil {
-					if !MemLimit.Containing(int(memory)) {
-						fmt.Printf("Memory limit number must be number in %v\n", MemLimit)
+					if !limits.MemLimit.Containing(int(memory)) {
+						fmt.Printf("Memory limit number must be number in %v\n", limits.MemLimit)
 						continue
 					}
 					cont.Limits.Memory = uint(memory)

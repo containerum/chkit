@@ -3,8 +3,8 @@ package clisolution
 import (
 	"fmt"
 
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/solution"
 	"github.com/containerum/chkit/pkg/util/strset"
@@ -13,7 +13,7 @@ import (
 
 func Get(ctx *context.Context) *cobra.Command {
 	var getServiceConfig = struct {
-		configuration.ExportConfig
+		export.ExportConfig
 	}{}
 	command := &cobra.Command{
 		Use:     "solution",
@@ -45,7 +45,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				fmt.Println(err)
 				return
 			}
-			if err := configuration.ExportData(serviceData, getServiceConfig.ExportConfig); err != nil {
+			if err := export.ExportData(serviceData, getServiceConfig.ExportConfig); err != nil {
 				fmt.Println(err)
 				return
 			}

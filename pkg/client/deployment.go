@@ -6,6 +6,7 @@ import (
 	permErrors "git.containerum.net/ch/permissions/pkg/errors"
 	"git.containerum.net/ch/resource-service/pkg/rsErrors"
 	"github.com/containerum/cherry"
+	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
@@ -206,4 +207,17 @@ func (client *Client) GetDeploymentVersions(namespaceID, deploymentName string) 
 			Errorf("unable to get versions of deployment %q", deploymentName)
 	}
 	return list, err
+}
+
+func (client *Client) ReplaceDeploymentContainer(ns, deplName string, cont container.Container) error {
+	var depl, err = client.GetDeployment(ns, deplName)
+	if err != nil {
+		return err
+	}
+	var updated, ok = depl.Containers.Replace(cont)
+	if !ok {
+		return ErrResourceNotExists.CommentF("container %q not found in deployment %q", cont.Name, depl.Name)
+	}
+	depl.Containers = updated
+	return client.ReplaceDeployment(ns, depl)
 }

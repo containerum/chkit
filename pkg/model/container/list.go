@@ -56,3 +56,14 @@ func (list ContainerList) Copy() ContainerList {
 	}
 	return cp
 }
+
+func (list ContainerList) Replace(cont Container) (ContainerList, bool) {
+	var updated = list.Copy()
+	for i, c := range updated {
+		if c.Name == cont.Name {
+			updated[i] = cont.Copy()
+			return updated, true
+		}
+	}
+	return updated, false
+}

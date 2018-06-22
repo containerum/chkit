@@ -12,6 +12,7 @@ import (
 
 type Wizard struct {
 	Container   container.Container
+	EditName    bool
 	Deployment  string
 	Deployments str.Vector
 	Volumes     str.Vector
@@ -20,11 +21,14 @@ type Wizard struct {
 
 func (wizard Wizard) Run() container.Container {
 	var cont = wizard.Container.Copy()
+	var items activekit.MenuItems
+	if wizard.EditName {
+		items = activekit.MenuItems{componentName(&cont)}
+	}
 	for exit := false; !exit; {
 		(&activekit.Menu{
 			Title: "Container " + cont.Name,
-			Items: activekit.MenuItems{
-				componentName(&cont),
+			Items: items.Append(
 				componentDeployment(&cont, &wizard.Deployment, wizard.Deployments),
 				componentVolumes(&cont, wizard.Volumes),
 				componentConfigmaps(&cont, wizard.Configs),
@@ -32,14 +36,18 @@ func (wizard Wizard) Run() container.Container {
 				&activekit.MenuItem{
 					Label: "Confirm",
 					Action: func() error {
+						if err := cont.Validate(); err != nil {
+							fmt.Println(err)
+							return nil
+						}
 						exit = true
 						return nil
 					},
 				},
-			},
+			),
 		}).Run()
 	}
-	return container.Container{}
+	return cont
 }
 
 func componentName(cont *container.Container) *activekit.MenuItem {

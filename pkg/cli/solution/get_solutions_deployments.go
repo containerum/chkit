@@ -5,8 +5,8 @@ import (
 
 	"os"
 
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/sirupsen/logrus"
@@ -17,10 +17,10 @@ var aliases_depl = []string{"sol_depl", "solution_deploy", "solution_deployments
 
 func GetDepl(ctx *context.Context) *cobra.Command {
 	var getDeplDataConfig = struct {
-		configuration.ExportConfig
+		export.ExportConfig
 	}{
-		configuration.ExportConfig{
-			Format: configuration.PRETTY,
+		export.ExportConfig{
+			Format: export.PRETTY,
 		},
 	}
 	command := &cobra.Command{
@@ -48,7 +48,7 @@ func GetDepl(ctx *context.Context) *cobra.Command {
 				fmt.Printf("%v :(\n", err)
 				return
 			}
-			if err := configuration.ExportData(deplData, getDeplDataConfig.ExportConfig); err != nil {
+			if err := export.ExportData(deplData, getDeplDataConfig.ExportConfig); err != nil {
 				logrus.WithError(err).Errorf("unable to export data")
 				angel.Angel(ctx, err)
 			}
