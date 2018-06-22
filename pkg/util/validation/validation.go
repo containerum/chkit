@@ -29,7 +29,7 @@ var (
 func ValidateContainerName(name string) error {
 	name = strings.TrimSpace(name)
 	if !containerNameRe.MatchString(name) {
-		return ErrInvalidContainerName
+		return ErrInvalidContainerName.CommentF("expect %v", containerNameRe)
 	}
 	return nil
 }
