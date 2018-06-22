@@ -12,7 +12,7 @@ const (
 	ErrInvalidSolution chkitErrors.Err = "invalid ingress"
 )
 
-func ValidateIngress(sol solution.Solution) error {
+func ValidateSolution(sol solution.Solution) error {
 	var errs []error
 	if err := validation.ValidateLabel(sol.Name); err != nil {
 		errs = append(errs, fmt.Errorf("\n + invalid solution name %q", sol.Name))

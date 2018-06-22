@@ -28,7 +28,7 @@ func Run(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			sol := buildSolution(ctx, cmd, args)
 			if force, _ := cmd.Flags().GetBool("force"); force {
-				if err := activesolution.ValidateIngress(sol); err != nil {
+				if err := activesolution.ValidateSolution(sol); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
