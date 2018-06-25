@@ -1,11 +1,6 @@
 package chClient
 
 import (
-	"git.containerum.net/ch/auth/pkg/errors"
-	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
-	permErrors "git.containerum.net/ch/permissions/pkg/errors"
-	"git.containerum.net/ch/resource-service/pkg/rsErrors"
-	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/sirupsen/logrus"
 )
@@ -14,23 +9,10 @@ func (client *Client) GetIngress(ns, domain string) (ingress.Ingress, error) {
 	var ingr ingress.Ingress
 	err := retry(4, func() (bool, error) {
 		kubeIngress, err := client.kubeAPIClient.GetIngress(ns, domain)
-		switch {
-		case err == nil:
+		if err == nil {
 			ingr = ingress.IngressFromKube(kubeIngress)
-			return false, nil
-		case cherry.In(err,
-			kubeErrors.ErrResourceNotExist(),
-			kubeErrors.ErrAccessError(),
-			kubeErrors.ErrUnableGetResource()):
-			return false, err
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound(),
-			autherr.ErrTokenNotOwnedBySender()):
-			return true, client.Auth()
-		default:
-			return true, ErrFatalError.Wrap(err)
 		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).WithField("namespace", ns).
@@ -43,23 +25,10 @@ func (client *Client) GetIngressList(ns string) (ingress.IngressList, error) {
 	var list ingress.IngressList
 	err := retry(4, func() (bool, error) {
 		kubeList, err := client.kubeAPIClient.GetIngressList(ns)
-		switch {
-		case err == nil:
+		if err == nil {
 			list = ingress.IngressListFromKube(kubeList)
-			return false, nil
-		case cherry.In(err,
-			kubeErrors.ErrResourceNotExist(),
-			kubeErrors.ErrAccessError(),
-			kubeErrors.ErrUnableGetResource()):
-			return false, err
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound(),
-			autherr.ErrTokenNotOwnedBySender()):
-			return true, client.Auth()
-		default:
-			return true, ErrFatalError.Wrap(err)
 		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).WithField("namespace", ns).
@@ -71,22 +40,7 @@ func (client *Client) GetIngressList(ns string) (ingress.IngressList, error) {
 func (client *Client) CreateIngress(ns string, ingr ingress.Ingress) error {
 	err := retry(4, func() (bool, error) {
 		err := client.kubeAPIClient.AddIngress(ns, ingr.ToKube())
-		switch {
-		case err == nil:
-			return false, nil
-		case cherry.In(err,
-			rserrors.ErrResourceNotExists(),
-			permErrors.ErrResourceNotOwned(),
-			rserrors.ErrPermissionDenied()):
-			return false, err
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound(),
-			autherr.ErrTokenNotOwnedBySender()):
-			return true, client.Auth()
-		default:
-			return true, ErrFatalError.Wrap(err)
-		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).
@@ -99,27 +53,7 @@ func (client *Client) CreateIngress(ns string, ingr ingress.Ingress) error {
 func (client *Client) ReplaceIngress(ns string, ingr ingress.Ingress) error {
 	err := retry(4, func() (bool, error) {
 		err := client.kubeAPIClient.UpdateIngress(ns, ingr.Host(), ingr.ToKube())
-		switch {
-		case err == nil:
-			return false, nil
-		case cherry.In(err,
-			rserrors.ErrResourceNotExists(),
-			permErrors.ErrResourceNotOwned(),
-			rserrors.ErrPermissionDenied()):
-			return false, err
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound(),
-			autherr.ErrTokenNotOwnedBySender()):
-			err = client.Auth()
-			if err != nil {
-				logrus.WithError(err).
-					Debugf("error while creating ingress %q", ingr.Name)
-			}
-			return true, err
-		default:
-			return true, ErrFatalError.Wrap(err)
-		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).
@@ -132,22 +66,7 @@ func (client *Client) ReplaceIngress(ns string, ingr ingress.Ingress) error {
 func (client *Client) DeleteIngress(ns, domain string) error {
 	err := retry(4, func() (bool, error) {
 		err := client.kubeAPIClient.DeleteIngress(ns, domain)
-		switch {
-		case err == nil:
-			return false, nil
-		case cherry.In(err,
-			rserrors.ErrResourceNotExists(),
-			rserrors.ErrPermissionDenied(),
-			permErrors.ErrResourceNotOwned()):
-			return false, err
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound(),
-			autherr.ErrTokenNotOwnedBySender()):
-			return true, client.Auth()
-		default:
-			return true, ErrFatalError.Wrap(err)
-		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).WithField("namespace", ns).
