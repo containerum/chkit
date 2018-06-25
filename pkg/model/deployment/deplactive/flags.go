@@ -40,16 +40,16 @@ type Flags struct {
 	containers map[string]chkitContainer.Container
 }
 
-func FlagsFromDeployment(depl deployment.Deployment) Flags {
+func FlagsFromDeployment(oldflags Flags, depl deployment.Deployment) Flags {
 	var containers = make(map[string]chkitContainer.Container, len(depl.Containers))
 	for _, container := range depl.Containers {
 		containers[container.Name] = container
 	}
-	return Flags{
-		Name:       depl.Name,
-		Replicas:   uint(depl.Replicas),
-		containers: containers,
-	}
+	ret := oldflags
+	ret.Name = depl.Name
+	ret.Replicas = uint(depl.Replicas)
+	ret.containers = containers
+	return ret
 }
 
 func (flags Flags) Deployment() (deployment.Deployment, error) {
