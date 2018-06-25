@@ -86,6 +86,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				fmt.Println("Nothing to do")
 			}
 			services, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+			services = services.AvailableForIngress()
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get service list")
 				activekit.Attention("Unable to get service list:\n%v", err)

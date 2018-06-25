@@ -28,5 +28,7 @@ func Set(ctx *context.Context) *cobra.Command {
 		containerumapi.Set(ctx),
 		clinamespace.SetAccess(ctx),
 	)
+	command.PersistentFlags().
+		StringP("namespace", "n", ctx.Namespace.ID, "")
 	return command
 }

@@ -68,6 +68,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				return
 			}
 			services, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+			services = services.AvailableForIngress()
 			if err != nil {
 				activekit.Attention(fmt.Sprintf("Unable to get service list!\n%v", err))
 				os.Exit(1)

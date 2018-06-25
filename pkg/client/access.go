@@ -2,7 +2,7 @@ package chClient
 
 import (
 	"git.containerum.net/ch/auth/pkg/errors"
-	"git.containerum.net/ch/kube-api/pkg/kubeErrors"
+	permErrors "git.containerum.net/ch/permissions/pkg/errors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/model/access"
 	"github.com/containerum/kube-client/pkg/model"
@@ -29,9 +29,12 @@ func (client *Client) SetAccess(ns, username string, acc model.AccessLevel) erro
 		case err == nil:
 			return false, nil
 		case cherry.In(err,
-			kubeErrors.ErrResourceNotExist(),
-			kubeErrors.ErrAccessError(),
-			kubeErrors.ErrUnableGetResource()):
+			permErrors.ErrResourceNotExists(),
+			permErrors.ErrSetOwnerAccess(),
+			permErrors.ErrRequestValidationFailed(),
+			permErrors.ErrResourceNotOwned(),
+			permErrors.ErrOwnerAlreadyExists(),
+			permErrors.ErrResourceNotExists()):
 			return false, err
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
@@ -56,9 +59,12 @@ func (client *Client) DeleteAccess(ns, username string) error {
 		case err == nil:
 			return false, nil
 		case cherry.In(err,
-			kubeErrors.ErrResourceNotExist(),
-			kubeErrors.ErrAccessError(),
-			kubeErrors.ErrUnableGetResource()):
+			permErrors.ErrResourceNotExists(),
+			permErrors.ErrSetOwnerAccess(),
+			permErrors.ErrRequestValidationFailed(),
+			permErrors.ErrResourceNotOwned(),
+			permErrors.ErrOwnerAlreadyExists(),
+			permErrors.ErrResourceNotExists()):
 			return false, err
 		case cherry.In(err,
 			autherr.ErrInvalidToken(),
