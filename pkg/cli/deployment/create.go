@@ -2,12 +2,12 @@ package clideployment
 
 import (
 	"fmt"
-	"os"
-
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
@@ -24,9 +24,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Use:     "deployment",
 		Aliases: aliases,
 		Short:   "create deployment",
-		Long: "Create a new deployment.\n" +
-			"Runs in one-line mode, suitable for integration with other tools, " +
-			"and in interactive wizard mode.",
+		Long:    help.GetString("create deployment"),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			logger.Struct(flags)
