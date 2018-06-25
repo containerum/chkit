@@ -17,7 +17,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/kube-api"
   packages = ["pkg/kubeErrors"]
-  revision = "56af0775280fe4ceec37998256550aba3411ba61"
+  revision = "caefc05a5f5edaf6d5355aabde72b94f84a7cce1"
 
 [[projects]]
   branch = "develop"
@@ -41,7 +41,13 @@
   branch = "develop"
   name = "git.containerum.net/ch/user-manager"
   packages = ["pkg/umErrors"]
-  revision = "d45897b432a8759493c7136593748468f36e2deb"
+  revision = "00679a5966623d5326c60227a582d9252cd5f61f"
+
+[[projects]]
+  branch = "develop"
+  name = "git.containerum.net/ch/volume-manager"
+  packages = ["pkg/errors"]
+  revision = "3739b7b0854eaa77402992d3e7d10423a4ed2505"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -308,11 +314,11 @@
     "pkg/util/validation",
     "pkg/util/validation/field"
   ]
-  revision = "8c3a073df191e81d477fa0e022d30b7104114336"
+  revision = "1c56055d3f2ff0ae5ff61d86dc8c88d2928b7ab3"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "163a89c095cf7c2fe106b37a562f8802151e0cbf8a81a9182fc21d578d91dc77"
+  inputs-digest = "d1492b67889305a32a7dd0706fa6b4426ed3417f7d1a50ab197beb473bdcf1b4"
   solver-name = "gps-cdcl"
   solver-version = 1

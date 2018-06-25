@@ -22,21 +22,10 @@ func (client *Client) GetSolutionsTemplatesList() (solution.TemplatesList, error
 	var gainedList solution.TemplatesList
 	err := retry(4, func() (bool, error) {
 		kubeList, err := client.kubeAPIClient.GetSolutionsTemplatesList()
-		switch {
-		case err == nil:
+		if err == nil {
 			gainedList = solution.TemplatesListFromKube(kubeList)
-			return false, err
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
-			logrus.Debugf("running auth")
-			er := client.Auth()
-			return true, er
-		case cherry.In(err, kubeErrors.ErrAccessError()):
-			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
-		default:
-			return true, ErrFatalError.Wrap(err)
 		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).Errorf("unable to get solution templates list")
@@ -49,20 +38,7 @@ func (client *Client) GetSolutionsTemplatesEnvs(template, branch string) (model.
 	err := retry(4, func() (bool, error) {
 		var err error
 		kubeList, err = client.kubeAPIClient.GetSolutionsTemplateEnv(template, branch)
-		switch {
-		case err == nil:
-			return false, err
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
-			logrus.Debugf("running auth")
-			er := client.Auth()
-			return true, er
-		case cherry.In(err, kubeErrors.ErrAccessError()):
-			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
-		default:
-			return true, ErrFatalError.Wrap(err)
-		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).Errorf("unable to get solution template envs")
@@ -71,25 +47,15 @@ func (client *Client) GetSolutionsTemplatesEnvs(template, branch string) (model.
 }
 
 func (client *Client) RunSolution(sol solution.Solution) error {
-	err := retry(0, func() (bool, error) {
+	err := retry(4, func() (bool, error) {
 		kubeResp, err := client.kubeAPIClient.RunSolution(sol.ToKube(), sol.Namespace, sol.Branch)
-		switch {
-		case err == nil:
+		if err == nil {
 			if kubeResp.NotCreated != 0 || len(kubeResp.Errors) != 0 {
 				return false, ErrUnableToRunAllSolutionComponents.Comment(kubeResp.Errors...)
 			}
 			return false, nil
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
-			er := client.Auth()
-			logrus.Debugf("running auth")
-			return true, er
-		case cherry.In(err, kubeErrors.ErrAccessError()):
-			return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
-		default:
-			return true, ErrFatalError.Wrap(err)
 		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).Errorf("unable to run solution")
@@ -156,24 +122,10 @@ func (client *Client) GetSolutionDeployments(namespace, solutionName string) (de
 	var list deployment.DeploymentList
 	err := retry(4, func() (bool, error) {
 		kubeList, err := client.kubeAPIClient.GetSolutionDeployments(namespace, solutionName)
-		switch {
-		case err == nil:
+		if err == nil {
 			list = deployment.DeploymentListFromKube(kubeList)
-			return false, nil
-		case cherry.In(err,
-			kubeErrors.ErrResourceNotExist(),
-			kubeErrors.ErrAccessError(),
-			kubeErrors.ErrUnableGetResource()):
-			return false, ErrNamespaceNotExists
-		case cherry.In(err,
-			sErrors.ErrSolutionNotExist()):
-			return false, ErrSolutionNotExists
-		case cherry.In(err, autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
-			return true, client.Auth()
-		default:
-			return true, ErrFatalError.Wrap(err)
 		}
+		return HandleErrorRetry(client, err)
 	})
 	return list, err
 }
@@ -182,24 +134,10 @@ func (client *Client) GetSolutionServices(namespace, solutionName string) (servi
 	var gainedList service.ServiceList
 	err := retry(4, func() (bool, error) {
 		kubeLsit, err := client.kubeAPIClient.GetSolutionServices(namespace, solutionName)
-		switch {
-		case err == nil:
+		if err == nil {
 			gainedList = service.ServiceListFromKube(kubeLsit)
-			return false, err
-		case cherry.In(err,
-			kubeErrors.ErrResourceNotExist(),
-			kubeErrors.ErrAccessError(),
-			kubeErrors.ErrUnableGetResource()):
-			return false, ErrNamespaceNotExists
-		case cherry.In(err,
-			sErrors.ErrSolutionNotExist()):
-			return false, ErrSolutionNotExists
-		case cherry.In(err, autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound()):
-			return true, client.Auth()
-		default:
-			return true, ErrFatalError.Wrap(err)
 		}
+		return HandleErrorRetry(client, err)
 	})
 	return gainedList, err
 }
@@ -207,24 +145,7 @@ func (client *Client) GetSolutionServices(namespace, solutionName string) (servi
 func (client *Client) DeleteSolution(namespace, solutionName string) error {
 	err := retry(4, func() (bool, error) {
 		err := client.kubeAPIClient.DeleteSolution(namespace, solutionName)
-		switch {
-		case err == nil:
-			return false, nil
-		case cherry.In(err,
-			kubeErrors.ErrAccessError(),
-			kubeErrors.ErrUnableDeleteResource()):
-			return false, err
-		case cherry.In(err,
-			sErrors.ErrSolutionNotExist()):
-			return false, ErrSolutionNotExists
-		case cherry.In(err,
-			autherr.ErrInvalidToken(),
-			autherr.ErrTokenNotFound(),
-			autherr.ErrTokenNotOwnedBySender()):
-			return true, client.Auth()
-		default:
-			return true, ErrFatalError.Wrap(err)
-		}
+		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).WithField("namespace", namespace).
