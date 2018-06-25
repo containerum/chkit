@@ -1,12 +1,13 @@
 package service
 
 import (
-	"fmt"
+	"net/url"
+	"strconv"
 	"strings"
-
 	"time"
 
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/ninedraft/boxofstuff/str"
 )
 
 var (
@@ -18,29 +19,40 @@ func (serv Service) RenderTable() string {
 }
 
 func (_ *Service) TableHeaders() []string {
-	return []string{"Name", "Deploy", "IPs", "Domain", "Ports", "Age"}
+	return []string{"Name", "Deploy", "URL", "Age"}
 }
 
 func (serv *Service) TableRows() [][]string {
-	ports := make([]string, 0, len(serv.Ports))
-	for _, port := range serv.Ports {
-		optPort := port.TargetPort
-		if port.Port != nil {
-			optPort = *port.Port
-		}
-		ports = append(ports,
-			fmt.Sprintf("%d:%d/%s", optPort, port.TargetPort, port.Protocol))
-	}
 	age := "undefine"
 	if serv.CreatedAt != (time.Time{}) {
 		age = model.Age(serv.CreatedAt)
 	}
+	var links = make(str.Vector, 0, len(serv.Ports))
+	if serv.Domain != "" {
+		for _, p := range serv.Ports {
+			switch strings.ToLower(p.Protocol) {
+			case "tcp":
+				links = append(links, (&url.URL{
+					Scheme: "http",
+					Host:   serv.Domain + ":" + strconv.Itoa(*p.Port),
+				}).String())
+			case "upd":
+				links = append(links, (&url.URL{
+					Scheme: "udp",
+					Host:   serv.Domain + ":" + strconv.Itoa(*p.Port),
+				}).String())
+			default:
+				links = append(links, (&url.URL{
+					Host: serv.Domain + ":" + strconv.Itoa(*p.Port),
+				}).String())
+			}
+		}
+	}
+
 	return [][]string{{
 		serv.Name,
 		serv.Deploy,
-		strings.Join(serv.IPs, "\n"),
-		serv.Domain,
-		strings.Join(ports, "\n"),
+		strings.Join(links, "\n"),
 		age,
 	}}
 }

@@ -12,13 +12,15 @@ import (
 )
 
 type Deployment struct {
-	Name       string
-	Replicas   int
-	Status     *Status
-	Active     bool
-	Version    semver.Version
-	CreatedAt  time.Time
-	Containers container.ContainerList
+	Name        string
+	Replicas    int
+	Status      *Status
+	Active      bool
+	Version     semver.Version
+	CreatedAt   time.Time
+	TotalCPU    uint
+	TotalMemory uint
+	Containers  container.ContainerList
 }
 
 func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
@@ -36,13 +38,15 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 		containers = append(containers, container.Container{Container: kubeContainer})
 	}
 	return Deployment{
-		Name:       kubeDeployment.Name,
-		Replicas:   kubeDeployment.Replicas,
-		Status:     status,
-		Containers: containers,
-		Version:    kubeDeployment.Version,
-		Active:     kubeDeployment.Active,
-		CreatedAt:  timestamp,
+		Name:        kubeDeployment.Name,
+		Replicas:    kubeDeployment.Replicas,
+		Status:      status,
+		Containers:  containers,
+		Version:     kubeDeployment.Version,
+		Active:      kubeDeployment.Active,
+		CreatedAt:   timestamp,
+		TotalCPU:    kubeDeployment.TotalCPU,
+		TotalMemory: kubeDeployment.TotalMemory,
 	}
 }
 
@@ -65,8 +69,12 @@ func (depl *Deployment) ToKube() model.Deployment {
 func (depl *Deployment) StatusString() string {
 	if depl.Active {
 		if depl.Status != nil {
-			return fmt.Sprintf("running %d/%d",
-				depl.Status.NonTerminated, depl.Replicas)
+			return fmt.Sprintf("running: %2d/%d\n"+
+				"CPU    : %4d mCPU\n"+
+				"MEMORY : %4d Mb",
+				depl.Status.NonTerminated, depl.Replicas,
+				depl.TotalCPU,
+				depl.TotalMemory)
 		} else {
 			return fmt.Sprintf("local\nreplicas %d", depl.Replicas)
 		}

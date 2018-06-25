@@ -14,8 +14,8 @@ func (pod Pod) RenderTable() string {
 	return model.RenderTable(pod)
 }
 
-func (_ Pod) TableHeaders() []string {
-	return []string{"Label", "Host", "Status", "Restarts", "Age"}
+func (Pod) TableHeaders() []string {
+	return []string{"Label", "Status", "Restarts", "Age"}
 }
 
 func (pod Pod) TableRows() [][]string {
@@ -23,13 +23,10 @@ func (pod Pod) TableRows() [][]string {
 	if pod.CreatedAt.Unix() != 0 {
 		age = model.Age(pod.CreatedAt)
 	}
-	return [][]string{
-		{
-			pod.Name,
-			pod.Hostname,
-			pod.Status.Phase,
-			strconv.Itoa(pod.Status.RestartCount),
-			age,
-		},
-	}
+	return [][]string{{
+		pod.Name,
+		pod.Status.Phase,
+		strconv.Itoa(pod.Status.RestartCount),
+		age,
+	}}
 }

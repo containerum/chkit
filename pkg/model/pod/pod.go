@@ -43,3 +43,9 @@ func PodFromKube(pod kubeModel.Pod) Pod {
 		origin:     pod,
 	}
 }
+
+func (po Pod) Copy() Pod {
+	var cp = po
+	cp.Containers = append(make([]string, len(po.Containers)), po.Containers...)
+	return cp
+}
