@@ -243,8 +243,11 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = [
+    "context",
     "idna",
-    "publicsuffix"
+    "publicsuffix",
+    "webdav",
+    "webdav/internal/xml"
   ]
   revision = "afe8f62b1d6bbd81f31868121a50b06d8188e1f9"
 
@@ -310,6 +313,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "970360d9016637ff45e252b755fb7380d8d5a594ea401903f223a1738f465874"
+  inputs-digest = "163a89c095cf7c2fe106b37a562f8802151e0cbf8a81a9182fc21d578d91dc77"
   solver-name = "gps-cdcl"
   solver-version = 1

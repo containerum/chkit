@@ -7,7 +7,9 @@ import (
 
 	chkitContainer "github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/kube-client/pkg/model"
+	"github.com/ninedraft/boxofstuff/str"
 )
 
 func missingContainerNameErr(flag, value string) error {
@@ -22,10 +24,10 @@ type Flags struct {
 	Force bool   `flag:"force f" desc:"suppress confirmation, optional"`
 	File  string `desc:"file with configmap data, .json, .yaml, .yml, optional"`
 	// Output   string `flag:"output o" desc:"output format, json/yaml"`
-	Replicas uint   `desc:"deployment replicas, optional"` // deployment
-	Name     string `desc:"deployment name, optional"`     // deployment
-
-	Image []string `desc:"container image,\nCONTAINER_NAME@IMAGE in case of multiple containers or IMAGE in case of one container"` // container +
+	Replicas      uint     `desc:"deployment replicas, optional"` // deployment
+	Name          string   `desc:"deployment name, optional"`     // deployment
+	ContainerName string   `desc:"container name in case of single container"`
+	Image         []string `desc:"container image,\nCONTAINER_NAME@IMAGE in case of multiple containers or IMAGE in case of one container"` // container +
 
 	Env []string `desc:"container environment variable,\nCONTAINER_NAME@KEY:VALUE in case of multiple containers or KEY:VALUE in case of one container"` // container +
 
@@ -89,6 +91,10 @@ func (flags Flags) BuildContainers() (chkitContainer.ContainerList, error) {
 
 	var list = make(chkitContainer.ContainerList, 0, len(flags.containers))
 	for containerName, container := range flags.containers {
+		containerName = str.Vector{
+			containerName,
+			flags.ContainerName,
+			namegen.Color() + "-" + container.Image}.FirstNonEmpty()
 		container.Name = containerName
 		list = append(list, container)
 	}
@@ -97,10 +103,10 @@ func (flags Flags) BuildContainers() (chkitContainer.ContainerList, error) {
 
 func (flags Flags) extractCPU() error {
 	for _, cpuValue := range flags.CPU {
-		var container, cpuStr = extractContainerAndValue(cpuValue)
-		if container == "" && len(flags.containers) > 1 {
-			return missingContainerNameErr("--cpu", cpuStr)
-		}
+		var container, cpuStr = flags.extractContainerAndValue(cpuValue)
+		//	if container == "" {
+		//		return missingContainerNameErr("--cpu", cpuStr)
+		//	}
 		var cont = flags.containers[container]
 		var cpu, err = strconv.ParseUint(cpuStr, 10, 32)
 		if err != nil {
@@ -114,10 +120,10 @@ func (flags Flags) extractCPU() error {
 
 func (flags Flags) extractImages() error {
 	for _, image := range flags.Image {
-		var container, imageName = extractContainerAndValue(image)
-		if container == "" && len(flags.containers) > 1 {
-			return missingContainerNameErr("--image", imageName)
-		}
+		var container, imageName = flags.extractContainerAndValue(image)
+		//	if container == "" {
+		//		return missingContainerNameErr("--image", imageName)
+		//	}
 		var cont = flags.containers[container]
 		cont.Image = imageName
 		flags.containers[container] = cont
@@ -127,10 +133,10 @@ func (flags Flags) extractImages() error {
 
 func (flags Flags) extractMemory() error {
 	for _, memValue := range flags.Memory {
-		var container, memStr = extractContainerAndValue(memValue)
-		if container == "" && len(flags.containers) > 1 {
-			return missingContainerNameErr("--memory", memValue)
-		}
+		var container, memStr = flags.extractContainerAndValue(memValue)
+		// if container == "" {
+		//	return missingContainerNameErr("--memory", memValue)
+		// }
 		var cont = flags.containers[container]
 		var mem, err = strconv.ParseUint(memStr, 10, 32)
 		if err != nil {
@@ -144,10 +150,10 @@ func (flags Flags) extractMemory() error {
 
 func (flags Flags) extractEnvs() error {
 	for _, envValue := range flags.Env {
-		var container, envPair = extractContainerAndValue(envValue)
-		if container == "" && len(flags.containers) > 1 {
-			return missingContainerNameErr("--env", envValue)
-		}
+		var container, envPair = flags.extractContainerAndValue(envValue)
+		// if container == "" {
+		//	return missingContainerNameErr("--env", envValue)
+		// }
 		var env, err = parseEnv(envPair)
 		if err != nil {
 			return err
@@ -161,10 +167,10 @@ func (flags Flags) extractEnvs() error {
 
 func (flags Flags) extractVolumes() error {
 	for _, volumeValue := range flags.Volume {
-		var container, volumeName, mountPath = extractContainerAndVolumeNameAndMountPath(volumeValue)
-		if container == "" && len(flags.containers) > 1 {
-			return missingContainerNameErr("--volume", volumeValue)
-		}
+		var container, volumeName, mountPath = flags.extractContainerAndVolumeNameAndMountPath(volumeValue)
+		//	if container == "" {
+		//		return missingContainerNameErr("--volume", volumeValue)
+		//	}
 		if volumeName == "" {
 			return invalidFlagValueErr(
 				"--volume",
@@ -186,10 +192,10 @@ func (flags Flags) extractVolumes() error {
 
 func (flags Flags) extractConfigmaps() error {
 	for _, configmapValue := range flags.Configmap {
-		var container, configName, mountPath = extractContainerAndVolumeNameAndMountPath(configmapValue)
-		if container == "" && len(flags.containers) > 1 {
-			return missingContainerNameErr("--configmap", configmapValue)
-		}
+		var container, configName, mountPath = flags.extractContainerAndVolumeNameAndMountPath(configmapValue)
+		//	if container == "" {
+		//		return missingContainerNameErr("--configmap", configmapValue)
+		//	}
 		if configName == "" {
 			return invalidFlagValueErr(
 				"--volume",
@@ -209,26 +215,26 @@ func (flags Flags) extractConfigmaps() error {
 	return nil
 }
 
-func extractContainerAndValue(str string) (container, value string) {
+func (flags Flags) extractContainerAndValue(str string) (container, value string) {
 	var tokens = strings.SplitN(str, "@", 2)
 	if len(tokens) == 2 {
 		return tokens[0], tokens[1]
 	}
-	return "", str
+	return flags.ContainerName, str
 }
 
 // [CONTAINER]@[VOLUME_NAME]@[VOLUME_MOUNT]
 // [CONTAINER]@[VOLUME_NAME]
 // [VOLUME_NAME]
-func extractContainerAndVolumeNameAndMountPath(str string) (container, volume, mount string) {
+func (flags Flags) extractContainerAndVolumeNameAndMountPath(str string) (container, volume, mount string) {
 	var tokens = strings.SplitN(str, "@", 3)
 	switch len(tokens) {
-	case 3:
+	case 3: //  [CONTAINER]@[VOLUME_NAME]@[VOLUME_MOUNT]
 		return tokens[0], tokens[1], tokens[2]
-	case 2:
+	case 2: // [CONTAINER]@[VOLUME_NAME]
 		return tokens[0], tokens[1], ""
-	case 1:
-		return "", str, ""
+	case 1: // [VOLUME_NAME]
+		return flags.ContainerName, str, ""
 	default:
 		return "", "", ""
 	}
