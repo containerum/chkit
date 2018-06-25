@@ -5,8 +5,8 @@ import (
 
 	"errors"
 
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/sirupsen/logrus"
@@ -17,7 +17,7 @@ var aliases = []string{"ns", "namespaces"}
 
 func Get(ctx *context.Context) *cobra.Command {
 	var getNamespaceDataConfig = struct {
-		configuration.ExportConfig
+		export.ExportConfig
 	}{}
 	command := &cobra.Command{
 		Use:     "namespace",
@@ -62,7 +62,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				return
 			}
 			logger.Debugf("exporting data")
-			err = configuration.ExportData(nsData, getNamespaceDataConfig.ExportConfig)
+			err = export.ExportData(nsData, getNamespaceDataConfig.ExportConfig)
 			if err != nil {
 				logger.WithError(err).Errorf("fatal error: %v", err)
 				return

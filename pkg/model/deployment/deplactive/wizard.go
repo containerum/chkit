@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/model/limits"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/validation"
 )
@@ -78,11 +79,11 @@ func componentEditReplicas(deployment *deployment.Deployment) *activekit.MenuIte
 		Action: func() error {
 			for {
 				var replicasStr = activekit.Promt("Type number of replicas to use (hit Enter to use %d, expected number in %v): ",
-					deployment.Replicas, ReplicasLimit)
+					deployment.Replicas, limits.ReplicasLimit)
 				replicasStr = strings.TrimSpace(replicasStr)
 				if replicas, err := strconv.Atoi(replicasStr); replicasStr != "" && err == nil {
-					if !ReplicasLimit.Containing(replicas) {
-						fmt.Printf("Replicas number must be number in %v\n", ReplicasLimit)
+					if !limits.ReplicasLimit.Containing(replicas) {
+						fmt.Printf("Replicas number must be number in %v\n", limits.ReplicasLimit)
 						continue
 					}
 					deployment.Replicas = replicas

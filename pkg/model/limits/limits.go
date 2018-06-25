@@ -1,6 +1,8 @@
-package deplactive
+package limits
 
-import "github.com/ninedraft/ranger/intranger"
+import (
+	"github.com/ninedraft/ranger/intranger"
+)
 
 const (
 	MIN_REPLICAS = 1

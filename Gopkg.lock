@@ -5,7 +5,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/api-gateway"
   packages = ["pkg/gatewayErrors"]
-  revision = "ffa1d50fd77c65865324c15a9883c818642d6efa"
+  revision = "63a0dd0e8ce8e563a8cd68b066351f91f22077d1"
 
 [[projects]]
   branch = "develop"
@@ -17,31 +17,31 @@
   branch = "develop"
   name = "git.containerum.net/ch/kube-api"
   packages = ["pkg/kubeErrors"]
-  revision = "765f4d41b76cccef7ed6c696cb7aebf45528b579"
+  revision = "56af0775280fe4ceec37998256550aba3411ba61"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "2df09ef109b940cd114e554b57b7c11eb27fd751"
+  revision = "bc521d2f9fc91aecf201bb979b4f6ee29e68d4a0"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
   packages = ["pkg/rsErrors"]
-  revision = "caae867329e6040b42119a47482bfdea8c36a1f9"
+  revision = "fc2c0d09a2a7c8c7fb028ae2a88e7dba62fb2425"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/solutions"
   packages = ["pkg/sErrors"]
-  revision = "9fe6cc0f67acd4210519a14412ce63c91788a584"
+  revision = "1c19736d18ce6d0009d3ec0f27dc750745ec455e"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/user-manager"
   packages = ["pkg/umErrors"]
-  revision = "b8bfce569c124c4efcda3b2bb352a89f5a536c20"
+  revision = "d45897b432a8759493c7136593748468f36e2deb"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -150,8 +150,8 @@
     "str",
     "strset"
   ]
-  revision = "dadbacbb75d2fc004675de3a2c98509db44935be"
-  version = "v0.2.4"
+  revision = "fe09821415d47659b606dc73dce196a111ca3c42"
+  version = "v0.3.2"
 
 [[projects]]
   branch = "master"
@@ -237,7 +237,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "7f39a6fea4fe9364fb61e1def6a268a51b4f3a06"
+  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
 
 [[projects]]
   branch = "master"
@@ -246,7 +246,7 @@
     "idna",
     "publicsuffix"
   ]
-  revision = "db08ff08e8622530d9ed3a0e8ac279f6d4c02196"
+  revision = "afe8f62b1d6bbd81f31868121a50b06d8188e1f9"
 
 [[projects]]
   branch = "master"
@@ -255,7 +255,7 @@
     "unix",
     "windows"
   ]
-  revision = "ad87a3a340fa7f3bed189293fbfa7a9b7e021ae1"
+  revision = "63fc586f45fe72d95d5240a5d5eb95e6503907d3"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -305,11 +305,11 @@
     "pkg/util/validation",
     "pkg/util/validation/field"
   ]
-  revision = "5a8013207d0d28c7fe98193e5b6cdbf92e98a000"
+  revision = "8c3a073df191e81d477fa0e022d30b7104114336"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0e9d0a7c7a0897b1ffb4c1bc20d51e9d67edafcc554501749681f4e7eff44814"
+  inputs-digest = "970360d9016637ff45e252b755fb7380d8d5a594ea401903f223a1738f465874"
   solver-name = "gps-cdcl"
   solver-version = 1

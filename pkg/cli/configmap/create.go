@@ -135,10 +135,10 @@ func getFileItems(rawItems []string) ([]configmap.Item, error) {
 		if err != nil {
 			return nil, err
 		}
-		items = append(items, configmap.Item{
-			Key:   key,
-			Value: base64.StdEncoding.EncodeToString(value),
-		})
+		items = append(items, configmap.NewItem(
+			key,
+			base64.StdEncoding.EncodeToString(value),
+		))
 	}
 	return items, nil
 }
@@ -154,10 +154,10 @@ func getStringItems(rawItems []string) ([]configmap.Item, error) {
 		} else {
 			return nil, fmt.Errorf("invalid token number in raw string item (got %v, required 2)", len(tokens))
 		}
-		items = append(items, configmap.Item{
-			Key:   key,
-			Value: base64.StdEncoding.EncodeToString([]byte(value)),
-		})
+		items = append(items, configmap.NewItem(
+			key,
+			base64.StdEncoding.EncodeToString([]byte(value)),
+		))
 	}
 	return items, nil
 }

@@ -101,7 +101,7 @@ single_release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 dev:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+dev)
 	@echo building $(VERSION)
-	go build -v --tags="dev" --ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
+	go build -v -race --tags="dev" --ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
 
 mock:
 	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)

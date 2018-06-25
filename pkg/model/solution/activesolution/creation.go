@@ -178,7 +178,7 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 			}).Append(&activekit.MenuItem{
 			Label: "Confirm",
 			Action: func() error {
-				if err := ValidateIngress(sol); err != nil {
+				if err := ValidateSolution(sol); err != nil {
 					activekit.Attention(err.Error())
 					return nil
 				}

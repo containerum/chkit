@@ -4,11 +4,20 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
+)
+
+var (
+	_ model.Renderer = Container{}
 )
 
 type Container struct {
 	kubeModels.Container
+}
+
+func (container Container) ToKube() kubeModels.Container {
+	return kubeModels.Container(container.Copy().Container)
 }
 
 func (container Container) String() string {

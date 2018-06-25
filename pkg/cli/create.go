@@ -39,6 +39,7 @@ func Create(ctx *context.Context) *cobra.Command {
 	command.AddCommand(
 		cliconfigmap.Create(ctx),
 		clideployment.Create(ctx),
+		clideployment.CreateContainer(ctx),
 		cliserv.Create(ctx),
 		clingress.Create(ctx),
 	)

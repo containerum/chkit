@@ -3,8 +3,8 @@ package clingress
 import (
 	"fmt"
 
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -16,7 +16,7 @@ import (
 var aliases = []string{"ingr", "ingresses", "ing"}
 
 func Get(ctx *context.Context) *cobra.Command {
-	exportConfig := configuration.ExportConfig{}
+	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "ingress",
 		Short:   "show ingress data",
@@ -60,7 +60,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				fmt.Printf("%v :(\n", err)
 				return
 			}
-			if err := configuration.ExportData(ingrData, exportConfig); err != nil {
+			if err := export.ExportData(ingrData, exportConfig); err != nil {
 				logrus.WithError(err).Errorf("unable to export data")
 				angel.Angel(ctx, err)
 			}

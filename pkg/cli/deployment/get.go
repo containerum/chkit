@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -71,8 +71,8 @@ func Get(ctx *context.Context) *cobra.Command {
 				deplData = list
 			}
 			logger.Debugf("exporting deployment data")
-			if err := configuration.ExportData(deplData, configuration.ExportConfig{
-				Format:   configuration.ExportFormat(flags.Output),
+			if err := export.ExportData(deplData, export.ExportConfig{
+				Format:   export.ExportFormat(flags.Output),
 				Filename: flags.File,
 			}); err != nil {
 				logrus.WithError(err).Errorf("unable to export data")

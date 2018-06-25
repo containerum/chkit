@@ -5,8 +5,8 @@ import (
 
 	"os"
 
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/pod"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/strset"
@@ -16,9 +16,9 @@ import (
 var aliases = []string{"po", "pods"}
 
 var getPodConfig = struct {
-	configuration.ExportConfig
+	export.ExportConfig
 }{
-	ExportConfig: configuration.ExportConfig{
+	ExportConfig: export.ExportConfig{
 		Filename: "-",
 	},
 }
@@ -38,7 +38,7 @@ func Get(ctx *context.Context) *cobra.Command {
 					fmt.Printf("Unable to get pod list from namespace %q :(\n", ctx.Namespace)
 					os.Exit(1)
 				}
-				if err := configuration.ExportData(polist, getPodConfig.ExportConfig); err != nil {
+				if err := export.ExportData(polist, getPodConfig.ExportConfig); err != nil {
 					activekit.Attention(err.Error())
 					os.Exit(1)
 				}
@@ -49,7 +49,7 @@ func Get(ctx *context.Context) *cobra.Command {
 					fmt.Printf("Unable to get pod from namespace %q :(\n", ctx.Namespace)
 					os.Exit(1)
 				}
-				if err := configuration.ExportData(po, getPodConfig.ExportConfig); err != nil {
+				if err := export.ExportData(po, getPodConfig.ExportConfig); err != nil {
 					activekit.Attention(err.Error())
 					os.Exit(1)
 				}
@@ -66,7 +66,7 @@ func Get(ctx *context.Context) *cobra.Command {
 						filteredList = append(filteredList, p)
 					}
 				}
-				if err := configuration.ExportData(filteredList, getPodConfig.ExportConfig); err != nil {
+				if err := export.ExportData(filteredList, getPodConfig.ExportConfig); err != nil {
 					activekit.Attention(err.Error())
 					os.Exit(1)
 				}

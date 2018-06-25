@@ -1,6 +1,7 @@
 package str
 
 import (
+	"errors"
 	"math/rand"
 	"sort"
 	"strings"
@@ -44,8 +45,8 @@ func (vector Vector) Filter(pred func(str string) bool) Vector {
 	return filtered
 }
 
-func (vector Vector) Count() map[string]int {
-	var count = make(map[string]int, vector.Len())
+func (vector Vector) Count() map[string]uint {
+	var count = make(map[string]uint, vector.Len())
 	for _, str := range vector {
 		count[str]++
 	}
@@ -157,7 +158,7 @@ func (vector Vector) Sample(n uint) Vector {
 func (vector Vector) Top(n uint) Vector {
 	var count = vector.Count()
 	var sorted = vector.Unique().SortByKey(func(str string) int {
-		return -count[str]
+		return -int(count[str])
 	})
 	if uint(sorted.Len()) < n {
 		return sorted
@@ -194,4 +195,35 @@ func (vector Vector) Eq(v Vector) bool {
 		}
 	}
 	return true
+}
+
+func (vector Vector) Contains(str string) bool {
+	for _, s := range vector {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}
+
+func (vector Vector) ToErrs() []error {
+	var errs = make([]error, 0, vector.Len())
+	for _, str := range vector {
+		errs = append(errs, errors.New(str))
+	}
+	return errs
+}
+
+func (vector Vector) Head(n uint) Vector {
+	if uint(vector.Len()) < n {
+		return vector.Copy()
+	}
+	return vector[:n].Copy()
+}
+
+func (vector Vector) Tail(n uint) Vector {
+	if uint(vector.Len()) <= n {
+		return vector.Copy()
+	}
+	return vector[n:].Copy()
 }

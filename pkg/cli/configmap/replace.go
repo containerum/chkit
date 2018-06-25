@@ -79,12 +79,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 						fmt.Println(err)
 						os.Exit(1)
 					}
-					content, err := ioutil.ReadFile(item.Value)
+					content, err := ioutil.ReadFile(item.Value())
 					if err != nil {
 						fmt.Printf("error while loading file item %q:\n%v\n", itemString, err)
 						os.Exit(1)
 					}
-					items = append(items, configmap.NewItem(item.Key, string(content)))
+					items = append(items, item.WithValue(string(content)))
 				}
 				cm = cm.AddItems(items...)
 			}
