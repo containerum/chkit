@@ -44,19 +44,19 @@ func Setup(ctx *context.Context) error {
 		logger.WithError(ErrFatalError.Wrap(err)).Errorf("fatal error while config Setup")
 		return ErrFatalError.Wrap(err)
 	}
-	ctx.Client.Tokens = model.Tokens{}
+	ctx.GetClient().Tokens = model.Tokens{}
 	logger.Debugf("client initialisation")
 	if err := Client(ctx, DoNotAlloSelfSignedTLSCerts); err != nil {
 		logger.WithError(err).Errorf("unable to init client")
 		return err
 	}
-	if err := ctx.Client.Auth(); err != nil {
+	if err := ctx.GetClient().Auth(); err != nil {
 		logger.WithError(err).Errorf("unable to auth")
 		return err
 	}
 
 	logger.Debugf("saving tokens")
-	if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
+	if err := configuration.SaveTokens(ctx, ctx.GetClient().Tokens); err != nil {
 		logger.WithError(err).Errorf("unable to save tokens")
 		return err
 	}

@@ -51,7 +51,7 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 			switch len(args) {
 			case 0:
 				logger.Debugf("getting deployment list")
-				var list, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				var list, err = ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Debugf("unable to get deployment list")
 					ferr.Println(err)
@@ -74,7 +74,7 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			logger.Debugf("getting versions of deployment %q", deployment)
-			var versions, err = ctx.Client.GetDeploymentVersions(ctx.Namespace.ID, deployment)
+			var versions, err = ctx.GetClient().GetDeploymentVersions(ctx.GetNamespace().ID, deployment)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get versions of deployment %q", deployment)
 				ferr.Println(err)

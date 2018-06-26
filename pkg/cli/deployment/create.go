@@ -52,7 +52,7 @@ func Create(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
+				if err := ctx.GetClient().CreateDeployment(ctx.GetNamespace().ID, depl); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -60,7 +60,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				return
 			}
 			logger.Debugf("getting configmap list")
-			configmapList, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
+			configmapList, err := ctx.GetClient().GetConfigmapList(ctx.GetNamespace().ID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get configmap list")
 				ferr.Println(err)
@@ -106,7 +106,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				}).Run()
 				return
 			}
-			if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
+			if err := ctx.GetClient().CreateDeployment(ctx.GetNamespace().ID, depl); err != nil {
 				ferr.Println(err)
 				ctx.Exit(1)
 			}

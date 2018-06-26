@@ -29,14 +29,14 @@ func Replace(ctx *context.Context) *cobra.Command {
 			if len(args) == 1 {
 				ingrName := args[0]
 				var err error
-				ingr, err = ctx.Client.GetIngress(ctx.Namespace.ID, ingrName)
+				ingr, err = ctx.GetClient().GetIngress(ctx.GetNamespace().ID, ingrName)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get previous ingress")
 					activekit.Attention("unable to get previous ingress:\n%v", err)
 					ctx.Exit(1)
 				}
 			} else if !flags.Force {
-				ingrList, err := ctx.Client.GetIngressList(ctx.Namespace.ID)
+				ingrList, err := ctx.GetClient().GetIngressList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get ingress list")
 					activekit.Attention("Unable to get ingress list:\n%v", err)
@@ -74,7 +74,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					activekit.Attention("Invalid ingress:\n%v", err)
 					ctx.Exit(1)
 				}
-				if err := ctx.Client.ReplaceIngress(ctx.Namespace.ID, ingr); err != nil {
+				if err := ctx.GetClient().ReplaceIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					logger.WithError(err).Errorf("unable to replace ingress")
 					activekit.Attention("Unable to replace ingress %q:\n%v", ingr.Name, err)
 					ctx.Exit(1)
@@ -84,7 +84,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			} else if !ingrChanged {
 				fmt.Println("Nothing to do")
 			}
-			services, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+			services, err := ctx.GetClient().GetServiceList(ctx.GetNamespace().ID)
 			services = services.AvailableForIngress()
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get service list")
@@ -105,7 +105,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					activekit.Attention("Invalid ingress:\n%v", err)
 					ctx.Exit(1)
 				}
-				if err := ctx.Client.ReplaceIngress(ctx.Namespace.ID, ingr); err != nil {
+				if err := ctx.GetClient().ReplaceIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					logger.WithError(err).Errorf("unable to replace ingress")
 					activekit.Attention("Unable to replace ingress %q:\n%v", ingr.Name, err)
 					ctx.Exit(1)

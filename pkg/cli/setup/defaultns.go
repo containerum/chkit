@@ -11,7 +11,7 @@ import (
 
 func GetDefaultNS(ctx *context.Context, force bool) error {
 	logrus.Debugf("getting user namespaces list")
-	list, err := ctx.Client.GetNamespaceList()
+	list, err := ctx.GetClient().GetNamespaceList()
 	if err != nil {
 		logrus.WithError(err).Errorf("unable to get user namespace list")
 		fmt.Printf("Unable to get default namespace\n")

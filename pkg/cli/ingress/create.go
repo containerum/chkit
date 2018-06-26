@@ -61,13 +61,13 @@ func Create(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				if err := ctx.Client.CreateIngress(ctx.Namespace.ID, flagIngress); err != nil {
+				if err := ctx.GetClient().CreateIngress(ctx.GetNamespace().ID, flagIngress); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				return
 			}
-			services, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+			services, err := ctx.GetClient().GetServiceList(ctx.GetNamespace().ID)
 			services = services.AvailableForIngress()
 			if err != nil {
 				activekit.Attention(fmt.Sprintf("Unable to get service list!\n%v", err))
@@ -83,7 +83,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			}
 			fmt.Println(ingr.RenderTable())
 			if activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
-				if err := ctx.Client.CreateIngress(ctx.Namespace.ID, ingr); err != nil {
+				if err := ctx.GetClient().CreateIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}

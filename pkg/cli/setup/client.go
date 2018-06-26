@@ -30,7 +30,7 @@ func Client(ctx *context.Context, certPolicy CertPolicy) error {
 	logger.Debugf("START")
 	defer logger.Debugf("END")
 
-	ctx.Client.Fingerprint = fingerpint.Fingerprint()
+	ctx.GetClient().Fingerprint = fingerpint.Fingerprint()
 	tokens, err := configuration.LoadTokens(ctx)
 	if err != nil && !os.IsNotExist(err) {
 		return ErrUnableToLoadTokens.Wrap(err)
@@ -40,28 +40,28 @@ func Client(ctx *context.Context, certPolicy CertPolicy) error {
 			return ErrUnableToSaveTokens.Wrap(err)
 		}
 	}
-	ctx.Client.Tokens = tokens
-	if _, err := url.Parse(ctx.Client.APIaddr); err != nil {
-		logrus.Debugf("invalid API url: %q", ctx.Client.APIaddr)
+	ctx.GetClient().Tokens = tokens
+	if _, err := url.Parse(ctx.GetClient().APIaddr); err != nil {
+		logrus.Debugf("invalid API url: %q", ctx.GetClient().APIaddr)
 		return ErrInvalidAPIurl.Wrap(err)
 	}
-	if ctx.Client.Password == "" || ctx.Client.Username == "" {
+	if ctx.GetClient().Password == "" || ctx.GetClient().Username == "" {
 		logrus.Debugf("invalid username or pass")
 		return ErrInvalidUserInfo
 	}
 
-	ctx.AllowSelfSignedTLS = certPolicy == AllowSelfSignedTLSCerts
+	ctx.SetSelfSignedTLSRule(certPolicy == AllowSelfSignedTLSCerts)
 
 	if mode.DEBUG && !mode.MOCK {
-		logger.Debugf("Using test API: %q", ctx.Client.APIaddr)
-		ctx.Client.Log = logrus.StandardLogger().WriterLevel(logrus.DebugLevel)
-		err = ctx.Client.Init(chClient.WithTestAPI)
+		logger.Debugf("Using test API: %q", ctx.GetClient().APIaddr)
+		ctx.GetClient().Log = logrus.StandardLogger().WriterLevel(logrus.DebugLevel)
+		err = ctx.GetClient().Init(chClient.WithTestAPI)
 	} else if mode.DEBUG && mode.MOCK {
 		logger.Debugf("Using mock API")
-		err = ctx.Client.Init(chClient.WithMock)
+		err = ctx.GetClient().Init(chClient.WithMock)
 	} else if !mode.DEBUG {
-		logger.Debugf("Using production API: %v", ctx.Client.APIaddr)
-		err = ctx.Client.Init(chClient.WithCommonAPI)
+		logger.Debugf("Using production API: %v", ctx.GetClient().APIaddr)
+		err = ctx.GetClient().Init(chClient.WithCommonAPI)
 	} else {
 		panic(fmt.Sprintf("[setup.Client] invalid client mode state: DEBUG:%v MOCK:%v", mode.DEBUG, mode.MOCK))
 	}

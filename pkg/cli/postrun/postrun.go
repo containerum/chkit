@@ -50,7 +50,7 @@ func PostRun(ctx *context.Context) {
 		}
 	}
 	logger.Debugf("saving tokens")
-	if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
+	if err := configuration.SaveTokens(ctx, ctx.GetClient().Tokens); err != nil {
 		logger.WithError(err).Errorf("unable to save tokens")
 		fmt.Printf("Unable to save tokens: %v\n", err)
 	}

@@ -55,11 +55,11 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 			},
 			Run: func(cmd *cobra.Command, args []string) {
-				fmt.Printf("%s\n", ctx.Namespace)
+				fmt.Printf("%s\n", ctx.GetNamespace())
 			},
 		},
 	)
 	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace.ID, "")
+		StringP("namespace", "n", ctx.GetNamespace().ID, "")
 	return command
 }

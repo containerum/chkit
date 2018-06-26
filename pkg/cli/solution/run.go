@@ -33,14 +33,14 @@ func Run(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				if err := ctx.Client.RunSolution(sol); err != nil {
+				if err := ctx.GetClient().RunSolution(sol); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Printf("Solution %s is ready to run\n", sol.Name)
 				return
 			}
-			solutions, err := ctx.Client.GetSolutionsTemplatesList()
+			solutions, err := ctx.GetClient().GetSolutionsTemplatesList()
 			if err != nil {
 				ferr.Println(err)
 				ctx.Exit(1)
@@ -58,7 +58,7 @@ func Run(ctx *context.Context) *cobra.Command {
 					}
 				}
 
-				if err := ctx.Client.RunSolution(sol); err != nil {
+				if err := ctx.GetClient().RunSolution(sol); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -97,7 +97,7 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 	if flags.Changed("namespace") {
 		sol.Namespace, _ = flags.GetString("namespace")
 	} else {
-		sol.Namespace = ctx.Namespace.ID
+		sol.Namespace = ctx.GetNamespace().ID
 	}
 	if flags.Changed("branch") {
 		sol.Branch, _ = flags.GetString("branch")

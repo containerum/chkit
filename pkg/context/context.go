@@ -113,23 +113,23 @@ func (config Storable) Merge(upd Storable) Storable {
 func (ctx *Context) GetStorable() Storable {
 	return Storable{
 		Version:            ctx.Version,
-		Namespace:          ctx.Namespace,
-		Username:           ctx.Client.Username,
-		Password:           ctx.Client.Password,
-		API:                ctx.Client.APIaddr,
-		AllowSelfSignedTLS: ctx.AllowSelfSignedTLS,
+		Namespace:          ctx.namespace,
+		Username:           ctx.client.Username,
+		Password:           ctx.client.Password,
+		API:                ctx.client.APIaddr,
+		AllowSelfSignedTLS: ctx.allowSelfSignedTLS,
 	}
 }
 
 func (ctx *Context) SetStorable(config Storable) (configVersion string) {
-	ctx.Namespace = config.Namespace
-	ctx.Client.UserInfo = model.UserInfo{
+	ctx.namespace = config.Namespace
+	ctx.client.UserInfo = model.UserInfo{
 		Username: config.Username,
 		Password: config.Password,
 	}
 	if config.API != "" {
-		ctx.Client.APIaddr = config.API
+		ctx.client.APIaddr = config.API
 	}
-	ctx.AllowSelfSignedTLS = config.AllowSelfSignedTLS
+	ctx.allowSelfSignedTLS = config.AllowSelfSignedTLS
 	return config.Version
 }

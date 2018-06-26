@@ -24,7 +24,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 1 {
-				nsList, err := ctx.Client.GetNamespaceList()
+				nsList, err := ctx.GetClient().GetNamespaceList()
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -35,11 +35,11 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				ctx.SetNamespace(ns)
-				fmt.Printf("Using %q as default namespace!\n", ctx.Namespace)
+				fmt.Printf("Using %q as default namespace!\n", ctx.GetNamespace())
 				ctx.Changed = true
 				return
 			}
-			nsList, err := ctx.Client.GetNamespaceList()
+			nsList, err := ctx.GetClient().GetNamespaceList()
 			if err != nil || len(nsList) == 0 {
 				fmt.Printf("You have no namespaces :(\n")
 			}
@@ -60,10 +60,10 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 				Label: "Exit",
 			})
 			var title string
-			if ctx.Namespace.IsEmpty() {
+			if ctx.GetNamespace().IsEmpty() {
 				title = fmt.Sprintf("Default namespace isn't defined")
 			} else {
-				title = fmt.Sprintf("%q is current default namespace", ctx.Namespace)
+				title = fmt.Sprintf("%q is current default namespace", ctx.GetNamespace())
 			}
 			(&activekit.Menu{
 				Title: title,

@@ -13,13 +13,19 @@ import (
 	"github.com/containerum/chkit/pkg/cli/setup"
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
 
 var VERSION = ""
 
 func Root() error {
+	var flags struct {
+		Username  string
+		Password  string
+		Namespace string
+	}
 	ctx := &context.Context{
 		Version: func() string {
 			// try to normalise version string
@@ -40,19 +46,10 @@ func Root() error {
 		Short:   "Chkit is a terminal client for containerum.io powerful API",
 		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
-			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
-				if err := setup.Setup(ctx); err != nil {
-					angel.Angel(ctx, err)
-					ctx.Exit(1)
-				}
-				return
-			} else if cmd.Flag("username").Changed || cmd.Flag("password").Changed {
-				cmd.Help()
-				ctx.Exit(1)
-			}
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				ctx.Exit(1)
+			if err := prerun.PreRun(ctx, prerun.Config{
+				RunLoginOnMissingCreds: true,
+			}); err != nil {
+				panic(err)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -64,16 +61,11 @@ func Root() error {
 		}).CobraPostrun,
 		TraverseChildren: true,
 	}
-	ctx.Client.APIaddr = mode.API_ADDR
-
-	root.PersistentFlags().
-		StringVarP(&ctx.Client.Username, "username", "u", "", "account username")
-	root.PersistentFlags().
-		StringVarP(&ctx.Client.Password, "password", "p", "", "account password")
-	root.PersistentFlags().
-		StringVarP(&ctx.Namespace.ID, "namespace", "n", ctx.Namespace.ID, "")
-	root.PersistentFlags().
-		BoolVarP(&ctx.Quiet, "quiet", "q", ctx.Quiet, "quiet mode")
+	ctx.GetClient().APIaddr = mode.API_ADDR
+	if err := gpflag.ParseTo(&flags, root.PersistentFlags()); err != nil {
+		ferr.Println(err)
+		ctx.Exit(1)
+	}
 
 	root.AddCommand(
 		setup.Login(ctx),

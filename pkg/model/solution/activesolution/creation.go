@@ -88,7 +88,7 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 							Action: func(templ string) func() error {
 								return func() error {
 									sol.Template = templ
-									if env, err := ctx.Client.GetSolutionsTemplatesEnvs(sol.Template, sol.Branch); err == nil {
+									if env, err := ctx.GetClient().GetSolutionsTemplatesEnvs(sol.Template, sol.Branch); err == nil {
 										for k, v := range env.Env {
 											if strings.HasPrefix(v, "{{") {
 												env.Env[k] = ""
@@ -128,7 +128,7 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 						return nil
 					}
 					sol.Branch = branch
-					if env, err := ctx.Client.GetSolutionsTemplatesEnvs(sol.Template, sol.Branch); err == nil {
+					if env, err := ctx.GetClient().GetSolutionsTemplatesEnvs(sol.Template, sol.Branch); err == nil {
 						for k, v := range env.Env {
 							if strings.HasPrefix(v, "{{") {
 								env.Env[k] = ""

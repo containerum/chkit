@@ -23,7 +23,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			var ingrName string
 			switch len(args) {
 			case 0:
-				ingrList, err := ctx.Client.GetIngressList(ctx.Namespace.ID)
+				ingrList, err := ctx.GetClient().GetIngressList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get ingress list")
 					activekit.Attention("Unable to get ingress list:\n%v", err)
@@ -47,7 +47,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				}).Run()
 			case 1:
 				name := args[0]
-				ingr, err := ctx.Client.GetIngress(ctx.Namespace.ID, name)
+				ingr, err := ctx.GetClient().GetIngress(ctx.GetNamespace().ID, name)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to find ingress %q", name)
 					activekit.Attention("Unable to find ingress %q", name)
@@ -59,7 +59,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			if force || activekit.YesNo("Do you really want to delete ingress %q?", ingrName) {
-				if err := ctx.Client.DeleteIngress(ctx.Namespace.ID, ingrName); err != nil {
+				if err := ctx.GetClient().DeleteIngress(ctx.GetNamespace().ID, ingrName); err != nil {
 					logger.WithError(err).Errorf("unable to delete ingress")
 					activekit.Attention("Unable to delete ingress:\n%v", err)
 					ctx.Exit(1)

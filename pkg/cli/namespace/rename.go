@@ -23,7 +23,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 			var logger = coblog.Logger(cmd)
 			switch len(args) {
 			case 0:
-				nsList, err := ctx.Client.GetNamespaceList()
+				nsList, err := ctx.GetClient().GetNamespaceList()
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get namespace list")
 					ferr.Println(err)
@@ -62,7 +62,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 				}
 				if force, _ := cmd.Flags().GetBool("force"); force ||
 					activekit.YesNo("Are you sure you want to rename namespace %q?", oldNs.OwnerAndLabel()) {
-					if err := ctx.Client.RenameNamespace(oldNs.ID, newName); err != nil {
+					if err := ctx.GetClient().RenameNamespace(oldNs.ID, newName); err != nil {
 						logger.WithError(err).Errorf("unable to rename namespace %q")
 						ferr.Println(err)
 						ctx.Exit(1)
@@ -87,7 +87,7 @@ func interactiveRename(ctx *context.Context, logger logrus.FieldLogger, ns names
 			continue
 		}
 		if activekit.YesNo("Are you sure you want to rename namespace %q?", ns.OwnerAndLabel()) {
-			if err := ctx.Client.RenameNamespace(ns.ID, newName); err != nil {
+			if err := ctx.GetClient().RenameNamespace(ns.ID, newName); err != nil {
 				logger.WithError(err).Errorf("unable to rename namespace %q", ns.OwnerAndLabel())
 				ferr.Println(err)
 				continue

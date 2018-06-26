@@ -51,7 +51,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				serv.Name = args[0]
 				serv.Ports = []service.Port{flagPort}
 
-				oldServ, err := ctx.Client.GetService(ctx.Namespace.ID, args[0])
+				oldServ, err := ctx.GetClient().GetService(ctx.GetNamespace().ID, args[0])
 				if err != nil {
 					activekit.Attention(err.Error())
 					ctx.Exit(1)
@@ -73,7 +73,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				fmt.Println(serv.RenderTable())
-				if err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv); err != nil {
+				if err := ctx.GetClient().ReplaceService(ctx.GetNamespace().ID, serv); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -81,7 +81,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				return
 			} else {
 				if len(args) == 0 {
-					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+					list, err := ctx.GetClient().GetServiceList(ctx.GetNamespace().ID)
 					if err != nil {
 						activekit.Attention(err.Error())
 						ctx.Exit(1)
@@ -104,7 +104,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					}).Run()
 				} else {
 					var err error
-					serv, err = ctx.Client.GetService(ctx.Namespace.ID, args[0])
+					serv, err = ctx.GetClient().GetService(ctx.GetNamespace().ID, args[0])
 					if err != nil {
 						activekit.Attention(err.Error())
 						ctx.Exit(1)
@@ -127,7 +127,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 							Action: func() error {
 								fmt.Println(serv.RenderTable())
 								if activekit.YesNo(fmt.Sprintf("Are you sure you want to update service %q on server?", serv.Name)) {
-									err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv)
+									err := ctx.GetClient().ReplaceService(ctx.GetNamespace().ID, serv)
 									if err != nil {
 										logrus.WithError(err).Errorf("unable to replace service %q", serv.Name)
 										ferr.Println(err)

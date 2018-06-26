@@ -29,10 +29,10 @@ func DeleteContainer(ctx *context.Context) *cobra.Command {
 				ferr.Printf("deployment name must be provided as --deployment while using --force")
 				ctx.Exit(1)
 			} else if flags.Deployment != "" {
-				logger.Debugf("getting deployment list from namespace %q", ctx.Namespace)
-				var depl, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
+				var depl, err = ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
-					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
+					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -51,7 +51,7 @@ func DeleteContainer(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			} else if flags.Container == "" {
 				logger.Debugf("getting deployment %q", flags.Deployment)
-				var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
+				var depl, err = ctx.GetClient().GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment %q", flags.Deployment)
 					ferr.Println(err)
@@ -69,7 +69,7 @@ func DeleteContainer(ctx *context.Context) *cobra.Command {
 			}
 			if flags.Force || activekit.YesNo("Do you really want to delete container %q in deployment %q?", flags.Container, flags.Deployment) {
 				logger.Debugf("deleting container %q in deployment %q", flags.Container, flags.Deployment)
-				if err := ctx.Client.DeleteDeploymentContainer(ctx.Namespace.ID, flags.Deployment, flags.Container); err != nil {
+				if err := ctx.GetClient().DeleteDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, flags.Container); err != nil {
 					ferr.Println(err)
 					logger.WithError(err).Debugf("unable to delete container %q in deployment %q", flags.Container, flags.Deployment)
 					ctx.Exit(1)

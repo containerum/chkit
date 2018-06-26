@@ -36,10 +36,10 @@ func Replace(ctx *context.Context) *cobra.Command {
 				ferr.Printf("deployment name must be provided as --deployment while using --force")
 				ctx.Exit(1)
 			} else if flags.Deployment == "" {
-				logger.Debugf("getting deployment list from namespace %q", ctx.Namespace)
-				var depl, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
+				var depl, err = ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
-					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
+					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -59,7 +59,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			} else if flags.ContainerName == "" {
 				logger.Debugf("getting deployment %q", flags.Deployment)
-				var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
+				var depl, err = ctx.GetClient().GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment %q", flags.Deployment)
 					ferr.Println(err)
@@ -94,7 +94,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				logger.Debugf("replacing container %q", cont.Name)
-				if err := ctx.Client.ReplaceDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
+				if err := ctx.GetClient().ReplaceDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
 					logger.WithError(err).Errorf("unable to replace container %q", cont.Name)
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -115,9 +115,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 				logger.Debugf("START")
 				defer logger.Debugf("END")
 				defer close(deployments)
-				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				deplList, err := ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
-					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
+					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -130,7 +130,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				logger.Debugf("START")
 				defer logger.Debugf("END")
 				defer close(configs)
-				configList, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
+				configList, err := ctx.GetClient().GetConfigmapList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap list")
 					ferr.Println(err)
@@ -150,7 +150,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 
 			if activekit.YesNo("Are you sure you want to update container %q in deployment %q?", cont.Name, flags.Deployment) {
 				logger.Debugf("replacing container %q in deployment %q", cont.Name, flags.Deployment)
-				if err := ctx.Client.ReplaceDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
+				if err := ctx.GetClient().ReplaceDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
 					logger.WithError(err).Errorf("unable to replace container %q in deployment %q", cont.Name, flags.Deployment)
 					ferr.Println(err)
 				}

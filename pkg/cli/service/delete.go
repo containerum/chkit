@@ -24,7 +24,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			logrus.Debugf("running command delete service")
 			switch len(args) {
 			case 0:
-				list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+				list, err := ctx.GetClient().GetServiceList(ctx.GetNamespace().ID)
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to get service list")
 					activekit.Attention(err.Error())
@@ -40,7 +40,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 									return nil
 								}
 								logrus.Debugf("deleting service %q from %q", srv.Name)
-								err := ctx.Client.DeleteService(ctx.Namespace.ID, srv.Name)
+								err := ctx.GetClient().DeleteService(ctx.GetNamespace().ID, srv.Name)
 								if err != nil {
 									logrus.WithError(err).Debugf("error while deleting service")
 									fmt.Printf("Unable to delete service %q :(\n%v", srv.Name, err)
@@ -67,8 +67,8 @@ func Delete(ctx *context.Context) *cobra.Command {
 						return
 					}
 				}
-				logrus.Debugf("deleting service %q from %q", svcName, ctx.Namespace.ID)
-				err := ctx.Client.DeleteService(ctx.Namespace.ID, svcName)
+				logrus.Debugf("deleting service %q from %q", svcName, ctx.GetNamespace().ID)
+				err := ctx.GetClient().DeleteService(ctx.GetNamespace().ID, svcName)
 				if err != nil {
 					logrus.WithError(err).Debugf("error while deleting service")
 					fmt.Printf("Unable to delete service %q :(\n%v", svcName, err)

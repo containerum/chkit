@@ -15,7 +15,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Short:   "print Containerum API URL",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(ctx.Client.APIaddr)
+			fmt.Println(ctx.GetClient().APIaddr)
 		},
 	}
 	return command

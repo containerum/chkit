@@ -38,7 +38,7 @@ func InteractiveLogin(ctx *context.Context) error {
 	var err error
 	var username, pass string
 
-	if strings.TrimSpace(ctx.Client.Username) == "" {
+	if strings.TrimSpace(ctx.GetClient().Username) == "" {
 		username, err = readLogin()
 		if err != nil {
 			return err
@@ -46,10 +46,10 @@ func InteractiveLogin(ctx *context.Context) error {
 		if strings.TrimSpace(username) == "" {
 			return ErrInvalidUsername
 		}
-		ctx.Client.Username = username
+		ctx.GetClient().Username = username
 	}
 
-	if strings.TrimSpace(ctx.Client.Password) == "" {
+	if strings.TrimSpace(ctx.GetClient().Password) == "" {
 		pass, err = readPassword()
 		if err != nil {
 			return err
@@ -57,7 +57,7 @@ func InteractiveLogin(ctx *context.Context) error {
 		if strings.TrimSpace(pass) == "" {
 			return ErrInvalidPassword
 		}
-		ctx.Client.Password = pass
+		ctx.GetClient().Password = pass
 	}
 	return nil
 }
@@ -113,8 +113,8 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 	var logger = ctx.Log.Component("RunLogin")
 	logger.Debugf("start")
 	defer logger.Debugf("end")
-	ctx.Client.Username = flags.Username
-	ctx.Client.Password = flags.Password
+	ctx.GetClient().Username = flags.Username
+	ctx.GetClient().Password = flags.Password
 	ctx.Changed = true
 	logger.Debugf("start app setup")
 	if err := Setup(ctx); err != nil {
@@ -129,7 +129,7 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 	case "":
 		GetDefaultNS(ctx, false)
 	default:
-		nsList, err := ctx.Client.GetNamespaceList()
+		nsList, err := ctx.GetClient().GetNamespaceList()
 		logger.Debugf("Getting namespace list")
 		if err != nil {
 			logger.WithError(err).Errorf("unable to get namespace lsit")

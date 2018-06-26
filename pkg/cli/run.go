@@ -32,7 +32,7 @@ func Run(ctx *context.Context) *cobra.Command {
 		clisolution.Run(ctx),
 	)
 	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace.ID, "")
+		StringP("namespace", "n", ctx.GetNamespace().ID, "")
 	command.PersistentFlags().
 		BoolP("help", "h", false, "Print help for chkit")
 	return command

@@ -26,7 +26,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			logger.StructFields(flags)
 			var volumeID string
 			logger.Debugf("getting volume list")
-			var volumeList, err = ctx.Client.GetVolumeList(ctx.Namespace.ID)
+			var volumeList, err = ctx.GetClient().GetVolumeList(ctx.GetNamespace().ID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get volume list")
 				ferr.Println(err)
@@ -62,9 +62,9 @@ func Delete(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			if flags.Force || activekit.YesNo("Do you really want to delete volume %q?", volumeID) {
-				logger.Debugf("deleting volume %q in namespace %q", volumeID, ctx.Namespace)
-				if err := ctx.Client.DeleteVolume(ctx.Namespace.ID, volumeID); err != nil {
-					logger.WithError(err).Errorf("unable to delete volume %q in namespace %q", volumeID, ctx.Namespace)
+				logger.Debugf("deleting volume %q in namespace %q", volumeID, ctx.GetNamespace())
+				if err := ctx.GetClient().DeleteVolume(ctx.GetNamespace().ID, volumeID); err != nil {
+					logger.WithError(err).Errorf("unable to delete volume %q in namespace %q", volumeID, ctx.GetNamespace())
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
