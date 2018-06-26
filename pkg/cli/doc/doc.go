@@ -10,6 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	chkitDoc "github.com/containerum/chkit/pkg/model/doc"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
@@ -39,7 +40,7 @@ func Doc(ctx *context.Context) *cobra.Command {
 					}
 					var str, err = chkitDoc.Command{*command}.Format(flags.Format)
 					if err != nil {
-						fmt.Println(err)
+						ferr.Println(err)
 						ctx.Exit(1)
 					}
 					doc.WriteString(str + "\n")
@@ -69,7 +70,7 @@ func Doc(ctx *context.Context) *cobra.Command {
 				fmt.Println(doc)
 			} else {
 				if err := ioutil.WriteFile(flags.Output, doc.Bytes(), os.ModePerm); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 			}

@@ -1,12 +1,11 @@
 package clisolution
 
 import (
-	"fmt"
-
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/solution"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/strset"
 	"github.com/spf13/cobra"
 )
@@ -42,11 +41,11 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 			}()
 			if err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				return
 			}
 			if err := export.ExportData(serviceData, getServiceConfig.ExportConfig); err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				return
 			}
 

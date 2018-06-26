@@ -74,13 +74,13 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				logger.Debugf("validating changed container %q", cont.Name)
 				if err := cont.Validate(); err != nil {
 					logger.WithError(err).Errorf("invalid container %q", cont.Name)
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				logger.Debugf("creating container %q", cont.Name)
 				if err := ctx.Client.CreateDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
 					logger.WithError(err).Errorf("unable to replace container %q", cont.Name)
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Println("Ok")

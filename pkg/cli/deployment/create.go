@@ -14,6 +14,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -33,7 +34,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			if flags.File != "" {
 				depl, err = deplactive.FromFile(flags.File)
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				flags = deplactive.FlagsFromDeployment(depl)
@@ -41,18 +42,18 @@ func Create(ctx *context.Context) *cobra.Command {
 				var err error
 				depl, err = flags.Deployment()
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 			}
 			deplactive.Fill(&depl)
 			if flags.Force {
 				if err := deplactive.ValidateDeployment(depl); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Printf("Deployment %s created\n", depl.Name)
@@ -62,7 +63,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			configmapList, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get configmap list")
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			fmt.Println(depl.RenderTable())
@@ -92,10 +93,10 @@ func Create(ctx *context.Context) *cobra.Command {
 										data, err = depl.RenderJSON()
 									}
 									if err != nil {
-										fmt.Println(err)
+										ferr.Println(err)
 									}
 									if err := ioutil.WriteFile(fname, []byte(data), os.ModePerm); err != nil {
-										fmt.Println(err)
+										ferr.Println(err)
 									}
 								}
 								return nil
@@ -106,7 +107,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				return
 			}
 			if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			fmt.Printf("Deployment %s created\n", depl.Name)

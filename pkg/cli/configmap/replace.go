@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -31,7 +32,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				var err error
 				list, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				(&activekit.Menu{
@@ -51,7 +52,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			if cmList == nil {
 				list, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				cmList = list
@@ -67,7 +68,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				for _, itemString := range flags.Item {
 					var item, err = newItem(itemString)
 					if err != nil {
-						fmt.Println(err)
+						ferr.Println(err)
 						ctx.Exit(1)
 					}
 					items = append(items, item)
@@ -75,7 +76,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				for _, itemString := range flags.Item {
 					var item, err = newItem(itemString)
 					if err != nil {
-						fmt.Println(err)
+						ferr.Println(err)
 						ctx.Exit(1)
 					}
 					content, err := ioutil.ReadFile(item.Value())
@@ -91,7 +92,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Loading configmap from %q\n", flags.File)
 				cm, err = activeconfigmap.FromFile(flags.File)
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 			}
@@ -104,7 +105,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			if flags.Force ||
 				activekit.YesNo("Do you really want to replace configmap %q on server?", cmName) {
 				if err := ctx.Client.ReplaceConfigmap(ctx.Namespace.ID, cm); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 			}

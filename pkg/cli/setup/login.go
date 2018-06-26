@@ -1,11 +1,9 @@
 package setup
 
 import (
-	"os"
-
-	"fmt"
-
 	"bufio"
+	"fmt"
+	"os"
 	"strings"
 	"syscall"
 
@@ -96,7 +94,7 @@ func Login(ctx *context.Context) *cobra.Command {
 			}
 			flags.Namespace, _ = command.Flags().GetString("namespace")
 			if err := RunLogin(ctx, flags); err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				os.Exit(1)
 			}
 		},

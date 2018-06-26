@@ -1,13 +1,12 @@
 package clideployment
 
 import (
-	"fmt"
-
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
 	deployment2 "github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -55,7 +54,7 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 				var list, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
 					logger.WithError(err).Debugf("unable to get deployment list")
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployment")
@@ -78,7 +77,7 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 			var versions, err = ctx.Client.GetDeploymentVersions(ctx.Namespace.ID, deployment)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get versions of deployment %q", deployment)
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			logger.Debugf("retrieved %d versions", len(versions))
@@ -87,7 +86,7 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 				query, err := semver.ParseRange(flags.Version)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to parse version query")
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployments by query %q", flags.Version)
@@ -106,7 +105,7 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 				Format:   flags.Output,
 			}); err != nil {
 				logger.WithError(err).Errorf("unable to export versions data")
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 		},

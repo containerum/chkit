@@ -6,6 +6,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +20,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			if len(args) == 0 {
 				list, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				var menu activekit.MenuItems
@@ -44,7 +45,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			if force, _ := cmd.Flags().GetBool("force"); force ||
 				activekit.YesNo("Are you sure you want to delete configmap %q in namespace %q?", selectedCM, ctx.Namespace) {
 				if err := ctx.Client.DeleteConfigmap(ctx.Namespace.ID, selectedCM); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")

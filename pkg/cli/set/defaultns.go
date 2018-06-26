@@ -7,6 +7,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 			if len(args) == 1 {
 				nsList, err := ctx.Client.GetNamespaceList()
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				var ns, ok = nsList.GetByUserFriendlyID(args[0])

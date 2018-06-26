@@ -5,6 +5,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +24,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 			if len(args) == 1 {
 				nsList, err := ctx.Client.GetNamespaceList()
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				ns, ok := nsList.GetByUserFriendlyID(args[0])
@@ -40,7 +41,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 			acc, err := ctx.Client.GetAccess(nsID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get namespace %q access", nsID)
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			fmt.Println(acc.RenderTable())

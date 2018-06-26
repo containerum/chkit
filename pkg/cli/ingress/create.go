@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/ingress/activeingress"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/host2dnslabel"
 	"github.com/spf13/cobra"
 )
@@ -57,11 +58,11 @@ func Create(ctx *context.Context) *cobra.Command {
 
 			if cmd.Flag("force").Changed {
 				if err := activeingress.ValidateIngress(flagIngress); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if err := ctx.Client.CreateIngress(ctx.Namespace.ID, flagIngress); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				return
@@ -83,7 +84,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			fmt.Println(ingr.RenderTable())
 			if activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
 				if err := ctx.Client.CreateIngress(ctx.Namespace.ID, ingr); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Printf("Congratulations! Ingress %s created!\n", ingr.Name)

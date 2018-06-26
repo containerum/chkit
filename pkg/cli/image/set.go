@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/octago/sflags/gen/gpflag"
@@ -60,7 +61,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				if flags.Container == "" {
 					var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
 					if err != nil {
-						fmt.Println(err)
+						ferr.Println(err)
 						ctx.Exit(1)
 					}
 					if len(depl.Containers) == 1 {
@@ -70,11 +71,11 @@ func Set(ctx *context.Context) *cobra.Command {
 
 				var depl, image, err = buildImage()
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if err := ctx.Client.SetContainerImage(ctx.Namespace.ID, depl, image); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")
@@ -83,7 +84,7 @@ func Set(ctx *context.Context) *cobra.Command {
 			if flags.Deployment == "" {
 				var deplList, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				(&activekit.Menu{
@@ -97,7 +98,7 @@ func Set(ctx *context.Context) *cobra.Command {
 			if flags.Container == "" {
 				var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if len(depl.Containers) == 1 {
@@ -130,7 +131,7 @@ func Set(ctx *context.Context) *cobra.Command {
 					Image:     flags.Image,
 					Container: flags.Container,
 				}); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 			}

@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -25,7 +26,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 				nsList, err := ctx.Client.GetNamespaceList()
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get namespace list")
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				(&activekit.Menu{
@@ -33,7 +34,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 					Items: activekit.StringSelector(nsList.OwnersAndLabels(), func(label string) error {
 						ns, err := prerun.ResolveLabel(ctx, label)
 						if err != nil {
-							fmt.Println(err)
+							ferr.Println(err)
 							ctx.Exit(1)
 						}
 						interactiveRename(ctx, logger, ns)
@@ -43,7 +44,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 			case 1:
 				ns, err := prerun.ResolveLabel(ctx, args[0])
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				interactiveRename(ctx, logger, ns)
@@ -51,7 +52,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 			case 2:
 				oldNs, err := prerun.ResolveLabel(ctx, args[0])
 				if err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				newName := args[1]
@@ -63,7 +64,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 					activekit.YesNo("Are you sure you want to rename namespace %q?", oldNs.OwnerAndLabel()) {
 					if err := ctx.Client.RenameNamespace(oldNs.ID, newName); err != nil {
 						logger.WithError(err).Errorf("unable to rename namespace %q")
-						fmt.Println(err)
+						ferr.Println(err)
 						ctx.Exit(1)
 					}
 					fmt.Println("OK")
@@ -88,7 +89,7 @@ func interactiveRename(ctx *context.Context, logger logrus.FieldLogger, ns names
 		if activekit.YesNo("Are you sure you want to rename namespace %q?", ns.OwnerAndLabel()) {
 			if err := ctx.Client.RenameNamespace(ns.ID, newName); err != nil {
 				logger.WithError(err).Errorf("unable to rename namespace %q", ns.OwnerAndLabel())
-				fmt.Println(err)
+				ferr.Println(err)
 				continue
 			}
 			fmt.Println("OK")

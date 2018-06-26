@@ -13,6 +13,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -32,7 +33,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			var flags = cmd.Flags()
 			var config, err = buildConfigMapFromFlags(ctx, flags, logger)
 			if err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			force, _ := flags.GetBool("force")
@@ -45,12 +46,12 @@ func Create(ctx *context.Context) *cobra.Command {
 			}
 			if force || activekit.YesNo("Are you sure you want to create configmap %s?", config.Name) {
 				if err := config.Validate(); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if err := ctx.Client.CreateConfigMap(ctx.Namespace.ID, config); err != nil {
 					logger.WithError(err).Errorf("unable to create configmap %q", config.Name)
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")
@@ -82,7 +83,7 @@ func buildConfigMapFromFlags(ctx *context.Context, flags *flag.FlagSet, logger l
 		data, err := ioutil.ReadFile(fName)
 		if err != nil {
 			logger.WithError(err).Error("unable to load configmap data from file")
-			fmt.Println(err)
+			ferr.Println(err)
 			ctx.Exit(1)
 		}
 		switch path.Ext(fName) {
@@ -98,7 +99,7 @@ func buildConfigMapFromFlags(ctx *context.Context, flags *flag.FlagSet, logger l
 			rawItems, _ := flags.GetStringSlice("item-string")
 			items, err := getStringItems(rawItems)
 			if err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			config = config.AddItems(items...)
@@ -107,7 +108,7 @@ func buildConfigMapFromFlags(ctx *context.Context, flags *flag.FlagSet, logger l
 			rawItems, _ := flags.GetStringSlice("item-file")
 			items, err := getFileItems(rawItems)
 			if err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			config = config.AddItems(items...)

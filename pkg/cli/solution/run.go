@@ -12,6 +12,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/solution"
 	"github.com/containerum/chkit/pkg/model/solution/activesolution"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -29,11 +30,11 @@ func Run(ctx *context.Context) *cobra.Command {
 			sol := buildSolution(ctx, cmd, args)
 			if force, _ := cmd.Flags().GetBool("force"); force {
 				if err := activesolution.ValidateSolution(sol); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if err := ctx.Client.RunSolution(sol); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Printf("Solution %s is ready to run\n", sol.Name)
@@ -41,7 +42,7 @@ func Run(ctx *context.Context) *cobra.Command {
 			}
 			solutions, err := ctx.Client.GetSolutionsTemplatesList()
 			if err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			config := activesolution.WizardConfig{
@@ -58,7 +59,7 @@ func Run(ctx *context.Context) *cobra.Command {
 				}
 
 				if err := ctx.Client.RunSolution(sol); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Printf("Solution %s is ready to run\n", sol.Name)
@@ -107,7 +108,7 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 		envString, _ := flags.GetString("env")
 		env, err := pairs.ParseMap(envString, ":")
 		if err != nil {
-			fmt.Println(err)
+			ferr.Println(err)
 			ctx.Exit(1)
 		}
 		sol.Env = env
@@ -123,14 +124,14 @@ func solutionFromFile(ctx *context.Context, cmd *cobra.Command) solution.Solutio
 			buf := &bytes.Buffer{}
 			_, err := buf.ReadFrom(os.Stdin)
 			if err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			return buf.Bytes()
 		}
 		data, err := ioutil.ReadFile(fName)
 		if err != nil {
-			fmt.Println(err)
+			ferr.Println(err)
 			ctx.Exit(1)
 		}
 		return data
@@ -138,12 +139,12 @@ func solutionFromFile(ctx *context.Context, cmd *cobra.Command) solution.Solutio
 	var sol solution.Solution
 	if path.Ext(fName) == "json" {
 		if err := json.Unmarshal(data, &sol); err != nil {
-			fmt.Println(err)
+			ferr.Println(err)
 			ctx.Exit(1)
 		}
 	} else if path.Ext(fName) == "yaml" {
 		if err := yaml.Unmarshal(data, &sol); err != nil {
-			fmt.Println(err)
+			ferr.Println(err)
 			ctx.Exit(1)
 		}
 	} else {

@@ -90,13 +90,13 @@ func Replace(ctx *context.Context) *cobra.Command {
 				logger.Debugf("validating changed container %q", cont.Name)
 				if err := cont.Validate(); err != nil {
 					logger.WithError(err).Errorf("invalid container %q", cont.Name)
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				logger.Debugf("replacing container %q", cont.Name)
 				if err := ctx.Client.ReplaceDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
 					logger.WithError(err).Errorf("unable to replace container %q", cont.Name)
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				logger.Debugf("Ok")

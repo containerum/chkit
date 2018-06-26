@@ -1,11 +1,11 @@
 package containerumapi
 
 import (
-	"fmt"
 	"net/url"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +37,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				api, err := url.Parse(args[0])
 				if err != nil {
 					logger.WithError(err).Errorf("invalid API URL")
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				ctx.Client.APIaddr = api.String()

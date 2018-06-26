@@ -11,6 +11,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/service/servactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -68,12 +69,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 					serv.Domain = oldServ.Domain
 				}
 				if err := servactive.ValidateService(serv); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Println(serv.RenderTable())
 				if err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")
@@ -115,7 +116,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			})
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to replace service")
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			for {
@@ -129,7 +130,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 									err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv)
 									if err != nil {
 										logrus.WithError(err).Errorf("unable to replace service %q", serv.Name)
-										fmt.Println(err)
+										ferr.Println(err)
 										return nil
 									}
 									fmt.Printf("Congratulations! Service %q updated!\n", serv.Name)
@@ -146,7 +147,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 								})
 								if err != nil {
 									logrus.WithError(err).Errorf("unable to update service")
-									fmt.Println(err)
+									ferr.Println(err)
 									ctx.Exit(1)
 								}
 								return nil

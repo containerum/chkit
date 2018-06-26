@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/volume"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/ninedraft/boxofstuff/strset"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
@@ -37,7 +38,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				logger.Debugf("getting volume %q from namespace %q", args[0], ctx.Namespace)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get volume %q from namespace %q", args[0], ctx.Namespace)
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if flags.Names {
@@ -50,7 +51,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				list, err := ctx.Client.GetVolumeList(ctx.Namespace.ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get volume list")
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if len(args) > 0 {
@@ -73,7 +74,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				Format:   export.ExportFormat(flags.Output),
 			}); err != nil {
 				logger.WithError(err).Errorf("unable to export data")
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 		},

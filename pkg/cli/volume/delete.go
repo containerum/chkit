@@ -5,6 +5,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -28,7 +29,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			var volumeList, err = ctx.Client.GetVolumeList(ctx.Namespace.ID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get volume list")
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 			switch len(args) {
@@ -64,7 +65,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				logger.Debugf("deleting volume %q in namespace %q", volumeID, ctx.Namespace)
 				if err := ctx.Client.DeleteVolume(ctx.Namespace.ID, volumeID); err != nil {
 					logger.WithError(err).Errorf("unable to delete volume %q in namespace %q", volumeID, ctx.Namespace)
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")

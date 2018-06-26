@@ -11,6 +11,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +41,7 @@ func Logs(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 		},

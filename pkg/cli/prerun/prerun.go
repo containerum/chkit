@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -107,7 +108,7 @@ func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Comman
 			ctx.Exit(1)
 		}
 		if err := GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
-			fmt.Println(err)
+			ferr.Println(err)
 			ctx.Exit(1)
 		}
 	}

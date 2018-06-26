@@ -1,14 +1,13 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +21,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 		},

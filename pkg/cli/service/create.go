@@ -10,6 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/model/service/servactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/sirupsen/logrus"
@@ -68,12 +69,12 @@ func Create(ctx *context.Context) *cobra.Command {
 				}
 				createServiceConfig.FlagService.Ports = []service.Port{createServiceConfig.FlagPort}
 				if err := servactive.ValidateService(createServiceConfig.FlagService); err != nil {
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				if err := ctx.Client.CreateService(ctx.Namespace.ID, createServiceConfig.FlagService); err != nil {
 					logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", createServiceConfig.FlagService.Name, ctx.Namespace)
-					fmt.Println(err)
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")

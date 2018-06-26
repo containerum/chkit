@@ -7,6 +7,7 @@ import (
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +46,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				Filename: file,
 				Format:   export.ExportFormat(format),
 			}); err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 		},
