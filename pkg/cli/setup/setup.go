@@ -1,13 +1,12 @@
-package clisetup
+package setup
 
 import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
+	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/util/coblog"
 )
-
-var Config = struct {
-	DebugRequests bool
-}{}
 
 const (
 	// ErrFatalError -- unrecoverable fatal error
@@ -23,9 +22,9 @@ const (
 )
 
 func Setup(ctx *context.Context) error {
-	var logger = ctx.Log.Component("clisetup.Setup")
-	logger.Debugf("START")
-	defer logger.Debugf("END")
+	var logger = coblog.Component("login setup client")
+	logger.Debugf("running login client setup")
+	defer logger.Debugf("end login client setup")
 	err := SetupConfig(ctx)
 	switch {
 	case err == nil:
@@ -38,30 +37,24 @@ func Setup(ctx *context.Context) error {
 			return err
 		}
 	default:
-		logger.WithError(ErrFatalError.Wrap(err)).Errorf("fatal error while config setup")
+		logger.WithError(ErrFatalError.Wrap(err)).Errorf("fatal error while config Setup")
 		return ErrFatalError.Wrap(err)
 	}
-
+	ctx.Client.Tokens = model.Tokens{}
 	logger.Debugf("client initialisation")
 	if err := SetupClient(ctx, false); err != nil {
 		logger.WithError(err).Errorf("unable to init client")
 		return err
 	}
-	/*
-		if err := ctx.Client.Auth(); err != nil {
-			logger.WithError(err).Errorf("unable to auth")
-			return err
-		}
+	if err := ctx.Client.Auth(); err != nil {
+		logger.WithError(err).Errorf("unable to auth")
+		return err
+	}
 
-		logger.Debugf("saving tokens")
-		if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
-			logger.WithError(err).Errorf("unable to save tokens")
-			return err
-		}
-	*/
-
-	if ctx.Namespace.IsEmpty() {
-		return GetDefaultNS(ctx, false)
+	logger.Debugf("saving tokens")
+	if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
+		logger.WithError(err).Errorf("unable to save tokens")
+		return err
 	}
 	return nil
 }

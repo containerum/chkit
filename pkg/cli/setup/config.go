@@ -1,4 +1,4 @@
-package clisetup
+package setup
 
 import (
 	"net/url"

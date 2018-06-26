@@ -1,4 +1,4 @@
-package clisetup
+package setup
 
 import (
 	"github.com/containerum/chkit/pkg/cli/mode"
