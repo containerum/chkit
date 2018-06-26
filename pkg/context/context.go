@@ -12,13 +12,62 @@ type Context struct {
 	Version            string
 	ConfigPath         string
 	ConfigDir          string
-	Namespace          Namespace
-	Quiet              bool
+	namespace          Namespace
 	Changed            bool
-	Client             chClient.Client
-	AllowSelfSignedTLS bool
+	client             chClient.Client
+	allowSelfSignedTLS bool
 
 	deferred []func()
+}
+
+func (ctx *Context) GetNamespace() Namespace {
+	return ctx.namespace
+}
+
+func (ctx *Context) SetNamespace(ns namespace.Namespace) *Context {
+	ctx.namespace = NamespaceFromModel(ns)
+	ctx.Changed = true
+	return ctx
+}
+
+func (ctx *Context) SetTemporaryNamespace(ns namespace.Namespace) *Context {
+	ctx.namespace = NamespaceFromModel(ns)
+	return ctx
+}
+
+func (ctx *Context) GetSelfSignedTLSRule() bool {
+	return ctx.allowSelfSignedTLS
+}
+
+func (ctx *Context) SetSelfSignedTLSRule(allow bool) *Context {
+	ctx.allowSelfSignedTLS = allow
+	ctx.Changed = true
+	return ctx
+}
+
+func (ctx *Context) GetClient() *chClient.Client {
+	return &ctx.client
+}
+
+func (ctx *Context) SetAPI(api string) *Context {
+	ctx.client.APIaddr = api
+	ctx.Changed = true
+	return ctx
+}
+
+func (ctx *Context) GetAPI() string {
+	return ctx.client.APIaddr
+}
+
+func (ctx *Context) SetAuth(login, password string) *Context {
+	ctx.client.Username = login
+	ctx.client.Password = password
+	ctx.Changed = true
+	return ctx
+}
+
+func (ctx *Context) GetAuth() model.UserInfo {
+	return ctx.client.UserInfo
 }
 
 func (ctx *Context) StartCommand(command string) {
@@ -27,22 +76,6 @@ func (ctx *Context) StartCommand(command string) {
 
 func (ctx *Context) ExitCommand() {
 	ctx.Log.FieldLogger = ctx.Log.FieldLogger.WithField("command", nil)
-}
-
-func (ctx *Context) GetClient() *chClient.Client {
-	return &ctx.Client
-}
-
-func (ctx *Context) SetAPI(api string) *Context {
-	ctx.Client.APIaddr = api
-	ctx.Changed = true
-	return ctx
-}
-
-func (ctx *Context) SetNamespace(ns namespace.Namespace) *Context {
-	ctx.Namespace = NamespaceFromModel(ns)
-	ctx.Changed = true
-	return ctx
 }
 
 type Storable struct {
