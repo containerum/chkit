@@ -30,7 +30,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PersistentPostRun: postrun.PostRunFunc(ctx),
+		PersistentPostRun: ctx.Defer(func() {
+			postrun.PostRun(ctx)
+		}).CobraPostrun,
 	}
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.Namespace.ID, "")

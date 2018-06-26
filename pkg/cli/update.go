@@ -35,7 +35,9 @@ func Update(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 			}
 		},
-		PersistentPostRun: postrun.PostRunFunc(ctx),
+		PersistentPostRun: ctx.Defer(func() {
+			postrun.PostRun(ctx)
+		}).CobraPostrun,
 	}
 	command.PersistentFlags().
 		BoolVarP(&debug, "debug", "", false, "print debug information")

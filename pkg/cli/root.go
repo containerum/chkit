@@ -59,7 +59,9 @@ func Root() error {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PostRun:          postrun.PostRunFunc(ctx),
+		PostRun: ctx.Defer(func() {
+			postrun.PostRun(ctx)
+		}).CobraPostrun,
 		TraverseChildren: true,
 	}
 	ctx.Client.APIaddr = mode.API_ADDR
