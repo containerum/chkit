@@ -19,10 +19,26 @@ const (
 	ErrFatalError chkitErrors.Err = "fatal error"
 )
 
+type LoadNamespaceListMode string
+
+const (
+	SelectFirstNamespace  LoadNamespaceListMode = ""
+	RunNamespaceSelection LoadNamespaceListMode = "run namespace selection"
+	DoNotLoadNamespaces   LoadNamespaceListMode = "don't load namespaces"
+)
+
+type ClientInitMode string
+
+const (
+	DoNotAllowSelfSignedTLSCerts ClientInitMode = ""
+	AllowSelfSignedTLSCerts      ClientInitMode = "allow self signed certs"
+	DoNotInitClient                             = "don't init client"
+)
+
 type Config struct {
-	DoNotRunLoginOnIncompatibleConfig bool
-	SetupClient                       bool
-	AllowInvalidConfig                bool
+	InitClient             ClientInitMode
+	RunLoginOnMissingCreds bool
+	NamespaceSelection     LoadNamespaceListMode
 }
 
 func PreRun(ctx *context.Context, optional ...Config) error {
@@ -30,8 +46,9 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 	logger.Debugf("START")
 	defer logger.Debugf("END")
 	var config = Config{
-		DoNotRunLoginOnIncompatibleConfig: false,
-		SetupClient:                       true,
+		InitClient:             DoNotAllowSelfSignedTLSCerts,
+		RunLoginOnMissingCreds: false,
+		NamespaceSelection:     SelectFirstNamespace,
 	}
 	for _, c := range optional {
 		config = c
@@ -46,9 +63,9 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		// pass
 	case configuration.ErrIncompatibleConfig:
 		logger.WithError(err).Errorf("incompatible config")
-		if !config.DoNotRunLoginOnIncompatibleConfig {
+		if config.RunLoginOnMissingCreds {
 			fmt.Println("It looks like you ran the program with an incompatible configuration.\n" +
-				"Log in so that the program can create a valid configuration file.")
+				"Run 'chkit login' to create a valid configuration file.")
 			ctx.Namespace = context.Namespace{}
 			logger.Debugf("run login")
 			if err := setup.RunLogin(ctx, setup.Flags{
@@ -60,6 +77,9 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 				return err
 			}
 			logger.Debugf("end login")
+		} else {
+			ferr.Println(err)
+			ctx.Exit(1)
 		}
 	default:
 		ctx.Log.WithError(err).Errorf("unable to load config")
@@ -68,16 +88,13 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 	logger.Debugf("running setup")
 	defer logger.Debugf("end setup")
 
-	err = setup.SetupConfig(ctx)
-	if err != nil && !config.AllowInvalidConfig {
-		logger.WithError(err).Errorf("unable to setup config")
-		return err
-	} else if err == nil && config.SetupClient {
-		err = setup.SetupClient(ctx, false)
-		if err != nil {
-			logger.WithError(err).Errorf("unable to setup client")
-			return err
-		}
+	switch config.InitClient {
+	case DoNotAllowSelfSignedTLSCerts:
+		return setup.Client(ctx, setup.DoNotAlloSelfSignedTLSCerts)
+	case AllowSelfSignedTLSCerts:
+		return setup.Client(ctx, setup.AllowSelfSignedTLSCerts)
+	case DoNotInitClient:
+		return nil
 	}
 	return nil
 }

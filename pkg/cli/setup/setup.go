@@ -46,7 +46,7 @@ func Setup(ctx *context.Context) error {
 	}
 	ctx.Client.Tokens = model.Tokens{}
 	logger.Debugf("client initialisation")
-	if err := SetupClient(ctx, false); err != nil {
+	if err := Client(ctx, DoNotAlloSelfSignedTLSCerts); err != nil {
 		logger.WithError(err).Errorf("unable to init client")
 		return err
 	}
