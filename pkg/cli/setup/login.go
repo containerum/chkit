@@ -1,9 +1,11 @@
 package setup
 
 import (
-	"bufio"
-	"fmt"
 	"os"
+
+	"fmt"
+
+	"bufio"
 	"strings"
 	"syscall"
 
@@ -90,12 +92,12 @@ func Login(ctx *context.Context) *cobra.Command {
 		Run: func(command *cobra.Command, args []string) {
 			if err := SetupLogs(ctx); err != nil {
 				angel.Angel(ctx, err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			flags.Namespace, _ = command.Flags().GetString("namespace")
 			if err := RunLogin(ctx, flags); err != nil {
-				ferr.Println(err)
-				os.Exit(1)
+				fmt.Println(err)
+				ctx.Exit(1)
 			}
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
@@ -119,7 +121,7 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 	logger.Debugf("start app setup")
 	if err := Setup(ctx); err != nil {
 		angel.Angel(ctx, err)
-		os.Exit(1)
+		ctx.Exit(1)
 	}
 	logger.Debugf("end setup")
 
@@ -134,7 +136,7 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 		if err != nil {
 			logger.WithError(err).Errorf("unable to get namespace lsit")
 			ferr.Println(err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 		var nsName = flags.Namespace
 		ns, ok := nsList.GetByUserFriendlyID(nsName)
