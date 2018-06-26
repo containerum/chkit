@@ -31,7 +31,6 @@ Replace deployment or service
 **Subcommands**:
 
 * **[replace configmap](#replace_configmap)** 
-* **[replace deployment](#replace_deployment)** Replace deployment.
 * **[replace ingress](#replace_ingress)** Replace ingress with a new one.
 * **[replace service](#replace_service)** Replace service.
 
@@ -83,34 +82,6 @@ chkit replace ingress $INGRESS [--force] [--service $SERVICE] [--port 80] [--tls
 |  | --port | ingress endpoint port, optional | 8080 |
 |  | --service | ingress endpoint service, optional |  |
 |  | --tls-secret | ingress tls-secret, use 'letsencrypt' for automatic HTTPS, '-' to use HTTP, optional |  |
-
-
-**Subcommands**:
-
-
-
-#### <a name="replace_deployment">replace deployment</a>
-
-**Description**:
-
-Replaces deployment. Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.
-
-**Example**:
-
-
-
-**Flags**:
-
-| Short | Name | Usage | Default value |
-| ----- | ---- | ----- | ------------- |
-|  | --container-name | container name, equal to image name by default |  |
-|  | --cpu | container CPU limit in mCPU, optional | 200 |
-|  | --env | container env variable in KEY0:VALUE0 KEY1:VALUE1 format |  |
-|  | --file | create deployment from file |  |
-| -f | --force | suppress confirmation | false |
-|  | --image | container image, optional |  |
-|  | --memory | container memory limit im Mb, optional | 256 |
-|  | --replicas | replicas, optional | 1 |
 
 
 **Subcommands**:
