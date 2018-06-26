@@ -3,6 +3,7 @@ package clideployment
 import (
 	"fmt"
 
+	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/context"
 	containerControl "github.com/containerum/chkit/pkg/controls/container"
 	"github.com/containerum/chkit/pkg/export"
@@ -17,7 +18,7 @@ import (
 func CreateContainer(ctx *context.Context) *cobra.Command {
 	var flags struct {
 		Force         bool   `flag:"force f" desc:"suppress confirmation"`
-		ContainerName string `flag:"container" desc:"container name, required on --force"`
+		ContainerName string `desc:"container name, required on --force"`
 		Deployment    string `desc:"deployment name, required on --force"`
 		containerControl.Flags
 	}
@@ -25,8 +26,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 		Use:     "deployment-container",
 		Aliases: []string{"depl-cont", "container", "dc"},
 		Short:   "create deployment container.",
-		Long: "Create deployment container.\n" +
-			"Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.",
+		Long:    help.GetString("create container"),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("create deployment container")
 			logger.Debugf("START")

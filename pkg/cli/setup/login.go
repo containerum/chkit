@@ -1,11 +1,9 @@
 package setup
 
 import (
-	"os"
-
-	"fmt"
-
 	"bufio"
+	"fmt"
+	"os"
 	"strings"
 	"syscall"
 
