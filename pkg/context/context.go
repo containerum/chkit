@@ -17,6 +17,8 @@ type Context struct {
 	Changed            bool
 	Client             chClient.Client
 	AllowSelfSignedTLS bool
+
+	deferred []func()
 }
 
 func (ctx *Context) StartCommand(command string) {
