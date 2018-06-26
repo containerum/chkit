@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/cli/namespace"
-	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -28,9 +27,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PersistentPostRun: ctx.Defer(func() {
-			postrun.PostRun(ctx)
-		}).CobraPostrun,
+		PersistentPostRun: ctx.CobraPostrun,
 	}
 	command.AddCommand(
 		clinamespace.Rename(ctx),

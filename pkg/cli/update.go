@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/blang/semver"
-	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/update"
@@ -35,9 +34,7 @@ func Update(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 			}
 		},
-		PersistentPostRun: ctx.Defer(func() {
-			postrun.PostRun(ctx)
-		}).CobraPostrun,
+		PersistentPostRun: ctx.CobraPostrun,
 	}
 	command.PersistentFlags().
 		BoolVarP(&debug, "debug", "", false, "print debug information")

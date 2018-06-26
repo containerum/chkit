@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 
-	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/solution"
 	"github.com/containerum/chkit/pkg/context"
@@ -28,9 +27,7 @@ func Run(ctx *context.Context) *cobra.Command {
 		Run: func(command *cobra.Command, args []string) {
 			command.Help()
 		},
-		PersistentPostRun: ctx.Defer(func() {
-			postrun.PostRun(ctx)
-		}).CobraPostrun,
+		PersistentPostRun: ctx.CobraPostrun,
 	}
 	command.AddCommand(
 		clisolution.Run(ctx),

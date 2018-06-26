@@ -60,6 +60,7 @@ func Root() error {
 			cmd.Help()
 		},
 		PostRun: ctx.Defer(func() {
+			ctx.Log.Command("root").Debugf("adding postrun")
 			postrun.PostRun(ctx)
 		}).CobraPostrun,
 		TraverseChildren: true,
