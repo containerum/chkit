@@ -4,8 +4,7 @@ import (
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/containerum/chkit/pkg/cli/clisetup"
-	"github.com/containerum/chkit/pkg/cli/login"
+	"github.com/containerum/chkit/pkg/cli/setup"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/namespace"
@@ -37,7 +36,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		config = c
 	}
 	logger.StructFields(config)
-	clisetup.SetupLogs(ctx)
+	setup.SetupLogs(ctx)
 
 	logger.Debugf("syncing config")
 	err := configuration.SyncConfig(ctx)
@@ -51,7 +50,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 				"Log in so that the program can create a valid configuration file.")
 			ctx.Namespace = context.Namespace{}
 			logger.Debugf("run login")
-			if err := login.RunLogin(ctx, login.Flags{
+			if err := setup.RunLogin(ctx, setup.Flags{
 				Username:  ctx.Client.Username,
 				Password:  ctx.Client.Password,
 				Namespace: "",
@@ -68,12 +67,12 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 	logger.Debugf("running setup")
 	defer logger.Debugf("end setup")
 
-	err = clisetup.SetupConfig(ctx)
+	err = setup.SetupConfig(ctx)
 	if err != nil && !config.AllowInvalidConfig {
 		logger.WithError(err).Errorf("unable to setup config")
 		return err
 	} else if err == nil && config.SetupClient {
-		err = clisetup.SetupClient(ctx, false)
+		err = setup.SetupClient(ctx, false)
 		if err != nil {
 			logger.WithError(err).Errorf("unable to setup client")
 			return err

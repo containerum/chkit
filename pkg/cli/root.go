@@ -5,13 +5,12 @@ import (
 	"path"
 
 	"github.com/blang/semver"
-	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/cli/doc"
-	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/cli/mode"
 	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/set"
+	"github.com/containerum/chkit/pkg/cli/setup"
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -33,8 +32,8 @@ func Root() error {
 		ConfigDir:  configdir.ConfigDir(),
 		ConfigPath: path.Join(configdir.ConfigDir(), "config.toml"),
 	}
-	clisetup.Config.DebugRequests = true
-	clisetup.SetupLogs(ctx)
+	setup.Config.DebugRequests = true
+	setup.SetupLogs(ctx)
 
 	root := &cobra.Command{
 		Use:     "chkit",
@@ -42,7 +41,7 @@ func Root() error {
 		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
-				if err := login.Setup(ctx); err != nil {
+				if err := setup.Setup(ctx); err != nil {
 					angel.Angel(ctx, err)
 					ctx.Exit(1)
 				}
@@ -77,7 +76,7 @@ func Root() error {
 		BoolVarP(&ctx.Quiet, "quiet", "q", ctx.Quiet, "quiet mode")
 
 	root.AddCommand(
-		login.Login(ctx),
+		setup.Login(ctx),
 		Get(ctx),
 		Delete(ctx),
 		Create(ctx),
@@ -102,7 +101,7 @@ func Root() error {
 func RootCommands() []*cobra.Command {
 	var ctx = &context.Context{}
 	return []*cobra.Command{
-		login.Login(ctx),
+		setup.Login(ctx),
 		Get(ctx),
 		Delete(ctx),
 		Create(ctx),
