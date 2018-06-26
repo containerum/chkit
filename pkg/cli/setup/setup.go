@@ -8,6 +8,10 @@ import (
 	"github.com/containerum/chkit/pkg/util/coblog"
 )
 
+var Config = struct {
+	DebugRequests bool
+}{}
+
 const (
 	// ErrFatalError -- unrecoverable fatal error
 	ErrFatalError chkitErrors.Err = "fatal error"

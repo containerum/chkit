@@ -33,8 +33,7 @@ func Root() error {
 		ConfigDir:  configdir.ConfigDir(),
 		ConfigPath: path.Join(configdir.ConfigDir(), "config.toml"),
 	}
-	//TODO
-	//setup.Config.DebugRequests = true
+	setup.Config.DebugRequests = true
 	setup.SetupLogs(ctx)
 
 	root := &cobra.Command{
