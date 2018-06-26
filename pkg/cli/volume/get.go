@@ -2,7 +2,6 @@ package volume
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -39,7 +38,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get volume %q from namespace %q", args[0], ctx.Namespace)
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if flags.Names {
 					logger.Debugf("printing name")
@@ -52,7 +51,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get volume list")
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if len(args) > 0 {
 					logger.Debugf("filtering volume list by names %v", args)
@@ -75,7 +74,7 @@ func Get(ctx *context.Context) *cobra.Command {
 			}); err != nil {
 				logger.WithError(err).Errorf("unable to export data")
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 	}

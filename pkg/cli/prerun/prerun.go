@@ -2,7 +2,6 @@ package prerun
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/clisetup"
@@ -106,11 +105,11 @@ func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Comman
 	return func(cmd *cobra.Command, args []string) {
 		if err := PreRun(ctx, optional...); err != nil {
 			angel.Angel(ctx, err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 		if err := GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 	}
 }

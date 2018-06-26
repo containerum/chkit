@@ -2,7 +2,6 @@ package clinamespace
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
@@ -27,7 +26,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get namespace list")
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				(&activekit.Menu{
 					Title: "Select namespace to rename",
@@ -35,7 +34,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 						ns, err := prerun.ResolveLabel(ctx, label)
 						if err != nil {
 							fmt.Println(err)
-							os.Exit(1)
+							ctx.Exit(1)
 						}
 						interactiveRename(ctx, logger, ns)
 						return nil
@@ -45,7 +44,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 				ns, err := prerun.ResolveLabel(ctx, args[0])
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				interactiveRename(ctx, logger, ns)
 				return
@@ -53,26 +52,26 @@ func Rename(ctx *context.Context) *cobra.Command {
 				oldNs, err := prerun.ResolveLabel(ctx, args[0])
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				newName := args[1]
 				if err := validation.ValidateLabel(newName); err != nil {
 					fmt.Printf("invalid new namespace name:\n%v\n", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if force, _ := cmd.Flags().GetBool("force"); force ||
 					activekit.YesNo("Are you sure you want to rename namespace %q?", oldNs.OwnerAndLabel()) {
 					if err := ctx.Client.RenameNamespace(oldNs.ID, newName); err != nil {
 						logger.WithError(err).Errorf("unable to rename namespace %q")
 						fmt.Println(err)
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					fmt.Println("OK")
 				}
 				return
 			default:
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 	}

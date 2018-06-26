@@ -1,8 +1,6 @@
 package clinamespace
 
 import (
-	"os"
-
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -22,7 +20,7 @@ func DeleteAccess(ctx *context.Context) *cobra.Command {
 			logger := coblog.Logger(cmd)
 			if len(args) != 1 {
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			username := args[0]
 			if force, _ := cmd.Flags().GetBool("force"); force ||
@@ -30,7 +28,7 @@ func DeleteAccess(ctx *context.Context) *cobra.Command {
 				if err := ctx.Client.DeleteAccess(ctx.Namespace.ID, username); err != nil {
 					logger.WithError(err).Errorf("unable to delete access %s to namespace %s", username, ctx.Namespace)
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			}

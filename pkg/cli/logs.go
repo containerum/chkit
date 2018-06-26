@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"os"
-
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/client"
@@ -39,11 +37,11 @@ func Logs(ctx *context.Context) *cobra.Command {
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -83,14 +81,14 @@ func Logs(ctx *context.Context) *cobra.Command {
 					err = ErrUnableToReadLogs.Wrap(err)
 					logrus.WithError(err).Errorf("unable to scan logs byte stream")
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println(scanner.Text())
 				nLines++
 			}
 			if err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 	}

@@ -3,8 +3,6 @@ package set
 import (
 	"fmt"
 
-	"os"
-
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/namespace"
@@ -20,7 +18,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -28,12 +26,12 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 				nsList, err := ctx.Client.GetNamespaceList()
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				var ns, ok = nsList.GetByUserFriendlyID(args[0])
 				if !ok {
 					fmt.Printf("Namespace %q not found!\n", args[0])
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				ctx.SetNamespace(ns)
 				fmt.Printf("Using %q as default namespace!\n", ctx.Namespace)

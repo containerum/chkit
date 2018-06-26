@@ -2,7 +2,6 @@ package cliserv
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/service"
@@ -45,7 +44,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 								if err != nil {
 									logrus.WithError(err).Debugf("error while deleting service")
 									fmt.Printf("Unable to delete service %q :(\n%v", srv.Name, err)
-									os.Exit(1)
+									ctx.Exit(1)
 								}
 								fmt.Printf("OK\n")
 								return nil
@@ -73,7 +72,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logrus.WithError(err).Debugf("error while deleting service")
 					fmt.Printf("Unable to delete service %q :(\n%v", svcName, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Printf("OK\n")
 				return

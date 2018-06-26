@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/containerumapi"
@@ -53,7 +52,7 @@ func Get(ctx *context.Context) *cobra.Command {
 			PreRun: func(cmd *cobra.Command, args []string) {
 				if err := configuration.SyncConfig(ctx); err != nil {
 					fmt.Printf("Unable to setup config:\n%v\n", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			},
 			Run: func(cmd *cobra.Command, args []string) {

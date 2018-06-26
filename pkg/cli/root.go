@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"path"
 
 	"github.com/blang/semver"
@@ -45,16 +44,16 @@ func Root() error {
 			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
 				if err := login.Setup(ctx); err != nil {
 					angel.Angel(ctx, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				return
 			} else if cmd.Flag("username").Changed || cmd.Flag("password").Changed {
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {

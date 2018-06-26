@@ -2,7 +2,6 @@ package clinamespace
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 
@@ -38,7 +37,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 			var logger = coblog.Logger(cmd)
 			if len(args) != 2 {
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			var username = args[0]
 			accessLevel := model.AccessLevel(args[1])
@@ -47,7 +46,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 				if err := ctx.Client.SetAccess(ctx.Namespace.ID, username, accessLevel); err != nil {
 					logger.WithError(err).Errorf("unable to update access to %q for user %q", username, accessLevel)
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			}
@@ -63,7 +62,7 @@ func selectNamespace(ctx *context.Context, logger logrus.FieldLogger) string {
 	if err != nil {
 		logger.WithError(err).Errorf("unable to get namespace list")
 		fmt.Println(err)
-		os.Exit(1)
+		ctx.Exit(1)
 	}
 	var ns string
 	var menu activekit.MenuItems

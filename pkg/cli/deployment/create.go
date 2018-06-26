@@ -34,7 +34,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				depl, err = deplactive.FromFile(flags.File)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				flags = deplactive.FlagsFromDeployment(depl)
 			} else {
@@ -42,18 +42,18 @@ func Create(ctx *context.Context) *cobra.Command {
 				depl, err = flags.Deployment()
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			}
 			deplactive.Fill(&depl)
 			if flags.Force {
 				if err := deplactive.ValidateDeployment(depl); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Printf("Deployment %s created\n", depl.Name)
 				return
@@ -63,7 +63,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get configmap list")
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			fmt.Println(depl.RenderTable())
 			depl = deplactive.Wizard{
@@ -107,7 +107,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			}
 			if err := ctx.Client.CreateDeployment(ctx.Namespace.ID, depl); err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			fmt.Printf("Deployment %s created\n", depl.Name)
 		},

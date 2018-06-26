@@ -3,7 +3,6 @@ package clingress
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/ingress"
@@ -36,7 +35,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				cert, err := ioutil.ReadFile(tlsSecretFile)
 				if err != nil {
 					fmt.Printf("unable to read cert file: %v\n", err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				c := string(cert)
 				flagRule.TLSSecret = &c
@@ -59,11 +58,11 @@ func Create(ctx *context.Context) *cobra.Command {
 			if cmd.Flag("force").Changed {
 				if err := activeingress.ValidateIngress(flagIngress); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if err := ctx.Client.CreateIngress(ctx.Namespace.ID, flagIngress); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				return
 			}
@@ -71,7 +70,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			services = services.AvailableForIngress()
 			if err != nil {
 				activekit.Attention(fmt.Sprintf("Unable to get service list!\n%v", err))
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			ingr, err := activeingress.Wizard(activeingress.Config{
 				Services: services,
@@ -79,13 +78,13 @@ func Create(ctx *context.Context) *cobra.Command {
 			})
 			if err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			fmt.Println(ingr.RenderTable())
 			if activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
 				if err := ctx.Client.CreateIngress(ctx.Namespace.ID, ingr); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Printf("Congratulations! Ingress %s created!\n", ingr.Name)
 			}

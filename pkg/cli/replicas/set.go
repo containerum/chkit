@@ -2,7 +2,6 @@ package replicas
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
@@ -24,7 +23,7 @@ func Set(ctx *context.Context) *cobra.Command {
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -32,7 +31,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
 					activekit.Attention(fmt.Sprintf("Unable to get deployment list:\n%v", err))
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				var menu []*activekit.MenuItem
 				for _, depl := range deplList {
@@ -64,11 +63,11 @@ func Set(ctx *context.Context) *cobra.Command {
 			}
 			if replicas < 1 || replicas > 15 {
 				activekit.Attention(fmt.Sprintf("replicas parameter must be number 1..15, but it %d\n", replicas))
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if err := ctx.Client.SetReplicas(ctx.Namespace.ID, deplName, replicas); err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			fmt.Println("OK")
 		},

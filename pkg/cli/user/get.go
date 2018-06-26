@@ -1,8 +1,6 @@
 package cliuser
 
 import (
-	"os"
-
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -27,7 +25,7 @@ func Get(ctx *context.Context) *cobra.Command {
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get profile info")
 				activekit.Attention("Unable to get profile info")
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			fmt.Println(profile)
 		},

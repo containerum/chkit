@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path"
 	"strings"
 
@@ -31,10 +30,10 @@ func Create(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			var flags = cmd.Flags()
-			var config, err = buildConfigMapFromFlags(flags, logger)
+			var config, err = buildConfigMapFromFlags(ctx, flags, logger)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			force, _ := flags.GetBool("force")
 			if !force {
@@ -47,12 +46,12 @@ func Create(ctx *context.Context) *cobra.Command {
 			if force || activekit.YesNo("Are you sure you want to create configmap %s?", config.Name) {
 				if err := config.Validate(); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if err := ctx.Client.CreateConfigMap(ctx.Namespace.ID, config); err != nil {
 					logger.WithError(err).Errorf("unable to create configmap %q", config.Name)
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			} else if !force {
@@ -73,7 +72,7 @@ func Create(ctx *context.Context) *cobra.Command {
 	return comand
 }
 
-func buildConfigMapFromFlags(flags *flag.FlagSet, logger logrus.FieldLogger) (configmap.ConfigMap, error) {
+func buildConfigMapFromFlags(ctx *context.Context, flags *flag.FlagSet, logger logrus.FieldLogger) (configmap.ConfigMap, error) {
 	var config = configmap.ConfigMap{
 		Data: make(model.ConfigMapData, 16),
 	}
@@ -84,7 +83,7 @@ func buildConfigMapFromFlags(flags *flag.FlagSet, logger logrus.FieldLogger) (co
 		if err != nil {
 			logger.WithError(err).Error("unable to load configmap data from file")
 			fmt.Println(err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 		switch path.Ext(fName) {
 		case "json":
@@ -100,7 +99,7 @@ func buildConfigMapFromFlags(flags *flag.FlagSet, logger logrus.FieldLogger) (co
 			items, err := getStringItems(rawItems)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			config = config.AddItems(items...)
 		}
@@ -109,7 +108,7 @@ func buildConfigMapFromFlags(flags *flag.FlagSet, logger logrus.FieldLogger) (co
 			items, err := getFileItems(rawItems)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			config = config.AddItems(items...)
 		}

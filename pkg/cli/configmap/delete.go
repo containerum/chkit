@@ -2,7 +2,6 @@ package cliconfigmap
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/configmap"
@@ -21,7 +20,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				list, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				var menu activekit.MenuItems
 				for _, cm := range list {
@@ -46,7 +45,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				activekit.YesNo("Are you sure you want to delete configmap %q in namespace %q?", selectedCM, ctx.Namespace) {
 				if err := ctx.Client.DeleteConfigmap(ctx.Namespace.ID, selectedCM); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			}

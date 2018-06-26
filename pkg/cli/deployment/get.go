@@ -1,8 +1,6 @@
 package clideployment
 
 import (
-	"os"
-
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
@@ -44,7 +42,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment %q from namespace %q", args[0], ctx.Namespace)
 					ferr.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				deplData = depl
 			} else {
@@ -59,7 +57,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
 					ferr.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if len(args) > 0 {
 					logrus.Debugf("filtering deployment list: including only %v", args)

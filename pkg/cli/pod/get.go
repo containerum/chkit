@@ -2,7 +2,6 @@ package clipod
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	podControl "github.com/containerum/chkit/pkg/controls/pod"
@@ -34,12 +33,12 @@ func Get(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get pod %q from namespace %q", args[0], ctx.Namespace)
 					fmt.Printf("Unable to get pod from namespace %q :(\n", ctx.Namespace)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("exporting data")
 				if err := export.ExportData(po, flags.ExportConfig()); err != nil {
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			default:
 				logger.Debugf("getting pod list from namespace %q", ctx.Namespace)
@@ -47,7 +46,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
 					fmt.Printf("Unable to get pod list from namespace %q :(\n", ctx.Namespace)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if flags.IsStatusesDefined() {
 					logger.Debugf("filtering pod list by statuses %v", flags.Statuses())
@@ -59,7 +58,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 				if err := export.ExportData(polist, flags.ExportConfig()); err != nil {
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				return
 			}

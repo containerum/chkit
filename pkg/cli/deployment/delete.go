@@ -2,7 +2,6 @@ package clideployment
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -39,7 +38,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 									if err := ctx.Client.DeleteDeployment(ctx.Namespace.ID, depl.Name); err != nil {
 										logrus.WithError(err).Debugf("unable to delete deployment %q in namespace %q", depl.Name, ctx.Namespace)
 										activekit.Attention(err.Error())
-										os.Exit(1)
+										ctx.Exit(1)
 									}
 									fmt.Printf("OK\n")
 									logrus.Debugf("deployment %q in namespace %q deleted", depl.Name, ctx.Namespace)
@@ -65,7 +64,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 					if err := ctx.Client.DeleteDeployment(ctx.Namespace.ID, deplName); err != nil {
 						logrus.WithError(err).Debugf("unable to delete deployment %q in namespace %q", deplName, ctx.Namespace)
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					fmt.Printf("OK\n")
 					logrus.Debugf("deployment %q in namespace %q deleted", deplName, ctx.Namespace)

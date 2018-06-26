@@ -3,7 +3,6 @@ package cliconfigmap
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -33,7 +32,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				list, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				(&activekit.Menu{
 					Title: "Select configmap",
@@ -53,7 +52,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				list, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				cmList = list
 			}
@@ -61,7 +60,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			cm, ok := cmList.GetByName(cmName)
 			if !ok {
 				fmt.Printf("configmap %q not found", cm.Name)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if flags.FileItem != nil || flags.Item != nil {
 				var items = make([]configmap.Item, 0, len(flags.Item)+len(flags.FileItem))
@@ -69,7 +68,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					var item, err = newItem(itemString)
 					if err != nil {
 						fmt.Println(err)
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					items = append(items, item)
 				}
@@ -77,12 +76,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 					var item, err = newItem(itemString)
 					if err != nil {
 						fmt.Println(err)
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					content, err := ioutil.ReadFile(item.Value())
 					if err != nil {
 						fmt.Printf("error while loading file item %q:\n%v\n", itemString, err)
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					items = append(items, item.WithValue(string(content)))
 				}
@@ -93,7 +92,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				cm, err = activeconfigmap.FromFile(flags.File)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			}
 			if !flags.Force {
@@ -106,7 +105,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				activekit.YesNo("Do you really want to replace configmap %q on server?", cmName) {
 				if err := ctx.Client.ReplaceConfigmap(ctx.Namespace.ID, cm); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			}
 		},

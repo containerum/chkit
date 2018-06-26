@@ -1,8 +1,6 @@
 package clipod
 
 import (
-	"os"
-
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -34,7 +32,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				if err := ctx.Client.DeletePod(ctx.Namespace.ID, podName); err != nil {
 					logrus.WithError(err).Debugf("unable to delete pod %q in namespace %q", podName, ctx.Namespace)
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Printf("OK\n")
 				logrus.Debugf("pod %q in namespace %q deleted", podName, ctx.Namespace)

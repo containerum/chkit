@@ -46,7 +46,7 @@ func PostRun(ctx *context.Context) {
 		if err := toml.NewEncoder(configFile).Encode(ctx.GetStorable()); err != nil {
 			logger.Debugf("unable to encode configuration to TOML file")
 			angel.Angel(ctx, err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 	}
 	logger.Debugf("saving tokens")

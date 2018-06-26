@@ -40,7 +40,7 @@ func Doc(ctx *context.Context) *cobra.Command {
 					var str, err = chkitDoc.Command{*command}.Format(flags.Format)
 					if err != nil {
 						fmt.Println(err)
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					doc.WriteString(str + "\n")
 				}
@@ -70,7 +70,7 @@ func Doc(ctx *context.Context) *cobra.Command {
 			} else {
 				if err := ioutil.WriteFile(flags.Output, doc.Bytes(), os.ModePerm); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			}
 

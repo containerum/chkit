@@ -2,7 +2,6 @@ package clideployment
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	containerControl "github.com/containerum/chkit/pkg/controls/container"
@@ -35,14 +34,14 @@ func Replace(ctx *context.Context) *cobra.Command {
 
 			if flags.Deployment == "" && flags.Force {
 				ferr.Printf("deployment name must be provided as --deployment while using --force")
-				os.Exit(1)
+				ctx.Exit(1)
 			} else if flags.Deployment == "" {
 				logger.Debugf("getting deployment list from namespace %q", ctx.Namespace)
 				var depl, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
 					ferr.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployment")
 				(&activekit.Menu{
@@ -57,14 +56,14 @@ func Replace(ctx *context.Context) *cobra.Command {
 
 			if flags.ContainerName == "" && flags.Force {
 				ferr.Printf("container name must be provided as --container while using --force")
-				os.Exit(1)
+				ctx.Exit(1)
 			} else if flags.ContainerName == "" {
 				logger.Debugf("getting deployment %q", flags.Deployment)
 				var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment %q", flags.Deployment)
 					ferr.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("selecting container")
 				(&activekit.Menu{
@@ -81,7 +80,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			if err != nil {
 				logger.WithError(err).Errorf("unable to build container from flags")
 				ferr.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			cont.Name = flags.ContainerName
 			fmt.Println(cont.RenderTable())
@@ -92,13 +91,13 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err := cont.Validate(); err != nil {
 					logger.WithError(err).Errorf("invalid container %q", cont.Name)
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("replacing container %q", cont.Name)
 				if err := ctx.Client.ReplaceDeploymentContainer(ctx.Namespace.ID, flags.Deployment, cont); err != nil {
 					logger.WithError(err).Errorf("unable to replace container %q", cont.Name)
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("Ok")
 				fmt.Println("Ok")
@@ -120,7 +119,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
 					ferr.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				deployments <- deplList
 			}()
@@ -135,7 +134,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap list")
 					ferr.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				configs <- configList
 			}()

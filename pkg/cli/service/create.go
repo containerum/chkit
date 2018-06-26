@@ -50,13 +50,13 @@ func Create(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to load serv from file")
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if createServiceConfig.Force {
 					if err := ctx.Client.CreateService(ctx.Namespace.ID, serv); err != nil {
 						logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.Namespace)
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					fmt.Printf("Service %q created\n", serv.Name)
 					return
@@ -69,12 +69,12 @@ func Create(ctx *context.Context) *cobra.Command {
 				createServiceConfig.FlagService.Ports = []service.Port{createServiceConfig.FlagPort}
 				if err := servactive.ValidateService(createServiceConfig.FlagService); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if err := ctx.Client.CreateService(ctx.Namespace.ID, createServiceConfig.FlagService); err != nil {
 					logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", createServiceConfig.FlagService.Name, ctx.Namespace)
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 				return
@@ -83,7 +83,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to create serv")
 				fmt.Println("Unable to create serv :(")
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			fmt.Println(serv.RenderTable())
 			for {
@@ -114,7 +114,7 @@ func Create(ctx *context.Context) *cobra.Command {
 								if err != nil {
 									logrus.WithError(err).Errorf("error while interactive serv creation")
 									activekit.Attention(err.Error())
-									os.Exit(1)
+									ctx.Exit(1)
 								}
 								serv = s
 								return nil

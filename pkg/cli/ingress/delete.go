@@ -1,8 +1,6 @@
 package clingress
 
 import (
-	"os"
-
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -29,7 +27,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get ingress list")
 					activekit.Attention("Unable to get ingress list:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				var menu activekit.MenuItems
 				for _, ingr := range ingrList {
@@ -53,18 +51,18 @@ func Delete(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to find ingress %q", name)
 					activekit.Attention("Unable to find ingress %q", name)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				ingrName = ingr.Name
 			default:
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if force || activekit.YesNo("Do you really want to delete ingress %q?", ingrName) {
 				if err := ctx.Client.DeleteIngress(ctx.Namespace.ID, ingrName); err != nil {
 					logger.WithError(err).Errorf("unable to delete ingress")
 					activekit.Attention("Unable to delete ingress:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("Ingress deleted!")
 			} else {

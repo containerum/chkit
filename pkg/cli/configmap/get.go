@@ -1,8 +1,6 @@
 package cliconfigmap
 
 import (
-	"os"
-
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -26,7 +24,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap list")
 					fmt.Printf("Unable to get configmap list:\n%v\n", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				data = cm
 			case 1:
@@ -34,12 +32,12 @@ func Get(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap %q", args[0])
 					fmt.Printf("Unable to get configmap %q:\n%v\n", args[0], err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				data = cm
 			default:
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			var file, _ = cmd.Flags().GetString("file")
 			var format, _ = cmd.Flags().GetString("output")
@@ -48,7 +46,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				Format:   export.ExportFormat(format),
 			}); err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 	}

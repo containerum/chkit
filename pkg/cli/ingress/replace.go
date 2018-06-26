@@ -2,7 +2,6 @@ package clingress
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/ingress"
@@ -34,14 +33,14 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get previous ingress")
 					activekit.Attention("unable to get previous ingress:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			} else if !flags.Force {
 				ingrList, err := ctx.Client.GetIngressList(ctx.Namespace.ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get ingress list")
 					activekit.Attention("Unable to get ingress list:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println(ingrList)
 				if ingrList.Len() == 1 {
@@ -66,19 +65,19 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 			} else {
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			ingr, ingrChanged := buildIngress(cmd, ingr)
 			if cmd.Flag("force").Changed && ingrChanged {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
 					activekit.Attention("Invalid ingress:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if err := ctx.Client.ReplaceIngress(ctx.Namespace.ID, ingr); err != nil {
 					logger.WithError(err).Errorf("unable to replace ingress")
 					activekit.Attention("Unable to replace ingress %q:\n%v", ingr.Name, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 				return
@@ -90,7 +89,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get service list")
 				activekit.Attention("Unable to get service list:\n%v", err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			ingr, err = activeingress.EditWizard(activeingress.Config{
 				Services: services,
@@ -104,12 +103,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
 					activekit.Attention("Invalid ingress:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if err := ctx.Client.ReplaceIngress(ctx.Namespace.ID, ingr); err != nil {
 					logger.WithError(err).Errorf("unable to replace ingress")
 					activekit.Attention("Unable to replace ingress %q:\n%v", ingr.Name, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			}

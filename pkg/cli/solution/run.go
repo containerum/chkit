@@ -30,11 +30,11 @@ func Run(ctx *context.Context) *cobra.Command {
 			if force, _ := cmd.Flags().GetBool("force"); force {
 				if err := activesolution.ValidateSolution(sol); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if err := ctx.Client.RunSolution(sol); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Printf("Solution %s is ready to run\n", sol.Name)
 				return
@@ -42,7 +42,7 @@ func Run(ctx *context.Context) *cobra.Command {
 			solutions, err := ctx.Client.GetSolutionsTemplatesList()
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			config := activesolution.WizardConfig{
 				EditName:  true,
@@ -59,7 +59,7 @@ func Run(ctx *context.Context) *cobra.Command {
 
 				if err := ctx.Client.RunSolution(sol); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Printf("Solution %s is ready to run\n", sol.Name)
 				return
@@ -83,12 +83,12 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 	var sol solution.Solution
 	var flags = cmd.Flags()
 	if flags.Changed("file") {
-		sol = solutionFromFile(cmd)
+		sol = solutionFromFile(ctx, cmd)
 	} else if len(args) == 1 {
 		sol.Template = args[0]
 	} else if force, _ := flags.GetBool("force"); force {
 		cmd.Help()
-		os.Exit(1)
+		ctx.Exit(1)
 	}
 	if flags.Changed("name") {
 		sol.Name, _ = flags.GetString("name")
@@ -108,14 +108,14 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 		env, err := pairs.ParseMap(envString, ":")
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 		sol.Env = env
 	}
 	return sol
 }
 
-func solutionFromFile(cmd *cobra.Command) solution.Solution {
+func solutionFromFile(ctx *context.Context, cmd *cobra.Command) solution.Solution {
 	flags := cmd.Flags()
 	fName, _ := flags.GetString("file")
 	var data = func() []byte {
@@ -124,14 +124,14 @@ func solutionFromFile(cmd *cobra.Command) solution.Solution {
 			_, err := buf.ReadFrom(os.Stdin)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			return buf.Bytes()
 		}
 		data, err := ioutil.ReadFile(fName)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 		return data
 	}()
@@ -139,16 +139,16 @@ func solutionFromFile(cmd *cobra.Command) solution.Solution {
 	if path.Ext(fName) == "json" {
 		if err := json.Unmarshal(data, &sol); err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 	} else if path.Ext(fName) == "yaml" {
 		if err := yaml.Unmarshal(data, &sol); err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			ctx.Exit(1)
 		}
 	} else {
 		fmt.Printf("Error: invalid file name %q, want extensions 'yaml' or 'json'\n%s", fName, cmd.Flag("file").Usage)
-		os.Exit(1)
+		ctx.Exit(1)
 	}
 	return sol
 }

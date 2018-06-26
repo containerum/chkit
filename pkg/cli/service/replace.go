@@ -37,7 +37,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to load service data from file %s", file)
 					fmt.Printf("Unable to load service data from file :(\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			} else if cmd.Flag("force").Changed {
 				serv = flagService
@@ -53,7 +53,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				oldServ, err := ctx.Client.GetService(ctx.Namespace.ID, args[0])
 				if err != nil {
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if !cmd.Flag("port").Changed {
 					flagPort.Port = nil
@@ -69,12 +69,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				if err := servactive.ValidateService(serv); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println(serv.RenderTable())
 				if err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 				return
@@ -83,7 +83,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
 					if err != nil {
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					var menu []*activekit.MenuItem
 					for _, s := range list {
@@ -106,7 +106,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					serv, err = ctx.Client.GetService(ctx.Namespace.ID, args[0])
 					if err != nil {
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 				}
 			}
@@ -116,7 +116,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to replace service")
 				fmt.Println(err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			for {
 				_, err := (&activekit.Menu{
@@ -147,7 +147,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 								if err != nil {
 									logrus.WithError(err).Errorf("unable to update service")
 									fmt.Println(err)
-									os.Exit(1)
+									ctx.Exit(1)
 								}
 								return nil
 							},
@@ -199,7 +199,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logrus.WithError(err).Errorf("error while menu execution")
 					angel.Angel(ctx, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			}
 		},

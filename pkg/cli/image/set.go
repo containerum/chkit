@@ -1,12 +1,9 @@
 package image
 
 import (
-	"fmt"
-	"os"
-
-	"strings"
-
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
@@ -64,7 +61,7 @@ func Set(ctx *context.Context) *cobra.Command {
 					var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
 					if err != nil {
 						fmt.Println(err)
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					if len(depl.Containers) == 1 {
 						flags.Container = depl.Containers[0].Name
@@ -74,11 +71,11 @@ func Set(ctx *context.Context) *cobra.Command {
 				var depl, image, err = buildImage()
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if err := ctx.Client.SetContainerImage(ctx.Namespace.ID, depl, image); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 				return
@@ -87,7 +84,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				var deplList, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				(&activekit.Menu{
 					Title: "Select deployment",
@@ -101,7 +98,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if len(depl.Containers) == 1 {
 					flags.Container = depl.Containers[0].Name
@@ -134,7 +131,7 @@ func Set(ctx *context.Context) *cobra.Command {
 					Container: flags.Container,
 				}); err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			}
 		},
