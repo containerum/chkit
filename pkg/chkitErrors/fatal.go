@@ -5,6 +5,7 @@ import (
 )
 
 type Fatality interface {
+	error
 	Unwrap() error
 	Fatal() string
 	Map(func(err error) error) Fatality
