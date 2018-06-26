@@ -114,7 +114,7 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 	if !ok {
 		return fmt.Errorf("unable to find namespace %q", userfriendlyID)
 	}
-	ctx.SetNamespace(context.NamespaceFromModel(ns))
+	ctx.SetTemporaryNamespace(ns)
 	return nil
 }
 
