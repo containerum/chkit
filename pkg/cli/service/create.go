@@ -37,7 +37,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Long:    "Create service for the specified pod in the specified namespace.",
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.WithField("command", "create serv").Debugf("start serv creation")
-			depList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+			depList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to get deployment list")
 				fmt.Println("Unable to get deployment list :(")
@@ -54,8 +54,8 @@ func Create(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				if createServiceConfig.Force {
-					if err := ctx.Client.CreateService(ctx.Namespace.ID, serv); err != nil {
-						logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.Namespace)
+					if err := ctx.Client.CreateService(ctx.GetNamespace().ID, serv); err != nil {
+						logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.GetNamespace())
 						activekit.Attention(err.Error())
 						ctx.Exit(1)
 					}
@@ -72,8 +72,8 @@ func Create(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				if err := ctx.Client.CreateService(ctx.Namespace.ID, createServiceConfig.FlagService); err != nil {
-					logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", createServiceConfig.FlagService.Name, ctx.Namespace)
+				if err := ctx.Client.CreateService(ctx.GetNamespace().ID, createServiceConfig.FlagService); err != nil {
+					logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", createServiceConfig.FlagService.Name, ctx.GetNamespace())
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -94,13 +94,13 @@ func Create(ctx *context.Context) *cobra.Command {
 							Label: "Push serv to server",
 							Action: func() error {
 								if activekit.YesNo("Are you sure?") {
-									if err := ctx.Client.CreateService(ctx.Namespace.ID, serv); err != nil {
-										logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.Namespace)
+									if err := ctx.Client.CreateService(ctx.GetNamespace().ID, serv); err != nil {
+										logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.GetNamespace())
 										activekit.Attention(err.Error())
 										return nil
 									}
 								}
-								logrus.WithError(err).Errorf("serv %q in namespace %q created", serv.Name, ctx.Namespace)
+								logrus.WithError(err).Errorf("serv %q in namespace %q created", serv.Name, ctx.GetNamespace())
 								fmt.Printf("Service %q created\n", serv.Name)
 								return nil
 							},

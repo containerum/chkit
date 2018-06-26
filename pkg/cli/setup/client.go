@@ -50,7 +50,7 @@ func Client(ctx *context.Context, certPolicy CertPolicy) error {
 		return ErrInvalidUserInfo
 	}
 
-	ctx.AllowSelfSignedTLS = certPolicy == AllowSelfSignedTLSCerts
+	ctx.SetSelfSignedTLSRule(certPolicy == AllowSelfSignedTLSCerts)
 
 	if mode.DEBUG && !mode.MOCK {
 		logger.Debugf("Using test API: %q", ctx.Client.APIaddr)

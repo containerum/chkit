@@ -40,6 +40,7 @@ func Root() error {
 		Short:   "Chkit is a terminal client for containerum.io powerful API",
 		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
+			ctx.SetNamespace(namespace)
 			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
 				if err := setup.Setup(ctx); err != nil {
 					angel.Angel(ctx, err)
@@ -71,9 +72,7 @@ func Root() error {
 	root.PersistentFlags().
 		StringVarP(&ctx.Client.Password, "password", "p", "", "account password")
 	root.PersistentFlags().
-		StringVarP(&ctx.Namespace.ID, "namespace", "n", ctx.Namespace.ID, "")
-	root.PersistentFlags().
-		BoolVarP(&ctx.Quiet, "quiet", "q", ctx.Quiet, "quiet mode")
+		StringVarP(&namespace, "namespace", "n", ctx.GetNamespace().ID, "")
 
 	root.AddCommand(
 		setup.Login(ctx),

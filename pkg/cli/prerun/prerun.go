@@ -66,7 +66,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		if config.RunLoginOnMissingCreds {
 			fmt.Println("It looks like you ran the program with an incompatible configuration.\n" +
 				"Run 'chkit login' to create a valid configuration file.")
-			ctx.Namespace = context.Namespace{}
+			ctx.SetNamespace(context.Namespace{})
 			logger.Debugf("run login")
 			if err := setup.RunLogin(ctx, setup.Flags{
 				Username:  ctx.Client.Username,
@@ -114,7 +114,7 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 	if !ok {
 		return fmt.Errorf("unable to find namespace %q", userfriendlyID)
 	}
-	ctx.Namespace = context.NamespaceFromModel(ns)
+	ctx.SetNamespace(context.NamespaceFromModel(ns))
 	return nil
 }
 

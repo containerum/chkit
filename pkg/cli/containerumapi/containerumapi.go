@@ -41,7 +41,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				}
 				ctx.Client.APIaddr = api.String()
 			}
-			ctx.AllowSelfSignedTLS = flags.AllowSelfSignedCerts
+			ctx.SetSelfSignedTLSRule(flags.AllowSelfSignedCerts)
 			ctx.Changed = true
 		},
 	}

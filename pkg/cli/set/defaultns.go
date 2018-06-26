@@ -34,8 +34,8 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 					fmt.Printf("Namespace %q not found!\n", args[0])
 					ctx.Exit(1)
 				}
-				ctx.SetNamespace(ns)
-				fmt.Printf("Using %q as default namespace!\n", ctx.Namespace)
+				ctx.SetNamespace(context.NamespaceFromModel(ns))
+				fmt.Printf("Using %q as default namespace!\n", ctx.GetNamespace())
 				ctx.Changed = true
 				return
 			}
@@ -49,7 +49,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 					Label: ns.LabelAndID(),
 					Action: func(ns namespace.Namespace) func() error {
 						return func() error {
-							ctx.SetNamespace(ns)
+							ctx.SetNamespace(context.NamespaceFromModel(ns))
 							fmt.Printf("Using %q as default namespace\n", ns.LabelAndID())
 							return nil
 						}
@@ -60,10 +60,10 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 				Label: "Exit",
 			})
 			var title string
-			if ctx.Namespace.IsEmpty() {
+			if ctx.GetNamespace().IsEmpty() {
 				title = fmt.Sprintf("Default namespace isn't defined")
 			} else {
-				title = fmt.Sprintf("%q is current default namespace", ctx.Namespace)
+				title = fmt.Sprintf("%q is current default namespace", ctx.GetNamespace())
 			}
 			(&activekit.Menu{
 				Title: title,

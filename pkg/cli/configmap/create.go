@@ -49,7 +49,7 @@ func Create(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				if err := ctx.Client.CreateConfigMap(ctx.Namespace.ID, config); err != nil {
+				if err := ctx.Client.CreateConfigMap(ctx.GetNamespace().ID, config); err != nil {
 					logger.WithError(err).Errorf("unable to create configmap %q", config.Name)
 					ferr.Println(err)
 					ctx.Exit(1)

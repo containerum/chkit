@@ -139,7 +139,7 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 		var nsName = flags.Namespace
 		ns, ok := nsList.GetByUserFriendlyID(nsName)
 		if ok {
-			ctx.SetNamespace(ns)
+			ctx.SetNamespace(context.NamespaceFromModel(ns))
 			ctx.Changed = true
 		} else {
 			ferr.Printf("Namespace %q not found!\n", nsName)

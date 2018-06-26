@@ -97,7 +97,7 @@ func buildSolution(ctx *context.Context, cmd *cobra.Command, args []string) solu
 	if flags.Changed("namespace") {
 		sol.Namespace, _ = flags.GetString("namespace")
 	} else {
-		sol.Namespace = ctx.Namespace.ID
+		sol.Namespace = ctx.GetNamespace().ID
 	}
 	if flags.Changed("branch") {
 		sol.Branch, _ = flags.GetString("branch")

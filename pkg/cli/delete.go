@@ -48,6 +48,6 @@ func Delete(ctx *context.Context) *cobra.Command {
 		clisolution.Delete(ctx),
 	)
 	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace.ID, "")
+		StringP("namespace", "n", ctx.GetNamespace().ID, "")
 	return command
 }

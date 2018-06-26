@@ -61,7 +61,7 @@ func Logs(ctx *context.Context) *cobra.Command {
 			}
 
 			params := chClient.GetPodLogsParams{
-				Namespace: ctx.Namespace.ID,
+				Namespace: ctx.GetNamespace().ID,
 				Pod:       podName,
 				Container: containerName,
 				Follow:    logsConfig.Follow,
