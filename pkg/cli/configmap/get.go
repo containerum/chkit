@@ -8,10 +8,15 @@ import (
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
 
 func Get(ctx *context.Context) *cobra.Command {
+	var flags struct {
+		File   string `desc: "output file"`
+		Output string `desc:"output format yaml/json" flag:"output o"`
+	}
 	var command = &cobra.Command{
 		Use:     "configmap",
 		Short:   "show configmap data",
@@ -40,19 +45,17 @@ func Get(ctx *context.Context) *cobra.Command {
 				cmd.Help()
 				ctx.Exit(1)
 			}
-			var file, _ = cmd.Flags().GetString("file")
-			var format, _ = cmd.Flags().GetString("output")
 			if err := export.ExportData(data, export.ExportConfig{
-				Filename: file,
-				Format:   export.ExportFormat(format),
+				Filename: flags.File,
+				Format:   export.ExportFormat(flags.Output),
 			}); err != nil {
 				ferr.Println(err)
 				ctx.Exit(1)
 			}
 		},
 	}
-	var flags = command.PersistentFlags()
-	flags.String("file", "-", "output file")
-	flags.StringP("output", "o", "", "output format yaml/json")
+	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
+		panic(err)
+	}
 	return command
 }

@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
@@ -28,6 +29,7 @@ func Create(ctx *context.Context) *cobra.Command {
 	comand := &cobra.Command{
 		Use:     "configmap",
 		Aliases: aliases,
+		Long:    help.GetString("create configmap"),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			var flags = cmd.Flags()
