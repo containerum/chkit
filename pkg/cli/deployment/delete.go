@@ -23,7 +23,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			switch len(args) {
 			case 0:
-				list, err := ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
+				list, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to get deployment list")
 					activekit.Attention(err.Error())
@@ -35,7 +35,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 						Action: func(depl deployment.Deployment) func() error {
 							return func() error {
 								if activekit.YesNo(fmt.Sprintf("Are you sure you want to delete deployment %q?", depl.Name)) {
-									if err := ctx.GetClient().DeleteDeployment(ctx.GetNamespace().ID, depl.Name); err != nil {
+									if err := ctx.Client.DeleteDeployment(ctx.GetNamespace().ID, depl.Name); err != nil {
 										logrus.WithError(err).Debugf("unable to delete deployment %q in namespace %q", depl.Name, ctx.GetNamespace())
 										activekit.Attention(err.Error())
 										ctx.Exit(1)
@@ -61,7 +61,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 					WithField("command", "delete deployment").
 					Debugf("start deleting deployment %q", deplName)
 				if deleteDeplConfig.Force || activekit.YesNo(fmt.Sprintf("Are you sure you want to delete deployment %q?", deplName)) {
-					if err := ctx.GetClient().DeleteDeployment(ctx.GetNamespace().ID, deplName); err != nil {
+					if err := ctx.Client.DeleteDeployment(ctx.GetNamespace().ID, deplName); err != nil {
 						logrus.WithError(err).Debugf("unable to delete deployment %q in namespace %q", deplName, ctx.GetNamespace())
 						activekit.Attention(err.Error())
 						ctx.Exit(1)

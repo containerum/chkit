@@ -24,7 +24,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 1 {
-				nsList, err := ctx.GetClient().GetNamespaceList()
+				nsList, err := ctx.Client.GetNamespaceList()
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -34,12 +34,12 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 					fmt.Printf("Namespace %q not found!\n", args[0])
 					ctx.Exit(1)
 				}
-				ctx.SetNamespace(ns)
+				ctx.SetNamespace(context.NamespaceFromModel(ns))
 				fmt.Printf("Using %q as default namespace!\n", ctx.GetNamespace())
 				ctx.Changed = true
 				return
 			}
-			nsList, err := ctx.GetClient().GetNamespaceList()
+			nsList, err := ctx.Client.GetNamespaceList()
 			if err != nil || len(nsList) == 0 {
 				fmt.Printf("You have no namespaces :(\n")
 			}
@@ -49,7 +49,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 					Label: ns.LabelAndID(),
 					Action: func(ns namespace.Namespace) func() error {
 						return func() error {
-							ctx.SetNamespace(ns)
+							ctx.SetNamespace(context.NamespaceFromModel(ns))
 							fmt.Printf("Using %q as default namespace\n", ns.LabelAndID())
 							return nil
 						}

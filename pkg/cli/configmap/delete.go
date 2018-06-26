@@ -18,7 +18,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			var selectedCM string
 			if len(args) == 0 {
-				list, err := ctx.GetClient().GetConfigmapList(ctx.GetNamespace().ID)
+				list, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -44,7 +44,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			}
 			if force, _ := cmd.Flags().GetBool("force"); force ||
 				activekit.YesNo("Are you sure you want to delete configmap %q in namespace %q?", selectedCM, ctx.GetNamespace()) {
-				if err := ctx.GetClient().DeleteConfigmap(ctx.GetNamespace().ID, selectedCM); err != nil {
+				if err := ctx.Client.DeleteConfigmap(ctx.GetNamespace().ID, selectedCM); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}

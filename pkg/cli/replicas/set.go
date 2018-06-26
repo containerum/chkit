@@ -28,7 +28,7 @@ func Set(ctx *context.Context) *cobra.Command {
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if !cmd.Flag("deployment").Changed {
-				deplList, err := ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
+				deplList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					activekit.Attention(fmt.Sprintf("Unable to get deployment list:\n%v", err))
 					ctx.Exit(1)
@@ -65,7 +65,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				activekit.Attention(fmt.Sprintf("replicas parameter must be number 1..15, but it %d\n", replicas))
 				ctx.Exit(1)
 			}
-			if err := ctx.GetClient().SetReplicas(ctx.GetNamespace().ID, deplName, replicas); err != nil {
+			if err := ctx.Client.SetReplicas(ctx.GetNamespace().ID, deplName, replicas); err != nil {
 				activekit.Attention(err.Error())
 				ctx.Exit(1)
 			}

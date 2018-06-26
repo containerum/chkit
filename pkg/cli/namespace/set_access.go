@@ -44,7 +44,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 			accessLevel := model.AccessLevel(args[1])
 			if force, _ := cmd.Flags().GetBool("force"); force ||
 				activekit.YesNo("Are you sure you want give %s %v access to %s?", username, accessLevel, ctx.GetNamespace()) {
-				if err := ctx.GetClient().SetAccess(ctx.GetNamespace().ID, username, accessLevel); err != nil {
+				if err := ctx.Client.SetAccess(ctx.GetNamespace().ID, username, accessLevel); err != nil {
 					logger.WithError(err).Errorf("unable to update access to %q for user %q", username, accessLevel)
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -59,7 +59,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 }
 
 func selectNamespace(ctx *context.Context, logger logrus.FieldLogger) string {
-	nsList, err := ctx.GetClient().GetNamespaceList()
+	nsList, err := ctx.Client.GetNamespaceList()
 	if err != nil {
 		logger.WithError(err).Errorf("unable to get namespace list")
 		ferr.Println(err)

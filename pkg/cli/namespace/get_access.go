@@ -22,7 +22,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 			logger := coblog.Logger(cmd)
 			var nsID = ctx.GetNamespace().ID
 			if len(args) == 1 {
-				nsList, err := ctx.GetClient().GetNamespaceList()
+				nsList, err := ctx.Client.GetNamespaceList()
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -38,7 +38,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			logger.Debugf("getting namespace %q access", ctx.GetNamespace())
-			acc, err := ctx.GetClient().GetAccess(nsID)
+			acc, err := ctx.Client.GetAccess(nsID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get namespace %q access", nsID)
 				ferr.Println(err)

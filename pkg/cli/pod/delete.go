@@ -29,7 +29,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				WithField("command", "delete pod").
 				Debugf("start deleting pod %q", podName)
 			if deletePodConfig.Force || activekit.YesNo(fmt.Sprintf("Are you sure you want to delete pod %q? [Y/N]: ", podName)) {
-				if err := ctx.GetClient().DeletePod(ctx.GetNamespace().ID, podName); err != nil {
+				if err := ctx.Client.DeletePod(ctx.GetNamespace().ID, podName); err != nil {
 					logrus.WithError(err).Debugf("unable to delete pod %q in namespace %q", podName, ctx.GetNamespace())
 					activekit.Attention(err.Error())
 					ctx.Exit(1)

@@ -37,7 +37,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			} else if flags.Deployment == "" {
 				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
-				var depl, err = ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
+				var depl, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
 					ferr.Println(err)
@@ -78,7 +78,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				logger.Debugf("creating container %q", cont.Name)
-				if err := ctx.GetClient().CreateDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
+				if err := ctx.Client.CreateDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
 					logger.WithError(err).Errorf("unable to replace container %q", cont.Name)
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -86,7 +86,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				fmt.Println("Ok")
 			}
 
-			//	volumes, err := ctx.Client.GetVolumeList(ctx.Namespace.ID)
+			//	volumes, err := ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
 			//	if err != nil {
 			//		ferr.Println(err)
 			//		os.Exit(1)
@@ -98,7 +98,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				logger.Debugf("START")
 				defer logger.Debugf("END")
 				defer close(deployments)
-				deplList, err := ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
+				deplList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
 					ferr.Println(err)
@@ -113,7 +113,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				logger.Debugf("START")
 				defer logger.Debugf("END")
 				defer close(configs)
-				configList, err := ctx.GetClient().GetConfigmapList(ctx.GetNamespace().ID)
+				configList, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get configmap list")
 					ferr.Println(err)
@@ -133,7 +133,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 
 			if activekit.YesNo("Are you sure you want to create container %q in deployment %q?", cont.Name, flags.Deployment) {
 				logger.Debugf("creating container %q in deployment %q", cont.Name, flags.Deployment)
-				if err := ctx.GetClient().CreateDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
+				if err := ctx.Client.CreateDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
 					logger.WithError(err).Errorf("unable to replace container %q in deployment %q", cont.Name, flags.Deployment)
 					ferr.Println(err)
 				}

@@ -66,11 +66,11 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		if config.RunLoginOnMissingCreds {
 			fmt.Println("It looks like you ran the program with an incompatible configuration.\n" +
 				"Run 'chkit login' to create a valid configuration file.")
-			ctx.SetNamespace(namespace.Namespace{})
+			ctx.SetNamespace(context.Namespace{})
 			logger.Debugf("run login")
 			if err := setup.RunLogin(ctx, setup.Flags{
-				Username:  ctx.GetClient().Username,
-				Password:  ctx.GetClient().Password,
+				Username:  ctx.Client.Username,
+				Password:  ctx.Client.Password,
 				Namespace: "",
 			}); err != nil {
 				logger.WithError(err).Errorf("unable to login")
@@ -106,7 +106,7 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 	} else {
 		return nil
 	}
-	nsList, err := ctx.GetClient().GetNamespaceList()
+	nsList, err := ctx.Client.GetNamespaceList()
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 	if !ok {
 		return fmt.Errorf("unable to find namespace %q", userfriendlyID)
 	}
-	ctx.SetNamespace(ns)
+	ctx.SetTemporaryNamespace(ns)
 	return nil
 }
 
@@ -138,7 +138,7 @@ func WithInit(ctx *context.Context, action func(*context.Context) *cobra.Command
 }
 
 func ResolveLabel(ctx *context.Context, label string) (namespace.Namespace, error) {
-	nsList, err := ctx.GetClient().GetNamespaceList()
+	nsList, err := ctx.Client.GetNamespaceList()
 	if err != nil {
 		return namespace.Namespace{}, err
 	}

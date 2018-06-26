@@ -8,7 +8,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
@@ -29,7 +28,6 @@ func Create(ctx *context.Context) *cobra.Command {
 	comand := &cobra.Command{
 		Use:     "configmap",
 		Aliases: aliases,
-		Long:    help.GetString("create configmap"),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			var flags = cmd.Flags()
@@ -51,7 +49,7 @@ func Create(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				if err := ctx.GetClient().CreateConfigMap(ctx.GetNamespace().ID, config); err != nil {
+				if err := ctx.Client.CreateConfigMap(ctx.GetNamespace().ID, config); err != nil {
 					logger.WithError(err).Errorf("unable to create configmap %q", config.Name)
 					ferr.Println(err)
 					ctx.Exit(1)

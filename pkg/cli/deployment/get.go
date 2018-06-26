@@ -38,7 +38,7 @@ func Get(ctx *context.Context) *cobra.Command {
 			var deplData model.Renderer
 			if len(args) == 1 {
 				logger.Debugf("getting deployment %q from namespace %q", args[0], ctx.GetNamespace())
-				var depl, err = ctx.GetClient().GetDeployment(ctx.GetNamespace().ID, args[0])
+				var depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, args[0])
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment %q from namespace %q", args[0], ctx.GetNamespace())
 					ferr.Println(err)
@@ -50,9 +50,9 @@ func Get(ctx *context.Context) *cobra.Command {
 				var list deployment.DeploymentList
 				var err error
 				if solutionName, _ := command.Flags().GetString("solution_name"); solutionName != "" {
-					list, err = ctx.GetClient().GetSolutionDeployments(ctx.GetNamespace().ID, solutionName)
+					list, err = ctx.Client.GetSolutionDeployments(ctx.GetNamespace().ID, solutionName)
 				} else {
-					list, err = ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
+					list, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				}
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())

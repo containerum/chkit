@@ -26,7 +26,7 @@ func DeleteAccess(ctx *context.Context) *cobra.Command {
 			username := args[0]
 			if force, _ := cmd.Flags().GetBool("force"); force ||
 				activekit.YesNo("Are you sure you want delete %s access to namespace %s?", username, ctx.GetNamespace()) {
-				if err := ctx.GetClient().DeleteAccess(ctx.GetNamespace().ID, username); err != nil {
+				if err := ctx.Client.DeleteAccess(ctx.GetNamespace().ID, username); err != nil {
 					logger.WithError(err).Errorf("unable to delete access %s to namespace %s", username, ctx.GetNamespace())
 					ferr.Println(err)
 					ctx.Exit(1)

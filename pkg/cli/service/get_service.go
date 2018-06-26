@@ -29,16 +29,16 @@ func Get(ctx *context.Context) *cobra.Command {
 					var list service.ServiceList
 					var err error
 					if solutionName, _ := cmd.Flags().GetString("solution_name"); solutionName != "" {
-						list, err = ctx.GetClient().GetSolutionServices(ctx.GetNamespace().ID, solutionName)
+						list, err = ctx.Client.GetSolutionServices(ctx.GetNamespace().ID, solutionName)
 					} else {
-						list, err = ctx.GetClient().GetServiceList(ctx.GetNamespace().ID)
+						list, err = ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 					}
 					return list, err
 				case 1:
-					svc, err := ctx.GetClient().GetService(ctx.GetNamespace().ID, args[0])
+					svc, err := ctx.Client.GetService(ctx.GetNamespace().ID, args[0])
 					return svc, err
 				default:
-					list, err := ctx.GetClient().GetServiceList(ctx.GetNamespace().ID)
+					list, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 					var filteredList service.ServiceList
 					names := strset.NewSet(args)
 					for _, svc := range list {

@@ -59,7 +59,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				logger.Debugf("run command with force")
 
 				if flags.Container == "" {
-					var depl, err = ctx.GetClient().GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
+					var depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
 					if err != nil {
 						ferr.Println(err)
 						ctx.Exit(1)
@@ -74,7 +74,7 @@ func Set(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				if err := ctx.GetClient().SetContainerImage(ctx.GetNamespace().ID, depl, image); err != nil {
+				if err := ctx.Client.SetContainerImage(ctx.GetNamespace().ID, depl, image); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -82,7 +82,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				return
 			}
 			if flags.Deployment == "" {
-				var deplList, err = ctx.GetClient().GetDeploymentList(ctx.GetNamespace().ID)
+				var deplList, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -96,7 +96,7 @@ func Set(ctx *context.Context) *cobra.Command {
 				}).Run()
 			}
 			if flags.Container == "" {
-				var depl, err = ctx.GetClient().GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
+				var depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -127,7 +127,7 @@ func Set(ctx *context.Context) *cobra.Command {
 			}
 			if activekit.YesNo("Are you sure you want to update image to %q of container %q in deployment %s/%s?",
 				flags.Image, flags.Container, ctx.GetNamespace(), flags.Deployment) {
-				if err := ctx.GetClient().SetContainerImage(ctx.GetNamespace().ID, flags.Deployment, model.UpdateImage{
+				if err := ctx.Client.SetContainerImage(ctx.GetNamespace().ID, flags.Deployment, model.UpdateImage{
 					Image:     flags.Image,
 					Container: flags.Container,
 				}); err != nil {

@@ -39,9 +39,10 @@ func Set(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				ctx.GetClient().APIaddr = api.String()
+				ctx.Client.APIaddr = api.String()
 			}
 			ctx.SetSelfSignedTLSRule(flags.AllowSelfSignedCerts)
+			ctx.Changed = true
 		},
 	}
 	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {

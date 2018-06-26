@@ -14,7 +14,8 @@ type Context struct {
 	ConfigDir          string
 	namespace          Namespace
 	Changed            bool
-	client             chClient.Client
+	TokensChanged      bool
+	Client             chClient.Client
 	allowSelfSignedTLS bool
 
 	deferred []func()
@@ -24,8 +25,8 @@ func (ctx *Context) GetNamespace() Namespace {
 	return ctx.namespace
 }
 
-func (ctx *Context) SetNamespace(ns namespace.Namespace) *Context {
-	ctx.namespace = NamespaceFromModel(ns)
+func (ctx *Context) SetNamespace(ns Namespace) *Context {
+	ctx.namespace = ns
 	ctx.Changed = true
 	return ctx
 }
@@ -46,28 +47,28 @@ func (ctx *Context) SetSelfSignedTLSRule(allow bool) *Context {
 }
 
 func (ctx *Context) GetClient() *chClient.Client {
-	return &ctx.client
+	return &ctx.Client
 }
 
 func (ctx *Context) SetAPI(api string) *Context {
-	ctx.client.APIaddr = api
+	ctx.Client.APIaddr = api
 	ctx.Changed = true
 	return ctx
 }
 
 func (ctx *Context) GetAPI() string {
-	return ctx.client.APIaddr
+	return ctx.Client.APIaddr
 }
 
 func (ctx *Context) SetAuth(login, password string) *Context {
-	ctx.client.Username = login
-	ctx.client.Password = password
+	ctx.Client.Username = login
+	ctx.Client.Password = password
 	ctx.Changed = true
 	return ctx
 }
 
 func (ctx *Context) GetAuth() model.UserInfo {
-	return ctx.client.UserInfo
+	return ctx.Client.UserInfo
 }
 
 func (ctx *Context) StartCommand(command string) {
@@ -111,25 +112,23 @@ func (config Storable) Merge(upd Storable) Storable {
 }
 
 func (ctx *Context) GetStorable() Storable {
+	auth := ctx.GetAuth()
 	return Storable{
 		Version:            ctx.Version,
-		Namespace:          ctx.namespace,
-		Username:           ctx.client.Username,
-		Password:           ctx.client.Password,
-		API:                ctx.client.APIaddr,
-		AllowSelfSignedTLS: ctx.allowSelfSignedTLS,
+		Namespace:          ctx.GetNamespace(),
+		Username:           auth.Username,
+		Password:           auth.Password,
+		API:                ctx.GetAPI(),
+		AllowSelfSignedTLS: ctx.GetSelfSignedTLSRule(),
 	}
 }
 
 func (ctx *Context) SetStorable(config Storable) (configVersion string) {
-	ctx.namespace = config.Namespace
-	ctx.client.UserInfo = model.UserInfo{
-		Username: config.Username,
-		Password: config.Password,
-	}
+	ctx.SetNamespace(config.Namespace)
+	ctx.SetAuth(config.Username, config.Password)
 	if config.API != "" {
-		ctx.client.APIaddr = config.API
+		ctx.SetAPI(config.API)
 	}
-	ctx.allowSelfSignedTLS = config.AllowSelfSignedTLS
+	ctx.SetSelfSignedTLSRule(config.AllowSelfSignedTLS)
 	return config.Version
 }

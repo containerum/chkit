@@ -30,7 +30,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			switch len(args) {
 			case 0:
 				var err error
-				list, err := ctx.GetClient().GetConfigmapList(ctx.GetNamespace().ID)
+				list, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -50,7 +50,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				return
 			}
 			if cmList == nil {
-				list, err := ctx.GetClient().GetConfigmapList(ctx.GetNamespace().ID)
+				list, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
@@ -104,7 +104,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			}
 			if flags.Force ||
 				activekit.YesNo("Do you really want to replace configmap %q on server?", cmName) {
-				if err := ctx.GetClient().ReplaceConfigmap(ctx.GetNamespace().ID, cm); err != nil {
+				if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, cm); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}

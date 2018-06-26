@@ -21,7 +21,7 @@ func GetDefaultNS(ctx *context.Context, force bool) error {
 		fmt.Printf("You have no namespaces!\n")
 		return fmt.Errorf("no namespaces")
 	} else if force {
-		ctx.SetNamespace(list[0])
+		ctx.SetNamespace(context.NamespaceFromModel(list[0]))
 		return nil
 	} else {
 		var menu []*activekit.MenuItem
@@ -30,7 +30,7 @@ func GetDefaultNS(ctx *context.Context, force bool) error {
 				Label: ns.LabelAndID(),
 				Action: func(ns namespace.Namespace) func() error {
 					return func() error {
-						ctx.SetNamespace(ns)
+						ctx.SetNamespace(context.NamespaceFromModel(ns))
 						return nil
 					}
 				}(ns),

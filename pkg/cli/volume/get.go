@@ -34,7 +34,7 @@ func Get(ctx *context.Context) *cobra.Command {
 			logger.StructFields(flags)
 			var renderable model.Renderer
 			if len(args) == 1 {
-				vol, err := ctx.GetClient().GetVolume(ctx.GetNamespace().ID, args[0])
+				vol, err := ctx.Client.GetVolume(ctx.GetNamespace().ID, args[0])
 				logger.Debugf("getting volume %q from namespace %q", args[0], ctx.GetNamespace())
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get volume %q from namespace %q", args[0], ctx.GetNamespace())
@@ -48,7 +48,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 			} else {
 				logger.Debugf("getting volume list from namespace %q", ctx.GetNamespace())
-				list, err := ctx.GetClient().GetVolumeList(ctx.GetNamespace().ID)
+				list, err := ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get volume list")
 					ferr.Println(err)
