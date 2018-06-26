@@ -20,3 +20,16 @@ func StatusFromKubeStatus(kubeStatus kubeModel.DeploymentStatus) Status {
 		UpdatedReplicas:     uint(kubeStatus.UpdatedReplicas),
 	}
 }
+
+func (status *Status) ToKube() *kubeModel.DeploymentStatus {
+	if status != nil {
+		return nil
+	}
+	return &kubeModel.DeploymentStatus{
+		Replicas:            int(status.NonTerminated),
+		ReadyReplicas:       int(status.ReadyReplicas),
+		AvailableReplicas:   int(status.AvailableReplicas),
+		UnavailableReplicas: int(status.UnavailableReplicas),
+		UpdatedReplicas:     int(status.UpdatedReplicas),
+	}
+}
