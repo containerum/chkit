@@ -36,7 +36,7 @@ func Create(ctx *context.Context) *cobra.Command {
 					fmt.Println(err)
 					ctx.Exit(1)
 				}
-				flags = deplactive.FlagsFromDeployment(depl)
+				flags = deplactive.FlagsFromDeployment(flags, depl)
 			} else {
 				var err error
 				depl, err = flags.Deployment()
@@ -112,6 +112,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			fmt.Printf("Deployment %s created\n", depl.Name)
 		},
 	}
+
 	if err := gpflag.ParseTo(&flags, command.Flags()); err != nil {
 		angel.Angel(ctx, fmt.Errorf("it seems that the structure of the flags is set incorrectly: %v", err))
 	}
