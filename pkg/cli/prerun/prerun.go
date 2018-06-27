@@ -25,7 +25,7 @@ type LoadNamespaceListMode string
 
 const (
 	TemporarySetNamespace           LoadNamespaceListMode = ""
-	RunNamespaceSelectionAndPersist LoadNamespaceListMode = "don't load namespaces"
+	RunNamespaceSelectionAndPersist LoadNamespaceListMode = "run namespace selection and persist"
 )
 
 func (mode LoadNamespaceListMode) String() string {
@@ -136,6 +136,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 			if !ok {
 				return chkitErrors.FatalString("you have no namespaces")
 			}
+			ctx.SetNamespace(context.NamespaceFromModel(ns))
 		case "":
 			if nsList.Len() == 0 {
 				return chkitErrors.FatalString("you have no namespaces")
@@ -143,24 +144,34 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 			(&activekit.Menu{
 				Items: activekit.StringSelector(nsList.OwnersAndLabels(), func(s string) error {
 					ns, _ = nsList.GetByUserFriendlyID(s)
+					ctx.SetNamespace(context.NamespaceFromModel(ns))
 					return nil
 				}),
 			}).Run()
 		default:
 			var tokens = str.SplitS(config.Namespace, "/", 2).Map(strings.TrimSpace)
-			if !ctx.GetNamespace().Match(tokens.GetDefault(0, ""), tokens.GetDefault(1, "")) {
+			var owner, label string
+			if tokens.Len() == 2 {
+				owner, label = tokens[0], tokens[1]
+			} else {
+				label = tokens[0]
+			}
+			logger.Debugf("owner=%q label=%q", owner, label)
+			if !ctx.GetNamespace().Match(owner, label) || ctx.GetNamespace().IsEmpty() {
+				logger.Debugf("getting namespace list")
 				var nsList, err = ctx.Client.GetNamespaceList()
 				if err != nil {
 					return chkitErrors.Fatal(err)
 				}
+				logger.Debugf("searching namespace %q", tokens.Join("/"))
 				var ns, ok = nsList.GetByUserFriendlyID(tokens.Join("/"))
 				if !ok {
-					return chkitErrors.FatalString("you have no namespaces")
+					return chkitErrors.FatalString("namespace %s not found", tokens.Join("/"))
 				}
-				ctx.SetTemporaryNamespace(ns)
+				logger.Debugf("%v", ns.OwnerAndLabel())
+				ctx.SetNamespace(context.NamespaceFromModel(ns))
 			}
 		}
-		ctx.SetNamespace(context.NamespaceFromModel(ns))
 	case TemporarySetNamespace:
 		var tokens = str.SplitS(config.Namespace, "/", 2).Map(strings.TrimSpace)
 		if config.Namespace != "" && !ctx.GetNamespace().Match(tokens.GetDefault(0, ""), tokens.GetDefault(1, "")) {
