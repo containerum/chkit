@@ -227,3 +227,14 @@ func (vector Vector) Tail(n uint) Vector {
 	}
 	return vector[n:].Copy()
 }
+
+func (vector Vector) Get(i int) string {
+	return vector[i]
+}
+
+func (vector Vector) GetDefault(i int, defaultStr string) string {
+	if i >= 0 && i < vector.Len() {
+		return vector.Get(i)
+	}
+	return defaultStr
+}

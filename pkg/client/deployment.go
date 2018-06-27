@@ -28,7 +28,7 @@ func (client *Client) GetDeploymentList(namespace string) (deployment.Deployment
 	var list deployment.DeploymentList
 	err := retry(4, func() (bool, error) {
 		kubeList, err := client.kubeAPIClient.GetDeploymentList(namespace)
-		if err != nil {
+		if err == nil {
 			list = deployment.DeploymentListFromKube(kubeList)
 		}
 		return HandleErrorRetry(client, err)

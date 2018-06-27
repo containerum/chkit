@@ -33,7 +33,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Run: func(command *cobra.Command, args []string) {
 			command.Help()
 		},
-		PersistentPostRun: ctx.CobraPostrun,
+		PersistentPostRun: ctx.CobraPostRun,
 	}
 	command.AddCommand(
 		clinamespace.Delete(ctx),

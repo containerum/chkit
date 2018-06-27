@@ -33,7 +33,7 @@ func Update(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 			}
 		},
-		PersistentPostRun: ctx.CobraPostrun,
+		PersistentPostRun: ctx.CobraPostRun,
 	}
 	command.PersistentFlags().
 		BoolVarP(&debug, "debug", "", false, "print debug information")

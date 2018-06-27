@@ -45,3 +45,12 @@ func (list DeploymentList) Filter(pred func(depl Deployment) bool) DeploymentLis
 	}
 	return filtered
 }
+
+func (list DeploymentList) GetByName(name string) (Deployment, bool) {
+	for _, depl := range list {
+		if depl.Name == name {
+			return depl.Copy(), true
+		}
+	}
+	return Deployment{}, false
+}

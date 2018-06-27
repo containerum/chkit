@@ -29,7 +29,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PersistentPostRun: ctx.CobraPostrun,
+		PersistentPostRun: ctx.CobraPostRun,
 	}
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.GetNamespace().ID, "")

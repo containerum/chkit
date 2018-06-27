@@ -26,7 +26,7 @@ func Rename(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PersistentPostRun: ctx.CobraPostrun,
+		PersistentPostRun: ctx.CobraPostRun,
 	}
 	command.AddCommand(
 		clinamespace.Rename(ctx),

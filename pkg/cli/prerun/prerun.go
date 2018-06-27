@@ -2,14 +2,16 @@ package prerun
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/setup"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/namespace"
-	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/ninedraft/boxofstuff/str"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -22,23 +24,39 @@ const (
 type LoadNamespaceListMode string
 
 const (
-	SelectFirstNamespace  LoadNamespaceListMode = ""
-	RunNamespaceSelection LoadNamespaceListMode = "run namespace selection"
-	DoNotLoadNamespaces   LoadNamespaceListMode = "don't load namespaces"
+	TemporarySetNamespace           LoadNamespaceListMode = ""
+	RunNamespaceSelectionAndPersist LoadNamespaceListMode = "don't load namespaces"
 )
+
+func (mode LoadNamespaceListMode) String() string {
+	switch mode {
+	case TemporarySetNamespace:
+		return "temporary set namespace"
+	default:
+		return string(mode)
+	}
+}
 
 type ClientInitMode string
 
 const (
 	DoNotAllowSelfSignedTLSCerts ClientInitMode = ""
 	AllowSelfSignedTLSCerts      ClientInitMode = "allow self signed certs"
-	DoNotInitClient                             = "don't init client"
+	DoNotInitClient              ClientInitMode = "don't init client"
 )
+
+func (mode ClientInitMode) String() string {
+	if mode == DoNotAllowSelfSignedTLSCerts {
+		return "don't allow self signed TLS certs"
+	}
+	return string(mode)
+}
 
 type Config struct {
 	InitClient             ClientInitMode
 	RunLoginOnMissingCreds bool
 	NamespaceSelection     LoadNamespaceListMode
+	Namespace              string
 }
 
 func PreRun(ctx *context.Context, optional ...Config) error {
@@ -48,7 +66,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 	var config = Config{
 		InitClient:             DoNotAllowSelfSignedTLSCerts,
 		RunLoginOnMissingCreds: false,
-		NamespaceSelection:     SelectFirstNamespace,
+		NamespaceSelection:     TemporarySetNamespace,
 	}
 	for _, c := range optional {
 		config = c
@@ -88,13 +106,79 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 	logger.Debugf("running setup")
 	defer logger.Debugf("end setup")
 
+	logger.Debugf("running client init in '%s' mode", config.InitClient)
 	switch config.InitClient {
 	case DoNotAllowSelfSignedTLSCerts:
-		return setup.Client(ctx, setup.DoNotAlloSelfSignedTLSCerts)
+		err = setup.Client(ctx, setup.DoNotAlloSelfSignedTLSCerts)
 	case AllowSelfSignedTLSCerts:
-		return setup.Client(ctx, setup.AllowSelfSignedTLSCerts)
+		err = setup.Client(ctx, setup.AllowSelfSignedTLSCerts)
 	case DoNotInitClient:
 		return nil
+	default:
+		panic(fmt.Sprintf("[prerun.PreRun] unreacheable InitClient mode %q", config.InitClient))
+	}
+	if err != nil {
+		return chkitErrors.Fatal(err)
+	}
+
+	logger.Debugf("running namespace selection in '%s' mode, namespace=%s", config.NamespaceSelection, config.Namespace)
+	switch config.NamespaceSelection {
+	case RunNamespaceSelectionAndPersist:
+		var nsList, err = ctx.Client.GetNamespaceList()
+		if err != nil {
+			return chkitErrors.Fatal(err)
+		}
+		var ns namespace.Namespace
+		switch config.Namespace {
+		case "-":
+			var ok = false
+			ns, ok = nsList.Head()
+			if !ok {
+				return chkitErrors.FatalString("you have no namespaces")
+			}
+		case "":
+			if nsList.Len() == 0 {
+				return chkitErrors.FatalString("you have no namespaces")
+			}
+			(&activekit.Menu{
+				Items: activekit.StringSelector(nsList.OwnersAndLabels(), func(s string) error {
+					ns, _ = nsList.GetByUserFriendlyID(s)
+					return nil
+				}),
+			}).Run()
+		default:
+			var tokens = str.SplitS(config.Namespace, "/", 2).Map(strings.TrimSpace)
+			if !ctx.GetNamespace().Match(tokens.GetDefault(0, ""), tokens.GetDefault(1, "")) {
+				var nsList, err = ctx.Client.GetNamespaceList()
+				if err != nil {
+					return chkitErrors.Fatal(err)
+				}
+				var ns, ok = nsList.GetByUserFriendlyID(tokens.Join("/"))
+				if !ok {
+					return chkitErrors.FatalString("you have no namespaces")
+				}
+				ctx.SetTemporaryNamespace(ns)
+			}
+		}
+		ctx.SetNamespace(context.NamespaceFromModel(ns))
+	case TemporarySetNamespace:
+		var tokens = str.SplitS(config.Namespace, "/", 2).Map(strings.TrimSpace)
+		if config.Namespace != "" && !ctx.GetNamespace().Match(tokens.GetDefault(0, ""), tokens.GetDefault(1, "")) {
+			logger.Debugf("getting namespace list")
+			var nsList, err = ctx.Client.GetNamespaceList()
+			if err != nil {
+				return chkitErrors.Fatal(err)
+			}
+			var ns, ok = nsList.GetByUserFriendlyID(tokens.Join("/"))
+			if !ok {
+				return chkitErrors.FatalString("you have no namespaces")
+			}
+			ctx.SetTemporaryNamespace(ns)
+		}
+		logger.Debugf("using namespace %q", ctx.GetNamespace())
+
+	default:
+		panic(fmt.Sprintf("[prerun.PreRun] invalid NamespaceSelection mode %q", config.NamespaceSelection))
 	}
 	return nil
 }
@@ -120,13 +204,17 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 
 func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
-		if err := PreRun(ctx, optional...); err != nil {
-			angel.Angel(ctx, err)
-			ctx.Exit(1)
+		if len(optional) == 0 {
+			optional = []Config{{}}
 		}
-		if err := GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
-			ferr.Println(err)
-			ctx.Exit(1)
+		for i, opt := range optional {
+			if opt.Namespace == "" {
+				opt.Namespace, _ = cmd.Flags().GetString("namespace")
+			}
+			optional[i] = opt
+		}
+		if err := PreRun(ctx, optional...); err != nil {
+			panic(err)
 		}
 	}
 }

@@ -26,7 +26,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Run: func(command *cobra.Command, args []string) {
 			command.Help()
 		},
-		PersistentPostRun: ctx.CobraPostrun,
+		PersistentPostRun: ctx.CobraPostRun,
 	}
 	command.AddCommand(
 		prerun.WithInit(ctx, clideployment.Get),      //

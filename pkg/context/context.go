@@ -5,6 +5,7 @@ import (
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/spf13/cobra"
 )
 
 type Context struct {
@@ -18,7 +19,8 @@ type Context struct {
 	Client             chClient.Client
 	allowSelfSignedTLS bool
 
-	deferred []func()
+	deferred      []func()
+	deferredCobra []func(command *cobra.Command, args []string)
 }
 
 func (ctx *Context) GetNamespace() Namespace {
@@ -26,6 +28,7 @@ func (ctx *Context) GetNamespace() Namespace {
 }
 
 func (ctx *Context) SetNamespace(ns Namespace) *Context {
+	ctx.Log.Debugf("setting namespace")
 	ctx.namespace = ns
 	ctx.Changed = true
 	return ctx
@@ -41,6 +44,7 @@ func (ctx *Context) GetSelfSignedTLSRule() bool {
 }
 
 func (ctx *Context) SetSelfSignedTLSRule(allow bool) *Context {
+	ctx.Log.Debugf("setting TLS policy")
 	ctx.allowSelfSignedTLS = allow
 	ctx.Changed = true
 	return ctx
@@ -51,6 +55,7 @@ func (ctx *Context) GetClient() *chClient.Client {
 }
 
 func (ctx *Context) SetAPI(api string) *Context {
+	ctx.Log.Debugf("setting API")
 	ctx.Client.APIaddr = api
 	ctx.Changed = true
 	return ctx
@@ -61,6 +66,7 @@ func (ctx *Context) GetAPI() string {
 }
 
 func (ctx *Context) SetAuth(login, password string) *Context {
+	ctx.Log.Debugf("setting auth")
 	ctx.Client.Username = login
 	ctx.Client.Password = password
 	ctx.Changed = true
@@ -124,11 +130,12 @@ func (ctx *Context) GetStorable() Storable {
 }
 
 func (ctx *Context) SetStorable(config Storable) (configVersion string) {
-	ctx.SetNamespace(config.Namespace)
-	ctx.SetAuth(config.Username, config.Password)
+	ctx.namespace = config.Namespace
+	ctx.Client.Username = config.Username
+	ctx.Client.Password = config.Password
 	if config.API != "" {
-		ctx.SetAPI(config.API)
+		ctx.Client.APIaddr = config.API
 	}
-	ctx.SetSelfSignedTLSRule(config.AllowSelfSignedTLS)
+	ctx.allowSelfSignedTLS = config.AllowSelfSignedTLS
 	return config.Version
 }

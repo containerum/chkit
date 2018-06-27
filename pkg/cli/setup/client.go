@@ -50,11 +50,11 @@ func Client(ctx *context.Context, certPolicy CertPolicy) error {
 		return ErrInvalidUserInfo
 	}
 
-	ctx.SetSelfSignedTLSRule(certPolicy == AllowSelfSignedTLSCerts)
+	//	ctx.SetSelfSignedTLSRule(certPolicy == AllowSelfSignedTLSCerts)
 
 	if mode.DEBUG && !mode.MOCK {
 		logger.Debugf("Using test API: %q", ctx.GetClient().APIaddr)
-		ctx.GetClient().Log = logrus.StandardLogger().WriterLevel(logrus.DebugLevel)
+		//	ctx.GetClient().Log = logrus.StandardLogger().WriterLevel(logrus.DebugLevel)
 		err = ctx.GetClient().Init(chClient.WithTestAPI)
 	} else if mode.DEBUG && mode.MOCK {
 		logger.Debugf("Using mock API")

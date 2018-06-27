@@ -13,7 +13,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/setup"
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
 
@@ -35,25 +35,22 @@ func Root() error {
 	setup.Config.DebugRequests = true
 	setup.SetupLogs(ctx)
 
+	var flags struct {
+		Namespace string `flag:"namespace n"`
+		Username  string `flag:"username u"`
+		Password  string `flag:"password p"`
+	}
+
 	root := &cobra.Command{
 		Use:     "chkit",
 		Short:   "Chkit is a terminal client for containerum.io powerful API",
 		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
-			ctx.SetNamespace(namespace)
-			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
-				if err := setup.Setup(ctx); err != nil {
-					angel.Angel(ctx, err)
-					ctx.Exit(1)
-				}
-				return
-			} else if cmd.Flag("username").Changed || cmd.Flag("password").Changed {
-				cmd.Help()
-				ctx.Exit(1)
-			}
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				ctx.Exit(1)
+			if err := prerun.PreRun(ctx, prerun.Config{
+				RunLoginOnMissingCreds: true,
+				Namespace:              flags.Namespace,
+			}); err != nil {
+				panic(err)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -62,17 +59,14 @@ func Root() error {
 		PostRun: ctx.Defer(func() {
 			ctx.Log.Command("root").Debugf("adding postrun")
 			postrun.PostRun(ctx)
-		}).CobraPostrun,
+		}).CobraPostRun,
 		TraverseChildren: true,
 	}
 	ctx.Client.APIaddr = mode.API_ADDR
 
-	root.PersistentFlags().
-		StringVarP(&ctx.Client.Username, "username", "u", "", "account username")
-	root.PersistentFlags().
-		StringVarP(&ctx.Client.Password, "password", "p", "", "account password")
-	root.PersistentFlags().
-		StringVarP(&namespace, "namespace", "n", ctx.GetNamespace().ID, "")
+	if err := gpflag.ParseTo(&flags, root.PersistentFlags()); err != nil {
+		panic(err)
+	}
 
 	root.AddCommand(
 		setup.Login(ctx),

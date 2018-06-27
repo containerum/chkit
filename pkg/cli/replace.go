@@ -28,7 +28,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PostRun: ctx.CobraPostrun,
+		PostRun: ctx.CobraPostRun,
 	}
 	command.PersistentFlags().
 		StringP("namespace", "n", ctx.GetNamespace().ID, "")

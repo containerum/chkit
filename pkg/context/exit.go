@@ -13,21 +13,29 @@ func (ctx *Context) Defer(f func()) *Context {
 	return ctx
 }
 
+func (ctx *Context) DeferCobra(f func(cmd *cobra.Command, args []string)) *Context {
+	ctx.deferredCobra = append(ctx.deferredCobra, f)
+	return ctx
+}
+
 func (ctx *Context) Exit(code int) {
-	ctx.RunDeffered()
+	ctx.RunDeferred()
 	os.Exit(code)
 }
 
-func (ctx *Context) RunDeffered() *Context {
+func (ctx *Context) RunDeferred() *Context {
 	for _, deferred := range ctx.deferred {
 		deferred()
 	}
 	return ctx
 }
 
-func (ctx *Context) CobraPostrun(command *cobra.Command, args []string) {
-	var logger = ctx.Log.Component(fmt.Sprintf("%v postrun", command.CommandPath()))
+func (ctx *Context) CobraPostRun(cmd *cobra.Command, args []string) {
+	var logger = ctx.Log.Component(fmt.Sprintf("%v postrun", cmd.CommandPath()))
 	logger.Debugf("START")
 	defer logger.Debugf("END")
-	ctx.RunDeffered()
+	for _, f := range ctx.deferredCobra {
+		f(cmd, args)
+	}
+	ctx.RunDeferred()
 }
