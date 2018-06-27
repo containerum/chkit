@@ -54,9 +54,9 @@ Create service for the specified pod in the specified namespace.
 |  | --deploy | service deployment, required |  |
 | -f | --file | file with service data | - |
 |  | --force | create service without confirmation | false |
-|  | --name | service name, optional | grey-ampere |
+|  | --name | service name, optional | quartz-mckay |
 |  | --port | service port, optional | 0 |
-|  | --port-name | service port name, optional | beljawskya-haze |
+|  | --port-name | service port name, optional | danzl-bistre |
 |  | --proto | service protocol, optional | TCP |
 |  | --target-port | service target port, optional | 80 |
 
@@ -245,7 +245,7 @@ If the --container-name flag is not specified and prefix is not used in any of t
 | -f | --force | suppress confirmation | false |
 |  | --item-file | configmap file, KEY:FILE_PATH or FILE_PATH |  |
 |  | --item-string | configmap item, KEY:VALUE string pair |  |
-|  | --name | configmap name | brita-mcmillan |
+|  | --name | configmap name | michela-zollner |
 
 
 **Subcommands**:

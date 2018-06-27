@@ -280,7 +280,7 @@ namespace deployment_names... [-n namespace_label]
 | ----- | ---- | ----- | ------------- |
 |  | --file | output file, STDOUT by default |  |
 | -o | --output | output format, json/yaml |  |
-| -s | --solution_name | solution name |  |
+|  | --solution |  |  |
 
 
 **Subcommands**:
