@@ -11,15 +11,17 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/containerum/chkit/pkg/util/namegen"
+	"github.com/ninedraft/boxofstuff/str"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
 
 func CreateContainer(ctx *context.Context) *cobra.Command {
 	var flags struct {
-		Force         bool   `flag:"force f" desc:"suppress confirmation"`
-		ContainerName string `desc:"container name, required on --force"`
-		Deployment    string `desc:"deployment name, required on --force"`
+		Force      bool   `flag:"force f" desc:"suppress confirmation"`
+		Name       string `desc:"container name, required on --force"`
+		Deployment string `desc:"deployment name, required on --force"`
 		containerControl.Flags
 	}
 	command := &cobra.Command{
@@ -53,10 +55,14 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					}),
 				}).Run()
 			}
-
-			if flags.ContainerName == "" && flags.Force {
-				ferr.Printf("container name must be provided as --container while using --force")
-				ctx.Exit(1)
+			if flags.Name == "" && flags.Force {
+				if flags.Image == "" {
+					ferr.Printf("container --image must be provided while using --force")
+					ctx.Exit(1)
+				}
+				flags.Name = str.Vector{namegen.Color(), flags.Image}.Join("-")
+			} else if flags.Name == "" && !flags.Force {
+				flags.Name = str.Vector{namegen.Color(), flags.Image, namegen.Aster()}.Filter(str.Longer(0))[:2].Join("-")
 			}
 
 			logger.Debugf("building container from flags")
@@ -66,11 +72,12 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				ferr.Println(err)
 				ctx.Exit(1)
 			}
-			cont.Name = flags.ContainerName
+			cont.Name = flags.Name
+			cont = containerControl.Default(cont)
 			fmt.Println(cont.RenderTable())
-
 			if flags.Force {
 				logger.Debugf("running in --force mode")
+				cont = containerControl.Default(cont)
 				logger.Debugf("validating changed container %q", cont.Name)
 				if err := cont.Validate(); err != nil {
 					logger.WithError(err).Errorf("invalid container %q", cont.Name)
@@ -84,6 +91,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				fmt.Println("Ok")
+				return
 			}
 
 			//	volumes, err := ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
