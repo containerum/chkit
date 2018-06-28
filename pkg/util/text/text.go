@@ -17,6 +17,10 @@ func Width(text string) int {
 }
 
 func Crop(txt string, width int) string {
+	split := strings.Split(txt, "\n")
+	if len(split) > 1 {
+		txt = split[0] + "..."
+	}
 	txtWidth := Width(txt)
 	if txtWidth <= width {
 		return txt
