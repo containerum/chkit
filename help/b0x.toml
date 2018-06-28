@@ -112,11 +112,11 @@ debug = false
 [[custom]]
   # everything inside the folder
   # type: array of strings
-  files = ["./create/"]
+  files = ["./content/"]
 
   # base is the path that will be removed from all files' path
   # type: string
-  base = ""
+  base = "./content/"
 
   # prefix is the path that will be added to all files' path
   # type: string
