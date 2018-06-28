@@ -22,7 +22,7 @@ func StatusFromKubeStatus(kubeStatus kubeModel.DeploymentStatus) Status {
 }
 
 func (status *Status) ToKube() *kubeModel.DeploymentStatus {
-	if status != nil {
+	if status == nil {
 		return nil
 	}
 	return &kubeModel.DeploymentStatus{

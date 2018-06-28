@@ -156,8 +156,8 @@
     "str",
     "strset"
   ]
-  revision = "85bdf486200c7f78428d7d85be384721ae48f4f4"
-  version = "v0.3.3"
+  revision = "e7b8cb45609e14397d0158ee082fad5aad745fbf"
+  version = "v0.3.6"
 
 [[projects]]
   branch = "master"

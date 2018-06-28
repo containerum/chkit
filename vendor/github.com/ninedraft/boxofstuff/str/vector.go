@@ -238,3 +238,20 @@ func (vector Vector) GetDefault(i int, defaultStr string) string {
 	}
 	return defaultStr
 }
+
+func FromChan(ch <-chan string, timeout time.Duration) Vector {
+	var vec = make(Vector, 0, 16)
+cycle:
+	for {
+		select {
+		case s, ok := <-ch:
+			if !ok {
+				break cycle
+			}
+			vec = append(vec, s)
+		case <-time.Tick(timeout):
+			break cycle
+		}
+	}
+	return vec
+}
