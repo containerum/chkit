@@ -15,12 +15,7 @@ import (
 )
 
 func Replace(ctx *context.Context) *cobra.Command {
-	var flags struct {
-		Force    bool     `flag:"force, f" desc:"suppress confirmation"`
-		Item     []string `desc:"configmap item: $KEY:$VALUE"`
-		FileItem []string `desc:"configmap file item: $KEY:$FILENAME"`
-		File     string   `desc:"file with configmap data, .json, .yaml, .yml"`
-	}
+	var flags activeconfigmap.Flags
 	var cmd = &cobra.Command{
 		Use:     "configmap",
 		Aliases: aliases,
@@ -63,9 +58,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 				fmt.Printf("configmap %q not found", cm.Name)
 				ctx.Exit(1)
 			}
-			if flags.FileItem != nil || flags.Item != nil {
-				var items = make([]configmap.Item, 0, len(flags.Item)+len(flags.FileItem))
-				for _, itemString := range flags.Item {
+			if flags.ItemFile != nil || flags.ItemString != nil {
+				var items = make([]configmap.Item, 0, len(flags.ItemString)+len(flags.ItemFile))
+				for _, itemString := range flags.ItemString {
 					var item, err = newItem(itemString)
 					if err != nil {
 						ferr.Println(err)
@@ -73,7 +68,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					}
 					items = append(items, item)
 				}
-				for _, itemString := range flags.Item {
+				for _, itemString := range flags.ItemString {
 					var item, err = newItem(itemString)
 					if err != nil {
 						ferr.Println(err)
