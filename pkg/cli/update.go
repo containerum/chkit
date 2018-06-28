@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/blang/semver"
+	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/update"
@@ -16,7 +17,7 @@ func Update(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "update",
 		Short:   "Update chkit client",
-		Long:    `Use "chkit update [command] --help" for more information about the command.`,
+		Long:    help.GetString("update"),
 		Example: "chkit update [from github|dir <path>] [--debug]",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {

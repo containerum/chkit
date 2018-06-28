@@ -23,6 +23,9 @@ func (flags Flags) Container() (container.Container, error) {
 	var errs []error
 	var cont = container.Container{}
 
+	cont.Limits = flags.limits()
+	cont.Image = flags.Image
+
 	if volumes, err := flags.volumes(); err == nil {
 		cont.VolumeMounts = volumes
 	} else {
@@ -45,6 +48,13 @@ func (flags Flags) Container() (container.Container, error) {
 			str.FromErrs(errs...).Map(str.Prefix(" + ")).Join("\n"))
 	}
 	return cont, nil
+}
+
+func (flags Flags) limits() model.Resource {
+	return model.Resource{
+		CPU:    flags.CPU,
+		Memory: flags.Memory,
+	}
 }
 
 func (flags Flags) volumes() ([]model.ContainerVolume, error) {

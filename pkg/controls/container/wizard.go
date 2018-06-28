@@ -30,6 +30,8 @@ func (wizard Wizard) Run() container.Container {
 			Title: "Container " + cont.Name,
 			Items: items.Append(
 				componentDeployment(&cont, &wizard.Deployment, wizard.Deployments),
+				//componentImage(&cont),
+				componentLimits(&cont),
 				componentVolumes(&cont, wizard.Volumes),
 				componentConfigmaps(&cont, wizard.Configs),
 				componentEnvs(&cont),
@@ -55,12 +57,12 @@ func componentName(cont *container.Container) *activekit.MenuItem {
 		Label: "Container name : " + str.Vector{cont.Name, "undefined, required"}.FirstNonEmpty(),
 		Action: func() error {
 			for {
-				var name = activekit.Promt("Type container name, hit Enter to leave: ", str.Vector{cont.Name,
+				var name = activekit.Promt("Type container name, hit Enter to leave %s: ", str.Vector{cont.Name,
 					"empty"}.FirstNonEmpty())
 				name = strings.TrimSpace(name)
 				if err := validation.ValidateLabel(name); name != "" && err == nil {
 					cont.Name = name
-				} else if err != nil {
+				} else if name != "" && err != nil {
 					fmt.Printf("invalid container name: %v", err)
 					continue
 				}
@@ -97,4 +99,25 @@ func componentDeployment(cont *container.Container, depl *string, deployments st
 			return nil
 		},
 	}
+}
+
+func componentImage(cont *container.Container) *activekit.MenuItem {
+	var item = &activekit.MenuItem{
+		Label: "Edit image : " + str.Vector{cont.Image, "undefined, required"}.FirstNonEmpty(),
+		Action: func() error {
+			for {
+				var image = activekit.Promt("Type container image, hit Enter to leave %s: ", str.Vector{cont.Image,
+					"empty"}.FirstNonEmpty())
+				image = strings.TrimSpace(image)
+				if err := validation.ValidateImageName(image); image != "" && err == nil {
+					cont.Image = image
+				} else if image != "" && err != nil {
+					fmt.Printf("invalid container image: %v", err)
+					continue
+				}
+				return nil
+			}
+		},
+	}
+	return item
 }
