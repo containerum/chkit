@@ -2,7 +2,6 @@ package cliconfigmap
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"path"
@@ -19,7 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-	"gopkg.in/yaml.v2"
 )
 
 var aliases = []string{"cm", "confmap", "conf-map", "comap"}
@@ -78,6 +76,7 @@ func buildConfigMapFromFlags(ctx *context.Context, flags *flag.FlagSet, logger l
 		Data: make(model.ConfigMapData, 16),
 	}
 	if flags.Changed("file") {
+		config.Name, _ = flags.GetString("name")
 		var err error
 		var fName, _ = flags.GetString("file")
 		data, err := ioutil.ReadFile(fName)
@@ -86,12 +85,7 @@ func buildConfigMapFromFlags(ctx *context.Context, flags *flag.FlagSet, logger l
 			ferr.Println(err)
 			ctx.Exit(1)
 		}
-		switch path.Ext(fName) {
-		case "json":
-			err = json.Unmarshal(data, &config)
-		case "yaml":
-			err = yaml.Unmarshal(data, &config)
-		}
+		config.Data[fName] = base64.StdEncoding.EncodeToString(data)
 		return config, err
 	} else {
 		config.Name, _ = flags.GetString("name")
