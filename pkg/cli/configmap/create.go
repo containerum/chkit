@@ -7,6 +7,8 @@ import (
 	"path"
 	"strings"
 
+	"encoding/json"
+
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
@@ -18,6 +20,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+	"gopkg.in/yaml.v2"
 )
 
 var aliases = []string{"cm", "confmap", "conf-map", "comap"}
@@ -85,7 +88,12 @@ func buildConfigMapFromFlags(ctx *context.Context, flags *flag.FlagSet, logger l
 			ferr.Println(err)
 			ctx.Exit(1)
 		}
-		config.Data[fName] = base64.StdEncoding.EncodeToString(data)
+		switch path.Ext(fName) {
+		case "yaml":
+			err = yaml.Unmarshal(data, &config)
+		default:
+			err = json.Unmarshal(data, &config)
+		}
 		return config, err
 	} else {
 		config.Name, _ = flags.GetString("name")
@@ -131,7 +139,7 @@ func getFileItems(rawItems []string) ([]configmap.Item, error) {
 		}
 		items = append(items, configmap.NewItem(
 			key,
-			base64.StdEncoding.EncodeToString(value),
+			string(value),
 		))
 	}
 	return items, nil
