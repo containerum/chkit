@@ -1,7 +1,6 @@
 package activeconfigmap
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"encoding/json"
@@ -20,9 +19,7 @@ func FromFile(fname string) (configmap.ConfigMap, error) {
 	switch filepath.Ext(fname) {
 	case "yaml", "yml":
 		return cm, yaml.Unmarshal(content, &cm)
-	case "json":
-		return cm, json.Unmarshal(content, &cm)
 	default:
-		return configmap.ConfigMap{}, fmt.Errorf("unknown file format of %q", fname)
+		return cm, json.Unmarshal(content, &cm)
 	}
 }

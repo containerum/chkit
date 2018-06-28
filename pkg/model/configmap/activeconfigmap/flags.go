@@ -2,7 +2,6 @@ package activeconfigmap
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"path"
@@ -11,7 +10,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/kube-client/pkg/model"
-	"gopkg.in/yaml.v2"
 )
 
 type Flags struct {
@@ -30,18 +28,7 @@ func (flags Flags) ConfigMap() (configmap.ConfigMap, error) {
 	}
 
 	if flags.File != "" {
-		var err error
-		data, err := ioutil.ReadFile(flags.File)
-		if err != nil {
-			return config, err
-		}
-		switch path.Ext(flags.File) {
-		case "yaml":
-			err = yaml.Unmarshal(data, &config)
-		default:
-			err = json.Unmarshal(data, &config)
-		}
-		return config, err
+		return FromFile(flags.File)
 	} else if len(flags.ItemString) > 0 {
 		items, err := getStringItems(flags.ItemString)
 		if err != nil {
