@@ -13,10 +13,9 @@ import (
 )
 
 type Flags struct {
-	Force bool   `flag:"force f" desc:"suppress confirmation, optional"`
-	File  string `desc:"file with configmap data, .json, .yaml, .yml, optional"`
-	// Output   string `flag:"output o" desc:"output format, json/yaml"`
-	Name       string   `desc:"deployment name, optional"`
+	Force      bool     `flag:"force f" desc:"suppress confirmation, optional"`
+	File       string   `desc:"file with configmap data, .json, .yaml, .yml, optional"`
+	Name       string   `desc:"configmap name, optional"`
 	ItemFile   []string `flag:"item-file" desc:"configmap file, KEY:FILE_PATH or FILE_PATH"`
 	ItemString []string `flag:"item-string" desc:"configmap item, KEY:VALUE string pair"`
 }
