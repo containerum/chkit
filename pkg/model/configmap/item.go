@@ -69,7 +69,7 @@ func (item Item) Data() (key string, value string) {
 
 func (item Item) String() string {
 	var key, value = item.Data()
-	return key + ":" + value
+	return key + " : " + value
 }
 
 func (item Item) WithKey(key string) Item {
