@@ -6,14 +6,14 @@ import (
 
 type Rule struct {
 	Host      string   `json:"host"`
-	TLSSecret *string  `json:"tls_secret,omitempty"`
+	TLSSecret string   `json:"tls_secret,omitempty"`
 	Paths     PathList `json:"paths"`
 }
 
 func RuleFromKube(kubeRule kubeModels.Rule) Rule {
 	return Rule{
 		Host:      kubeRule.Host,
-		TLSSecret: kubeRule.TLSSecret,
+		TLSSecret: *kubeRule.TLSSecret,
 		Paths:     PathListFromKube(kubeRule.Path),
 	}
 }
@@ -21,7 +21,7 @@ func RuleFromKube(kubeRule kubeModels.Rule) Rule {
 func (rule Rule) ToKube() kubeModels.Rule {
 	return kubeModels.Rule{
 		Host:      rule.Host,
-		TLSSecret: rule.TLSSecret,
+		TLSSecret: &rule.TLSSecret,
 		Path:      rule.Paths.ToKube(),
 	}
 }

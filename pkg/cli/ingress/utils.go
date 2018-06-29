@@ -40,7 +40,7 @@ func buildRule(cmd *cobra.Command, rule ingress.Rule) (ingress.Rule, bool) {
 	}
 	if flags.Changed("tls-secret") {
 		TLS, _ := flags.GetString("tls-secret")
-		rule.TLSSecret = &TLS
+		rule.TLSSecret = TLS
 	}
 	return rule, changed
 }
