@@ -10,6 +10,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/model/solution"
 	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/pairs"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -43,7 +44,7 @@ func (flags Flags) Solution(nsID string, args []string) (solution.Solution, erro
 		sol.Template = args[0]
 	} else if flags.Force {
 		//TODO
-		return sol, errors.New("")
+		return sol, errors.New("not enough arguments")
 	}
 
 	if sol.Branch == "" {
@@ -52,6 +53,10 @@ func (flags Flags) Solution(nsID string, args []string) (solution.Solution, erro
 
 	if flags.Namespace != "" {
 		sol.Namespace = flags.Namespace
+	}
+
+	if flags.Name == "" {
+		sol.Name = namegen.Color() + "-" + sol.Template
 	}
 
 	if len(sol.Env) != 0 {
