@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
@@ -18,6 +19,14 @@ type Container struct {
 
 func (container Container) ToKube() kubeModels.Container {
 	return kubeModels.Container(container.Copy().Container)
+}
+
+func (container Container) SemanticVersion() (version semver.Version, ok bool) {
+	var vStr = container.Version()
+	if version, err := semver.ParseTolerant(vStr); err == nil {
+		return version, true
+	}
+	return semver.Version{}, false
 }
 
 func (container Container) String() string {

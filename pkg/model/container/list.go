@@ -1,6 +1,9 @@
 package container
 
-import "github.com/containerum/kube-client/pkg/model"
+import (
+	"github.com/blang/semver"
+	"github.com/containerum/kube-client/pkg/model"
+)
 
 type ContainerList []Container
 
@@ -86,4 +89,15 @@ func (list ContainerList) DeleteByName(name string) ContainerList {
 		}
 	}
 	return filtered
+}
+
+func (list ContainerList) SemanticVersions() []string {
+	var versions = make([]string, 0, len(list))
+	for _, cont := range list {
+		var version, err = semver.ParseTolerant(cont.ToKube().Version())
+		if err == nil {
+			versions = append(versions, version.String())
+		}
+	}
+	return versions
 }
