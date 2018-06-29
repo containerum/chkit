@@ -23,7 +23,7 @@ type Flags struct {
 	Service   string `desc:"ingress endpoint service, required"`
 	TLSSecret string `desc:"TLS secret string, optional"`
 	Path      string `desc:"path to endpoint (example: /content/pages), optional"`
-	Port      string `desc:"ingress endpoint port (example: 80, 443), optional"`
+	Port      int    `desc:"ingress endpoint port (example: 80, 443), optional"`
 }
 
 func (flags Flags) Ingress() (ingress.Ingress, error) {
@@ -34,7 +34,11 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 		TLSSecret: new(string),
 		Host:      flags.Host,
 	}
-	var flagPath ingress.Path
+	var flagPath = ingress.Path{
+		Path:        flags.Path,
+		ServiceName: flags.Service,
+		ServicePort: flags.Port,
+	}
 
 	if flags.File != "" {
 		var err error
@@ -56,14 +60,14 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 	}
 	if flags.Path != "" ||
 		flags.Service != "" ||
-		flags.Port != "" {
+		flags.Port != 0 {
 		flagRule.Paths = ingress.PathList{flagPath}
 	}
 	if flags.Host != "" ||
 		flags.TLSSecret != "" ||
 		flags.Path != "" ||
 		flags.Service != "" ||
-		flags.Port != "" {
+		flags.Port != 0 {
 		flagIngress.Rules = ingress.RuleList{flagRule}
 		flagIngress.Name = host2dnslabel.Host2DNSLabel(flagRule.Host)
 	}
