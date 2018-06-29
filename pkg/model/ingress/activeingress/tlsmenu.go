@@ -2,13 +2,10 @@ package activeingress
 
 import (
 	"fmt"
-	"io/ioutil"
+
 	"strings"
 
-	"os"
-
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/eof"
 )
 
 func tlsSecretMenu(secret *string) *string {
@@ -23,36 +20,14 @@ func tlsSecretMenu(secret *string) *string {
 			Title: "Edit TLS secret",
 			Items: []*activekit.MenuItem{
 				{
-					Label: "Load from file",
+					Label: fmt.Sprintf("Edit TLS secret name : %s", activekit.OrString(*secret, "undefined, required")),
 					Action: func() error {
-						fname := strings.TrimSpace(activekit.Promt("Type filename (hit Enter to return to previous menu): "))
-						if fname == "" {
+						scrt := activekit.Promt("Type TLS secret name (hit Enter to leave %s): ", activekit.OrString(*secret, "empty"))
+						scrt = strings.TrimSpace(scrt)
+						if scrt == "" {
 							return nil
 						}
-						secretBytes, err := ioutil.ReadFile(fname)
-						if err != nil {
-							activekit.Attention(err.Error())
-							return nil
-						}
-						s := string(secretBytes)
-						secret = &s
-						return nil
-					},
-				},
-				{
-					Label: "Read from stdin",
-					Action: func() error {
-						if !activekit.YesNo("Are you sure?") {
-							return nil
-						}
-						fmt.Printf("Paste TLS secret here (hit %s to submit):\n", eof.COMBO)
-						secretBytes, err := ioutil.ReadAll(os.Stdin)
-						if err != nil {
-							activekit.Attention(err.Error())
-							return nil
-						}
-						s := string(secretBytes)
-						secret = &s
+						secret = &scrt
 						return nil
 					},
 				},
@@ -74,7 +49,7 @@ func tlsSecretMenu(secret *string) *string {
 					},
 				},
 				{
-					Label: "Return to previous menu, discar all changes",
+					Label: "Return to previous menu, discard all changes",
 					Action: func() error {
 						exit = true
 						ok = false

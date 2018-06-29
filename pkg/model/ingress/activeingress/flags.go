@@ -8,11 +8,10 @@ import (
 	"encoding/json"
 	"os"
 
-	"fmt"
-
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/host2dnslabel"
+	"github.com/containerum/chkit/pkg/util/namegen"
 	"gopkg.in/yaml.v2"
 )
 
@@ -23,15 +22,17 @@ type Flags struct {
 	Host      string `desc:"ingress host (example: prettyblog.io), required"`
 	Service   string `desc:"ingress endpoint service, required"`
 	TLSSecret string `desc:"TLS secret string, optional"`
-	TLSCert   string `desc:TLS cert file, optional"`
 	Path      string `desc:"path to endpoint (example: /content/pages), optional"`
 	Port      string `desc:"ingress endpoint port (example: 80, 443), optional"`
 }
 
 func (flags Flags) Ingress() (ingress.Ingress, error) {
-	var flagIngress ingress.Ingress
+	var flagIngress = ingress.Ingress{
+		Name: flags.Name,
+	}
 	var flagRule = ingress.Rule{
 		TLSSecret: new(string),
+		Host:      flags.Host,
 	}
 	var flagPath ingress.Path
 
@@ -44,17 +45,14 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 		}
 	}
 
+	if flags.Name == "" {
+		flagIngress.Name = namegen.ColoredPhysics()
+	}
+
 	if flags.TLSSecret == "" {
 		flagRule.TLSSecret = nil
-	}
-	if flags.TLSCert != "" {
-		cert, err := ioutil.ReadFile(flags.TLSCert)
-		if err != nil {
-			fmt.Printf("unable to read cert file: %v\n", err.Error())
-			return flagIngress, err
-		}
-		c := string(cert)
-		flagRule.TLSSecret = &c
+	} else {
+		flagRule.TLSSecret = &flags.TLSSecret
 	}
 	if flags.Path != "" ||
 		flags.Service != "" ||
@@ -63,7 +61,6 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 	}
 	if flags.Host != "" ||
 		flags.TLSSecret != "" ||
-		flags.TLSCert != "" ||
 		flags.Path != "" ||
 		flags.Service != "" ||
 		flags.Port != "" {

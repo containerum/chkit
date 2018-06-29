@@ -33,7 +33,7 @@ func Wizard(config Config) (ingress.Ingress, error) {
 						activekit.OrString(ingr.Host(), "undefined (required)")),
 					Action: func() error {
 						host := strings.TrimSpace(activekit.Promt(fmt.Sprintf("type host name (hit enter to leave %s): ",
-							activekit.OrString(ingr.Host(), "empty"))))
+							activekit.OrString(ingr.Host(), ingr.Host()))))
 						if host != "" {
 							ingr.Name = host2dnslabel.Host2DNSLabel(host)
 							rule.Host = host
