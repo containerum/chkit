@@ -1,17 +1,12 @@
 package activeconfigmap
 
 import (
-	"fmt"
-
-	"strings"
-
-	"path"
-
-	"io/ioutil"
-
-	"os"
-
 	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/util/activekit"

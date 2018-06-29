@@ -2,7 +2,6 @@ package activeconfigmap
 
 import (
 	"fmt"
-
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/configmap"

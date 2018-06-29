@@ -65,6 +65,7 @@ func Create(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
+				fmt.Printf("Congratulations! Ingress %s created!\n", flagIngress.Name)
 				return
 			}
 			services, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)

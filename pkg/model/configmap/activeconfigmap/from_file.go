@@ -1,10 +1,9 @@
 package activeconfigmap
 
 import (
-	"path/filepath"
-
 	"encoding/json"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"gopkg.in/yaml.v2"
