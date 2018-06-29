@@ -57,7 +57,11 @@ func (flags Flags) Solution(nsID string, args []string) (solution.Solution, erro
 	}
 
 	if flags.Name == "" {
-		sol.Name = namegen.Color() + "-" + sol.Template
+		if sol.Template != "" {
+			sol.Name = namegen.Color() + "-" + sol.Template
+		} else {
+			sol.Name = namegen.ColoredPhysics()
+		}
 	}
 
 	if len(sol.Env) != 0 {

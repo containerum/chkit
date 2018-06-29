@@ -147,80 +147,83 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 				},
 			},
 		}
-		menu = menu.Append(envItems...).
-			Append(&activekit.MenuItem{
-				Label: "Add env",
-				Action: func() error {
-					env := envMenu(model.Env{})
-					if env == nil {
-						return nil
-					}
-					sol.Env[env.Name] = env.Value
-					userEnv[env.Name] = env.Value
-					menu.Append(&activekit.MenuItem{
-						Label: fmt.Sprintf("Edit env      : %s", text.Crop(fmt.Sprintf("%s:%q", env.Name, env.Value), 32)),
-						Action: func(i int) func() error {
-							return func() error {
-								env := envMenu(model.Env{
-									Name:  env.Name,
-									Value: env.Value,
-								})
-								delete(sol.Env, env.Name)
-								delete(userEnv, env.Name)
-								if env != nil {
-									sol.Env[env.Name] = env.Value
-									userEnv[env.Name] = env.Value
-								} else {
-									envItems.Delete(i)
+		menu = menu.
+			Append(envItems...).
+			Append([]*activekit.MenuItem{
+				{
+					Label: "Add env",
+					Action: func() error {
+						env := envMenu(model.Env{})
+						if env == nil {
+							return nil
+						}
+						sol.Env[env.Name] = env.Value
+						userEnv[env.Name] = env.Value
+						menu.Append(&activekit.MenuItem{
+							Label: fmt.Sprintf("Edit env      : %s", text.Crop(fmt.Sprintf("%s:%q", env.Name, env.Value), 32)),
+							Action: func(i int) func() error {
+								return func() error {
+									env := envMenu(model.Env{
+										Name:  env.Name,
+										Value: env.Value,
+									})
+									delete(sol.Env, env.Name)
+									delete(userEnv, env.Name)
+									if env != nil {
+										sol.Env[env.Name] = env.Value
+										userEnv[env.Name] = env.Value
+									} else {
+										envItems.Delete(i)
+									}
+									return nil
 								}
-								return nil
-							}
-						}(menu.Len()),
-					})
-					return nil
+							}(menu.Len()),
+						})
+						return nil
+					},
+				}, {
+					Label: "Print to terminal",
+					Action: func() error {
+						data, err := sol.RenderYAML()
+						if err != nil {
+							logrus.WithError(err).Errorf("unable to render solution to yaml")
+							activekit.Attention(err.Error())
+						}
+						border := strings.Repeat("_", text.Width(data))
+						fmt.Printf("%s\n%s\n%s\n", border, data, border)
+						return nil
+					},
+				}, {
+					Label: "Save to file",
+					Action: func() error {
+						logrus.Debugf("saving soltion to file")
+						data, err := sol.RenderJSON()
+						if err != nil {
+							logrus.WithError(err).Errorf("unable to render solution to json")
+							activekit.Attention(err.Error())
+							return nil
+						}
+						fname := activekit.Promt("Print filename: ")
+						if err := ioutil.WriteFile(fname, []byte(data), os.ModePerm); err != nil {
+							logrus.WithError(err).Errorf("unable to write solution data to file")
+							activekit.Attention(err.Error())
+							return nil
+						}
+						fmt.Println("OK")
+						return nil
+					},
+				}, {
+					Label: "Confirm",
+					Action: func() error {
+						if err := ValidateSolution(sol); err != nil {
+							activekit.Attention(err.Error())
+							return nil
+						}
+						exit = true
+						return nil
+					},
 				},
-			}).Append(&activekit.MenuItem{
-			Label: "Print to terminal",
-			Action: func() error {
-				data, err := sol.RenderYAML()
-				if err != nil {
-					logrus.WithError(err).Errorf("unable to render solution to yaml")
-					activekit.Attention(err.Error())
-				}
-				border := strings.Repeat("_", text.Width(data))
-				fmt.Printf("%s\n%s\n%s\n", border, data, border)
-				return nil
-			},
-		}).Append(&activekit.MenuItem{
-			Label: "Save to file",
-			Action: func() error {
-				logrus.Debugf("saving soltion to file")
-				data, err := sol.RenderJSON()
-				if err != nil {
-					logrus.WithError(err).Errorf("unable to render solution to json")
-					activekit.Attention(err.Error())
-					return nil
-				}
-				fname := activekit.Promt("Print filename: ")
-				if err := ioutil.WriteFile(fname, []byte(data), os.ModePerm); err != nil {
-					logrus.WithError(err).Errorf("unable to write solution data to file")
-					activekit.Attention(err.Error())
-					return nil
-				}
-				fmt.Println("OK")
-				return nil
-			},
-		}).Append(&activekit.MenuItem{
-			Label: "Confirm",
-			Action: func() error {
-				if err := ValidateSolution(sol); err != nil {
-					activekit.Attention(err.Error())
-					return nil
-				}
-				exit = true
-				return nil
-			},
-		})
+			}...)
 		(&activekit.Menu{
 			Items: menu,
 		}).Run()
