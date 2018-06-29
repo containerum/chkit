@@ -79,6 +79,13 @@ func (log Log) Struct(v interface{}) {
 	}
 }
 
+func (log Log) Write(data []byte) (int, error) {
+	for _, line := range strings.Split(string(data), "\n") {
+		log.Printf("%s", line)
+	}
+	return len(data), nil
+}
+
 func Field(cmd *cobra.Command) (key string, value interface{}) {
 	commandName := fmt.Sprintf("%s %s", cmd.Parent().Use, cmd.Use)
 	return "command", commandName

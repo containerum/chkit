@@ -54,7 +54,7 @@ func Client(ctx *context.Context, certPolicy CertPolicy) error {
 
 	if mode.DEBUG && !mode.MOCK {
 		logger.Debugf("Using test API: %q", ctx.GetClient().APIaddr)
-		//	ctx.GetClient().Log = logrus.StandardLogger().WriterLevel(logrus.DebugLevel)
+		//	ctx.GetClient().Log = ctx.Log.Component("kube-client")
 		err = ctx.GetClient().Init(chClient.WithTestAPI)
 	} else if mode.DEBUG && mode.MOCK {
 		logger.Debugf("Using mock API")

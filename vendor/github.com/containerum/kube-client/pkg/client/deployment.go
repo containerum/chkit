@@ -153,8 +153,8 @@ func (client *Client) RunDeploymentVersion(namespace, deplName string, version s
 }
 
 func (client *Client) GetDeploymentDiffWithPreviousVersion(namespace, deployment string, version semver.Version) (string, error) {
-	var diff string
-	return diff, client.RestAPI.Get(rest.Rq{
+	var diff model.DeploymentDiff
+	return diff.Diff, client.RestAPI.Get(rest.Rq{
 		Result: &diff,
 		URL: rest.URL{
 			Path: deploymentDiffWithPreviousVersion,
@@ -168,8 +168,8 @@ func (client *Client) GetDeploymentDiffWithPreviousVersion(namespace, deployment
 }
 
 func (client *Client) GetDeloymentVersionBetweenVersions(namespace, deployment string, leftVersion, rightVersion semver.Version) (string, error) {
-	var diff string
-	return diff, client.RestAPI.Get(rest.Rq{
+	var diff model.DeploymentDiff
+	return diff.Diff, client.RestAPI.Get(rest.Rq{
 		Result: &diff,
 		URL: rest.URL{
 			Path: deploymentDiffBetweenVersions,
