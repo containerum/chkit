@@ -1,17 +1,14 @@
 package cli
 
 import (
-	"os"
-
-	"fmt"
-
 	"github.com/blang/semver"
-	"github.com/containerum/chkit/pkg/cli/postrun"
+	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/update"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -20,16 +17,16 @@ func Update(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "update",
 		Short:   "Update chkit client",
-		Long:    `Use "chkit update [command] --help" for more information about the command.`,
+		Long:    help.GetString("update"),
 		Example: "chkit update [from github|dir <path>] [--debug]",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -37,7 +34,7 @@ func Update(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 			}
 		},
-		PersistentPostRun: postrun.PostRunFunc(ctx),
+		PersistentPostRun: ctx.CobraPostRun,
 	}
 	command.PersistentFlags().
 		BoolVarP(&debug, "debug", "", false, "print debug information")
@@ -62,7 +59,7 @@ func updateFromGithubCommand(ctx *context.Context, debug *bool) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := updateFromGithub(ctx, *debug); err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 	}
@@ -78,11 +75,11 @@ func updateFromDirCommand(ctx *context.Context, debug *bool) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) <= 0 {
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if err := updateFromDir(ctx, args[0]); err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 	}

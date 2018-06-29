@@ -17,11 +17,10 @@ import (
 )
 
 func reportPreambula(version string) string {
-	return fmt.Sprintf(`[REPORT]
-chkit fatal report
-version: %s
-os: %s %s
-`, version, runtime.GOOS, runtime.GOARCH)
+	return fmt.Sprintf("[REPORT]\n"+
+		"chkit fatal report\n"+
+		"version: %s\n"+
+		"os: %s %s", version, runtime.GOOS, runtime.GOARCH)
 }
 
 func Angel(ctx *context.Context, sin interface{}) {

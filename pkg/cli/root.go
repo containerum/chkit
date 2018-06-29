@@ -2,20 +2,18 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"path"
 
 	"github.com/blang/semver"
-	"github.com/containerum/chkit/pkg/cli/clisetup"
 	"github.com/containerum/chkit/pkg/cli/doc"
-	"github.com/containerum/chkit/pkg/cli/login"
 	"github.com/containerum/chkit/pkg/cli/mode"
 	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/set"
+	"github.com/containerum/chkit/pkg/cli/setup"
 	"github.com/containerum/chkit/pkg/configdir"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
 
@@ -34,48 +32,44 @@ func Root() error {
 		ConfigDir:  configdir.ConfigDir(),
 		ConfigPath: path.Join(configdir.ConfigDir(), "config.toml"),
 	}
-	clisetup.Config.DebugRequests = true
-	clisetup.SetupLogs(ctx)
+	setup.Config.DebugRequests = true
+	setup.SetupLogs(ctx)
+
+	var flags struct {
+		Namespace string `flag:"namespace n"`
+		Username  string `flag:"username u"`
+		Password  string `flag:"password p"`
+	}
 
 	root := &cobra.Command{
 		Use:     "chkit",
 		Short:   "Chkit is a terminal client for containerum.io powerful API",
 		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
-			if cmd.Flag("username").Changed && cmd.Flag("password").Changed {
-				if err := login.Setup(ctx); err != nil {
-					angel.Angel(ctx, err)
-					os.Exit(1)
-				}
-				return
-			} else if cmd.Flag("username").Changed || cmd.Flag("password").Changed {
-				cmd.Help()
-				os.Exit(1)
-			}
-			if err := prerun.PreRun(ctx); err != nil {
-				angel.Angel(ctx, err)
-				os.Exit(1)
+			if err := prerun.PreRun(ctx, prerun.Config{
+				RunLoginOnMissingCreds: true,
+				Namespace:              flags.Namespace,
+			}); err != nil {
+				panic(err)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		PostRun:          postrun.PostRunFunc(ctx),
+		PostRun: ctx.Defer(func() {
+			ctx.Log.Command("root").Debugf("adding postrun")
+			postrun.PostRun(ctx)
+		}).CobraPostRun,
 		TraverseChildren: true,
 	}
 	ctx.Client.APIaddr = mode.API_ADDR
 
-	root.PersistentFlags().
-		StringVarP(&ctx.Client.Username, "username", "u", "", "account username")
-	root.PersistentFlags().
-		StringVarP(&ctx.Client.Password, "password", "p", "", "account password")
-	root.PersistentFlags().
-		StringVarP(&ctx.Namespace.ID, "namespace", "n", ctx.Namespace.ID, "")
-	root.PersistentFlags().
-		BoolVarP(&ctx.Quiet, "quiet", "q", ctx.Quiet, "quiet mode")
+	if err := gpflag.ParseTo(&flags, root.PersistentFlags()); err != nil {
+		panic(err)
+	}
 
 	root.AddCommand(
-		login.Login(ctx),
+		setup.Login(ctx),
 		Get(ctx),
 		Delete(ctx),
 		Create(ctx),
@@ -100,7 +94,7 @@ func Root() error {
 func RootCommands() []*cobra.Command {
 	var ctx = &context.Context{}
 	return []*cobra.Command{
-		login.Login(ctx),
+		setup.Login(ctx),
 		Get(ctx),
 		Delete(ctx),
 		Create(ctx),

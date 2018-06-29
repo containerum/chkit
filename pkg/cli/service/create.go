@@ -10,6 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/model/service/servactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/sirupsen/logrus"
@@ -36,7 +37,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Long:    "Create service for the specified pod in the specified namespace.",
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.WithField("command", "create serv").Debugf("start serv creation")
-			depList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+			depList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to get deployment list")
 				fmt.Println("Unable to get deployment list :(")
@@ -50,13 +51,13 @@ func Create(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to load serv from file")
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if createServiceConfig.Force {
-					if err := ctx.Client.CreateService(ctx.Namespace.ID, serv); err != nil {
-						logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.Namespace)
+					if err := ctx.Client.CreateService(ctx.GetNamespace().ID, serv); err != nil {
+						logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.GetNamespace())
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					fmt.Printf("Service %q created\n", serv.Name)
 					return
@@ -68,13 +69,13 @@ func Create(ctx *context.Context) *cobra.Command {
 				}
 				createServiceConfig.FlagService.Ports = []service.Port{createServiceConfig.FlagPort}
 				if err := servactive.ValidateService(createServiceConfig.FlagService); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
-				if err := ctx.Client.CreateService(ctx.Namespace.ID, createServiceConfig.FlagService); err != nil {
-					logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", createServiceConfig.FlagService.Name, ctx.Namespace)
-					fmt.Println(err)
-					os.Exit(1)
+				if err := ctx.Client.CreateService(ctx.GetNamespace().ID, createServiceConfig.FlagService); err != nil {
+					logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", createServiceConfig.FlagService.Name, ctx.GetNamespace())
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 				return
@@ -83,7 +84,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to create serv")
 				fmt.Println("Unable to create serv :(")
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			fmt.Println(serv.RenderTable())
 			for {
@@ -93,13 +94,13 @@ func Create(ctx *context.Context) *cobra.Command {
 							Label: "Push serv to server",
 							Action: func() error {
 								if activekit.YesNo("Are you sure?") {
-									if err := ctx.Client.CreateService(ctx.Namespace.ID, serv); err != nil {
-										logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.Namespace)
+									if err := ctx.Client.CreateService(ctx.GetNamespace().ID, serv); err != nil {
+										logrus.WithError(err).Errorf("unable to create serv %q in namespace %q", serv.Name, ctx.GetNamespace())
 										activekit.Attention(err.Error())
 										return nil
 									}
 								}
-								logrus.WithError(err).Errorf("serv %q in namespace %q created", serv.Name, ctx.Namespace)
+								logrus.WithError(err).Errorf("serv %q in namespace %q created", serv.Name, ctx.GetNamespace())
 								fmt.Printf("Service %q created\n", serv.Name)
 								return nil
 							},
@@ -114,7 +115,7 @@ func Create(ctx *context.Context) *cobra.Command {
 								if err != nil {
 									logrus.WithError(err).Errorf("error while interactive serv creation")
 									activekit.Attention(err.Error())
-									os.Exit(1)
+									ctx.Exit(1)
 								}
 								serv = s
 								return nil

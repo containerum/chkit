@@ -1,11 +1,9 @@
 package activeconfigmap
 
 import (
-	"fmt"
-	"path/filepath"
-
 	"encoding/json"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"gopkg.in/yaml.v2"
@@ -20,9 +18,7 @@ func FromFile(fname string) (configmap.ConfigMap, error) {
 	switch filepath.Ext(fname) {
 	case "yaml", "yml":
 		return cm, yaml.Unmarshal(content, &cm)
-	case "json":
-		return cm, json.Unmarshal(content, &cm)
 	default:
-		return configmap.ConfigMap{}, fmt.Errorf("unknown file format of %q", fname)
+		return cm, json.Unmarshal(content, &cm)
 	}
 }

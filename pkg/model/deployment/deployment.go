@@ -2,7 +2,6 @@ package deployment
 
 import (
 	"fmt"
-
 	"time"
 
 	"github.com/blang/semver"
@@ -35,7 +34,7 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 	}
 	containers := make([]container.Container, 0, len(kubeDeployment.Containers))
 	for _, kubeContainer := range kubeDeployment.Containers {
-		containers = append(containers, container.Container{Container: kubeContainer})
+		containers = append(containers, container.Container{Container: kubeContainer}.Copy())
 	}
 	return Deployment{
 		Name:        kubeDeployment.Name,
@@ -56,12 +55,15 @@ func (depl *Deployment) ToKube() model.Deployment {
 		containers = append(containers, cont.Container)
 	}
 	kubeDepl := model.Deployment{
-		Name:       depl.Name,
-		Replicas:   int(depl.Replicas),
-		Containers: containers,
-		Version:    depl.Version,
-		Active:     depl.Active,
-		CreatedAt:  depl.CreatedAt.Format(model2.TimestampFormat),
+		Name:        depl.Name,
+		Replicas:    int(depl.Replicas),
+		Containers:  containers,
+		Version:     depl.Version,
+		Active:      depl.Active,
+		TotalMemory: depl.TotalMemory,
+		TotalCPU:    depl.TotalCPU,
+		CreatedAt:   depl.CreatedAt.Format(model2.TimestampFormat),
+		Status:      depl.Status.ToKube(),
 	}
 	return kubeDepl
 }
@@ -92,12 +94,14 @@ func (depl Deployment) Copy() Deployment {
 	version.Build = append([]string{}, version.Build...)
 	version.Pre = append([]semver.PRVersion{}, version.Pre...)
 	return Deployment{
-		Name:       depl.Name,
-		CreatedAt:  depl.CreatedAt,
-		Replicas:   depl.Replicas,
-		Active:     depl.Active,
-		Status:     status,
-		Version:    version,
-		Containers: depl.Containers.Copy(),
+		Name:        depl.Name,
+		TotalCPU:    depl.TotalCPU,
+		TotalMemory: depl.TotalMemory,
+		CreatedAt:   depl.CreatedAt,
+		Replicas:    depl.Replicas,
+		Active:      depl.Active,
+		Status:      status,
+		Version:     version,
+		Containers:  depl.Containers.Copy(),
 	}
 }

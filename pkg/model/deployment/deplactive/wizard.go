@@ -2,10 +2,10 @@ package deplactive
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
-	"strconv"
-
+	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/limits"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -30,7 +30,8 @@ func (config Wizard) Run() deployment.Deployment {
 		if config.EditName {
 			menuItems = activekit.MenuItems{componentEditNameMenu(config.Deployment)}
 		}
-		menuItems = menuItems.Append(componentEditReplicas(config.Deployment)).
+		menuItems = menuItems.Append(componentEditReplicas(config.Deployment),
+			componentEditVersion(config.Deployment)).
 			Append(componentEditContainers(config)...).
 			Append(&activekit.MenuItem{
 				Label: "Confirm",
@@ -51,9 +52,59 @@ func (config Wizard) Run() deployment.Deployment {
 	return *config.Deployment
 }
 
+func componentEditVersion(deployment *deployment.Deployment) *activekit.MenuItem {
+	var item = &activekit.MenuItem{
+		Label: fmt.Sprintf("Edit version  : %s", deployment.Version),
+		Action: func() error {
+			(&activekit.Menu{
+				Title: "Select version from container or set custom",
+				Items: activekit.ItemsFromIter(uint(len(deployment.Containers)), func(index uint) *activekit.MenuItem {
+					var cont = deployment.Containers[index].Copy()
+					var version, ok = cont.SemanticVersion()
+					if ok {
+						return &activekit.MenuItem{
+							Label: fmt.Sprintf("%v (%s)", cont.Version(), cont.Name),
+							Action: func() error {
+								deployment.Version = version
+								return nil
+							},
+						}
+					}
+					return nil
+				}).Append(
+					&activekit.MenuItem{
+						Label: "Set custom version",
+						Action: func() error {
+							for exit := false; !exit; {
+								var vStr = activekit.Promt("Type version, v2.3.4, 1.4.2, etc., hit Enter to leave %s: ", deployment.Version)
+								vStr = strings.TrimSpace(vStr)
+								var version, err = semver.ParseTolerant(vStr)
+								if err != nil {
+									fmt.Printf("Invalid version string: %v", err)
+									continue
+								}
+								deployment.Version = version
+								return nil
+							}
+							return nil
+						},
+					},
+					&activekit.MenuItem{
+						Label: "Return to previous menu",
+						Action: func() error {
+							return nil
+						},
+					}),
+			}).Run()
+			return nil
+		},
+	}
+	return item
+}
+
 func componentEditNameMenu(deployment *deployment.Deployment) *activekit.MenuItem {
 	return &activekit.MenuItem{
-		Label: fmt.Sprintf("Edit name : %s",
+		Label: fmt.Sprintf("Edit name     : %s",
 			activekit.OrString(deployment.Name, "undefined, required")),
 		Action: func() error {
 			for {

@@ -1,8 +1,6 @@
 package clisolution
 
 import (
-	"os"
-
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -24,11 +22,11 @@ func Delete(ctx *context.Context) *cobra.Command {
 			var solName string
 			switch len(args) {
 			case 0:
-				solList, err := ctx.Client.GetRunningSolutionsList(ctx.Namespace.ID)
+				solList, err := ctx.Client.GetRunningSolutionsList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get solutions list")
 					activekit.Attention("Unable to get solutions list:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				var menu activekit.MenuItems
 				for _, sol := range solList.Solutions {
@@ -52,10 +50,10 @@ func Delete(ctx *context.Context) *cobra.Command {
 				}).Run()
 				if solName != "" {
 					if force || activekit.YesNo("Do you really want to delete solution %q?", solName) {
-						if err := ctx.Client.DeleteSolution(ctx.Namespace.ID, solName); err != nil {
+						if err := ctx.Client.DeleteSolution(ctx.GetNamespace().ID, solName); err != nil {
 							logger.WithError(err).Errorf("unable to delete solution")
 							activekit.Attention("Unable to delete solution:\n%v", err)
-							os.Exit(1)
+							ctx.Exit(1)
 						}
 						fmt.Println("Solution deleted!")
 					} else {
@@ -64,18 +62,18 @@ func Delete(ctx *context.Context) *cobra.Command {
 				}
 			case 1:
 				name := args[0]
-				sol, err := ctx.Client.GetRunningSolution(ctx.Namespace.ID, name)
+				sol, err := ctx.Client.GetRunningSolution(ctx.GetNamespace().ID, name)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to find solution %q", name)
 					activekit.Attention("Unable to find solution %q", name)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				solName = sol.Name
 				if force || activekit.YesNo("Do you really want to delete solution %q?", solName) {
-					if err := ctx.Client.DeleteSolution(ctx.Namespace.ID, solName); err != nil {
+					if err := ctx.Client.DeleteSolution(ctx.GetNamespace().ID, solName); err != nil {
 						logger.WithError(err).Errorf("unable to delete solution")
 						activekit.Attention("Unable to delete solution:\n%v", err)
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					fmt.Println("Solution deleted!")
 				} else {
@@ -83,7 +81,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				}
 			default:
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
 	}

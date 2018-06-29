@@ -2,7 +2,6 @@ package cliserv
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/service"
@@ -25,7 +24,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			logrus.Debugf("running command delete service")
 			switch len(args) {
 			case 0:
-				list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+				list, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to get service list")
 					activekit.Attention(err.Error())
@@ -41,11 +40,11 @@ func Delete(ctx *context.Context) *cobra.Command {
 									return nil
 								}
 								logrus.Debugf("deleting service %q from %q", srv.Name)
-								err := ctx.Client.DeleteService(ctx.Namespace.ID, srv.Name)
+								err := ctx.Client.DeleteService(ctx.GetNamespace().ID, srv.Name)
 								if err != nil {
 									logrus.WithError(err).Debugf("error while deleting service")
 									fmt.Printf("Unable to delete service %q :(\n%v", srv.Name, err)
-									os.Exit(1)
+									ctx.Exit(1)
 								}
 								fmt.Printf("OK\n")
 								return nil
@@ -68,12 +67,12 @@ func Delete(ctx *context.Context) *cobra.Command {
 						return
 					}
 				}
-				logrus.Debugf("deleting service %q from %q", svcName, ctx.Namespace.ID)
-				err := ctx.Client.DeleteService(ctx.Namespace.ID, svcName)
+				logrus.Debugf("deleting service %q from %q", svcName, ctx.GetNamespace().ID)
+				err := ctx.Client.DeleteService(ctx.GetNamespace().ID, svcName)
 				if err != nil {
 					logrus.WithError(err).Debugf("error while deleting service")
 					fmt.Printf("Unable to delete service %q :(\n%v", svcName, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Printf("OK\n")
 				return

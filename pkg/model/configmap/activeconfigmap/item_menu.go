@@ -2,7 +2,6 @@ package activeconfigmap
 
 import (
 	"fmt"
-
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/configmap"
@@ -35,7 +34,7 @@ func itemMenu(item configmap.Item) *configmap.Item {
 					},
 				},
 				{
-					Label: fmt.Sprintf("Edit value :	 %q", text.Crop(interview.View([]byte(item.Value())), 64)),
+					Label: fmt.Sprintf("Edit value : \"%s\"", text.Crop(interview.View([]byte(item.Value())), 64)),
 					Action: func() error {
 						item = item.WithValue(itemValueMenu(item.Value()))
 						return nil

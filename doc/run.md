@@ -31,14 +31,14 @@ Run solution from public template.
 
 **Subcommands**:
 
-* **[run solution](#run_solution)** run solution from template
+* **[run solution](#run_solution)** Run solution from template
 
 
 #### <a name="run_solution">run solution</a>
 
 **Description**:
 
-run solution from template
+Run solution from template
 
 **Example**:
 

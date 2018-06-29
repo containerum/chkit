@@ -1,6 +1,9 @@
 package deployment
 
-import "github.com/containerum/kube-client/pkg/model"
+import (
+	"github.com/blang/semver"
+	"github.com/containerum/kube-client/pkg/model"
+)
 
 type DeploymentList []Deployment
 
@@ -44,4 +47,21 @@ func (list DeploymentList) Filter(pred func(depl Deployment) bool) DeploymentLis
 		}
 	}
 	return filtered
+}
+
+func (list DeploymentList) GetByName(name string) (Deployment, bool) {
+	for _, depl := range list {
+		if depl.Name == name {
+			return depl.Copy(), true
+		}
+	}
+	return Deployment{}, false
+}
+
+func (list DeploymentList) Versions() []semver.Version {
+	var versions = make([]semver.Version, 0, list.Len())
+	for _, depl := range list {
+		versions = append(versions, depl.Version)
+	}
+	return versions
 }

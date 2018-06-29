@@ -81,8 +81,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "d58259f4bcfeac52fbfda0db4f10d90adafecf27"
-  version = "v0.23.5"
+  revision = "d6118e476445c05c9ff4e085b9dad7266aea75b1"
+  version = "v0.23.8"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -156,8 +156,8 @@
     "str",
     "strset"
   ]
-  revision = "fe09821415d47659b606dc73dce196a111ca3c42"
-  version = "v0.3.2"
+  revision = "e7b8cb45609e14397d0158ee082fad5aad745fbf"
+  version = "v0.3.6"
 
 [[projects]]
   branch = "master"

@@ -1,9 +1,8 @@
 package clinamespace
 
 import (
-	"fmt"
-
 	"errors"
+	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
@@ -34,7 +33,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				case 1:
 					namespaceLabel := args[0]
 					logrus.Debugf("getting namespace %q", namespaceLabel)
-					nsList, err := ctx.Client.GetNamespaceList()
+					nsList, err := ctx.GetClient().GetNamespaceList()
 					if err != nil {
 						logrus.WithError(err).Errorf("unable to get namespace list")
 						return nil, err
@@ -49,7 +48,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				default:
 					var list namespace.NamespaceList
 					logrus.Debugf("getting namespace list")
-					list, err := ctx.Client.GetNamespaceList()
+					list, err := ctx.GetClient().GetNamespaceList()
 					if err != nil {
 						logrus.WithError(err).Errorf("unable to get namespace list")
 						return nil, err

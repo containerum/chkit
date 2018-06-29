@@ -3,10 +3,9 @@ package clinamespace
 import (
 	"fmt"
 
-	"os"
-
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -21,29 +20,29 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 		Example: "chkit get ns-access $ID",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
-			var nsID = ctx.Namespace.ID
+			var nsID = ctx.GetNamespace().ID
 			if len(args) == 1 {
 				nsList, err := ctx.Client.GetNamespaceList()
 				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				ns, ok := nsList.GetByUserFriendlyID(args[0])
 				if !ok {
 					fmt.Printf("namespace %q not found\n", args[0])
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				nsID = ns.ID
 			} else if len(args) > 1 {
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
-			logger.Debugf("getting namespace %q access", ctx.Namespace)
+			logger.Debugf("getting namespace %q access", ctx.GetNamespace())
 			acc, err := ctx.Client.GetAccess(nsID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get namespace %q access", nsID)
-				fmt.Println(err)
-				os.Exit(1)
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 			fmt.Println(acc.RenderTable())
 			return

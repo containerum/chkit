@@ -1,15 +1,12 @@
 package activeconfigmap
 
 import (
+	"encoding/base64"
 	"fmt"
-
-	"strings"
-
-	"path"
-
 	"io/ioutil"
-
 	"os"
+	"path"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -43,7 +40,7 @@ func (c Config) Wizard() configmap.ConfigMap {
 					return func() error {
 						if i := itemMenu(item); i != nil {
 							var key, value = i.Data()
-							config.Data[key] = value
+							config.Data[key] = base64.StdEncoding.EncodeToString([]byte(value))
 						}
 						return nil
 					}
@@ -76,7 +73,7 @@ func (c Config) Wizard() configmap.ConfigMap {
 						Label: "Add item",
 						Action: func() error {
 							if i := itemMenu(configmap.Item{}); i != nil {
-								config.Data[i.Key()] = i.Value()
+								config.Data[i.Key()] = base64.StdEncoding.EncodeToString([]byte(i.Value()))
 							}
 							return nil
 						},

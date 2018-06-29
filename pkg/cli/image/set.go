@@ -1,16 +1,14 @@
 package image
 
 import (
-	"fmt"
-	"os"
-
-	"strings"
-
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/octago/sflags/gen/gpflag"
@@ -61,10 +59,10 @@ func Set(ctx *context.Context) *cobra.Command {
 				logger.Debugf("run command with force")
 
 				if flags.Container == "" {
-					var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
+					var depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
 					if err != nil {
-						fmt.Println(err)
-						os.Exit(1)
+						ferr.Println(err)
+						ctx.Exit(1)
 					}
 					if len(depl.Containers) == 1 {
 						flags.Container = depl.Containers[0].Name
@@ -73,21 +71,21 @@ func Set(ctx *context.Context) *cobra.Command {
 
 				var depl, image, err = buildImage()
 				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
-				if err := ctx.Client.SetContainerImage(ctx.Namespace.ID, depl, image); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+				if err := ctx.Client.SetContainerImage(ctx.GetNamespace().ID, depl, image); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 				return
 			}
 			if flags.Deployment == "" {
-				var deplList, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				var deplList, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				(&activekit.Menu{
 					Title: "Select deployment",
@@ -98,10 +96,10 @@ func Set(ctx *context.Context) *cobra.Command {
 				}).Run()
 			}
 			if flags.Container == "" {
-				var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
+				var depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
 				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				if len(depl.Containers) == 1 {
 					flags.Container = depl.Containers[0].Name
@@ -128,13 +126,13 @@ func Set(ctx *context.Context) *cobra.Command {
 				}
 			}
 			if activekit.YesNo("Are you sure you want to update image to %q of container %q in deployment %s/%s?",
-				flags.Image, flags.Container, ctx.Namespace, flags.Deployment) {
-				if err := ctx.Client.SetContainerImage(ctx.Namespace.ID, flags.Deployment, model.UpdateImage{
+				flags.Image, flags.Container, ctx.GetNamespace(), flags.Deployment) {
+				if err := ctx.Client.SetContainerImage(ctx.GetNamespace().ID, flags.Deployment, model.UpdateImage{
 					Image:     flags.Image,
 					Container: flags.Container,
 				}); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 			}
 		},

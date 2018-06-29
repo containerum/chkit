@@ -78,18 +78,18 @@ func HandleErrorRetry(client *Client, err error) (bool, error) {
 		return false, nil
 	case cherry.In(err, retriable...):
 		//Retriable error
-		return true, ErrFatalError.Wrap(err)
+		return true, chkitErrors.Fatal(err)
 	case cherry.In(err, auth...):
 		//Auth errors
 		return true, client.Auth()
-	case cherry.In(err, noAccess...):
+	case cherry.In(err, notExists...):
 		//Resource not exists errors
-		return false, ErrResourceNotExists.Wrap(err)
+		return false, chkitErrors.Fatal(ErrResourceNotExists.Wrap(err))
 	case cherry.In(err, noAccess...):
 		//Resource access errors
-		return false, ErrYouDoNotHaveAccessToResource.Wrap(err)
+		return false, chkitErrors.Fatal(ErrYouDoNotHaveAccessToResource.Wrap(err))
 	default:
 		//Another error
-		return false, ErrFatalError.Wrap(err)
+		return false, chkitErrors.Fatal(err)
 	}
 }

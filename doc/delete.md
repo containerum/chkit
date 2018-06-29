@@ -32,10 +32,12 @@ Delete resource
 
 * **[delete configmap](#delete_configmap)** delete configmap
 * **[delete deployment](#delete_deployment)** delete deployment in specific namespace
+* **[delete deployment-container](#delete_deployment-container)** delete container
 * **[delete ingress](#delete_ingress)** delete ingress
 * **[delete namespace](#delete_namespace)** delete namespace
 * **[delete pod](#delete_pod)** delete pod in specific namespace
 * **[delete service](#delete_service)** delete service in specific namespace
+* **[delete solution](#delete_solution)** Delete running solution
 * **[delete volume](#delete_volume)** delete volume
 
 
@@ -54,6 +56,27 @@ chkit delete volume [--force]
 | Short | Name | Usage | Default value |
 | ----- | ---- | ----- | ------------- |
 | -f | --force | suppress confirmation | false |
+
+
+**Subcommands**:
+
+
+
+#### <a name="delete_solution">delete solution</a>
+
+**Description**:
+
+Delete running solution
+
+**Example**:
+
+chkit delete solution [--force]
+
+**Flags**:
+
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | --force | delete solution without confirmation | false |
 
 
 **Subcommands**:
@@ -144,11 +167,35 @@ chkit delete ingress $INGRESS [-n $NAMESPACE] [--force]
 
 
 
+#### <a name="delete_deployment-container">delete deployment-container</a>
+
+**Description**:
+
+Delete deployment container.
+
+**Example**:
+
+
+
+**Flags**:
+
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+|  | --container | container name, required on --force |  |
+|  | --deployment | deployment name, required on --force |  |
+|  | --force | suppress confirmation | false |
+
+
+**Subcommands**:
+
+
+
 #### <a name="delete_deployment">delete deployment</a>
 
 **Description**:
 
-Delete deployment in specific namespace. Use --force flag to suppress confirmation.
+Delete deployment in specific namespace.
+Use --force flag to suppress confirmation.
 
 **Example**:
 

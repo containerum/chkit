@@ -1,4 +1,4 @@
-package clisetup
+package setup
 
 import (
 	"net/url"
@@ -12,7 +12,7 @@ import (
 )
 
 func SetupConfig(ctx *context.Context) error {
-	ctx.Client.Fingerprint = fingerpint.Fingerprint()
+	ctx.GetClient().Fingerprint = fingerpint.Fingerprint()
 	tokens, err := configuration.LoadTokens(ctx)
 	if err != nil && !os.IsNotExist(err) {
 		return ErrUnableToLoadTokens.Wrap(err)
@@ -22,12 +22,12 @@ func SetupConfig(ctx *context.Context) error {
 			return ErrUnableToSaveTokens.Wrap(err)
 		}
 	}
-	ctx.Client.Tokens = tokens
-	if _, err := url.Parse(ctx.Client.APIaddr); err != nil {
-		logrus.Debugf("invalid API url: %q", ctx.Client.APIaddr)
+	ctx.GetClient().Tokens = tokens
+	if _, err := url.Parse(ctx.GetClient().APIaddr); err != nil {
+		logrus.Debugf("invalid API url: %q", ctx.GetClient().APIaddr)
 		return ErrInvalidAPIurl.Wrap(err)
 	}
-	if ctx.Client.Password == "" || ctx.Client.Username == "" {
+	if ctx.GetClient().Password == "" || ctx.GetClient().Username == "" {
 		logrus.Debugf("invalid username or pass")
 		return ErrInvalidUserInfo
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/spf13/cobra"
 )
 
 type Context struct {
@@ -12,11 +13,68 @@ type Context struct {
 	Version            string
 	ConfigPath         string
 	ConfigDir          string
-	Namespace          Namespace
-	Quiet              bool
+	namespace          Namespace
 	Changed            bool
+	TokensChanged      bool
 	Client             chClient.Client
-	AllowSelfSignedTLS bool
+	allowSelfSignedTLS bool
+
+	deferred      []func()
+	deferredCobra []func(command *cobra.Command, args []string)
+}
+
+func (ctx *Context) GetNamespace() Namespace {
+	return ctx.namespace
+}
+
+func (ctx *Context) SetNamespace(ns Namespace) *Context {
+	ctx.Log.Debugf("setting namespace")
+	ctx.namespace = ns
+	ctx.Changed = true
+	return ctx
+}
+
+func (ctx *Context) SetTemporaryNamespace(ns namespace.Namespace) *Context {
+	ctx.namespace = NamespaceFromModel(ns)
+	return ctx
+}
+
+func (ctx *Context) GetSelfSignedTLSRule() bool {
+	return ctx.allowSelfSignedTLS
+}
+
+func (ctx *Context) SetSelfSignedTLSRule(allow bool) *Context {
+	ctx.Log.Debugf("setting TLS policy")
+	ctx.allowSelfSignedTLS = allow
+	ctx.Changed = true
+	return ctx
+}
+
+func (ctx *Context) GetClient() *chClient.Client {
+	return &ctx.Client
+}
+
+func (ctx *Context) SetAPI(api string) *Context {
+	ctx.Log.Debugf("setting API")
+	ctx.Client.APIaddr = api
+	ctx.Changed = true
+	return ctx
+}
+
+func (ctx *Context) GetAPI() string {
+	return ctx.Client.APIaddr
+}
+
+func (ctx *Context) SetAuth(login, password string) *Context {
+	ctx.Log.Debugf("setting auth")
+	ctx.Client.Username = login
+	ctx.Client.Password = password
+	ctx.Changed = true
+	return ctx
+}
+
+func (ctx *Context) GetAuth() model.UserInfo {
+	return ctx.Client.UserInfo
 }
 
 func (ctx *Context) StartCommand(command string) {
@@ -25,22 +83,6 @@ func (ctx *Context) StartCommand(command string) {
 
 func (ctx *Context) ExitCommand() {
 	ctx.Log.FieldLogger = ctx.Log.FieldLogger.WithField("command", nil)
-}
-
-func (ctx *Context) GetClient() *chClient.Client {
-	return &ctx.Client
-}
-
-func (ctx *Context) SetAPI(api string) *Context {
-	ctx.Client.APIaddr = api
-	ctx.Changed = true
-	return ctx
-}
-
-func (ctx *Context) SetNamespace(ns namespace.Namespace) *Context {
-	ctx.Namespace = NamespaceFromModel(ns)
-	ctx.Changed = true
-	return ctx
 }
 
 type Storable struct {
@@ -76,25 +118,24 @@ func (config Storable) Merge(upd Storable) Storable {
 }
 
 func (ctx *Context) GetStorable() Storable {
+	auth := ctx.GetAuth()
 	return Storable{
 		Version:            ctx.Version,
-		Namespace:          ctx.Namespace,
-		Username:           ctx.Client.Username,
-		Password:           ctx.Client.Password,
-		API:                ctx.Client.APIaddr,
-		AllowSelfSignedTLS: ctx.AllowSelfSignedTLS,
+		Namespace:          ctx.GetNamespace(),
+		Username:           auth.Username,
+		Password:           auth.Password,
+		API:                ctx.GetAPI(),
+		AllowSelfSignedTLS: ctx.GetSelfSignedTLSRule(),
 	}
 }
 
 func (ctx *Context) SetStorable(config Storable) (configVersion string) {
-	ctx.Namespace = config.Namespace
-	ctx.Client.UserInfo = model.UserInfo{
-		Username: config.Username,
-		Password: config.Password,
-	}
+	ctx.namespace = config.Namespace
+	ctx.Client.Username = config.Username
+	ctx.Client.Password = config.Password
 	if config.API != "" {
 		ctx.Client.APIaddr = config.API
 	}
-	ctx.AllowSelfSignedTLS = config.AllowSelfSignedTLS
+	ctx.allowSelfSignedTLS = config.AllowSelfSignedTLS
 	return config.Version
 }

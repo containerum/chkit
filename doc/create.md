@@ -32,6 +32,7 @@ Create resource (deployment, service...)
 
 * **[create configmap](#create_configmap)** 
 * **[create deployment](#create_deployment)** create deployment
+* **[create deployment-container](#create_deployment-container)** create deployment container.
 * **[create ingress](#create_ingress)** create ingress
 * **[create service](#create_service)** create service
 
@@ -53,9 +54,9 @@ Create service for the specified pod in the specified namespace.
 |  | --deploy | service deployment, required |  |
 | -f | --file | file with service data | - |
 |  | --force | create service without confirmation | false |
-|  | --name | service name, optional | flavescent-anaximander |
+|  | --name | service name, optional | quartz-mckay |
 |  | --port | service port, optional | 0 |
-|  | --port-name | service port name, optional | massalia-penny |
+|  | --port-name | service port name, optional | danzl-bistre |
 |  | --proto | service protocol, optional | TCP |
 |  | --target-port | service target port, optional | 80 |
 
@@ -91,11 +92,115 @@ chkit create ingress [--force] [--filename ingress.json] [-n prettyNamespace]
 
 
 
+#### <a name="create_deployment-container">create deployment-container</a>
+
+**Description**:
+
+Add container to deployment container set. Available methods to build deployment:
+    - from flags
+    - with interactive commandline wizard
+    - from yaml ot json file
+
+Use --force flag to create container without interactive wizard.
+If the --container-name flag is not specified then wizard generates name RANDOM_COLOR-IMAGE.
+
+**Example**:
+
+
+
+**Flags**:
+
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+|  | --configmap | container configmap mount, CONFIG:MOUNT_PATH or CONFIG (then MOUNTPATH is /etc/CONFIG) |  |
+|  | --container-name | container name, required on --force |  |
+|  | --cpu | container CPU limit, mCPU | 0 |
+|  | --deployment | deployment name, required on --force |  |
+|  | --env | container environment variables, NAME:VALUE, 'NAME:$HOST_ENV' or '$HOST_ENV' (to user host env). WARNING: single quotes are required to prevent env from interpolation |  |
+| -f | --force | suppress confirmation | false |
+|  | --image | container image |  |
+|  | --memory | container memory limit, Mb | 0 |
+|  | --volume | container volume mounts, VOLUME:MOUNT_PATH or VOLUME (then MOUNT_PATH is /mnt/VOLUME) |  |
+
+
+**Subcommands**:
+
+
+
 #### <a name="create_deployment">create deployment</a>
 
 **Description**:
 
-Create a new deployment. Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.
+Create deployment with containers and replicas.
+Available methods to build deployment:
+- from flags
+- with interactive commandline wizard
+- from yaml ot json file
+
+Use --force flag to create container without interactive wizard.
+
+There are several ways to specify the names of containers with flags:
+- --container-name flag
+- the prefix CONTAINER_NAME@ in the flags --image, --memory, --cpu, --env, --volume
+
+If the --container-name flag is not specified and prefix is not used in any of the flags, then wizard searches for the --image flags without a prefix and generates name RANDOM_COLOR-IMAGE.
+
+**Examples:**
+
+---
+**Single container with --container-name**
+
+```bash
+> ./ckit create depl \
+        --container-name doot \
+        --image nginx
+```
+
+|        LABEL        | VERSION |  STATUS  |  CONTAINERS  |    AGE    |
+| ------------------- | --------| -------- | ------------ | --------- |
+| akiraabe-heisenberg |  1.0.0  | inactive | doot [nginx] | undefined |
+
+---
+**Single container without --container-name**
+
+```bash
+> ./ckit create depl \
+        --image nginx
+```
+
+|        LABEL        | VERSION |  STATUS  |        CONTAINERS        |    AGE    |
+| ------------------- | --------| -------- | ------------------------ | --------- |
+|   spiraea-kaufman   |  1.0.0  | inactive | aquamarine-nginx [nginx] | undefined |
+
+---
+**Multiple containers with --container-name**
+
+
+```bash
+> ./ckit create depl \
+        --container-name gateway \
+        --image nginx \
+        --image blog@wordpress
+```
+
+|        LABEL        | VERSION |  STATUS  |        CONTAINERS        |    AGE    |
+| ------------------- | --------| -------- | ------------------------ | --------- |
+|   ruckers-fischer   |  1.0.0  | inactive |      gateway [nginx]     | undefined |
+|                     |         |          |      blog [wordpress]    |           |
+
+---
+**Multiple containers without --container-name**
+```bash
+> ./ckit create depl \
+        --image nginx \
+        --image blog@wordpress
+```
+
+|        LABEL        | VERSION |  STATUS  |        CONTAINERS        |    AGE    |
+| ------------------- | ------- | -------- | ------------------------ | --------- |
+|    thisbe-neumann   |  1.0.0  | inactive |      blog [wordpress]    | undefined |
+|                     |         |          |    garnet-nginx [nginx]  |           |
+
 
 **Example**:
 
@@ -106,6 +211,7 @@ Create a new deployment. Runs in one-line mode, suitable for integration with ot
 | Short | Name | Usage | Default value |
 | ----- | ---- | ----- | ------------- |
 |  | --configmap | container configmap, CONTAINER_NAME@CONFIGMAP_NAME@MOUNTPATH in case of multiple containers or CONFIGMAP_NAME@MOUNTPATH or CONFIGMAP_NAME in case of one container. If MOUNTPATH is omitted, then use /etc/CONFIGMAP_NAME as mountpath |  |
+|  | --container-name | container name in case of single container |  |
 |  | --cpu | container memory limit, mCPU, CONTAINER_NAME@CPU in case of multiple containers or CPU in case of one container |  |
 |  | --env | container environment variable, CONTAINER_NAME@KEY:VALUE in case of multiple containers or KEY:VALUE in case of one container |  |
 |  | --file | file with configmap data, .json, .yaml, .yml, optional |  |
@@ -139,7 +245,7 @@ Create a new deployment. Runs in one-line mode, suitable for integration with ot
 | -f | --force | suppress confirmation | false |
 |  | --item-file | configmap file, KEY:FILE_PATH or FILE_PATH |  |
 |  | --item-string | configmap item, KEY:VALUE string pair |  |
-|  | --name | configmap name | eunomia-knoll |
+|  | --name | configmap name | michela-zollner |
 
 
 **Subcommands**:

@@ -41,10 +41,34 @@ Get resource data
 * **[get pod](#get_pod)** show pod info
 * **[get profile](#get_profile)** show profile info
 * **[get service](#get_service)** show service info
-* **[get solution](#get_solution)** get solutions
+* **[get solution](#get_solution)** Show running solutions info
+* **[get template](#get_template)** get solutions templates
+* **[get template_envs](#get_template_envs)** get solutions template envs
 
 
-#### <a name="get_solution">get solution</a>
+#### <a name="get_template_envs">get template_envs</a>
+
+**Description**:
+
+Show list of solution environments.You can select specific branch specifying branch query (--branch). Default branch is 'master':
+
+
+**Example**:
+
+chkit get template_envs [name]
+
+**Flags**:
+
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+|  | --branch | solution template branch |  |
+
+
+**Subcommands**:
+
+
+
+#### <a name="get_template">get template</a>
 
 **Description**:
 
@@ -52,12 +76,34 @@ Show list of available solutions templates. To search solution by name add arg.
 
 **Example**:
 
-chkit get solution [name]
+chkit get template [name]
 
 **Flags**:
 
 | Short | Name | Usage | Default value |
 | ----- | ---- | ----- | ------------- |
+
+
+**Subcommands**:
+
+
+
+#### <a name="get_solution">get solution</a>
+
+**Description**:
+
+Show running solutions info
+
+**Example**:
+
+chkit get solution solution_name [-o yaml/json] [-f output_file]
+
+**Flags**:
+
+| Short | Name | Usage | Default value |
+| ----- | ---- | ----- | ------------- |
+| -f | --file | output file | - |
+| -o | --output | output format [yaml/json] |  |
 
 
 **Subcommands**:
@@ -80,6 +126,7 @@ chkit get service service_label [-o yaml/json] [-f output_file]
 | ----- | ---- | ----- | ------------- |
 | -f | --file | output file | - |
 | -o | --output | output format [yaml/json] |  |
+| -s | --solution_name | solution name |  |
 
 
 **Subcommands**:
@@ -120,8 +167,12 @@ chkit get pod pod_label [-o yaml/json] [-f output_file]
 
 | Short | Name | Usage | Default value |
 | ----- | ---- | ----- | ------------- |
-| -f | --file | output file | - |
-| -o | --output | output format (json/yaml) |  |
+|  | --failed | include in result pods with status 'Failed' | false |
+|  | --filename | output filename, STDOUT if empty of '-' |  |
+| -o | --output | output format, yaml/json |  |
+|  | --pending | include in result pods with status 'Pending' | false |
+|  | --running | include in result pods with status 'Running' | false |
+|  | --status | include in result pods with custom status |  |
 
 
 **Subcommands**:
@@ -176,7 +227,25 @@ chkit get ingress ingress_names... [-n namespace_label] [-o yaml/json]
 
 **Description**:
 
-Get deployment versions. You can filter versions by specifying version query (--version): Valid queries are:    - "<1.0.0"   - "<=1.0.0"   - ">1.0.0"   - ">=1.0.0"   - "1.0.0", "=1.0.0", "==1.0.0"   - "!1.0.0", "!=1.0.0" A query can consist of multiple querys separated by space: queries can be linked by logical AND:   - ">1.0.0 <2.0.0" would match between both querys, so "1.1.1" and "1.8.7" but not "1.0.0" or "2.0.0"   - ">1.0.0 <3.0.0 !2.0.3-beta.2" would match every version between 1.0.0 and 3.0.0 except 2.0.3-beta.2 Queries can also be linked by logical OR:   - "<2.0.0 || >=3.0.0" would match "1.x.x" and "3.x.x" but not "2.x.x" AND has a higher precedence than OR. It's not possible to use brackets. Queries can be combined by both AND and OR  - `>1.0.0 <2.0.0 || >3.0.0 !4.2.1` would match `1.2.3`, `1.9.9`, `3.1.1`, but not `4.2.1`, `2.1.1`
+Get deployment versions.
+You can filter versions by specifying version query (--version):
+Valid queries are:
+
+  - "<1.0.0"
+  - "<=1.0.0"
+  - ">1.0.0"
+  - ">=1.0.0"
+  - "1.0.0", "=1.0.0", "==1.0.0"
+  - "!1.0.0", "!=1.0.0"
+A query can consist of multiple querys separated by space:
+queries can be linked by logical AND:
+  - ">1.0.0 <2.0.0" would match between both querys, so "1.1.1" and "1.8.7" but not "1.0.0" or "2.0.0"
+  - ">1.0.0 <3.0.0 !2.0.3-beta.2" would match every version between 1.0.0 and 3.0.0 except 2.0.3-beta.2
+Queries can also be linked by logical OR:
+  - "<2.0.0 || >=3.0.0" would match "1.x.x" and "3.x.x" but not "2.x.x"
+AND has a higher precedence than OR. It's not possible to use brackets.
+Queries can be combined by both AND and OR
+ - `>1.0.0 <2.0.0 || >3.0.0 !4.2.1` would match `1.2.3`, `1.9.9`, `3.1.1`, but not `4.2.1`, `2.1.1`
 
 **Example**:
 
@@ -209,8 +278,9 @@ namespace deployment_names... [-n namespace_label]
 
 | Short | Name | Usage | Default value |
 | ----- | ---- | ----- | ------------- |
-| -f | --file | output file |  |
-| -o | --output | output format (yaml/json) |  |
+|  | --file | output file, STDOUT by default |  |
+| -o | --output | output format, json/yaml |  |
+|  | --solution |  |  |
 
 
 **Subcommands**:

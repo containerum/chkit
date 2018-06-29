@@ -2,7 +2,6 @@ package clinamespace
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -38,16 +38,16 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 			var logger = coblog.Logger(cmd)
 			if len(args) != 2 {
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			var username = args[0]
 			accessLevel := model.AccessLevel(args[1])
 			if force, _ := cmd.Flags().GetBool("force"); force ||
-				activekit.YesNo("Are you sure you want give %s %v access to %s?", username, accessLevel, ctx.Namespace) {
-				if err := ctx.Client.SetAccess(ctx.Namespace.ID, username, accessLevel); err != nil {
+				activekit.YesNo("Are you sure you want give %s %v access to %s?", username, accessLevel, ctx.GetNamespace()) {
+				if err := ctx.Client.SetAccess(ctx.GetNamespace().ID, username, accessLevel); err != nil {
 					logger.WithError(err).Errorf("unable to update access to %q for user %q", username, accessLevel)
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			}
@@ -62,8 +62,8 @@ func selectNamespace(ctx *context.Context, logger logrus.FieldLogger) string {
 	nsList, err := ctx.Client.GetNamespaceList()
 	if err != nil {
 		logger.WithError(err).Errorf("unable to get namespace list")
-		fmt.Println(err)
-		os.Exit(1)
+		ferr.Println(err)
+		ctx.Exit(1)
 	}
 	var ns string
 	var menu activekit.MenuItems

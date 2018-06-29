@@ -11,6 +11,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/service/servactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -37,7 +38,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logrus.WithError(err).Errorf("unable to load service data from file %s", file)
 					fmt.Printf("Unable to load service data from file :(\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			} else if cmd.Flag("force").Changed {
 				serv = flagService
@@ -50,10 +51,10 @@ func Replace(ctx *context.Context) *cobra.Command {
 				serv.Name = args[0]
 				serv.Ports = []service.Port{flagPort}
 
-				oldServ, err := ctx.Client.GetService(ctx.Namespace.ID, args[0])
+				oldServ, err := ctx.Client.GetService(ctx.GetNamespace().ID, args[0])
 				if err != nil {
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				if !cmd.Flag("port").Changed {
 					flagPort.Port = nil
@@ -68,22 +69,22 @@ func Replace(ctx *context.Context) *cobra.Command {
 					serv.Domain = oldServ.Domain
 				}
 				if err := servactive.ValidateService(serv); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				fmt.Println(serv.RenderTable())
-				if err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+				if err := ctx.Client.ReplaceService(ctx.GetNamespace().ID, serv); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 				return
 			} else {
 				if len(args) == 0 {
-					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+					list, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 					if err != nil {
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					var menu []*activekit.MenuItem
 					for _, s := range list {
@@ -103,10 +104,10 @@ func Replace(ctx *context.Context) *cobra.Command {
 					}).Run()
 				} else {
 					var err error
-					serv, err = ctx.Client.GetService(ctx.Namespace.ID, args[0])
+					serv, err = ctx.Client.GetService(ctx.GetNamespace().ID, args[0])
 					if err != nil {
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 				}
 			}
@@ -115,8 +116,8 @@ func Replace(ctx *context.Context) *cobra.Command {
 			})
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to replace service")
-				fmt.Println(err)
-				os.Exit(1)
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 			for {
 				_, err := (&activekit.Menu{
@@ -126,10 +127,10 @@ func Replace(ctx *context.Context) *cobra.Command {
 							Action: func() error {
 								fmt.Println(serv.RenderTable())
 								if activekit.YesNo(fmt.Sprintf("Are you sure you want to update service %q on server?", serv.Name)) {
-									err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv)
+									err := ctx.Client.ReplaceService(ctx.GetNamespace().ID, serv)
 									if err != nil {
 										logrus.WithError(err).Errorf("unable to replace service %q", serv.Name)
-										fmt.Println(err)
+										ferr.Println(err)
 										return nil
 									}
 									fmt.Printf("Congratulations! Service %q updated!\n", serv.Name)
@@ -146,8 +147,8 @@ func Replace(ctx *context.Context) *cobra.Command {
 								})
 								if err != nil {
 									logrus.WithError(err).Errorf("unable to update service")
-									fmt.Println(err)
-									os.Exit(1)
+									ferr.Println(err)
+									ctx.Exit(1)
 								}
 								return nil
 							},
@@ -199,7 +200,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					logrus.WithError(err).Errorf("error while menu execution")
 					angel.Angel(ctx, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			}
 		},

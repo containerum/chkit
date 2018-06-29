@@ -1,8 +1,6 @@
 package clideployment
 
 import (
-	"os"
-
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -29,14 +27,14 @@ func DeleteContainer(ctx *context.Context) *cobra.Command {
 			defer logger.Debugf("END")
 			if flags.Force && flags.Deployment != "" {
 				ferr.Printf("deployment name must be provided as --deployment while using --force")
-				os.Exit(1)
+				ctx.Exit(1)
 			} else if flags.Deployment != "" {
-				logger.Debugf("getting deployment list from namespace %q", ctx.Namespace)
-				var depl, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
+				var depl, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
-					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.Namespace)
+					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
 					ferr.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployment")
 				(&activekit.Menu{
@@ -50,14 +48,14 @@ func DeleteContainer(ctx *context.Context) *cobra.Command {
 
 			if flags.Container == "" && flags.Force {
 				ferr.Printf("container name must be provided as --container while using --force")
-				os.Exit(1)
+				ctx.Exit(1)
 			} else if flags.Container == "" {
 				logger.Debugf("getting deployment %q", flags.Deployment)
-				var depl, err = ctx.Client.GetDeployment(ctx.Namespace.ID, flags.Deployment)
+				var depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment %q", flags.Deployment)
 					ferr.Println(err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("selecting container")
 				(&activekit.Menu{
@@ -71,10 +69,10 @@ func DeleteContainer(ctx *context.Context) *cobra.Command {
 			}
 			if flags.Force || activekit.YesNo("Do you really want to delete container %q in deployment %q?", flags.Container, flags.Deployment) {
 				logger.Debugf("deleting container %q in deployment %q", flags.Container, flags.Deployment)
-				if err := ctx.Client.DeleteDeploymentContainer(ctx.Namespace.ID, flags.Deployment, flags.Container); err != nil {
+				if err := ctx.Client.DeleteDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, flags.Container); err != nil {
 					ferr.Println(err)
 					logger.WithError(err).Debugf("unable to delete container %q in deployment %q", flags.Container, flags.Deployment)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("Ok")
 			}

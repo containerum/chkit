@@ -1,12 +1,11 @@
 package clisolution
 
 import (
-	"fmt"
-
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/solution"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/strset"
 	"github.com/spf13/cobra"
 )
@@ -24,13 +23,13 @@ func Get(ctx *context.Context) *cobra.Command {
 			serviceData, err := func() (model.Renderer, error) {
 				switch len(args) {
 				case 0:
-					list, err := ctx.Client.GetRunningSolutionsList(ctx.Namespace.ID)
+					list, err := ctx.Client.GetRunningSolutionsList(ctx.GetNamespace().ID)
 					return list, err
 				case 1:
-					sol, err := ctx.Client.GetRunningSolution(ctx.Namespace.ID, args[0])
+					sol, err := ctx.Client.GetRunningSolution(ctx.GetNamespace().ID, args[0])
 					return sol, err
 				default:
-					list, err := ctx.Client.GetRunningSolutionsList(ctx.Namespace.ID)
+					list, err := ctx.Client.GetRunningSolutionsList(ctx.GetNamespace().ID)
 					var filteredList solution.SolutionsList
 					names := strset.NewSet(args)
 					for _, sol := range list.Solutions {
@@ -42,11 +41,11 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 			}()
 			if err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				return
 			}
 			if err := export.ExportData(serviceData, getServiceConfig.ExportConfig); err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				return
 			}
 

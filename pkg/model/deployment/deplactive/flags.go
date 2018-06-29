@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/blang/semver"
 	chkitContainer "github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/namegen"
@@ -24,6 +25,7 @@ type Flags struct {
 	Force bool   `flag:"force f" desc:"suppress confirmation, optional"`
 	File  string `desc:"file with configmap data, .json, .yaml, .yml, optional"`
 	// Output   string `flag:"output o" desc:"output format, json/yaml"`
+	Version       string   `desc:"custom deployment semantic version"`
 	Replicas      uint     `desc:"deployment replicas, optional"` // deployment
 	Name          string   `desc:"deployment name, optional"`     // deployment
 	ContainerName string   `desc:"container name in case of single container"`
@@ -55,12 +57,17 @@ func FlagsFromDeployment(oldflags Flags, depl deployment.Deployment) Flags {
 }
 
 func (flags Flags) Deployment() (deployment.Deployment, error) {
-	var containers, err = flags.BuildContainers()
+	var version, err = flags.extractVersion()
+	if err != nil {
+		return deployment.Deployment{}, err
+	}
+	containers, err := flags.BuildContainers()
 	if err != nil {
 		return deployment.Deployment{}, err
 	}
 	return deployment.Deployment{
 		Name:       flags.Name,
+		Version:    version,
 		Replicas:   int(flags.Replicas),
 		Containers: containers,
 	}, nil
@@ -99,6 +106,13 @@ func (flags Flags) BuildContainers() (chkitContainer.ContainerList, error) {
 		list = append(list, container)
 	}
 	return list, nil
+}
+
+func (flags Flags) extractVersion() (semver.Version, error) {
+	if flags.Version == "" {
+		return semver.MustParse("1.0.0"), nil
+	}
+	return semver.ParseTolerant(flags.Version)
 }
 
 func (flags Flags) extractCPU() error {

@@ -8,7 +8,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/host2dnslabel"
-	"github.com/containerum/chkit/pkg/util/tlsview"
 )
 
 type Config struct {
@@ -33,7 +32,7 @@ func Wizard(config Config) (ingress.Ingress, error) {
 						activekit.OrString(ingr.Host(), "undefined (required)")),
 					Action: func() error {
 						host := strings.TrimSpace(activekit.Promt(fmt.Sprintf("type host name (hit enter to leave %s): ",
-							activekit.OrString(ingr.Host(), "empty"))))
+							activekit.OrString(ingr.Host(), ingr.Host()))))
 						if host != "" {
 							ingr.Name = host2dnslabel.Host2DNSLabel(host)
 							rule.Host = host
@@ -44,10 +43,10 @@ func Wizard(config Config) (ingress.Ingress, error) {
 				},
 				{
 					Label: fmt.Sprintf("Set TLS secret : %s", func() string {
-						if rule.TLSSecret == nil {
+						if rule.TLSSecret == "" {
 							return "none"
 						}
-						return tlsview.SmallView([]byte(*rule.TLSSecret))
+						return rule.TLSSecret
 					}()),
 					Action: func() error {
 						rule.TLSSecret = tlsSecretMenu(rule.TLSSecret)

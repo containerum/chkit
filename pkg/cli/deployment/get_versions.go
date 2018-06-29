@@ -1,14 +1,12 @@
 package clideployment
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
 	deployment2 "github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -53,11 +51,11 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 			switch len(args) {
 			case 0:
 				logger.Debugf("getting deployment list")
-				var list, err = ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				var list, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Debugf("unable to get deployment list")
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployment")
 				(&activekit.Menu{
@@ -73,14 +71,14 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 				logger.Debugf("using deployment %q", args[0])
 			default:
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			logger.Debugf("getting versions of deployment %q", deployment)
-			var versions, err = ctx.Client.GetDeploymentVersions(ctx.Namespace.ID, deployment)
+			var versions, err = ctx.Client.GetDeploymentVersions(ctx.GetNamespace().ID, deployment)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get versions of deployment %q", deployment)
-				fmt.Println(err)
-				os.Exit(1)
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 			logger.Debugf("retrieved %d versions", len(versions))
 			if flags.Version != "" {
@@ -88,8 +86,8 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 				query, err := semver.ParseRange(flags.Version)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to parse version query")
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployments by query %q", flags.Version)
 				versions = versions.Filter(func(depl deployment2.Deployment) bool {
@@ -107,8 +105,8 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 				Format:   flags.Output,
 			}); err != nil {
 				logger.WithError(err).Errorf("unable to export versions data")
-				fmt.Println(err)
-				os.Exit(1)
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 		},
 	}

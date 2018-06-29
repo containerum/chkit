@@ -2,10 +2,10 @@ package volume
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
 )
@@ -26,17 +26,17 @@ func Delete(ctx *context.Context) *cobra.Command {
 			logger.StructFields(flags)
 			var volumeID string
 			logger.Debugf("getting volume list")
-			var volumeList, err = ctx.Client.GetVolumeList(ctx.Namespace.ID)
+			var volumeList, err = ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get volume list")
-				fmt.Println(err)
-				os.Exit(1)
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 			switch len(args) {
 			case 0:
 				if flags.Force {
 					fmt.Println("if flag --force is active then volume name must be provided as first arg")
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("selecting volume in interactive mode")
 				(&activekit.Menu{
@@ -53,20 +53,20 @@ func Delete(ctx *context.Context) *cobra.Command {
 				if !ok {
 					logger.Debugf("volume %q not found", args[0])
 					fmt.Printf("volume %q not found!\n", args[0])
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				logger.Debugf("found volume %q", args[0])
 				volumeID = vol.Name
 			default:
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if flags.Force || activekit.YesNo("Do you really want to delete volume %q?", volumeID) {
-				logger.Debugf("deleting volume %q in namespace %q", volumeID, ctx.Namespace)
-				if err := ctx.Client.DeleteVolume(ctx.Namespace.ID, volumeID); err != nil {
-					logger.WithError(err).Errorf("unable to delete volume %q in namespace %q", volumeID, ctx.Namespace)
-					fmt.Println(err)
-					os.Exit(1)
+				logger.Debugf("deleting volume %q in namespace %q", volumeID, ctx.GetNamespace())
+				if err := ctx.Client.DeleteVolume(ctx.GetNamespace().ID, volumeID); err != nil {
+					logger.WithError(err).Errorf("unable to delete volume %q in namespace %q", volumeID, ctx.GetNamespace())
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			}

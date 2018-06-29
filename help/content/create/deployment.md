@@ -1,10 +1,18 @@
-There are several ways to specify the names of containers:
-- flag_CONTANEER_NAME
+Create deployment with containers and replicas.
+Available methods to build deployment:
+- from flags
+- with interactive commandline wizard
+- from yaml ot json file
+
+Use --force flag to create container without interactive wizard.
+
+There are several ways to specify the names of containers with flags:
+- --container-name flag
 - the prefix CONTAINER_NAME@ in the flags --image, --memory, --cpu, --env, --volume
 
-If the --container-name flag is not specified and prefix is not used in any of the flags, then wizard searches for the --image flags without a prefix and creates the generates name RANDOM_COLOR-IMAGE.
+If the --container-name flag is not specified and prefix is not used in any of the flags, then wizard searches for the --image flags without a prefix and generates name RANDOM_COLOR-IMAGE.
 
-Examples:
+**Examples:**
 
 ---
 **Single container with --container-name**

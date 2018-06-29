@@ -2,11 +2,9 @@ package doc
 
 import (
 	"bytes"
-	"text/template"
-
-	"strings"
-
 	"fmt"
+	"strings"
+	"text/template"
 
 	"github.com/ninedraft/boxofstuff/str"
 	"github.com/octago/sflags"
@@ -102,11 +100,11 @@ func (cmd Command) Doc() Doc {
 		Link: strings.Replace(cmdPath, " ", "_", -1),
 		Path: cmdPath,
 		Name: cmd.Name(),
-		Description: strings.Replace(str.Vector{
+		Description: str.Vector{
 			cmd.Long,
 			cmd.Short,
 			cmd.Example,
-		}.FirstNonEmpty(), "\n", " ", -1),
+		}.FirstNonEmpty(),
 		Example:     cmd.Example,
 		Flags:       cmdFlags,
 		Subcommands: subc,

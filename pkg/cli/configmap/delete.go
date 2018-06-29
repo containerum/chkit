@@ -2,11 +2,11 @@ package cliconfigmap
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -18,10 +18,10 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			var selectedCM string
 			if len(args) == 0 {
-				list, err := ctx.Client.GetConfigmapList(ctx.Namespace.ID)
+				list, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
 				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				var menu activekit.MenuItems
 				for _, cm := range list {
@@ -43,10 +43,10 @@ func Delete(ctx *context.Context) *cobra.Command {
 				selectedCM = args[0]
 			}
 			if force, _ := cmd.Flags().GetBool("force"); force ||
-				activekit.YesNo("Are you sure you want to delete configmap %q in namespace %q?", selectedCM, ctx.Namespace) {
-				if err := ctx.Client.DeleteConfigmap(ctx.Namespace.ID, selectedCM); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+				activekit.YesNo("Are you sure you want to delete configmap %q in namespace %q?", selectedCM, ctx.GetNamespace()) {
+				if err := ctx.Client.DeleteConfigmap(ctx.GetNamespace().ID, selectedCM); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			}

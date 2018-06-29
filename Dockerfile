@@ -6,6 +6,7 @@ ARG BUILD_CONTAINERUM_API=https://api.containerum.io
 ENV CONTAINERUM_API=$BUILD_CONTAINERUM_API
 
 COPY . .
+RUN go get -u -v github.com/UnnoTed/fileb0x
 RUN make build
 
 FROM alpine:3.7

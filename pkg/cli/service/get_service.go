@@ -1,12 +1,11 @@
 package cliserv
 
 import (
-	"fmt"
-
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/strset"
 	"github.com/spf13/cobra"
 )
@@ -30,16 +29,16 @@ func Get(ctx *context.Context) *cobra.Command {
 					var list service.ServiceList
 					var err error
 					if solutionName, _ := cmd.Flags().GetString("solution_name"); solutionName != "" {
-						list, err = ctx.Client.GetSolutionServices(ctx.Namespace.ID, solutionName)
+						list, err = ctx.Client.GetSolutionServices(ctx.GetNamespace().ID, solutionName)
 					} else {
-						list, err = ctx.Client.GetServiceList(ctx.Namespace.ID)
+						list, err = ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 					}
 					return list, err
 				case 1:
-					svc, err := ctx.Client.GetService(ctx.Namespace.ID, args[0])
+					svc, err := ctx.Client.GetService(ctx.GetNamespace().ID, args[0])
 					return svc, err
 				default:
-					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+					list, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 					var filteredList service.ServiceList
 					names := strset.NewSet(args)
 					for _, svc := range list {
@@ -51,11 +50,11 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 			}()
 			if err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				return
 			}
 			if err := export.ExportData(serviceData, getServiceConfig.ExportConfig); err != nil {
-				fmt.Println(err)
+				ferr.Println(err)
 				return
 			}
 

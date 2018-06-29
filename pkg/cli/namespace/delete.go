@@ -37,7 +37,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 					}
 				}
 				logrus.Debugf("deleting namespace %q", ns)
-				return ctx.Client.DeleteNamespace(ns)
+				return ctx.GetClient().DeleteNamespace(ns)
 			}()
 			if err != nil {
 				logrus.WithError(err).Errorf("unable to delete namespace %q", ns)

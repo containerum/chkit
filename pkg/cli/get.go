@@ -2,15 +2,14 @@ package cli
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/containerumapi"
 	"github.com/containerum/chkit/pkg/cli/deployment"
+	"github.com/containerum/chkit/pkg/cli/diff"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/pod"
-	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/cli/solution"
@@ -28,7 +27,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Run: func(command *cobra.Command, args []string) {
 			command.Help()
 		},
-		PersistentPostRun: postrun.PostRunFunc(ctx),
+		PersistentPostRun: ctx.CobraPostRun,
 	}
 	command.AddCommand(
 		prerun.WithInit(ctx, clideployment.Get),      //
@@ -42,6 +41,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		prerun.WithInit(ctx, clitemplate.GetEnvs),    //
 		prerun.WithInit(ctx, clisolution.Get),        //
 		containerumapi.Get(ctx),                      //
+		prerun.WithInit(ctx, diff.Get),               //
 		prerun.WithInit(ctx, cliconfigmap.Get),       //
 		//prerun.WithInit(ctx, volume.Get),             //
 		prerun.WithInit(ctx, clideployment.GetVersions),
@@ -53,15 +53,15 @@ func Get(ctx *context.Context) *cobra.Command {
 			PreRun: func(cmd *cobra.Command, args []string) {
 				if err := configuration.SyncConfig(ctx); err != nil {
 					fmt.Printf("Unable to setup config:\n%v\n", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			},
 			Run: func(cmd *cobra.Command, args []string) {
-				fmt.Printf("%s\n", ctx.Namespace)
+				fmt.Printf("%s\n", ctx.GetNamespace())
 			},
 		},
 	)
 	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace.ID, "")
+		StringP("namespace", "n", ctx.GetNamespace().ID, "")
 	return command
 }
