@@ -8,11 +8,12 @@ import (
 	"encoding/json"
 	"os"
 
+	"errors"
+
 	"github.com/containerum/chkit/pkg/model/solution"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/pairs"
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
