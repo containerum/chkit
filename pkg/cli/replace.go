@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/containerum/chkit/pkg/cli/configmap"
+	"github.com/containerum/chkit/pkg/cli/deployment"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
@@ -34,7 +35,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 		StringP("namespace", "n", ctx.GetNamespace().ID, "")
 
 	command.AddCommand(
-		//clideployment.Replace(ctx),
+		clideployment.ReplaceContainer(ctx),
 		cliserv.Replace(ctx),
 		clingress.Replace(ctx),
 		cliconfigmap.Replace(ctx),

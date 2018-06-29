@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func Replace(ctx *context.Context) *cobra.Command {
+func ReplaceContainer(ctx *context.Context) *cobra.Command {
 	var flags struct {
 		Force         bool   `flag:"force f" desc:"suppress confirmation"`
 		ContainerName string `flag:"container" desc:"container name, required on --force"`
