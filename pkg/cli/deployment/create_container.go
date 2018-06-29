@@ -61,8 +61,6 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				flags.Name = str.Vector{namegen.Color(), flags.Image}.Join("-")
-			} else if flags.Name == "" && !flags.Force {
-				flags.Name = str.Vector{namegen.Color(), flags.Image, namegen.Aster()}.Filter(str.Longer(0))[:2].Join("-")
 			}
 
 			logger.Debugf("building container from flags")

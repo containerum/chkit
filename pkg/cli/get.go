@@ -6,6 +6,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/containerumapi"
 	"github.com/containerum/chkit/pkg/cli/deployment"
+	"github.com/containerum/chkit/pkg/cli/diff"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/pod"
@@ -40,6 +41,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		prerun.WithInit(ctx, clitemplate.GetEnvs),    //
 		prerun.WithInit(ctx, clisolution.Get),        //
 		containerumapi.Get(ctx),                      //
+		prerun.WithInit(ctx, diff.Get),               //
 		prerun.WithInit(ctx, cliconfigmap.Get),       //
 		//prerun.WithInit(ctx, volume.Get),             //
 		prerun.WithInit(ctx, clideployment.GetVersions),

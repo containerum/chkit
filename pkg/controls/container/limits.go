@@ -39,7 +39,7 @@ func componentLimits(cont *container.Container) *activekit.MenuItem {
 							},
 						},
 						{
-							Label: "Set CPU limit",
+							Label: "Set memory limit",
 							Action: func() error {
 								for {
 									var memStr = activekit.Promt("Type memory limit, hit Enter to leave %d, expected %v Mb: ", contLimits.Memory, limits.MemLimit)

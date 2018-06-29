@@ -30,7 +30,7 @@ func (wizard Wizard) Run() container.Container {
 			Title: "Container " + cont.Name,
 			Items: items.Append(
 				componentDeployment(&cont, &wizard.Deployment, wizard.Deployments),
-				//componentImage(&cont),
+				componentImage(&cont),
 				componentLimits(&cont),
 				componentVolumes(&cont, wizard.Volumes),
 				componentConfigmaps(&cont, wizard.Configs),
@@ -103,7 +103,7 @@ func componentDeployment(cont *container.Container, depl *string, deployments st
 
 func componentImage(cont *container.Container) *activekit.MenuItem {
 	var item = &activekit.MenuItem{
-		Label: "Edit image : " + str.Vector{cont.Image, "undefined, required"}.FirstNonEmpty(),
+		Label: "Edit image     : " + str.Vector{cont.Image, "undefined, required"}.FirstNonEmpty(),
 		Action: func() error {
 			for {
 				var image = activekit.Promt("Type container image, hit Enter to leave %s: ", str.Vector{cont.Image,

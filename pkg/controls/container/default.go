@@ -10,7 +10,7 @@ import (
 func Default(cont container.Container) container.Container {
 	cont = cont.Copy()
 	if cont.Name == "" {
-		cont.Name = str.Vector{namegen.Color(), cont.Image, namegen.Aster()}.
+		cont.Name = str.Vector{namegen.Color(), cont.ImageName(), namegen.Aster()}.
 			Filter(str.Longer(0))[:2].
 			Join("-")
 	}
@@ -18,7 +18,7 @@ func Default(cont container.Container) container.Container {
 		cont.Limits.Memory = 256 // Mb
 	}
 	if cont.Limits.CPU == 0 {
-		cont.Limits.Memory = 200 // mCPU
+		cont.Limits.CPU = 200 // mCPU
 	}
 	for i, vol := range cont.VolumeMounts {
 		if vol.MountPath == "" && vol.Name != "" {
