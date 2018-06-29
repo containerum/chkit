@@ -22,10 +22,10 @@ func EditWizard(config Config) (ingress.Ingress, error) {
 			Items: []*activekit.MenuItem{
 				{
 					Label: fmt.Sprintf("Set TLS secret : %s", func() string {
-						if rule.TLSSecret == nil {
+						if rule.TLSSecret == "" {
 							return "none"
 						}
-						return tlsview.SmallView([]byte(*rule.TLSSecret))
+						return tlsview.SmallView([]byte(rule.TLSSecret))
 					}()),
 					Action: func() error {
 						rule.TLSSecret = tlsSecretMenu(rule.TLSSecret)

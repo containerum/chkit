@@ -8,7 +8,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/host2dnslabel"
-	"github.com/containerum/chkit/pkg/util/tlsview"
 )
 
 type Config struct {
@@ -44,10 +43,10 @@ func Wizard(config Config) (ingress.Ingress, error) {
 				},
 				{
 					Label: fmt.Sprintf("Set TLS secret : %s", func() string {
-						if rule.TLSSecret == nil {
+						if rule.TLSSecret == "" {
 							return "none"
 						}
-						return tlsview.SmallView([]byte(*rule.TLSSecret))
+						return rule.TLSSecret
 					}()),
 					Action: func() error {
 						rule.TLSSecret = tlsSecretMenu(rule.TLSSecret)

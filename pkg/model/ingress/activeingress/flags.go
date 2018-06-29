@@ -31,7 +31,7 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 		Name: flags.Name,
 	}
 	var flagRule = ingress.Rule{
-		TLSSecret: new(string),
+		TLSSecret: flags.TLSSecret,
 		Host:      flags.Host,
 	}
 	var flagPath = ingress.Path{
@@ -53,11 +53,6 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 		flagIngress.Name = namegen.ColoredPhysics()
 	}
 
-	if flags.TLSSecret == "" {
-		flagRule.TLSSecret = nil
-	} else {
-		flagRule.TLSSecret = &flags.TLSSecret
-	}
 	if flags.Path != "" ||
 		flags.Service != "" ||
 		flags.Port != 0 {
