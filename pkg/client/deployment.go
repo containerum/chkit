@@ -1,6 +1,7 @@
 package chClient
 
 import (
+	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -118,4 +119,24 @@ func (client *Client) DeleteDeploymentContainer(ns, deplName, cont string) error
 	}
 	depl.Containers = depl.Containers.DeleteByName(cont)
 	return client.ReplaceDeployment(ns, depl)
+}
+
+func (client *Client) GetDeploymentDiffWithPreviousVersion(namespace, deployment string, version semver.Version) (string, error) {
+	var diff string
+	var err error
+	return diff, retry(4, func() (bool, error) {
+		diff, err = client.kubeAPIClient.
+			GetDeploymentDiffWithPreviousVersion(namespace, deployment, version)
+		return HandleErrorRetry(client, err)
+	})
+}
+
+func (client *Client) GetDeploymentDiffBetweenVersions(namespace, deployment string, leftVersion, rightVersion semver.Version) (string, error) {
+	var diff string
+	var err error
+	return diff, retry(4, func() (bool, error) {
+		diff, err = client.kubeAPIClient.
+			GetDeloymentVersionBetweenVersions(namespace, deployment, leftVersion, rightVersion)
+		return HandleErrorRetry(client, err)
+	})
 }
