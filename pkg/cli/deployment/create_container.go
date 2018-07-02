@@ -87,7 +87,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				switch filepath.Ext(flags.File) {
-				case "yaml", "yml":
+				case ".yaml", ".yml":
 					err = yaml.Unmarshal(data, &cont)
 				default:
 					err = json.Unmarshal(data, &cont)
