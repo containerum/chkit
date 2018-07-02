@@ -17,7 +17,7 @@ const (
 	ErrNoNamespaceSpecified chkitErrors.Err = "no namespace specified"
 )
 
-var aliases = []string{"depl", "deployments", "deploy"}
+var aliases = []string{"depl", "deployments", "deploy", "de", "dpl", "depls", "dep"}
 
 func Get(ctx *context.Context) *cobra.Command {
 	var flags struct {
