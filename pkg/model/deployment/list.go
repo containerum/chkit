@@ -1,6 +1,8 @@
 package deployment
 
 import (
+	"sort"
+
 	"github.com/blang/semver"
 	"github.com/containerum/kube-client/pkg/model"
 )
@@ -64,4 +66,12 @@ func (list DeploymentList) Versions() []semver.Version {
 		versions = append(versions, depl.Version)
 	}
 	return versions
+}
+
+func (list DeploymentList) SortByLess(less func(a, b Deployment) bool) DeploymentList {
+	var sorted = list.Copy()
+	sort.Slice(sorted, func(i, j int) bool {
+		return less(sorted[i].Copy(), sorted[j].Copy())
+	})
+	return sorted
 }
