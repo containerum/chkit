@@ -56,6 +56,10 @@ func (item Item) Key() string {
 }
 
 func (item Item) Value() string {
+	return item.value
+}
+
+func (item Item) ValueDecoded() string {
 	var decodedValue, err = base64.StdEncoding.DecodeString(item.value)
 	if err == nil {
 		return string(decodedValue)
@@ -64,7 +68,7 @@ func (item Item) Value() string {
 }
 
 func (item Item) Data() (key string, value string) {
-	return item.key, item.Value()
+	return item.key, item.ValueDecoded()
 }
 
 func (item Item) String() string {

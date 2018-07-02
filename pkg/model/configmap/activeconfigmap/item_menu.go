@@ -16,7 +16,7 @@ func itemMenu(item configmap.Item) *configmap.Item {
 	var del = false
 	for exit := false; !exit; {
 		(&activekit.Menu{
-			Title: fmt.Sprintf("Item %s", text.Crop(interview.View([]byte(item.Value())), 64)),
+			Title: fmt.Sprintf("Item %s", text.Crop(interview.View([]byte(item.ValueDecoded())), 64)),
 			Items: activekit.MenuItems{
 				{
 					Label: fmt.Sprintf("Edit name  : %s",
@@ -34,9 +34,9 @@ func itemMenu(item configmap.Item) *configmap.Item {
 					},
 				},
 				{
-					Label: fmt.Sprintf("Edit value : \"%s\"", text.Crop(interview.View([]byte(item.Value())), 64)),
+					Label: fmt.Sprintf("Edit value : \"%s\"", text.Crop(interview.View([]byte(item.ValueDecoded())), 64)),
 					Action: func() error {
-						item = item.WithValue(itemValueMenu(item.Value()))
+						item = item.WithValue(itemValueMenu(item.ValueDecoded()))
 						return nil
 					},
 				},
