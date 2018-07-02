@@ -11,6 +11,7 @@ import (
 
 const (
 	ErrContainerAlreadyExists chkitErrors.Err = "container already exists in deployment"
+	ErrContainerDoesNotExist  chkitErrors.Err = "container does not exist"
 )
 
 func (client *Client) GetDeployment(namespace, deplName string) (deployment.Deployment, error) {
@@ -114,8 +115,8 @@ func (client *Client) DeleteDeploymentContainer(ns, deplName, cont string) error
 		return err
 	}
 	var _, ok = depl.Containers.GetByName(cont)
-	if ok {
-		return ErrContainerAlreadyExists.CommentF("container:%q, deployment:%q", cont, depl.Name)
+	if !ok {
+		return ErrContainerDoesNotExist.CommentF("container:%q, deployment:%q", cont, depl.Name)
 	}
 	depl.Containers = depl.Containers.DeleteByName(cont)
 	return client.ReplaceDeployment(ns, depl)
@@ -144,6 +145,13 @@ func (client *Client) GetDeploymentDiffBetweenVersions(namespace, deployment str
 func (client *Client) RunDeploymentVersion(namespace, deployment string, version semver.Version) error {
 	return retry(4, func() (bool, error) {
 		var err = client.kubeAPIClient.RunDeploymentVersion(namespace, deployment, version)
+		return HandleErrorRetry(client, err)
+	})
+}
+
+func (client *Client) DeleteDeploymentVersion(namespace, deployment string, version semver.Version) error {
+	return retry(4, func() (bool, error) {
+		var err = client.kubeAPIClient.DeleteDeploymentVersion(namespace, deployment, version)
 		return HandleErrorRetry(client, err)
 	})
 }

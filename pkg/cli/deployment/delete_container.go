@@ -28,7 +28,7 @@ func DeleteContainer(ctx *context.Context) *cobra.Command {
 			if flags.Force && flags.Deployment != "" {
 				ferr.Printf("deployment name must be provided as --deployment while using --force")
 				ctx.Exit(1)
-			} else if flags.Deployment != "" {
+			} else if flags.Deployment == "" {
 				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
 				var depl, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
