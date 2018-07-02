@@ -88,7 +88,7 @@ func getFileItems(rawItems []string) ([]configmap.Item, error) {
 		}
 		items = append(items, configmap.NewItem(
 			key,
-			string(value),
+			base64.StdEncoding.EncodeToString(value),
 		))
 	}
 	return items, nil
