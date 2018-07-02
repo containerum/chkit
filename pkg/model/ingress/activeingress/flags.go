@@ -40,6 +40,10 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 		ServicePort: flags.Port,
 	}
 
+	if flagPath.Path == "" {
+		flagPath.Path = "/"
+	}
+
 	if flags.File != "" {
 		var err error
 		flagIngress, err = flags.ingressFromFile()

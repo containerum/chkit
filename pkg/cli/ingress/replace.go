@@ -3,18 +3,23 @@ package clingress
 import (
 	"fmt"
 
+	"strings"
+
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/ingress/activeingress"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/octago/sflags/gen/gpflag"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 func Replace(ctx *context.Context) *cobra.Command {
-	var flags = struct {
-		Force bool
-	}{}
+	var flags activeingress.Flags
+	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "ingress",
 		Short:   "Replace ingress with a new one.",
@@ -42,10 +47,13 @@ func Replace(ctx *context.Context) *cobra.Command {
 					activekit.Attention("Unable to get ingress list:\n%v", err)
 					ctx.Exit(1)
 				}
-				fmt.Println(ingrList)
-				if ingrList.Len() == 1 {
+				if err := export.ExportData(ingrList, exportConfig); err != nil {
+					logrus.WithError(err).Errorf("unable to export data")
+					angel.Angel(ctx, err)
+				}
+				if ingrList.Len() == 0 {
 					ingr = ingrList.Head()
-				} else if ingrList.Len() == 0 {
+				} else if ingrList.Len() > 0 {
 					var menu activekit.MenuItems
 					for _, i := range ingrList {
 						menu = menu.Append(&activekit.MenuItem{
@@ -67,8 +75,20 @@ func Replace(ctx *context.Context) *cobra.Command {
 				cmd.Help()
 				ctx.Exit(1)
 			}
-			ingr, ingrChanged := buildIngress(cmd, ingr)
-			if cmd.Flag("force").Changed && ingrChanged {
+			ingrChanged, err := flags.Ingress()
+			ingrChanged.Name = ingr.Name
+
+			if ingrChanged.Rules != nil {
+				if ingrChanged.Rules[0].TLSSecret != "" {
+					ingr.Rules[0].TLSSecret = ingrChanged.Rules[0].TLSSecret
+				}
+				if ingrChanged.Rules[0].Paths != nil {
+					ingr.Rules[0].Paths = ingrChanged.Rules[0].Paths
+				}
+				ingrChanged.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
+			}
+
+			if flags.Force {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
 					activekit.Attention("Invalid ingress:\n%v", err)
@@ -81,8 +101,6 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				fmt.Println("OK")
 				return
-			} else if !ingrChanged {
-				fmt.Println("Nothing to do")
 			}
 			services, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 			services = services.AvailableForIngress()
@@ -91,6 +109,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				activekit.Attention("Unable to get service list:\n%v", err)
 				ctx.Exit(1)
 			}
+			ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
 			ingr, err = activeingress.EditWizard(activeingress.Config{
 				Services: services,
 				Ingress:  &ingr,
@@ -115,15 +134,8 @@ func Replace(ctx *context.Context) *cobra.Command {
 		},
 	}
 
-	command.PersistentFlags().
-		BoolVarP(&flags.Force, "force", "f", false, "replace ingress without confirmation")
-	command.PersistentFlags().
-		String("host", "", "ingress host, optional")
-	command.PersistentFlags().
-		String("tls-secret", "", "ingress tls-secret, use 'letsencrypt' for automatic HTTPS, '-' to use HTTP, optional")
-	command.PersistentFlags().
-		Int("port", 8080, "ingress endpoint port, optional")
-	command.PersistentFlags().
-		String("service", "", "ingress endpoint service, optional")
+	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
+		panic(err)
+	}
 	return command
 }
