@@ -1,7 +1,10 @@
 package clideployment
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 
 	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/context"
@@ -16,6 +19,7 @@ import (
 	"github.com/ninedraft/boxofstuff/str"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
 
 func CreateContainer(ctx *context.Context) *cobra.Command {
@@ -23,6 +27,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 		Force      bool   `flag:"force f" desc:"suppress confirmation"`
 		Name       string `desc:"container name, required on --force"`
 		Deployment string `desc:"deployment name, required on --force"`
+		File       string
 		containerControl.Flags
 	}
 	command := &cobra.Command{
@@ -35,43 +40,63 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 			logger.Debugf("START")
 			defer logger.Debugf("END")
 
-			if flags.Deployment == "" && flags.Force {
-				ferr.Printf("deployment name must be provided as --deployment while using --force")
-				ctx.Exit(1)
-			} else if flags.Deployment == "" {
-				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
-				var depl, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
+			var cont container.Container
+
+			if flags.File != "" {
+				if flags.Deployment == "" && flags.Force {
+					ferr.Printf("deployment name must be provided as --deployment while using --force")
+					ctx.Exit(1)
+				} else if flags.Deployment == "" {
+					logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
+					var depl, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
+					if err != nil {
+						logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
+						ferr.Println(err)
+						ctx.Exit(1)
+					}
+					logger.Debugf("selecting deployment")
+					(&activekit.Menu{
+						Title: "Select deployment",
+						Items: activekit.StringSelector(depl.Names(), func(s string) error {
+							logger.Debugf("deployment %q selected", s)
+							flags.Deployment = s
+							return nil
+						}),
+					}).Run()
+				}
+				if flags.Name == "" && flags.Force {
+					if flags.Image == "" {
+						ferr.Printf("container --image must be provided while using --force")
+						ctx.Exit(1)
+					}
+					flags.Name = str.Vector{namegen.Color(), container.ImageName(flags.Image)}.Join("-")
+				}
+				var err error
+				logger.Debugf("building container from flags")
+				cont, err = flags.Container()
 				if err != nil {
-					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
+					logger.WithError(err).Errorf("unable to build container from flags")
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				logger.Debugf("selecting deployment")
-				(&activekit.Menu{
-					Title: "Select deployment",
-					Items: activekit.StringSelector(depl.Names(), func(s string) error {
-						logger.Debugf("deployment %q selected", s)
-						flags.Deployment = s
-						return nil
-					}),
-				}).Run()
-			}
-			if flags.Name == "" && flags.Force {
-				if flags.Image == "" {
-					ferr.Printf("container --image must be provided while using --force")
+				cont.Name = flags.Name
+			} else {
+				var data, err = ioutil.ReadFile(flags.File)
+				if err != nil {
+					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				flags.Name = str.Vector{namegen.Color(), container.ImageName(flags.Image)}.Join("-")
+				switch filepath.Ext(flags.File) {
+				case "yaml", "yml":
+					err = yaml.Unmarshal(data, &cont)
+				default:
+					err = json.Unmarshal(data, &cont)
+				}
+				if err != nil {
+					ferr.Printf("Unable to import container from file %q:\n%v\n", flags.File, err)
+					ctx.Exit(1)
+				}
 			}
-
-			logger.Debugf("building container from flags")
-			var cont, err = flags.Container()
-			if err != nil {
-				logger.WithError(err).Errorf("unable to build container from flags")
-				ferr.Println(err)
-				ctx.Exit(1)
-			}
-			cont.Name = flags.Name
 			cont = containerControl.Default(cont)
 			fmt.Println(cont.RenderTable())
 			if flags.Force {
