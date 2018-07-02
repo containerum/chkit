@@ -18,13 +18,12 @@ import (
 )
 
 type Flags struct {
-	Force     bool   `flag:"force f" desc:"suppress confirmation, optional"`
-	File      string `desc:"file with solution data, .yaml or .json, stdin if '-', optional"`
-	Name      string `desc:"solution name, optional"`
-	Namespace string `desc:"solution namespace, optional"`
-	Template  string `desc:"solution template, optional"`
-	Env       string `desc:"solution environment variables, optional"`
-	Branch    string `desc:"solution git repo branch, optional"`
+	Force    bool   `flag:"force f" desc:"suppress confirmation, optional"`
+	File     string `desc:"file with solution data, .yaml or .json, stdin if '-', optional"`
+	Name     string `desc:"solution name, optional"`
+	Template string `desc:"solution template, optional"`
+	Env      string `desc:"solution environment variables, optional"`
+	Branch   string `desc:"solution git repo branch, optional"`
 }
 
 func (flags Flags) Solution(nsID string, args []string) (solution.Solution, error) {
@@ -50,10 +49,6 @@ func (flags Flags) Solution(nsID string, args []string) (solution.Solution, erro
 
 	if sol.Branch == "" {
 		sol.Branch = "master"
-	}
-
-	if flags.Namespace != "" {
-		sol.Namespace = flags.Namespace
 	}
 
 	if flags.Name == "" {

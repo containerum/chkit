@@ -22,6 +22,7 @@ func Run(ctx *context.Context) *cobra.Command {
 		Example: "chkit run solution [$TEMPLATE] [--env=KEY1:VALUE1,KEY2:VALUE2] [--file $FILENAME] [--force]",
 		Run: func(cmd *cobra.Command, args []string) {
 			sol, err := flags.Solution(ctx.GetNamespace().ID, args)
+			sol.Namespace = ctx.GetNamespace().ID
 			if flags.Force {
 				if err := activesolution.ValidateSolution(sol); err != nil {
 					ferr.Println(err)
