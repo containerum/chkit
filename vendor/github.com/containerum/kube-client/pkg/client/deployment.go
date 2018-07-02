@@ -182,3 +182,16 @@ func (client *Client) GetDeloymentVersionBetweenVersions(namespace, deployment s
 		},
 	})
 }
+
+func (client *Client) DeleteDeploymentVersion(namespace, deployment string, version semver.Version) error {
+	return client.RestAPI.Delete(rest.Rq{
+		URL: rest.URL{
+			Path: deploymentVersionPath,
+			Params: rest.P{
+				"namespace":  namespace,
+				"deployment": deployment,
+				"version":    version.String(),
+			},
+		},
+	})
+}

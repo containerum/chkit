@@ -21,12 +21,16 @@ func (container Container) ToKube() kubeModels.Container {
 	return kubeModels.Container(container.Copy().Container)
 }
 
-func (container Container) ImageName() string {
-	var img, err = kubeModels.ImageFromString(container.Image)
+func ImageName(image string) string {
+	var img, err = kubeModels.ImageFromString(image)
 	if err != nil {
-		return container.Image
+		return image
 	}
 	return img.Name
+}
+
+func (container Container) ImageName() string {
+	return ImageName(container.Image)
 }
 
 func (container Container) SemanticVersion() (version semver.Version, ok bool) {
