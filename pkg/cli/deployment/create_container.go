@@ -8,6 +8,7 @@ import (
 	containerControl "github.com/containerum/chkit/pkg/controls/container"
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/configmap"
+	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
@@ -60,7 +61,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					ferr.Printf("container --image must be provided while using --force")
 					ctx.Exit(1)
 				}
-				flags.Name = str.Vector{namegen.Color(), flags.Image}.Join("-")
+				flags.Name = str.Vector{namegen.Color(), container.ImageName(flags.Image)}.Join("-")
 			}
 
 			logger.Debugf("building container from flags")

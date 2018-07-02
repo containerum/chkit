@@ -17,7 +17,7 @@ import (
 func RunVersion(ctx *context.Context) *cobra.Command {
 	var flags struct {
 		Deployment string `desc:"deployment name, can be chosen in interactive menu"`
-		Version    string `desc:"deployment version, can be chosen in interactive menu. If "`
+		Version    string `desc:"deployment version, can be chosen in interactive menu.\nIf '-' or 'latest' then latest version is used."`
 		Force      bool   `desc:"suppress confirmation" flag:"flag f"`
 	}
 	var command = &cobra.Command{
@@ -35,6 +35,7 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 					ferr.Printf("deployment must be provided as arg or --deployment flag in force mode!\n")
 					ctx.Exit(1)
 				}
+				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
 				var deploymentList, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					ferr.Println(err)
@@ -45,6 +46,7 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 					ferr.Printf("You have no deployments in namespace %q!\n", ctx.GetNamespace())
 					ctx.Exit(1)
 				}
+				logger.Debugf("selecting deployment list")
 				(&activekit.Menu{
 					Title: "Select deployment",
 					Items: activekit.ItemsFromIter(uint(deploymentList.Len()), func(index uint) *activekit.MenuItem {
@@ -52,6 +54,7 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 						return &activekit.MenuItem{
 							Label: depl.Name,
 							Action: func() error {
+								logger.Debugf("deployment %q selected", depl.Name)
 								deplName = depl.Name
 								return nil
 							},
@@ -64,20 +67,23 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 					ferr.Printf("version must be provided as --version flag in force mode!\n")
 					ctx.Exit(1)
 				}
+				logger.Debugf("getting deployment versions")
 				var deploymentVersions, err = ctx.Client.GetDeploymentVersions(ctx.GetNamespace().ID, deplName)
 				if err != nil {
 					ferr.Println(err)
 					logger.WithError(err).Errorf("unable to get deployment versions")
 					ctx.Exit(1)
 				}
+				deploymentVersions = deploymentVersions.Inactive()
 				if deploymentVersions.Len() == 0 {
-					ferr.Printf("Something weird happened: deployment %q in namespace %q have no versions O_o!\n", deplName, ctx.GetNamespace())
+					ferr.Printf("Deployment %q in namespace %q have no inactive versions\n", deplName, ctx.GetNamespace())
 					ctx.Exit(1)
 				}
 				switch flags.Version {
 				case "":
+					logger.Debugf("selecting deployment version")
 					(&activekit.Menu{
-						Title: "Select deployment",
+						Title: "Select version",
 						Items: activekit.ItemsFromIter(uint(deploymentVersions.Len()), func(index uint) *activekit.MenuItem {
 							var depl = deploymentVersions[index]
 							return &activekit.MenuItem{
@@ -104,12 +110,13 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 			}
 
 			if flags.Force || activekit.YesNo("Are you sure you want to run version %v of deployment %q?", version, deplName) {
+				logger.Debugf("running version %q of deployment %q in namespace %q", version, deplName, ctx.GetNamespace())
 				if err := ctx.Client.RunDeploymentVersion(ctx.GetNamespace().ID, deplName, version); err != nil {
 					ferr.Println(err)
 					logger.WithError(err).Errorf("unable to run version %v of deployment %q", version, deplName)
 					ctx.Exit(1)
 				}
-				fmt.Printf("Version %v os deployment %q in namespace %q is started\n", version, deplName, ctx.GetNamespace())
+				fmt.Printf("Version %v of deployment %q in namespace %q is started\n", version, deplName, ctx.GetNamespace())
 			}
 
 		},
