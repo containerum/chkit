@@ -129,7 +129,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				configs <- configList
 			}()
 			logger.Debugf("running wizard")
-			containerControl.Wizard{
+			cont = containerControl.Wizard{
 				EditName:   true,
 				Container:  cont,
 				Deployment: flags.Deployment,
@@ -137,13 +137,14 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				Configs:     (<-configs).Names(),
 				Deployments: (<-deployments).Names(),
 			}.Run()
-
+			fmt.Println(cont.RenderTable())
 			if activekit.YesNo("Are you sure you want to create container %q in deployment %q?", cont.Name, flags.Deployment) {
 				logger.Debugf("creating container %q in deployment %q", cont.Name, flags.Deployment)
 				if err := ctx.Client.CreateDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
 					logger.WithError(err).Errorf("unable to replace container %q in deployment %q", cont.Name, flags.Deployment)
 					ferr.Println(err)
 				}
+				fmt.Println("Ok")
 			}
 			(&activekit.Menu{
 				Items: activekit.MenuItems{
