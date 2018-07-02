@@ -73,7 +73,7 @@ func (c Config) Wizard() configmap.ConfigMap {
 						Label: "Add item",
 						Action: func() error {
 							if i := itemMenu(configmap.Item{}); i != nil {
-								config.Data[i.Key()] = base64.StdEncoding.EncodeToString([]byte(i.Value()))
+								config.Data[i.Key()] = base64.StdEncoding.EncodeToString([]byte(i.ValueDecoded()))
 							}
 							return nil
 						},
