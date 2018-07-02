@@ -100,12 +100,6 @@
   version = "v2.6.2"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/gin-gonic/gin"
-  packages = ["json"]
-  revision = "1c4cbfae59e0f62a6812b7808839eed45b66515f"
-
-[[projects]]
   name = "github.com/go-resty/resty"
   packages = ["."]
   revision = "fc3ad735b5565cada42d34bc298573fd3fe5adc6"
@@ -133,12 +127,6 @@
   version = "v1.0"
 
 [[projects]]
-  name = "github.com/json-iterator/go"
-  packages = ["."]
-  revision = "ab8a2e0c74be9d3be70b3184d9acc634935ded82"
-  version = "1.1.4"
-
-[[projects]]
   branch = "master"
   name = "github.com/matishsiao/goInfo"
   packages = ["."]
@@ -161,18 +149,6 @@
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
   revision = "3864e76763d94a6df2f9960b16a20a33da9f9a66"
-
-[[projects]]
-  name = "github.com/modern-go/concurrent"
-  packages = ["."]
-  revision = "bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94"
-  version = "1.0.3"
-
-[[projects]]
-  name = "github.com/modern-go/reflect2"
-  packages = ["."]
-  revision = "4b7aa43c6742a2c18fdef89dd197aaae7dac7ccd"
-  version = "1.0.1"
 
 [[projects]]
   name = "github.com/ninedraft/boxofstuff"
@@ -343,6 +319,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cd0c36b2a5b69e2aab3871b30f93a2db752c8d093c0b16b755fab87939d2c4f5"
+  inputs-digest = "1e6ce49a53400fe4af1f4eacdf0056fab324965fc6a51617235a404004f9bb17"
   solver-name = "gps-cdcl"
   solver-version = 1
