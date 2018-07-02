@@ -24,7 +24,7 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 		Use:     "deployment-version",
 		Aliases: []string{"depl-version", "devers", "deploy-vers", "depver", "deplver"},
 		Short:   "run specific deployment version",
-		Long:    help.GetString("run version"),
+		Long:    help.GetString("run deployment-version"),
 		Example: "chkit run deployment-version --deployment $DEPLOYMENT --version $VERSION --force",
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("run deployment version")
