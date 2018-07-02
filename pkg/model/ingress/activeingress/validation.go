@@ -20,7 +20,7 @@ const (
 	ErrInvalidIngress chkitErrors.Err = "invalid ingress"
 )
 
-var HostRe = regexp.MustCompile("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$")
+var HostRe = regexp.MustCompile("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$")
 
 func ValidateIngress(ingr ingress.Ingress) error {
 	var errors []error
@@ -56,7 +56,10 @@ func ValidatePath(path ingress.Path) error {
 func ValidateRule(rule ingress.Rule) error {
 	var errors []error
 	if !HostRe.MatchString(rule.Host) {
-		errors = append(errors, fmt.Errorf("\n + invalid hostname"))
+		errors = append(errors, fmt.Errorf("\n + %s", text.Indent("invalid hostname", 3)))
+	}
+	if len(rule.Paths) < 1 {
+		errors = append(errors, fmt.Errorf("\n + %s", text.Indent("no paths provided", 3)))
 	}
 	for _, path := range rule.Paths {
 		if err := ValidatePath(path); err != nil {

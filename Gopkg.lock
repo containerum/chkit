@@ -5,7 +5,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/api-gateway"
   packages = ["pkg/gatewayErrors"]
-  revision = "63a0dd0e8ce8e563a8cd68b066351f91f22077d1"
+  revision = "ce11e7da02e36bc179d60be1670d72096e4c5b22"
 
 [[projects]]
   branch = "develop"
@@ -17,25 +17,25 @@
   branch = "develop"
   name = "git.containerum.net/ch/kube-api"
   packages = ["pkg/kubeErrors"]
-  revision = "caefc05a5f5edaf6d5355aabde72b94f84a7cce1"
+  revision = "e35ff3149e0d923a815524357a067b6de3ccf0f8"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "bc521d2f9fc91aecf201bb979b4f6ee29e68d4a0"
+  revision = "2ae087161dacca015927c6dcd4be8db235159025"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
   packages = ["pkg/rsErrors"]
-  revision = "fc2c0d09a2a7c8c7fb028ae2a88e7dba62fb2425"
+  revision = "b4429702bd0e21e5363087be8e00c73b22193c3e"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/solutions"
   packages = ["pkg/sErrors"]
-  revision = "1c19736d18ce6d0009d3ec0f27dc750745ec455e"
+  revision = "88034926fcd77c3f01dac5fc6a953b31171ca917"
 
 [[projects]]
   branch = "develop"
@@ -255,7 +255,7 @@
     "webdav",
     "webdav/internal/xml"
   ]
-  revision = "afe8f62b1d6bbd81f31868121a50b06d8188e1f9"
+  revision = "4cb1c02c05b0e749b0365f61ae859a8e0cfceed9"
 
 [[projects]]
   branch = "master"
@@ -264,7 +264,7 @@
     "unix",
     "windows"
   ]
-  revision = "63fc586f45fe72d95d5240a5d5eb95e6503907d3"
+  revision = "7138fd3d9dc8335c567ca206f4333fb75eb05d56"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -314,11 +314,11 @@
     "pkg/util/validation",
     "pkg/util/validation/field"
   ]
-  revision = "1c56055d3f2ff0ae5ff61d86dc8c88d2928b7ab3"
+  revision = "49fb9c9ee47ede1ead7dc90a697c0652526b072c"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d1492b67889305a32a7dd0706fa6b4426ed3417f7d1a50ab197beb473bdcf1b4"
+  inputs-digest = "1e6ce49a53400fe4af1f4eacdf0056fab324965fc6a51617235a404004f9bb17"
   solver-name = "gps-cdcl"
   solver-version = 1

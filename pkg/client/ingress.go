@@ -52,7 +52,7 @@ func (client *Client) CreateIngress(ns string, ingr ingress.Ingress) error {
 
 func (client *Client) ReplaceIngress(ns string, ingr ingress.Ingress) error {
 	err := retry(4, func() (bool, error) {
-		err := client.kubeAPIClient.UpdateIngress(ns, ingr.Host(), ingr.ToKube())
+		err := client.kubeAPIClient.UpdateIngress(ns, ingr.Name, ingr.ToKube())
 		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
