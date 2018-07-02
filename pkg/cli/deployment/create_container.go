@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/context"
 	containerControl "github.com/containerum/chkit/pkg/controls/container"
 	"github.com/containerum/chkit/pkg/export"
@@ -34,7 +33,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 		Use:     "deployment-container",
 		Aliases: []string{"depl-cont", "container", "dc"},
 		Short:   "create deployment container.",
-		Long:    help.GetString("create container"),
+		//		Long:    help.MustGetString("create container"),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("create deployment container")
 			logger.Debugf("START")
@@ -42,7 +41,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 
 			var cont container.Container
 
-			if flags.File != "" {
+			if flags.File == "" {
 				if flags.Deployment == "" && flags.Force {
 					ferr.Printf("deployment name must be provided as --deployment while using --force")
 					ctx.Exit(1)
