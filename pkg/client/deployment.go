@@ -140,3 +140,10 @@ func (client *Client) GetDeploymentDiffBetweenVersions(namespace, deployment str
 		return HandleErrorRetry(client, err)
 	})
 }
+
+func (client *Client) RunDeploymentVersion(namespace, deployment string, version semver.Version) error {
+	return retry(4, func() (bool, error) {
+		var err = client.kubeAPIClient.RunDeploymentVersion(namespace, deployment, version)
+		return HandleErrorRetry(client, err)
+	})
+}
