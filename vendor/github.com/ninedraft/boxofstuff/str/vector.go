@@ -255,3 +255,7 @@ cycle:
 	}
 	return vec
 }
+
+func (vector Vector) NonEmpty() Vector {
+	return vector.Filter(Longer(0))
+}
