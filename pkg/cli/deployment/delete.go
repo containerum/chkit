@@ -5,7 +5,6 @@ import (
 	"runtime"
 	"sync/atomic"
 
-	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -27,7 +26,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Use:     "deployment",
 		Aliases: aliases,
 		Short:   "delete deployment in specific namespace",
-		Long:    help.GetString("delete deployment"),
+		// Long:    help.MustGetString("delete deployment"),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("delete deployment")
 			if flags.Concurrency == 0 {
