@@ -75,3 +75,15 @@ func (list DeploymentList) SortByLess(less func(a, b Deployment) bool) Deploymen
 	})
 	return sorted
 }
+
+func (list DeploymentList) Inactive() DeploymentList {
+	return list.Filter(func(depl Deployment) bool {
+		return !depl.Active
+	})
+}
+
+func (list DeploymentList) Active() DeploymentList {
+	return list.Filter(func(depl Deployment) bool {
+		return depl.Active
+	})
+}
