@@ -37,6 +37,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	}
 	command.AddCommand(
 		clinamespace.Delete(ctx),
+		clideployment.DeleteVersion(ctx),
 		//	clinamespace.DeleteAccess(ctx),
 		volume.Delete(ctx),
 		cliserv.Delete(ctx),
