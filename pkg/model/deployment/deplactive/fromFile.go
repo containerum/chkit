@@ -3,8 +3,6 @@ package deplactive
 import (
 	"encoding/json"
 	"io/ioutil"
-
-	"fmt"
 	"path/filepath"
 
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -20,10 +18,8 @@ func FromFile(filename string) (deployment.Deployment, error) {
 	switch filepath.Ext(filename) {
 	case ".yaml", ".yml":
 		err = yaml.Unmarshal(data, &kubeDepl)
-	case ".json":
-		err = json.Unmarshal(data, &kubeDepl)
 	default:
-		return deployment.Deployment{}, fmt.Errorf("unknown format %q of file %q", filepath.Ext(filename), filename)
+		err = json.Unmarshal(data, &kubeDepl)
 	}
 	if err != nil {
 		return deployment.Deployment{}, err
