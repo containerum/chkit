@@ -75,27 +75,7 @@ func Wizard(config Config) (ingress.Ingress, error) {
 						fmt.Printf("%s\n%s\n%s\n", border, data, border)
 						return nil
 					},
-				}, /* {
-					Label: "Save to file",
-					Action: func() error {
-						logrus.Debugf("saving soltion to file")
-						ingr.Rules = ingress.RuleList{rule}
-						data, err := ingr.RenderJSON()
-						if err != nil {
-							logrus.WithError(err).Errorf("unable to render ingress to json")
-							activekit.Attention(err.Error())
-							return nil
-						}
-						fname := activekit.Promt("Print filename: ")
-						if err := ioutil.WriteFile(fname, []byte(data), os.ModePerm); err != nil {
-							logrus.WithError(err).Errorf("unable to write ingress data to file")
-							activekit.Attention(err.Error())
-							return nil
-						}
-						fmt.Println("OK")
-						return nil
-					},
-				},*/
+				},
 				{
 					Label: "Confirm",
 					Action: func() error {
