@@ -6,9 +6,6 @@ import (
 
 	"github.com/containerum/chkit/pkg/context"
 
-	"io/ioutil"
-	"os"
-
 	"github.com/containerum/chkit/pkg/model/solution"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/namegen"
@@ -181,38 +178,21 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 						})
 						return nil
 					},
-				}, {
+				},
+				{
 					Label: "Print to terminal",
 					Action: func() error {
 						data, err := sol.RenderYAML()
 						if err != nil {
-							logrus.WithError(err).Errorf("unable to render solution to yaml")
+							logrus.WithError(err).Errorf("unable to render ingress to yaml")
 							activekit.Attention(err.Error())
 						}
 						border := strings.Repeat("_", text.Width(data))
 						fmt.Printf("%s\n%s\n%s\n", border, data, border)
 						return nil
 					},
-				}, {
-					Label: "Save to file",
-					Action: func() error {
-						logrus.Debugf("saving soltion to file")
-						data, err := sol.RenderJSON()
-						if err != nil {
-							logrus.WithError(err).Errorf("unable to render solution to json")
-							activekit.Attention(err.Error())
-							return nil
-						}
-						fname := activekit.Promt("Print filename: ")
-						if err := ioutil.WriteFile(fname, []byte(data), os.ModePerm); err != nil {
-							logrus.WithError(err).Errorf("unable to write solution data to file")
-							activekit.Attention(err.Error())
-							return nil
-						}
-						fmt.Println("OK")
-						return nil
-					},
-				}, {
+				},
+				{
 					Label: "Confirm",
 					Action: func() error {
 						if err := ValidateSolution(sol); err != nil {
