@@ -185,7 +185,7 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
         sh.chkit(*args, _stdin=json.dumps(depl, cls=Deployment)).execute()
 
 
-def delete_deploy(name: str="", namespace: str=None, concurrency: int=None):
+def delete_deploy(name: str="", namespace: str=None, concurrency: int=None) -> None:
     args = ["delete", "deploy", "-f", name]
     if namespace is not None:
         args.extend(["--namespace", namespace])
@@ -261,3 +261,10 @@ def get_pods(namespace: str=None, status: str=None) -> List[Pod]:
     output = sh.chkit(*args).execute().stdout()
 
     return [Pod.json_decode(j) for j in json.loads(output)]
+
+
+def set_image(image: str="", container: str="", deployment: str="", namespace: str=None) -> None:
+    args = ["set", "image", "--image", image, "--container", container, "--deployment", deployment, "-f"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+    sh.chkit(*args).execute()
