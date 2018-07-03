@@ -1,23 +1,13 @@
 package activeingress
 
 import (
-	"io/ioutil"
-	"path"
-
-	"bytes"
-	"encoding/json"
-	"os"
-
 	"github.com/containerum/chkit/pkg/model/ingress"
-	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/host2dnslabel"
 	"github.com/containerum/chkit/pkg/util/namegen"
-	"gopkg.in/yaml.v2"
 )
 
 type Flags struct {
 	Force     bool   `flag:"force f" desc:"suppress confirmation, optional"`
-	File      string `desc:"file with solution data, .yaml or .json, stdin if '-', optional"`
 	Name      string `desc:"solution name, optional"`
 	Host      string `desc:"ingress host (example: prettyblog.io), required"`
 	Service   string `desc:"ingress endpoint service, required"`
@@ -44,15 +34,6 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 		flagPath.Path = "/"
 	}
 
-	if flags.File != "" {
-		var err error
-		flagIngress, err = flags.ingressFromFile()
-		if err != nil {
-			ferr.Println(err)
-			return flagIngress, err
-		}
-	}
-
 	if flags.Name == "" {
 		flagIngress.Name = namegen.ColoredPhysics()
 	}
@@ -71,37 +52,4 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 		flagIngress.Name = host2dnslabel.Host2DNSLabel(flagRule.Host)
 	}
 	return flagIngress, nil
-}
-
-func (flags Flags) ingressFromFile() (ingress.Ingress, error) {
-	var ingr ingress.Ingress
-	data, err := func() ([]byte, error) {
-		if flags.File == "-" {
-			buf := &bytes.Buffer{}
-			_, err := buf.ReadFrom(os.Stdin)
-			if err != nil {
-				return nil, err
-			}
-			return buf.Bytes(), nil
-		}
-		data, err := ioutil.ReadFile(flags.File)
-		if err != nil {
-			return data, err
-		}
-		return data, nil
-	}()
-	if err != nil {
-		return ingr, err
-	}
-	if path.Ext(flags.File) == "yaml" {
-		if err := yaml.Unmarshal(data, &ingr); err != nil {
-			return ingr, err
-		} else {
-			if err := json.Unmarshal(data, &ingr); err != nil {
-				return ingr, err
-			}
-
-		}
-	}
-	return ingr, nil
 }
