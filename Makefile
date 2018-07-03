@@ -1,4 +1,4 @@
-.PHONY: docker genkey build test clean install release single_release dev mock
+.PHONY: docker genkey build test clean install release single_release dev mock functional_tests
 
 CMD_DIR:=cmd/chkit
 CLI_DIR:=pkg/cli
@@ -9,6 +9,7 @@ SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
 PUBLIC_KEY_FILE:=pubkey.pem
 FILEBOX := $(shell command -v fileb0x 2>/dev/null)
+FUNCTIONAL_TEST_MODULES := config
 
 COMMIT_HASH=$(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE=$(shell date +%FT%T%Z)
@@ -114,3 +115,7 @@ mock: help/ab0x.go
 	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)
 	@echo building $(VERSION)
 	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
+
+functional_tests: install
+	@pip install -r functional_tests/requirements.txt
+	@$(foreach module,$(FUNCTIONAL_TEST_MODULES),python -m unittest functional_tests.$(module) -v)

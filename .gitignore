@@ -9,3 +9,5 @@ deployment.json
 /service.json
 !/cmd/chkit/
 
+venv
+__pycache__
