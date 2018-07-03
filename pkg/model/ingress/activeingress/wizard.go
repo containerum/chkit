@@ -4,10 +4,15 @@ import (
 	"fmt"
 	"strings"
 
+	"io/ioutil"
+	"os"
+
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/host2dnslabel"
+	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -57,6 +62,40 @@ func Wizard(config Config) (ingress.Ingress, error) {
 					Label: "Edit paths",
 					Action: func() error {
 						rule.Paths = pathsMenu(config.Services, rule.Paths)
+						return nil
+					},
+				},
+				{
+					Label: "Print to terminal",
+					Action: func() error {
+						ingr.Rules = ingress.RuleList{rule}
+						data, err := ingr.RenderYAML()
+						if err != nil {
+							logrus.WithError(err).Errorf("unable to render ingress to yaml")
+							activekit.Attention(err.Error())
+						}
+						border := strings.Repeat("_", text.Width(data))
+						fmt.Printf("%s\n%s\n%s\n", border, data, border)
+						return nil
+					},
+				}, {
+					Label: "Save to file",
+					Action: func() error {
+						logrus.Debugf("saving soltion to file")
+						ingr.Rules = ingress.RuleList{rule}
+						data, err := ingr.RenderJSON()
+						if err != nil {
+							logrus.WithError(err).Errorf("unable to render ingress to json")
+							activekit.Attention(err.Error())
+							return nil
+						}
+						fname := activekit.Promt("Print filename: ")
+						if err := ioutil.WriteFile(fname, []byte(data), os.ModePerm); err != nil {
+							logrus.WithError(err).Errorf("unable to write ingress data to file")
+							activekit.Attention(err.Error())
+							return nil
+						}
+						fmt.Println("OK")
 						return nil
 					},
 				},
