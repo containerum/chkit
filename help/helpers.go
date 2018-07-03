@@ -44,7 +44,7 @@ func Auto(root *cobra.Command) {
 }
 
 func AutoForCommands(cmds []*cobra.Command) {
-	var stack = commandStack(cmds)
+	var stack = append(commandStack{}, cmds...)
 	var commands []*cobra.Command
 	for stack.Len() > 0 {
 		var cmd = stack.Pop()
@@ -55,11 +55,9 @@ func AutoForCommands(cmds []*cobra.Command) {
 		commands = append(commands, cmd)
 	}
 	for _, cmd := range commands {
-		if strings.TrimSpace(cmd.Long) == "" {
-			var help, err = Command(cmd)
-			if err == nil {
-				cmd.Long = help
-			}
+		var help, err = Command(cmd)
+		if err == nil {
+			cmd.Long = help
 		}
 	}
 }
