@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"io/ioutil"
-	"os"
-
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -78,7 +75,7 @@ func Wizard(config Config) (ingress.Ingress, error) {
 						fmt.Printf("%s\n%s\n%s\n", border, data, border)
 						return nil
 					},
-				}, {
+				}, /* {
 					Label: "Save to file",
 					Action: func() error {
 						logrus.Debugf("saving soltion to file")
@@ -98,7 +95,7 @@ func Wizard(config Config) (ingress.Ingress, error) {
 						fmt.Println("OK")
 						return nil
 					},
-				},
+				},*/
 				{
 					Label: "Confirm",
 					Action: func() error {

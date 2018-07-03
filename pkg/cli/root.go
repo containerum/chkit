@@ -5,6 +5,7 @@ import (
 	"path"
 
 	"github.com/blang/semver"
+	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/cli/doc"
 	"github.com/containerum/chkit/pkg/cli/mode"
 	"github.com/containerum/chkit/pkg/cli/postrun"
@@ -88,12 +89,13 @@ func Root() error {
 		},
 		doc.Doc(ctx),
 	)
+	help.Auto(root)
 	return root.Execute()
 }
 
 func RootCommands() []*cobra.Command {
 	var ctx = &context.Context{}
-	return []*cobra.Command{
+	var commands = []*cobra.Command{
 		setup.Login(ctx),
 		Get(ctx),
 		Delete(ctx),
@@ -113,4 +115,6 @@ func RootCommands() []*cobra.Command {
 		},
 		doc.Doc(ctx),
 	}
+	help.AutoForCommands(commands)
+	return commands
 }
