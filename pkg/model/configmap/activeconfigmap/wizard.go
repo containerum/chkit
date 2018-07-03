@@ -3,17 +3,16 @@ package activeconfigmap
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/chkit/pkg/util/validation"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -60,7 +59,7 @@ func (c Config) Wizard() configmap.ConfigMap {
 							if err := validation.ValidateLabel(name); name != "" && err == nil {
 								config.Name = name
 							} else if err != nil {
-								fmt.Printf("Invalid name %q!\n", name)
+								ferr.Printf("Invalid name %q!\n", name)
 							}
 							return nil
 						},
@@ -79,39 +78,25 @@ func (c Config) Wizard() configmap.ConfigMap {
 						},
 					},
 					{
-						Label: "Confirm",
+						Label: "Print to terminal",
 						Action: func() error {
-							if err := config.Validate(); err != nil {
-								fmt.Println(err)
-							} else {
-								exit = true
+							data, err := config.RenderYAML()
+							if err != nil {
+								logrus.WithError(err).Errorf("unable to render configmap to yaml")
+								activekit.Attention(err.Error())
 							}
+							border := strings.Repeat("_", text.Width(data))
+							fmt.Printf("%s\n%s\n%s\n", border, data, border)
 							return nil
 						},
 					},
 					{
-						Label: "Save to file",
+						Label: "Confirm",
 						Action: func() error {
-							fName := activekit.Promt("Type filename (hit Enter to return to previous menu, yaml or json ext, json is used otherwise): ")
-							fName = strings.TrimSpace(fName)
-							if fName != "" {
-								var data string
-								var err error
-								switch path.Ext(fName) {
-								case "yaml":
-									data, err = config.RenderYAML()
-								default:
-									data, err = config.RenderJSON()
-								}
-								if err != nil {
-									fmt.Println(err)
-									return nil
-								}
-								if err := ioutil.WriteFile(fName, []byte(data), os.ModePerm); err != nil {
-									fmt.Println(err)
-									return nil
-								}
-								fmt.Println("OK")
+							if err := ValidateConfigMap(config); err != nil {
+								ferr.Println(err)
+							} else {
+								exit = true
 							}
 							return nil
 						},

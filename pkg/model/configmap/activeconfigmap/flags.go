@@ -14,7 +14,6 @@ import (
 
 type Flags struct {
 	Force      bool     `flag:"force f" desc:"suppress confirmation, optional"`
-	File       string   `desc:"file with configmap data, .json, .yaml, .yml, optional"`
 	Name       string   `desc:"configmap name, optional"`
 	ItemFile   []string `flag:"item-file" desc:"configmap file, KEY:FILE_PATH or FILE_PATH"`
 	ItemString []string `flag:"item-string" desc:"configmap item, KEY:VALUE string pair"`
@@ -26,9 +25,7 @@ func (flags Flags) ConfigMap() (configmap.ConfigMap, error) {
 		Name: flags.Name,
 	}
 
-	if flags.File != "" {
-		return FromFile(flags.File)
-	} else if len(flags.ItemString) > 0 {
+	if len(flags.ItemString) > 0 {
 		items, err := getStringItems(flags.ItemString)
 		if err != nil {
 			return config, err

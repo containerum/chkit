@@ -1,4 +1,4 @@
-package configmap
+package activeconfigmap
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/model"
+	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/util/validation"
 )
 
@@ -24,7 +25,7 @@ func KeyRegexp() *regexp.Regexp {
 	return keyRe.Copy()
 }
 
-func (config ConfigMap) Validate() error {
+func ValidateConfigMap(config configmap.ConfigMap) error {
 	var errors []error
 	if err := validation.ValidateLabel(config.Name); err != nil {
 		errors = append(errors, fmt.Errorf(" + invalid name %q\n", config.Name))
@@ -36,8 +37,8 @@ func (config ConfigMap) Validate() error {
 		errors = append(errors, fmt.Errorf(" + configmap must contains at least one item\n"))
 	}
 	for _, item := range config.Items() {
-		if !keyRe.MatchString(item.key) {
-			errors = append(errors, fmt.Errorf(" + invalid configmap key %q: key must match %q\n", item.key, keyRe))
+		if !keyRe.MatchString(item.Key()) {
+			errors = append(errors, fmt.Errorf(" + invalid configmap key %q: key must match %q\n", item.Key(), keyRe))
 		}
 	}
 	if len(errors) == 0 {

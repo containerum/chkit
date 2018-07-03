@@ -1,6 +1,8 @@
 package configmap
 
-import "github.com/containerum/chkit/pkg/model"
+import (
+	"github.com/containerum/chkit/pkg/model"
+)
 
 var (
 	_ model.TableRenderer = ConfigMapList{}

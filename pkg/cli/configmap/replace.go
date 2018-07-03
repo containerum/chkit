@@ -52,7 +52,6 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				cmList = list
 			}
-			var err error
 			cm, ok := cmList.GetByName(cmName)
 			if !ok {
 				fmt.Printf("configmap %q not found", cm.Name)
@@ -82,14 +81,6 @@ func Replace(ctx *context.Context) *cobra.Command {
 					items = append(items, item.WithValue(string(content)))
 				}
 				cm = cm.AddItems(items...)
-			}
-			if flags.File != "" {
-				fmt.Printf("Loading configmap from %q\n", flags.File)
-				cm, err = activeconfigmap.FromFile(flags.File)
-				if err != nil {
-					ferr.Println(err)
-					ctx.Exit(1)
-				}
 			}
 			if !flags.Force {
 				cm = activeconfigmap.Config{
