@@ -11,6 +11,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/service/servactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/sirupsen/logrus"
@@ -31,7 +32,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 		Long: `Replace service.\n` +
 			`Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			logrus.WithField("command", "update serv").Debugf("start service update")
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
+			logger.Debugf("running replace service command")
 			var flagSvc service.Service
 			if flags.ImportActivated() {
 				if err := flags.Import(&flagSvc); err != nil {

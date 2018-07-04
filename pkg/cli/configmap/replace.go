@@ -11,6 +11,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/sirupsen/logrus"
@@ -22,8 +23,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 	exportConfig := export.ExportConfig{}
 	var cmd = &cobra.Command{
 		Use:     "configmap",
+		Short:   "Replace configmap.",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
+			logger.Debugf("running replace configmap command")
 			var cmName string
 			var cmList configmap.ConfigMapList
 			switch len(args) {

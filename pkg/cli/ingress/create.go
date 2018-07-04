@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/ingress/activeingress"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
@@ -27,6 +28,9 @@ func Create(ctx *context.Context) *cobra.Command {
 		Long:    "Create ingress. Available options: TLS with LetsEncrypt and custom certs.",
 		Example: "chkit create ingress [--force] [--filename ingress.json] [-n prettyNamespace]",
 		Run: func(cmd *cobra.Command, args []string) {
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
+			logger.Debugf("running create ingress command")
 			var ingr ingress.Ingress
 			if flags.ImportActivated() {
 				if err := flags.Import(&ingr); err != nil {

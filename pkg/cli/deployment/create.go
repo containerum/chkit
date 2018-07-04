@@ -28,6 +28,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			logger.Struct(flags)
+			logger.Debugf("running create deployment command")
 			var depl deployment.Deployment
 			var err error
 			if flags.File != "" {
