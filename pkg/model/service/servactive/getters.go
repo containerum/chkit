@@ -192,7 +192,7 @@ func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
 							return nil
 						}
 						var port int
-						if _, err := fmt.Sscan(portStr, "%d", &port); err != nil || (port < 11000 && port > 65535) {
+						if _, err := fmt.Sscan(portStr, "%d", &port); err != nil || (port < 1 && port > 65535) {
 							fmt.Printf("Invalid port %q: must be number in 1..65535\n", portStr)
 							return nil
 						}
