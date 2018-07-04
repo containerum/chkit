@@ -180,9 +180,9 @@ func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
 					Action: func() error {
 						var promt string
 						if p.Port == nil {
-							promt = "Print port (11000..65535, hit enter to leave empty):"
+							promt = "Print port (1..65535, hit enter to leave empty):"
 						} else {
-							promt = fmt.Sprintf("Print port (11000..65535, hit enter to use %d, type 'none' to leave empty): ", *p.Port)
+							promt = fmt.Sprintf("Print port (1..65535, hit enter to use %d, type 'none' to leave empty): ", *p.Port)
 						}
 						portStr := strings.TrimSpace(activekit.Promt(promt))
 						if portStr == "none" {
@@ -193,7 +193,7 @@ func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
 						}
 						var port int
 						if _, err := fmt.Sscan(portStr, "%d", &port); err != nil || (port < 11000 && port > 65535) {
-							fmt.Printf("Invalid port %q: must be number in 11000..65535\n", portStr)
+							fmt.Printf("Invalid port %q: must be number in 1..65535\n", portStr)
 							return nil
 						}
 						p.Port = &port
@@ -231,8 +231,8 @@ func validatePort(port service.Port) error {
 		errs = append(errs, fmt.Errorf("\n + invalid port name %q", port.Name))
 	}
 	if port.Port != nil {
-		if *port.Port < 11000 || *port.Port > 65535 {
-			errs = append(errs, fmt.Errorf("\n + invalid port %d: must be 11000..65535", *port.Port))
+		if *port.Port < 1 || *port.Port > 65535 {
+			errs = append(errs, fmt.Errorf("\n + invalid port %d: must be 1..65535", *port.Port))
 		}
 	}
 	if port.TargetPort < 1 || port.TargetPort > 65535 {
