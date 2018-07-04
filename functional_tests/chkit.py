@@ -224,6 +224,24 @@ def replace_container(deployment: str="", container: Container=Container(), name
     sh.chkit(*args).execute()
 
 
+def add_container(deployment: str="", container: Container=Container(), namespace: str=None, file: bool=False) -> None:
+    args = ["create", "container", "--name", container.name, "--deployment", deployment, "--force"]
+    if file:
+        args.extend(["--file", "-"])
+    else:
+        args.extend(["--image", container.image, "--memory", container.limits.memory, "--cpu", container.limits.cpu])
+        if container.env is not None:
+            for k, v in container.env.items():
+                args.extend(["--env", f"{k}:{v}"])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    if file:
+        sh.chkit(*args, _stdin=json.dumps(container, cls=Container)).execute()
+    else:
+        sh.chkit(*args).execute()
+
+
 ##################
 # POD MANAGEMENT #
 ##################
