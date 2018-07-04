@@ -12,6 +12,8 @@ FILEBOX := $(shell command -v fileb0x 2>/dev/null)
 FUNCTIONAL_TEST_MODULES := config deployment
 HELP_DIR := help
 HELP_CONTENT_FILES := $(shell find $(HELP_DIR)/content -name '*.md')
+PIP := pip
+PYTHON := python
 
 COMMIT_HASH=$(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE=$(shell date +%FT%T%Z)
@@ -119,5 +121,5 @@ mock: help/ab0x.go
 	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
 
 functional_tests: install
-	@pip install -r functional_tests/requirements.txt
-	@python -m unittest $(foreach module,$(FUNCTIONAL_TEST_MODULES),functional_tests.$(module) ) -v
+	@$(PIP) install -r functional_tests/requirements.txt
+	@$(PYTHON) -m unittest $(foreach module,$(FUNCTIONAL_TEST_MODULES),functional_tests.$(module) ) -v
