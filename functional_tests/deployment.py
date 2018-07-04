@@ -35,7 +35,7 @@ class TestDeployment(unittest.TestCase):
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
+    @chkit.with_deployment()
     def test_set_image(self, depl: chkit.Deployment):
         chkit.set_image(image="redis", container=depl.containers[0].name, deployment=depl.name)
         got_depl = chkit.get_deployment(depl.name)
@@ -43,7 +43,7 @@ class TestDeployment(unittest.TestCase):
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
+    @chkit.with_deployment()
     def test_replace_container(self, depl: chkit.Deployment):
         new_container = chkit.Container(
             name=depl.containers[0].name,
@@ -62,7 +62,7 @@ class TestDeployment(unittest.TestCase):
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
+    @chkit.with_deployment()
     def test_add_container(self, depl: chkit.Deployment):
         new_container = chkit.Container(
             name="additional-container",
@@ -83,8 +83,8 @@ class TestDeployment(unittest.TestCase):
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
-    @chkit.with_container
+    @chkit.with_deployment()
+    @chkit.with_container()
     def test_delete_container(self, depl: chkit.Deployment, container: chkit.Container):
         chkit.delete_container(depl.name, container.name)
         got_depl = chkit.get_deployment(depl.name)
@@ -94,7 +94,7 @@ class TestDeployment(unittest.TestCase):
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
+    @chkit.with_deployment()
     def test_set_deploy_replicas(self, depl: chkit.Deployment):
         chkit.set_deployment_replicas(deployment=depl.name, replicas=2)
         got_depl = chkit.get_deployment(depl.name)
@@ -103,24 +103,24 @@ class TestDeployment(unittest.TestCase):
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
-    @chkit.with_container
+    @chkit.with_deployment()
+    @chkit.with_container()
     def test_change_deploy_version(self, depl: chkit.Deployment, container: chkit.Container):
         got_depl = chkit.get_deployment(depl.name)
         self.assertIn("2.0.0", got_depl.version)
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
-    @chkit.with_container
+    @chkit.with_deployment()
+    @chkit.with_container()
     def test_get_deployment_versions(self, depl: chkit.Deployment, container: chkit.Container):
         deploy_versions = chkit.get_versions(deploy=depl.name)
         self.assertEqual(len(deploy_versions), 2)
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
-    @chkit.with_container
+    @chkit.with_deployment()
+    @chkit.with_container()
     def test_run_deployment_version(self, depl: chkit.Deployment, container: chkit.Container):
         chkit.run_version(deploy=depl.name, version="1.0.0")
         time.sleep(5)
@@ -130,16 +130,16 @@ class TestDeployment(unittest.TestCase):
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
-    @chkit.with_container
+    @chkit.with_deployment()
+    @chkit.with_container()
     def test_delete_active_deployment_version(self, depl: chkit.Deployment, container: chkit.Container):
         with self.assertRaisesRegex(psh.exceptions.ExecutionError, r".*(\[resource-service-19\]).*"):
             chkit.delete_version(deploy=depl.name, version="2.0.0")
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
-    @chkit.with_deployment
-    @chkit.with_container
+    @chkit.with_deployment()
+    @chkit.with_container()
     def test_delete_previous_deployment_version(self, depl: chkit.Deployment, container: chkit.Container):
         chkit.delete_version(deploy=depl.name, version="1.0.0")
         depl_versions = chkit.get_versions(depl.name)

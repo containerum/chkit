@@ -44,11 +44,13 @@ def get_profile() -> Dict[str, str]:
     return profile
 
 
-def account(fn, user: str, password: str, namespace: str="-"):
-    def wrapped(*args, **kwargs):
-        login(user, password, namespace)
-        fn(*args, **kwargs)
-    return wrapped
+def account(user: str, password: str, namespace: str="-"):
+    def decorator(fn):
+        def wrapped(*args, **kwargs):
+            login(user, password, namespace)
+            fn(*args, **kwargs)
+        return wrapped
+    return decorator
 
 
 def test_account(fn):
@@ -225,16 +227,18 @@ __default_deployment = Deployment(
 )
 
 
-def with_deployment(fn, deployment: Deployment=__default_deployment, namespace: str=None):
-    def wrapper(*args, **kwargs):
-        create_deployment(depl=deployment, namespace=namespace)
-        try:
-            args = list(args) + [deployment]
-            fn(*args, **kwargs)
-        finally:
-            delete_deployment(name=deployment.name, namespace=namespace)
-            time.sleep(5)
-    return wrapper
+def with_deployment(deployment: Deployment=__default_deployment, namespace: str=None):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            create_deployment(depl=deployment, namespace=namespace)
+            try:
+                args = list(args) + [deployment]
+                fn(*args, **kwargs)
+            finally:
+                delete_deployment(name=deployment.name, namespace=namespace)
+                time.sleep(5)
+        return wrapper
+    return decorator
 
 
 def delete_deployment(name: str, namespace: str=None, concurrency: int=None) -> None:
@@ -333,13 +337,15 @@ __default_container = Container(
 )
 
 
-def with_container(fn, container: Container=__default_container,
-                   deployment: str=__default_deployment.name, namespace: str=None):
-    def wrapper(*args, **kwargs):
-        add_container(deployment=deployment, container=container, namespace=namespace)
-        args = list(args)+[container]
-        fn(*args, **kwargs)
-    return wrapper
+def with_container(container: Container=__default_container,deployment: str=__default_deployment.name,
+                   namespace: str=None):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            add_container(deployment=deployment, container=container, namespace=namespace)
+            args = list(args)+[container]
+            fn(*args, **kwargs)
+        return wrapper
+    return decorator
 
 
 def delete_container(deployment: str="", container: str="", namespace: str=None) -> None:
@@ -426,18 +432,20 @@ class PodWaitException(Exception):
     pass
 
 
-def ensure_pods_running(fn, deploy: str=__default_deployment.name, max_attempts: int=40, sleep_seconds: float=15,
+def ensure_pods_running(deployment: str=__default_deployment.name, max_attempts: int=40, sleep_seconds: float=15,
                         exception_on_fail: Exception=PodWaitException):
-    def wrapper(*args, **kwargs):
-        attempts = 1
-        while attempts <= max_attempts:
-            pods = get_pods()
-            not_running_pods = [pod for pod in pods if pod.deploy == deploy and pod.status.phase != "Running"]
-            if len(not_running_pods) == 0:
-                return
-            time.sleep(sleep_seconds)
-            attempts += 1
-        if attempts > max_attempts:
-            raise exception_on_fail
-        fn(*args, **kwargs)
-    return wrapper
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            attempts = 1
+            while attempts <= max_attempts:
+                pods = get_pods()
+                not_running_pods = [pod for pod in pods if pod.deploy == deployment and pod.status.phase != "Running"]
+                if len(not_running_pods) == 0:
+                    return
+                time.sleep(sleep_seconds)
+                attempts += 1
+            if attempts > max_attempts:
+                raise exception_on_fail
+            fn(*args, **kwargs)
+        return wrapper
+    return decorator
