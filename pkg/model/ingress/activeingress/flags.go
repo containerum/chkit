@@ -8,7 +8,7 @@ import (
 
 type Flags struct {
 	Force     bool   `flag:"force f" desc:"suppress confirmation, optional"`
-	Name      string `desc:"solution name, optional"`
+	Name      string `desc:"ingress name, optional"`
 	Host      string `desc:"ingress host (example: prettyblog.io), required"`
 	Service   string `desc:"ingress endpoint service, required"`
 	TLSSecret string `desc:"TLS secret string, optional"`
