@@ -10,7 +10,7 @@ import (
 )
 
 type Exporter struct {
-	OutFile      string `desc:"output file"`
+	OutFile      string `desc:"output file" flag:"export-file"`
 	OutputFormat string `desc:"output format, json/yaml" flag:"output o"`
 }
 
