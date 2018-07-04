@@ -60,8 +60,9 @@ def set_default_namespace(namespace: str="-") -> None:
 
 
 class DeploymentStatus(json.JSONEncoder):
-    def __init__(self, replicas: int=0, ready_replicas: int=0, available_replicas: int=0,
-                 unavailable_replicas: int=0, updated_replicas: int=0):
+    def __init__(self, replicas: int=None, ready_replicas: int=None, available_replicas: int=None,
+                 unavailable_replicas: int=None, updated_replicas: int=None):
+        super().__init__()
         self.replicas = replicas
         self.ready_replicas = ready_replicas
         self.available_replicas = available_replicas
@@ -71,11 +72,11 @@ class DeploymentStatus(json.JSONEncoder):
     @staticmethod
     def json_decode(j):
         return DeploymentStatus(
-            replicas=j['replicas'],
-            unavailable_replicas=j['unavailable_replicas'],
-            available_replicas=j['available_replicas'],
-            ready_replicas=j['ready_replicas'],
-            updated_replicas=j['updated_replicas'],
+            replicas=j.get('replicas'),
+            unavailable_replicas=j.get('unavailable_replicas'),
+            available_replicas=j.get('available_replicas'),
+            ready_replicas=j.get('ready_replicas'),
+            updated_replicas=j.get('updated_replicas'),
         )
 
     def default(self, o):
@@ -83,15 +84,16 @@ class DeploymentStatus(json.JSONEncoder):
 
 
 class Resources(json.JSONEncoder):
-    def __init__(self, cpu: int=0, memory: int=0):
+    def __init__(self, cpu: int=None, memory: int=None):
+        super().__init__()
         self.cpu = cpu
         self.memory = memory
 
     @staticmethod
     def json_decode(j):
         return Resources(
-            cpu=j['cpu'],
-            memory=j['memory']
+            cpu=j.get('cpu'),
+            memory=j.get('memory')
         )
 
     def default(self, o):
@@ -99,7 +101,8 @@ class Resources(json.JSONEncoder):
 
 
 class Container(json.JSONEncoder):
-    def __init__(self, image: str="", name: str="", limits: Resources=Resources(), env: Dict[str, str]=()):
+    def __init__(self, image: str=None, name: str=None, limits: Resources=None, env: Dict[str, str]=None):
+        super().__init__()
         self.image = image
         self.name = name
         self.limits = limits
@@ -108,9 +111,9 @@ class Container(json.JSONEncoder):
     @staticmethod
     def json_decode(j):
         return Container(
-            name=j['name'],
-            image=j['image'],
-            limits=Resources.json_decode(j['limits']),
+            name=j.get('name'),
+            image=j.get('image'),
+            limits=Resources.json_decode(j.get('limits')),
             env=j.get('env')
         )
 
@@ -119,9 +122,10 @@ class Container(json.JSONEncoder):
 
 
 class Deployment(json.JSONEncoder):
-    def __init__(self, created_at: datetime=datetime.now(), status: DeploymentStatus=DeploymentStatus(),
-                 containers: List[Container]=(), name: str="", replicas: int=0, total_cpu: int=0, total_memory: int=0,
-                 active: bool=False, version: str="0.0.0"):
+    def __init__(self, created_at: datetime=None, status: DeploymentStatus=None,
+                 containers: List[Container]=None, name: str=None, replicas: int=None, total_cpu: int=None,
+                 total_memory: int=None, active: bool=False, version: str=None):
+        super().__init__()
         self.created_at = created_at
         self.status = status
         self.containers = containers
@@ -135,15 +139,16 @@ class Deployment(json.JSONEncoder):
     @staticmethod
     def json_decode(j):
         return Deployment(
-            created_at=datetime.strptime(j['created_at'], DATETIME_FORMAT),
-            status=DeploymentStatus.json_decode(j['status']),
-            containers=[Container.json_decode(container) for container in j['containers']],
-            name=j['name'],
-            replicas=j['replicas'],
-            total_cpu=j['total_cpu'],
-            total_memory=j['total_memory'],
-            active=j['active'],
-            version=j['version']
+            created_at=datetime.strptime(j.get('created_at'), DATETIME_FORMAT) if j.get('created_at')
+            not in (None, '') else None,
+            status=DeploymentStatus.json_decode(j.get('status')),
+            containers=[Container.json_decode(container) for container in j.get('containers')],
+            name=j.get('name'),
+            replicas=j.get('replicas'),
+            total_cpu=j.get('total_cpu'),
+            total_memory=j.get('total_memory'),
+            active=j.get('active'),
+            version=j.get('version')
         )
 
     def default(self, o):
@@ -164,7 +169,7 @@ def get_deployments() -> List[Deployment]:
 
 
 def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -> None:
-    args = ["create", "deployment", "-f"]
+    args = ["create", "deployment", "--force"]
     if not file:
         if depl.name is not None:
             args.extend(["--name", depl.name])
@@ -172,8 +177,9 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
             args.extend(["--image", f"{container.name}@{container.image}"])
             args.extend(["--cpu", f"{container.name}@{container.limits.cpu}"])
             args.extend(["--memory", f"{container.name}@{container.limits.memory}"])
-            for key, value in container.env:
-                args.extend(["--env", f"{container.name}@{key}:{value}"])
+            if container.env is not None:
+                for key, value in container.env.items():
+                    args.extend(["--env", f"{container.name}@{key}:{value}"])
     else:
         args.extend(["--file", "-"])
     if namespace is not None:
@@ -185,12 +191,36 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
         sh.chkit(*args, _stdin=json.dumps(depl, cls=Deployment)).execute()
 
 
-def delete_deploy(name: str="", namespace: str=None, concurrency: int=None) -> None:
-    args = ["delete", "deploy", "-f", name]
+def delete_deploy(name: str, namespace: str=None, concurrency: int=None) -> None:
+    args = ["delete", "deploy", "--force", name]
     if namespace is not None:
         args.extend(["--namespace", namespace])
     if concurrency is not None:
         args.extend(["--concurrency", concurrency])
+    sh.chkit(*args).execute()
+
+
+def set_image(image: str="", container: str="", deployment: str="", namespace: str=None) -> None:
+    args = ["set", "image", "--image", image, "--container", container, "--deployment", deployment, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+    sh.chkit(*args).execute()
+
+
+def replace_container(deployment: str="", container: Container=Container(), namespace: str=None) -> None:
+    args = ["replace", "container", "--container", container.name, "--deployment", deployment, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+    if container.env is not None:
+        for k, v in container.env.items():
+            args.extend(["--env", f"{k}:{v}"])
+    if container.limits is not None:
+        if container.limits.cpu is not None:
+            args.extend(["--cpu", container.limits.cpu])
+        if container.limits.memory is not None:
+            args.extend(["--memory", container.limits.memory])
+        if container.image is not None:
+            args.extend(["--image", container.image])
     sh.chkit(*args).execute()
 
 
@@ -200,7 +230,8 @@ def delete_deploy(name: str="", namespace: str=None, concurrency: int=None) -> N
 
 
 class PodStatus(json.JSONEncoder):
-    def __init__(self, phase: str="", restart_count: int=0, start_at: datetime=None):
+    def __init__(self, phase: str=None, restart_count: int=None, start_at: datetime=None):
+        super().__init__()
         self.phase = phase
         self.restart_count = restart_count
         self.start_at = start_at
@@ -208,9 +239,10 @@ class PodStatus(json.JSONEncoder):
     @staticmethod
     def json_decode(j):
         return PodStatus(
-            phase=j['phase'],
-            restart_count=j['restart_count'],
-            start_at=datetime.strptime(j['start_at'], DATETIME_FORMAT) if j['start_at'] is not "" else None
+            phase=j.get('phase'),
+            restart_count=j.get('restart_count'),
+            start_at=datetime.strptime(j.get('start_at'), DATETIME_FORMAT) if j.get('start_at')
+            not in (None, '') else None
         )
 
     def default(self, o):
@@ -221,12 +253,13 @@ class PodStatus(json.JSONEncoder):
 
 
 class Pod(json.JSONEncoder):
-    def __init__(self, created_at: datetime=datetime.now(), name: str="", owner: str="", containers: List[Container]=(),
-                 status: PodStatus=PodStatus(), deploy: str="", total_cpu: int=0, total_memory: int=0):
+    def __init__(self, created_at: datetime=None, name: str=None, owner: str=None, containers: List[Container]=None,
+                 status: PodStatus=None, deploy: str=None, total_cpu: int=None, total_memory: int=None):
+        super().__init__()
         self.created_at = created_at
         self.name = name
         self.owner = owner
-        self.containers=containers
+        self.containers = containers
         self.status = status
         self.deploy = deploy
         self.total_cpu = total_cpu
@@ -235,14 +268,15 @@ class Pod(json.JSONEncoder):
     @staticmethod
     def json_decode(j):
         return Pod(
-            created_at=datetime.strptime(j['created_at'], DATETIME_FORMAT),
-            name=j['name'],
-            owner=j['owner'],
-            containers=[Container.json_decode(container) for container in j['containers']],
-            status=PodStatus.json_decode(j['status']),
-            deploy=j['deploy'],
-            total_cpu=j['total_cpu'],
-            total_memory=j['total_memory']
+            created_at=datetime.strptime(j.get('created_at'), DATETIME_FORMAT) if j.get('created_at')
+            not in (None, '') else None,
+            name=j.get('name'),
+            owner=j.get('owner'),
+            containers=[Container.json_decode(container) for container in j.get('containers')],
+            status=PodStatus.json_decode(j.get('status')),
+            deploy=j.get('deploy'),
+            total_cpu=j.get('total_cpu'),
+            total_memory=j.get('total_memory')
         )
 
     def default(self, o):
@@ -261,10 +295,3 @@ def get_pods(namespace: str=None, status: str=None) -> List[Pod]:
     output = sh.chkit(*args).execute().stdout()
 
     return [Pod.json_decode(j) for j in json.loads(output)]
-
-
-def set_image(image: str="", container: str="", deployment: str="", namespace: str=None) -> None:
-    args = ["set", "image", "--image", image, "--container", container, "--deployment", deployment, "-f"]
-    if namespace is not None:
-        args.extend(["--namespace", namespace])
-    sh.chkit(*args).execute()

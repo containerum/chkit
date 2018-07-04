@@ -9,7 +9,7 @@ SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
 PUBLIC_KEY_FILE:=pubkey.pem
 FILEBOX := $(shell command -v fileb0x 2>/dev/null)
-FUNCTIONAL_TEST_MODULES := config
+FUNCTIONAL_TEST_MODULES := config deployment
 
 COMMIT_HASH=$(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE=$(shell date +%FT%T%Z)
@@ -118,4 +118,4 @@ mock: help/ab0x.go
 
 functional_tests: install
 	@pip install -r functional_tests/requirements.txt
-	@$(foreach module,$(FUNCTIONAL_TEST_MODULES),python -m unittest functional_tests.$(module) -v)
+	@python -m unittest $(foreach module,$(FUNCTIONAL_TEST_MODULES),functional_tests.$(module) ) -v
