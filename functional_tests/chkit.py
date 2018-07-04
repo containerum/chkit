@@ -420,3 +420,24 @@ def get_pods(namespace: str=None, status: str=None) -> List[Pod]:
     output = sh.chkit(*args).execute().stdout()
 
     return [Pod.json_decode(j) for j in json.loads(output)]
+
+
+class PodWaitException(Exception):
+    pass
+
+
+def ensure_pods_running(fn, deploy: str=__default_deployment.name, max_attempts: int=40, sleep_seconds: float=15,
+                        exception_on_fail: Exception=PodWaitException):
+    def wrapper(*args, **kwargs):
+        attempts = 1
+        while attempts <= max_attempts:
+            pods = get_pods()
+            not_running_pods = [pod for pod in pods if pod.deploy == deploy and pod.status.phase != "Running"]
+            if len(not_running_pods) == 0:
+                return
+            time.sleep(sleep_seconds)
+            attempts += 1
+        if attempts > max_attempts:
+            raise exception_on_fail
+        fn(*args, **kwargs)
+    return wrapper
