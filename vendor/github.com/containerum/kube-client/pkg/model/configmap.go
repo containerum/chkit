@@ -10,16 +10,16 @@ type ConfigMapData map[string]string
 // swagger:model
 type ConfigMap struct {
 	// required: true
-	Name string `json:"name"`
+	Name string `json:"name" yaml:"name"`
 	//creation date in RFC3339 format
-	CreatedAt string `json:"created_at,omitempty"`
+	CreatedAt string `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 	//delete date in RFC3339 format
-	DeletedAt string `json:"deleted_at,omitempty"`
+	DeletedAt string `json:"deleted_at,omitempty" yaml:"deleted_at,omitempty"`
 	// key-value data
 	//
 	// required: true
-	Data  ConfigMapData `json:"data"`
-	Owner string        `json:"owner,omitempty"`
+	Data  ConfigMapData `json:"data" yaml:"data"`
+	Owner string        `json:"owner,omitempty" yaml:"owner,omitempty"`
 }
 
 // SelectedConfigMapsList -- model for config maps list from all namespaces

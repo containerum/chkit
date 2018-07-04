@@ -45,25 +45,25 @@ type DeploymentsList struct {
 // swagger:model
 type Deployment struct {
 	//creation date in RFC3339 format
-	CreatedAt string `json:"created_at,omitempty"`
+	CreatedAt string `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 	//delete date in RFC3339 format
-	DeletedAt string            `json:"deleted_at,omitempty"`
-	Status    *DeploymentStatus `json:"status,omitempty"`
+	DeletedAt string            `json:"deleted_at,omitempty" yaml:"deleted_at,omitempty"`
+	Status    *DeploymentStatus `json:"status,omitempty" yaml:"status,omitempty"`
 	// required: true
-	Containers []Container `json:"containers"`
+	Containers []Container `json:"containers" yaml:"containers"`
 	// required: true
-	Name string `json:"name"`
+	Name string `json:"name" yaml:"name"`
 	// required: true
-	Replicas int `json:"replicas"`
+	Replicas int `json:"replicas" yaml:"replicas"`
 	//total CPU usage by all containers in this deployment
-	TotalCPU uint `json:"total_cpu,omitempty"`
-	//Solution ID (only if deployment is part of solution)
-	SolutionID string `json:"solution_id,omitempty"`
+	TotalCPU uint `json:"total_cpu,omitempty" yaml:"total_cpu,omitempty"`
 	//total RAM usage by all containers in this deployment
-	TotalMemory uint           `json:"total_memory,omitempty"`
-	Owner       string         `json:"owner,omitempty"`
-	Active      bool           `json:"active"`
-	Version     semver.Version `json:"version"`
+	TotalMemory uint `json:"total_memory,omitempty"`
+	//Solution ID (only if deployment is part of solution)
+	SolutionID string         `json:"solution_id,omitempty" yaml:"solution_id,omitempty"`
+	Owner      string         `json:"owner,omitempty" yaml:"owner,omitempty"`
+	Active     bool           `json:"active" yaml:"active"`
+	Version    semver.Version `json:"version" yaml:"version"`
 }
 
 func (deployment Deployment) ImagesNames() []string {

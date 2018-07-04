@@ -17,14 +17,14 @@ type IngressesList struct {
 // swagger:model
 type Ingress struct {
 	// required: true
-	Name string `json:"name"`
+	Name string `json:"name" yaml:"name"`
 	//creation date in RFC3339 format
-	CreatedAt string `json:"created_at,omitempty"`
+	CreatedAt string `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 	//delete date in RFC3339 format
-	DeletedAt string `json:"deleted_at,omitempty"`
+	DeletedAt string `json:"deleted_at,omitempty" yaml:"deleted_at,omitempty"`
 	// required: true
-	Rules []Rule `json:"rules"`
-	Owner string `json:"owner,omitempty"`
+	Rules []Rule `json:"rules" yaml:"rules"`
+	Owner string `json:"owner,omitempty" yaml:"owner,omitempty"`
 }
 
 // Rule -- ingress rule
@@ -32,10 +32,10 @@ type Ingress struct {
 // swagger:model
 type Rule struct {
 	// required: true
-	Host      string  `json:"host"`
-	TLSSecret *string `json:"tls_secret,omitempty"`
+	Host      string  `json:"host" yaml:"host"`
+	TLSSecret *string `json:"tls_secret,omitempty" yaml:"tls_secret,omitempty"`
 	// required: true
-	Path []Path `json:"path"`
+	Path []Path `json:"path" yaml:"path"`
 }
 
 // Path -- ingress path
@@ -43,11 +43,11 @@ type Rule struct {
 // swagger:model
 type Path struct {
 	// required: true
-	Path string `json:"path"`
+	Path string `json:"path" yaml:"path"`
 	// required: true
-	ServiceName string `json:"service_name"`
+	ServiceName string `json:"service_name" yaml:"service_name"`
 	// required: true
-	ServicePort int `json:"service_port"`
+	ServicePort int `json:"service_port" yaml:"service_port"`
 }
 
 // Mask removes information not interesting for users

@@ -17,7 +17,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/kube-api"
   packages = ["pkg/kubeErrors"]
-  revision = "e35ff3149e0d923a815524357a067b6de3ccf0f8"
+  revision = "ca9078e3e1f0e8cd31f24f56158365746ef073c5"
 
 [[projects]]
   branch = "develop"
@@ -29,7 +29,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
   packages = ["pkg/rsErrors"]
-  revision = "b4429702bd0e21e5363087be8e00c73b22193c3e"
+  revision = "1e960933dcf5cf6bf27fbe60bde512e7177067e2"
 
 [[projects]]
   branch = "develop"
@@ -81,8 +81,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "5d0eebfc51692be5b9852558af4c1b2854f37e11"
-  version = "v0.23.10"
+  revision = "f89987e2c985f4022f2c8541f286165fd4cfe0f3"
+  version = "v0.23.11"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -255,7 +255,7 @@
     "webdav",
     "webdav/internal/xml"
   ]
-  revision = "4cb1c02c05b0e749b0365f61ae859a8e0cfceed9"
+  revision = "ed29d75add3d7c4bf7ca65aac0c6df3d1420216f"
 
 [[projects]]
   branch = "master"
@@ -264,7 +264,7 @@
     "unix",
     "windows"
   ]
-  revision = "7138fd3d9dc8335c567ca206f4333fb75eb05d56"
+  revision = "151529c776cdc58ddbe7963ba9af779f3577b419"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -314,11 +314,11 @@
     "pkg/util/validation",
     "pkg/util/validation/field"
   ]
-  revision = "49fb9c9ee47ede1ead7dc90a697c0652526b072c"
+  revision = "f534d624797b270e5e46104dc7e2c2d61edbb85d"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1e6ce49a53400fe4af1f4eacdf0056fab324965fc6a51617235a404004f9bb17"
+  inputs-digest = "9000679025ac1cb79ea45d28d86ee49351dbec913bae7b687442920d50df9583"
   solver-name = "gps-cdcl"
   solver-version = 1

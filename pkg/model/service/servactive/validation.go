@@ -51,7 +51,7 @@ func ValidatePort(p service.Port) error {
 		errs = append(errs, fmt.Errorf("invalid port protocol %q", p.Protocol))
 	}
 	if p.TargetPort < 1 || p.TargetPort > 65553 {
-		errs = append(errs, fmt.Errorf("invalid target port %d: msut be 1..65553", p.TargetPort))
+		errs = append(errs, fmt.Errorf("invalid target port %d: must be 1..65553", p.TargetPort))
 	}
 	if p.Port != nil && (*p.Port < 1 || *p.Port > 65553) {
 		errs = append(errs, fmt.Errorf("invalid port %d: must 1..65553", *p.Port))
