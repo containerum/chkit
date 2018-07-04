@@ -200,6 +200,11 @@ def delete_deploy(name: str, namespace: str=None, concurrency: int=None) -> None
     sh.chkit(*args).execute()
 
 
+###################################
+# DEPLOYMENT CONTAINER MANAGEMENT #
+###################################
+
+
 def set_image(image: str="", container: str="", deployment: str="", namespace: str=None) -> None:
     args = ["set", "image", "--image", image, "--container", container, "--deployment", deployment, "--force"]
     if namespace is not None:
