@@ -65,7 +65,7 @@ class TestDeployment(unittest.TestCase):
     @chkit.with_deployment
     def test_add_container(self, depl: chkit.Deployment):
         new_container = chkit.Container(
-            name="second",
+            name="additional-container",
             limits=chkit.Resources(cpu=15, memory=15),
             image="redis",
             env={"HELLO": "world"},
