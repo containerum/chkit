@@ -2,6 +2,7 @@ from functional_tests import chkit
 import unittest
 import time
 import timeout_decorator
+import psh.exceptions
 
 
 class TestDeployment(unittest.TestCase):
@@ -127,13 +128,13 @@ class TestDeployment(unittest.TestCase):
         self.assertEqual(got_depl.version, "1.0.0")
         self.assertEqual(len(got_depl.containers), len(depl.containers))
 
-    # TODO: waiting for fix
-    # @timeout_decorator.timeout(seconds=30)
-    # @chkit.test_account
-    # @chkit.with_deployment
-    # @chkit.with_container
-    # def test_delete_active_deployment_version(self, depl: chkit.Deployment, container: chkit.Container):
-    #     chkit.delete_version(deploy=depl.name, version="2.0.0")
+    @timeout_decorator.timeout(seconds=30)
+    @chkit.test_account
+    @chkit.with_deployment
+    @chkit.with_container
+    def test_delete_active_deployment_version(self, depl: chkit.Deployment, container: chkit.Container):
+        with self.assertRaisesRegex(psh.exceptions.ExecutionError, r".*(\[resource-service-19\]).*"):
+            chkit.delete_version(deploy=depl.name, version="2.0.0")
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
@@ -143,4 +144,4 @@ class TestDeployment(unittest.TestCase):
         chkit.delete_version(deploy=depl.name, version="1.0.0")
         depl_versions = chkit.get_versions(depl.name)
         self.assertEqual(len(depl_versions), 1)
-        self.assertIn("1.0.0", depl_versions[0].version)
+        self.assertIn("2.0.0", depl_versions[0].version)
