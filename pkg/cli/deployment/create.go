@@ -10,6 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
@@ -19,7 +20,11 @@ import (
 )
 
 func Create(ctx *context.Context) *cobra.Command {
-	var flags deplactive.Flags
+	var flags struct {
+		porta.Importer
+		porta.Exporter
+		deplactive.Flags
+	}
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
@@ -31,13 +36,12 @@ func Create(ctx *context.Context) *cobra.Command {
 			logger.Debugf("running create deployment command")
 			var depl deployment.Deployment
 			var err error
-			if flags.File != "" {
-				depl, err = deplactive.FromFile(flags.File)
-				if err != nil {
-					ferr.Println(err)
+			if flags.ImportActivated() {
+				if err := flags.Import(&depl); err != nil {
+					ferr.Printf("unable to import deployment:\n%v\n", err)
 					ctx.Exit(1)
 				}
-				flags = deplactive.FlagsFromDeployment(flags, depl)
+				flags.Flags = deplactive.FlagsFromDeployment(flags.Flags, depl)
 			} else {
 				var err error
 				depl, err = flags.Deployment()
@@ -47,7 +51,14 @@ func Create(ctx *context.Context) *cobra.Command {
 				}
 			}
 			deplactive.Fill(&depl)
-			if flags.Force {
+			switch {
+			case flags.Force && flags.ExporterActivated():
+				if err := flags.Export(depl); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				return
+			case flags.Force && !flags.ExporterActivated():
 				if err := deplactive.ValidateDeployment(depl); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)

@@ -22,8 +22,7 @@ func invalidFlagValueErr(flag, value, reason string) error {
 }
 
 type Flags struct {
-	Force bool   `flag:"force f" desc:"suppress confirmation, optional"`
-	File  string `desc:"file with configmap data, .json, .yaml, .yml, optional"`
+	Force bool `flag:"force f" desc:"suppress confirmation, optional"`
 	// Output   string `flag:"output o" desc:"output format, json/yaml"`
 	Version       string   `desc:"custom deployment semantic version"`
 	Replicas      uint     `desc:"deployment replicas, optional"` // deployment
