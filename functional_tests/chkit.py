@@ -207,11 +207,23 @@ def set_deploy_replicas(deploy: str, replicas: int, namespace: str=None) -> None
     sh.chkit(*args).execute()
 
 
+##################################
+# DEPLOYMENT VERSIONS MANAGEMENT #
+##################################
+
+
 def get_versions(deploy: str, namespace: str=None) -> List[Deployment]:
     args = ["get", "deployment-versions", "-o", "json", deploy]
     if namespace is not None:
         args.extend(["--namespace", namespace])
     return [Deployment.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
+
+
+def run_version(deploy: str, version: str, namespace: str=None) -> None:
+    args = ["run", "deployment-version", "--deployment", deploy, "--version", version, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+    sh.chkit(*args).execute()
 
 
 ###################################
