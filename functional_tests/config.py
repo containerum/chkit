@@ -11,8 +11,8 @@ class TestConfig(unittest.TestCase):
             profile = chkit.get_profile()
             self.assertEqual(profile['Login'], user[0])
 
+    @chkit.test_account
     def test_namespace_selector(self):
-        chkit.login(user="helpik94@yandex.com", password="12345678")
         owner, namespace = chkit.get_default_namespace()
         self.assertIsNotNone(owner)
         self.assertIsNotNone(namespace)
@@ -20,9 +20,9 @@ class TestConfig(unittest.TestCase):
         owner, namespace = chkit.get_default_namespace()
         self.assertEqual(namespace, "mynewns")
 
+    @chkit.test_account
     def test_api_selector(self):
         try:
-            chkit.login(user="helpik94@yandex.com", password="12345678")
             self.assertEqual(chkit.get_api_url(), chkit.DEFAULT_API_URL)
             chkit.set_api_url("http://test.api.domain.com")
             self.assertEqual(chkit.get_api_url(), "http://test.api.domain.com")
