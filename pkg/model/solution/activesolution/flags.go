@@ -1,25 +1,15 @@
 package activesolution
 
 import (
-	"io/ioutil"
-	"path"
-
-	"bytes"
-	"encoding/json"
-	"os"
-
 	"errors"
 
 	"github.com/containerum/chkit/pkg/model/solution"
-	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/pairs"
-	"gopkg.in/yaml.v2"
 )
 
 type Flags struct {
 	Force    bool   `flag:"force f" desc:"suppress confirmation, optional"`
-	File     string `desc:"file with solution data, .yaml or .json, stdin if '-', optional"`
 	Name     string `desc:"solution name, optional"`
 	Template string `desc:"solution template, optional"`
 	Env      string `desc:"solution environment variables, optional"`
@@ -33,14 +23,7 @@ func (flags Flags) Solution(nsID string, args []string) (solution.Solution, erro
 		Branch:    flags.Branch,
 		Template:  flags.Template,
 	}
-	if flags.File != "" {
-		var err error
-		sol, err = flags.solutionFromFile()
-		if err != nil {
-			ferr.Println(err)
-			return sol, err
-		}
-	} else if len(args) == 1 {
+	if len(args) == 1 {
 		sol.Template = args[0]
 	} else if flags.Force {
 		//TODO
@@ -65,39 +48,6 @@ func (flags Flags) Solution(nsID string, args []string) (solution.Solution, erro
 			return sol, err
 		}
 		sol.Env = env
-	}
-	return sol, nil
-}
-
-func (flags Flags) solutionFromFile() (solution.Solution, error) {
-	var sol solution.Solution
-	data, err := func() ([]byte, error) {
-		if flags.File == "-" {
-			buf := &bytes.Buffer{}
-			_, err := buf.ReadFrom(os.Stdin)
-			if err != nil {
-				return nil, err
-			}
-			return buf.Bytes(), nil
-		}
-		data, err := ioutil.ReadFile(flags.File)
-		if err != nil {
-			return data, err
-		}
-		return data, nil
-	}()
-	if err != nil {
-		return sol, err
-	}
-	if path.Ext(flags.File) == "yaml" {
-		if err := yaml.Unmarshal(data, &sol); err != nil {
-			return sol, err
-		} else {
-			if err := json.Unmarshal(data, &sol); err != nil {
-				return sol, err
-			}
-
-		}
 	}
 	return sol, nil
 }

@@ -22,13 +22,14 @@ func Replace(ctx *context.Context) *cobra.Command {
 	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "ingress",
-		Short:   "Replace ingress with a new one.",
+		Short:   "Replace ingress.",
 		Aliases: aliases,
 		Long: "Replace ingress with a new one, use --force flag to write one-liner command, " +
 			"omitted attributes are inherited from the previous ingress.",
 		Example: "chkit replace ingress $INGRESS [--force] [--service $SERVICE] [--port 80] [--tls-secret letsencrypt]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
+			logger.Struct(flags)
 			logger.Debugf("running replace ingress command")
 			var ingr ingress.Ingress
 			if len(args) == 1 {
@@ -76,6 +77,11 @@ func Replace(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			ingrChanged, err := flags.Ingress()
+			if err != nil {
+				logger.WithError(err).Errorf("unable to load ingress from flags")
+				activekit.Attention("Unable to load ingress from flags:\n%v", err)
+				ctx.Exit(1)
+			}
 			ingrChanged.Name = ingr.Name
 
 			if ingrChanged.Rules != nil {
@@ -103,12 +109,12 @@ func Replace(ctx *context.Context) *cobra.Command {
 				return
 			}
 			services, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
-			services = services.AvailableForIngress()
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get service list")
 				activekit.Attention("Unable to get service list:\n%v", err)
 				ctx.Exit(1)
 			}
+			services = services.AvailableForIngress()
 			ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
 			ingr, err = activeingress.EditWizard(activeingress.Config{
 				Services: services,

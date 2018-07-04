@@ -36,7 +36,7 @@ func (container Container) Validate() error {
 }
 
 func (container Container) validateEnvs() error {
-	var errs = make([]error, len(container.Env))
+	var errs = make([]error, 0, len(container.Env))
 	for _, env := range container.Env {
 		if env.Name == "" || strings.Contains(env.Name, " ") {
 			errs = append(errs, fmt.Errorf("invalid env name %q", env.Name))

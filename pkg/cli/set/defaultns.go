@@ -6,6 +6,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/ninedraft/boxofstuff/str"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +16,8 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 		Short:   "Set default namespace",
 		Aliases: []string{"def-ns", "default-ns", "defns", "def-namespace"},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			var ns, _ = cmd.Flags().GetString("namespace")
+			var flagNs, _ = cmd.Flags().GetString("namespace")
+			var ns = str.Vector{flagNs}.Append(args...).FirstNonEmpty()
 			if err := prerun.PreRun(ctx, prerun.Config{
 				NamespaceSelection: prerun.RunNamespaceSelectionAndPersist,
 				Namespace:          ns,

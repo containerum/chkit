@@ -22,7 +22,6 @@ func (Solution) TableHeaders() []string {
 		"Name",
 		"Template",
 		"Branch",
-		"Namespace",
 		"ENV",
 	}
 }
@@ -33,7 +32,6 @@ func (solution Solution) TableRows() [][]string {
 		solution.Name,
 		solution.Template,
 		solution.Branch,
-		solution.Namespace,
 		func() string {
 			buf := bytes.NewBuffer(make([]byte, 0, (envWidth+1)*len(solution.Env)))
 			for k, v := range solution.Env {

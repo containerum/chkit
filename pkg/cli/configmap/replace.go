@@ -2,121 +2,183 @@ package cliconfigmap
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 
+	"encoding/base64"
+
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 func Replace(ctx *context.Context) *cobra.Command {
-	var flags activeconfigmap.Flags
+	var flags struct {
+		activeconfigmap.Flags
+		porta.Importer
+		porta.Exporter
+	}
+
+	exportConfig := export.ExportConfig{}
 	var cmd = &cobra.Command{
 		Use:     "configmap",
+		Short:   "Replace configmap.",
 		Aliases: aliases,
 		Run: func(cmd *cobra.Command, args []string) {
-			var cmName string
-			var cmList configmap.ConfigMapList
-			switch len(args) {
-			case 0:
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
+			logger.Debugf("running replace configmap command")
+			var flagCm configmap.ConfigMap
+
+			if flags.ImportActivated() {
+				if err := flags.Import(&flagCm); err != nil {
+					ferr.Printf("unable to import configmap:\n%v\n", err)
+					ctx.Exit(1)
+				}
+			} else {
 				var err error
-				list, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
+				flagCm, err = flags.ConfigMap()
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				(&activekit.Menu{
-					Title: "Select configmap",
-					Items: activekit.StringSelector(list.Names(), func(name string) error {
-						cmName = name
-						return nil
-					}),
-				}).Run()
-				cmList = list
-			case 1:
-				cmName = args[0]
-			default:
-				cmd.Help()
+			}
+
+			var newCm configmap.ConfigMap
+			if flags.Force {
+				if len(args) != 1 {
+					cmd.Help()
+					return
+				}
+				oldCm, err := ctx.Client.GetConfigmap(ctx.GetNamespace().ID, args[0])
+				if err != nil {
+					activekit.Attention(err.Error())
+					ctx.Exit(1)
+				}
+				for k, v := range flagCm.Data {
+					oldCm.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
+				}
+
+				if err := activeconfigmap.ValidateConfigMap(oldCm); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				if flags.ExporterActivated() {
+					if err := flags.Export(oldCm); err != nil {
+						ferr.Printf("unable to export configmap:\n%v\n", err)
+						ctx.Exit(1)
+					}
+					return
+				}
+				if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, oldCm); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				fmt.Printf("Congratulations! Configmap %s updated!\n", oldCm.Name)
 				return
-			}
-			if cmList == nil {
-				list, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
-				if err != nil {
-					ferr.Println(err)
-					ctx.Exit(1)
-				}
-				cmList = list
-			}
-			var err error
-			cm, ok := cmList.GetByName(cmName)
-			if !ok {
-				fmt.Printf("configmap %q not found", cm.Name)
-				ctx.Exit(1)
-			}
-			if flags.ItemFile != nil || flags.ItemString != nil {
-				var items = make([]configmap.Item, 0, len(flags.ItemString)+len(flags.ItemFile))
-				for _, itemString := range flags.ItemString {
-					var item, err = newItem(itemString)
+			} else {
+				if len(args) == 0 {
+					list, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
 					if err != nil {
-						ferr.Println(err)
+						activekit.Attention(err.Error())
 						ctx.Exit(1)
 					}
-					items = append(items, item)
-				}
-				for _, itemString := range flags.ItemString {
-					var item, err = newItem(itemString)
+					var menu []*activekit.MenuItem
+					for _, s := range list {
+						menu = append(menu, &activekit.MenuItem{
+							Label: s.Name,
+							Action: func(d configmap.ConfigMap) func() error {
+								return func() error {
+									newCm = d
+									for k, v := range newCm.Data {
+										//TODO
+										//Fix it when update UI and kube-api
+										newCm.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
+									}
+									return nil
+								}
+							}(s),
+						})
+					}
+					if err := export.ExportData(list, exportConfig); err != nil {
+						logrus.WithError(err).Errorf("unable to export data")
+						angel.Angel(ctx, err)
+					}
+					(&activekit.Menu{
+						Title: "Choose configmap to replace",
+						Items: menu,
+					}).Run()
+				} else {
+					var err error
+					newCm, err = ctx.Client.GetConfigmap(ctx.GetNamespace().ID, args[0])
 					if err != nil {
-						ferr.Println(err)
+						activekit.Attention(err.Error())
 						ctx.Exit(1)
 					}
-					content, err := ioutil.ReadFile(item.Value())
-					if err != nil {
-						fmt.Printf("error while loading file item %q:\n%v\n", itemString, err)
-						ctx.Exit(1)
-					}
-					items = append(items, item.WithValue(string(content)))
 				}
-				cm = cm.AddItems(items...)
 			}
-			if flags.File != "" {
-				fmt.Printf("Loading configmap from %q\n", flags.File)
-				cm, err = activeconfigmap.FromFile(flags.File)
-				if err != nil {
-					ferr.Println(err)
-					ctx.Exit(1)
-				}
+			for k, v := range flagCm.Data {
+				newCm.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
 			}
 			if !flags.Force {
-				cm = activeconfigmap.Config{
+				newCm = activeconfigmap.Config{
 					EditName:  false,
-					ConfigMap: &cm,
+					ConfigMap: &newCm,
 				}.Wizard()
 			}
 			if flags.Force ||
-				activekit.YesNo("Do you really want to replace configmap %q on server?", cmName) {
-				if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, cm); err != nil {
+				activekit.YesNo("Do you really want to replace configmap %q on server?", newCm.Name) {
+				if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, newCm); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
+				fmt.Printf("Congratulations! Configmap %s updated!\n", newCm.Name)
 			}
+			fmt.Println(newCm.RenderTable())
+			(&activekit.Menu{
+				Items: activekit.MenuItems{
+					{
+						Label: "Edit configmap " + newCm.Name,
+						Action: func() error {
+							newCm = activeconfigmap.Config{
+								EditName:  false,
+								ConfigMap: &newCm,
+							}.Wizard()
+							if activekit.YesNo("Push changes to server?") {
+								if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, newCm); err != nil {
+									ferr.Printf("unable to update configmap on server:\n%v\n", err)
+								}
+							}
+							return nil
+						},
+					},
+					{
+						Label: "Export configmap to file",
+						Action: func() error {
+							var fname = activekit.Promt("Type filename: ")
+							fname = strings.TrimSpace(fname)
+							if fname != "" {
+								if err := (porta.Exporter{OutFile: fname}.Export(newCm)); err != nil {
+									ferr.Printf("unable to export configmap:\n%v\n", err)
+								}
+							}
+							return nil
+						},
+					},
+				},
+			}).Run()
 		},
 	}
 	if err := gpflag.ParseTo(&flags, cmd.Flags()); err != nil {
 		panic(err)
 	}
 	return cmd
-}
-
-func newItem(itemsString string) (configmap.Item, error) {
-	var tokens = strings.SplitN(itemsString, ":", 2)
-	if len(tokens) != 2 {
-		return configmap.Item{}, fmt.Errorf("unable to parse %q to configmap item", itemsString)
-	}
-	return configmap.NewItem(strings.TrimSpace(tokens[0]),
-		strings.TrimSpace(tokens[1])), nil
 }

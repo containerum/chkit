@@ -25,10 +25,10 @@ func itemMenu(item configmap.Item) *configmap.Item {
 						var key = activekit.Promt("Type name (hit Enter to leave %s): ",
 							activekit.OrString(item.Key(), "empty"))
 						key = strings.TrimSpace(key)
-						if ok := configmap.KeyRegexp().MatchString(key); key != "" && ok {
+						if ok := KeyRegexp().MatchString(key); key != "" && ok {
 							item = item.WithKey(key)
 						} else if !ok {
-							fmt.Printf("Invalid key %q: must match %q\n", key, configmap.KeyRegexp())
+							fmt.Printf("Invalid key %q: must match %q\n", key, KeyRegexp())
 						}
 						return nil
 					},

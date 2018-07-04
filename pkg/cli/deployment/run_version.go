@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/blang/semver"
-	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -24,7 +23,7 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 		Use:     "deployment-version",
 		Aliases: []string{"depl-version", "devers", "deploy-vers", "depver", "deplver"},
 		Short:   "run specific deployment version",
-		Long:    help.GetString("run deployment-version"),
+		// Long:    help.MustGetString("run deployment-version"),
 		Example: "chkit run deployment-version --deployment $DEPLOYMENT --version $VERSION --force",
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("run deployment version")

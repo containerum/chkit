@@ -10,6 +10,8 @@ PRIVATE_KEY_FILE:=privkey.pem
 PUBLIC_KEY_FILE:=pubkey.pem
 FILEBOX := $(shell command -v fileb0x 2>/dev/null)
 FUNCTIONAL_TEST_MODULES := config deployment
+HELP_DIR := help
+HELP_CONTENT_FILES := $(shell find $(HELP_DIR)/content -name '*.md')
 
 COMMIT_HASH=$(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE=$(shell date +%FT%T%Z)
@@ -45,7 +47,7 @@ $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE):
 
 genkey: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 
-help/ab0x.go:
+help/ab0x.go: help/b0x.toml $(HELP_CONTENT_FILES)
 ifndef FILEBOX
 	$(error "fileb0x is not available, please install it from https://github.com/UnnoTed/fileb0x)
 endif

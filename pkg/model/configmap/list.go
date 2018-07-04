@@ -1,6 +1,8 @@
 package configmap
 
-import kubeModels "github.com/containerum/kube-client/pkg/model"
+import (
+	kubeModels "github.com/containerum/kube-client/pkg/model"
+)
 
 type ConfigMapList []ConfigMap
 

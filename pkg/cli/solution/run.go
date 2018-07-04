@@ -2,10 +2,14 @@ package clisolution
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/model/solution"
 	"github.com/containerum/chkit/pkg/model/solution/activesolution"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
@@ -14,19 +18,47 @@ import (
 var aliases = []string{"sol", "solutions", "sols", "solu", "so"}
 
 func Run(ctx *context.Context) *cobra.Command {
-	var flags activesolution.Flags
+	var flags struct {
+		activesolution.Flags
+		porta.Importer
+		porta.Exporter
+	}
+
 	command := &cobra.Command{
 		Use:     "solution",
 		Aliases: aliases,
-		Short:   "Run solution from template",
+		Short:   "run solution from template",
 		Example: "chkit run solution [$TEMPLATE] [--env=KEY1:VALUE1,KEY2:VALUE2] [--file $FILENAME] [--force]",
 		Run: func(cmd *cobra.Command, args []string) {
-			sol, err := flags.Solution(ctx.GetNamespace().ID, args)
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
+			logger.Debugf("running run solution command")
+			var sol solution.Solution
+			if flags.ImportActivated() {
+				if err := flags.Import(&sol); err != nil {
+					ferr.Printf("unable to import configmap:\n%v\n", err)
+					ctx.Exit(1)
+				}
+			} else {
+				var err error
+				sol, err = flags.Solution(ctx.GetNamespace().ID, args)
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+			}
 			sol.Namespace = ctx.GetNamespace().ID
 			if flags.Force {
 				if err := activesolution.ValidateSolution(sol); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
+				}
+				if flags.ExporterActivated() {
+					if err := flags.Export(sol); err != nil {
+						ferr.Printf("unable to export configmap:\n%v\n", err)
+						ctx.Exit(1)
+					}
+					return
 				}
 				if err := ctx.GetClient().RunSolution(sol); err != nil {
 					ferr.Println(err)
@@ -57,9 +89,26 @@ func Run(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				fmt.Printf("Solution %s is ready to run\n", sol.Name)
-				return
+				fmt.Printf("Congratulations! Solution %s is running!\n", sol.Name)
 			}
+			fmt.Println(sol.RenderTable())
+			(&activekit.Menu{
+				Items: activekit.MenuItems{
+					{
+						Label: "Export solution to file",
+						Action: func() error {
+							var fname = activekit.Promt("Type filename: ")
+							fname = strings.TrimSpace(fname)
+							if fname != "" {
+								if err := (porta.Exporter{OutFile: fname}.Export(sol)); err != nil {
+									ferr.Printf("unable to export solution:\n%v\n", err)
+								}
+							}
+							return nil
+						},
+					},
+				},
+			}).Run()
 		},
 	}
 	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {

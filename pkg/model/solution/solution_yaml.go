@@ -2,6 +2,7 @@ package solution
 
 import (
 	"github.com/containerum/chkit/pkg/model"
+	kubeModels "github.com/containerum/kube-client/pkg/model"
 	"gopkg.in/yaml.v2"
 )
 
@@ -17,4 +18,13 @@ func (solution Solution) RenderYAML() (string, error) {
 
 func (solution Solution) MarshalYAML() (interface{}, error) {
 	return solution.ToKube(), nil
+}
+
+func (solution *Solution) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var kubeSol kubeModels.UserSolution
+	if err := unmarshal(&kubeSol); err != nil {
+		return err
+	}
+	*solution = SolutionFromKube(kubeSol)
+	return nil
 }
