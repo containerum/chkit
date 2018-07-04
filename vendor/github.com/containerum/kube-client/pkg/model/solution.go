@@ -41,12 +41,12 @@ func (list AvailableSolutionsList) Filter(pred func(AvailableSolution) bool) Ava
 //
 // swagger:model
 type AvailableSolution struct {
-	ID     string          `json:"id,omitempty"`
-	Name   string          `json:"name"`
-	Limits *SolutionLimits `json:"limits"`
-	Images []string        `json:"images"`
-	URL    string          `json:"url"`
-	Active bool            `json:"active"`
+	ID     string          `json:"id,omitempty" yaml:"id,omitempty"`
+	Name   string          `json:"name" yaml:"name"`
+	Limits *SolutionLimits `json:"limits" yaml:"limits"`
+	Images []string        `json:"images" yaml:"images"`
+	URL    string          `json:"url" yaml:"url"`
+	Active bool            `json:"active" yaml:"active"`
 }
 
 func (solution AvailableSolution) Copy() AvailableSolution {
@@ -69,8 +69,8 @@ func (solution AvailableSolution) Copy() AvailableSolution {
 //
 // swagger:model
 type SolutionLimits struct {
-	CPU string `json:"cpu"`
-	RAM string `json:"ram"`
+	CPU string `json:"cpu" yaml:"cpu"`
+	RAM string `json:"ram" yaml:"cpu"`
 }
 
 // SolutionEnv -- solution environment variables
