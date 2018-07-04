@@ -1,5 +1,7 @@
 package help
 
+//go:generate fileb0x b0x.toml
+
 import (
 	"strings"
 
@@ -7,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//go:generate fileb0x b0x.toml
 func MustGetString(command string) string {
 	data, err := ReadFile(str.Fields(command).
 		Map(strings.TrimSpace).
@@ -58,6 +59,13 @@ func AutoForCommands(cmds []*cobra.Command) {
 		var help, err = Command(cmd)
 		if err == nil {
 			cmd.Long = help
+		}
+		if len(cmd.Aliases) > 0 {
+			var short = strings.TrimSpace(cmd.Short)
+			if !strings.HasSuffix(short, ".") {
+				short = short + ". "
+			}
+			cmd.Short = short + "Aliases: " + strings.Join(cmd.Aliases, ", ")
 		}
 	}
 }

@@ -12,6 +12,8 @@ There are several ways to specify the names of containers with flags:
 
 If the --container-name flag is not specified and prefix is not used in any of the flags, then wizard searches for the --image flags without a prefix and generates name RANDOM_COLOR-IMAGE.
 
+If --export-file or --output flag is set in force mode, then deployment will be only exported to local file without any changes on serverside.
+
 **Examples:**
 
 ---

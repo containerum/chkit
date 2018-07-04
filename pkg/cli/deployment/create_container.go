@@ -30,7 +30,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "deployment-container",
 		Aliases: []string{"depl-cont", "container", "dc"},
-		Short:   "create deployment container.",
+		Short:   "create deployment container",
 		//		Long:    help.MustGetString("create container"),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("create deployment container")
