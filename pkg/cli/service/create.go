@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/model/service/servactive"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/sirupsen/logrus"
@@ -27,7 +28,9 @@ func Create(ctx *context.Context) *cobra.Command {
 		Short:   "create service",
 		Long:    "Create service for the specified pod in the specified namespace.",
 		Run: func(cmd *cobra.Command, args []string) {
-			logrus.WithField("command", "create serv").Debugf("start serv creation")
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
+			logger.Debugf("running create service command")
 			var svc service.Service
 			if flags.ImportActivated() {
 				if err := flags.Import(&svc); err != nil {

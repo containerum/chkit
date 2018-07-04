@@ -28,9 +28,11 @@ func Create(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "configmap",
 		Aliases: aliases,
+		Short:   "create configmap",
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			logger.Struct(flags)
+			logger.Debugf("running create configmap command")
 			var config configmap.ConfigMap
 			if flags.ImportActivated() {
 				if err := flags.Import(&config); err != nil {

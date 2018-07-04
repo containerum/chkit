@@ -22,13 +22,14 @@ func Replace(ctx *context.Context) *cobra.Command {
 	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "ingress",
-		Short:   "Replace ingress with a new one.",
+		Short:   "Replace ingress.",
 		Aliases: aliases,
 		Long: "Replace ingress with a new one, use --force flag to write one-liner command, " +
 			"omitted attributes are inherited from the previous ingress.",
 		Example: "chkit replace ingress $INGRESS [--force] [--service $SERVICE] [--port 80] [--tls-secret letsencrypt]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
+			logger.Struct(flags)
 			logger.Debugf("running replace ingress command")
 			var ingr ingress.Ingress
 			if len(args) == 1 {

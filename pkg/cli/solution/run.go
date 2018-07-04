@@ -10,6 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/solution"
 	"github.com/containerum/chkit/pkg/model/solution/activesolution"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
 	"github.com/spf13/cobra"
@@ -27,9 +28,12 @@ func Run(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "solution",
 		Aliases: aliases,
-		Short:   "Run solution from template",
+		Short:   "run solution from template",
 		Example: "chkit run solution [$TEMPLATE] [--env=KEY1:VALUE1,KEY2:VALUE2] [--file $FILENAME] [--force]",
 		Run: func(cmd *cobra.Command, args []string) {
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
+			logger.Debugf("running run solution command")
 			var sol solution.Solution
 			if flags.ImportActivated() {
 				if err := flags.Import(&sol); err != nil {
