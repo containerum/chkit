@@ -13,7 +13,7 @@ import (
 func Run(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "run",
-		Short: "Run solutions and pods",
+		Short: "Run solutions and deployments",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
