@@ -207,6 +207,13 @@ def set_deploy_replicas(deploy: str, replicas: int, namespace: str=None) -> None
     sh.chkit(*args).execute()
 
 
+def get_versions(deploy: str, namespace: str=None) -> List[Deployment]:
+    args = ["get", "deployment-versions", "-o", "json", deploy]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+    return [Deployment.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
+
+
 ###################################
 # DEPLOYMENT CONTAINER MANAGEMENT #
 ###################################
