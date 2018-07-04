@@ -1,10 +1,12 @@
 from functional_tests import chkit
 import unittest
 import time
+import timeout_decorator
 
 
 class TestDeployment(unittest.TestCase):
 
+    @timeout_decorator.timeout(seconds=630)
     @chkit.test_account
     def test_base(self):
         depl = chkit.Deployment(
@@ -30,6 +32,7 @@ class TestDeployment(unittest.TestCase):
             time.sleep(5)
             self.assertNotIn(depl.name, [deploy.name for deploy in chkit.get_deployments()])
 
+    @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
     @chkit.with_deployment
     def test_set_image(self, depl: chkit.Deployment):
@@ -37,6 +40,7 @@ class TestDeployment(unittest.TestCase):
         got_depl = chkit.get_deployment(depl.name)
         self.assertEqual(got_depl.containers[0].image, "redis")
 
+    @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
     @chkit.with_deployment
     def test_replace_container(self, depl: chkit.Deployment):
@@ -55,6 +59,7 @@ class TestDeployment(unittest.TestCase):
         self.assertEqual(needed_containers[0].limits.memory, new_container.limits.memory)
         self.assertEqual(needed_containers[0].image, new_container.image)
 
+    @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
     @chkit.with_deployment
     def test_add_container(self, depl: chkit.Deployment):
@@ -75,6 +80,7 @@ class TestDeployment(unittest.TestCase):
         self.assertEqual(needed_containers[0].limits.memory, new_container.limits.memory)
         self.assertEqual(needed_containers[0].image, new_container.image)
 
+    @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
     @chkit.with_deployment
     @chkit.with_container
@@ -85,6 +91,7 @@ class TestDeployment(unittest.TestCase):
         for i in range(0, len(depl.containers)):
             self.assertEqual(got_depl.containers[i].name, depl.containers[i].name)
 
+    @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
     @chkit.with_deployment
     def test_set_deploy_replicas(self, depl: chkit.Deployment):
@@ -93,13 +100,15 @@ class TestDeployment(unittest.TestCase):
         self.assertEqual(depl.name, got_depl.name)
         self.assertEqual(got_depl.replicas, 2)
 
+    @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
     @chkit.with_deployment
     @chkit.with_container
     def test_change_deploy_version(self, depl: chkit.Deployment, container: chkit.Container):
         got_depl = chkit.get_deployment(depl.name)
-        self.assertIn("1.0.1", got_depl.version)
+        self.assertIn("2.0.0", got_depl.version)
 
+    @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
     @chkit.with_deployment
     @chkit.with_container
@@ -107,6 +116,7 @@ class TestDeployment(unittest.TestCase):
         deploy_versions = chkit.get_versions(deploy=depl.name)
         self.assertEqual(len(deploy_versions), 2)
 
+    @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
     @chkit.with_deployment
     @chkit.with_container
@@ -116,3 +126,21 @@ class TestDeployment(unittest.TestCase):
         got_depl = chkit.get_deployment(depl.name)
         self.assertEqual(got_depl.version, "1.0.0")
         self.assertEqual(len(got_depl.containers), len(depl.containers))
+
+    # TODO: waiting for fix
+    # @timeout_decorator.timeout(seconds=30)
+    # @chkit.test_account
+    # @chkit.with_deployment
+    # @chkit.with_container
+    # def test_delete_active_deployment_version(self, depl: chkit.Deployment, container: chkit.Container):
+    #     chkit.delete_version(deploy=depl.name, version="2.0.0")
+
+    @timeout_decorator.timeout(seconds=30)
+    @chkit.test_account
+    @chkit.with_deployment
+    @chkit.with_container
+    def test_delete_previous_deployment_version(self, depl: chkit.Deployment, container: chkit.Container):
+        chkit.delete_version(deploy=depl.name, version="1.0.0")
+        depl_versions = chkit.get_versions(depl.name)
+        self.assertEqual(len(depl_versions), 1)
+        self.assertIn("1.0.0", depl_versions[0].version)

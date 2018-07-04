@@ -272,6 +272,12 @@ def run_version(deploy: str, version: str, namespace: str=None) -> None:
     sh.chkit(*args).execute()
 
 
+def delete_version(deploy: str, version: str, namespace: str=None) -> None:
+    args = ["delete", "deployment-version", "--deployment", deploy, "--version", version, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+    sh.chkit(*args).execute()
+
 ###################################
 # DEPLOYMENT CONTAINER MANAGEMENT #
 ###################################

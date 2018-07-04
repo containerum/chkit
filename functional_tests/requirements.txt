@@ -1,1 +1,2 @@
 psh>=0.2.7, <0.3
+timeout_decorator>=0.4.0, <0.5
