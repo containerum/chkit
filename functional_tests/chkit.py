@@ -247,6 +247,13 @@ def add_container(deployment: str="", container: Container=Container(), namespac
         sh.chkit(*args).execute()
 
 
+def delete_container(deployment: str="", container: str="", namespace: str=None) -> None:
+    args = ["delete", "container", "--deployment", deployment, "--container", container, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+    sh.chkit(*args).execute()
+
+
 ##################
 # POD MANAGEMENT #
 ##################
