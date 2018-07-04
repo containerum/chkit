@@ -21,7 +21,7 @@ type Importer struct {
 }
 
 func (importer Importer) ImportActivated() bool {
-	return importer.InputFormat != "" || importer.InputFormat != ""
+	return importer.InputFormat != "" || importer.InFile != ""
 }
 
 func (importer Importer) Import(obj Importable) error {

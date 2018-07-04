@@ -2,13 +2,12 @@ package cliconfigmap
 
 import (
 	"fmt"
-
 	"strings"
 
-	"github.com/containerum/chkit/pkg/cli/porta"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
