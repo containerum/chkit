@@ -121,7 +121,6 @@ func Create(ctx *context.Context) *cobra.Command {
 			}).Run()
 		},
 	}
-
 	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
 		panic(err)
 	}
