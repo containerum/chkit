@@ -137,3 +137,24 @@ class TestDeployment(unittest.TestCase):
             chkit.delete_deploy(name=depl.name)
             time.sleep(5)
             self.assertNotIn(depl.name, [deploy.name for deploy in chkit.get_deployments()])
+
+    def test_set_deploy_replicas(self):
+        depl = chkit.Deployment(
+            name="add-container-test-depl",
+            replicas=1,
+            containers=[chkit.Container(image="nginx", name="first", limits=chkit.Resources(cpu=10, memory=10))],
+        )
+        try:
+            chkit.login(user="helpik94@yandex.com", password="12345678")
+            chkit.create_deployment(depl)
+            got_depl = chkit.get_deployment(depl.name)
+            self.assertEqual(depl.name, got_depl.name)
+            self.assertEqual(depl.replicas, got_depl.replicas)
+            chkit.set_deploy_replicas(deploy=depl.name, replicas=2)
+            got_depl = chkit.get_deployment(depl.name)
+            self.assertEqual(depl.name, got_depl.name)
+            self.assertEqual(got_depl.replicas, 2)
+        finally:
+            chkit.delete_deploy(name=depl.name)
+            time.sleep(5)
+            self.assertNotIn(depl.name, [deploy.name for deploy in chkit.get_deployments()])

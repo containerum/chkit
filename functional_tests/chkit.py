@@ -200,6 +200,13 @@ def delete_deploy(name: str, namespace: str=None, concurrency: int=None) -> None
     sh.chkit(*args).execute()
 
 
+def set_deploy_replicas(deploy: str, replicas: int, namespace: str=None) -> None:
+    args = ["set", "replicas", "--deployment", deploy, "--replicas", replicas]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+    sh.chkit(*args).execute()
+
+
 ###################################
 # DEPLOYMENT CONTAINER MANAGEMENT #
 ###################################
