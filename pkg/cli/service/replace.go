@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/containerum/chkit/pkg/cli/porta"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/model/service/servactive"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
