@@ -178,12 +178,12 @@ class Deployment(json.JSONEncoder):
 
 
 def get_deployment(name: str="") -> Deployment:
-    output = sh.chkit("get", "deploy", name, "-o", "json").execute().stdout()
+    output = sh.chkit("get", "deploy", name, "--output", "json").execute().stdout()
     return Deployment.json_decode(json.loads(output))
 
 
 def get_deployments() -> List[Deployment]:
-    output = sh.chkit("get", "deploy", "-o", "json").execute().stdout()
+    output = sh.chkit("get", "deploy", "--output", "json").execute().stdout()
     return [Deployment.json_decode(j) for j in json.loads(output)]
 
 
@@ -259,7 +259,7 @@ def set_deployment_replicas(deployment: str, replicas: int, namespace: str=None)
 
 
 def get_versions(deploy: str, namespace: str=None) -> List[Deployment]:
-    args = ["get", "deployment-versions", "-o", "json", deploy]
+    args = ["get", "deployment-versions", "--output", "json", deploy]
     if namespace is not None:
         args.extend(["--namespace", namespace])
     return [Deployment.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
@@ -412,7 +412,7 @@ class Pod(json.JSONEncoder):
 
 
 def get_pods(namespace: str=None, status: str=None) -> List[Pod]:
-    args = ["get", "pods", "-o", "json"]
+    args = ["get", "pods", "--output", "json"]
     if namespace is not None:
         args.extend(["--namespace", namespace])
     if status is not None:
