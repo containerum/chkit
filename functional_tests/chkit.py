@@ -3,9 +3,14 @@ from typing import Dict, Tuple, List
 import os
 import json
 from datetime import datetime
+import time
 
 DEFAULT_API_URL = os.getenv("CONTAINERUM_API", "http://api.local.containerum.io")
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+
+TEST_USER = os.getenv("TEST_USER", "helpik94@yandex.com")
+TEST_PASSWORD = os.getenv("TEST_USER_PASSWORD", "12345678")
+TEST_NAMESPACE = os.getenv("TEST_NAMESPACE", "-")
 
 ######################
 # API URL MANAGEMENT #
@@ -37,6 +42,20 @@ def get_profile() -> Dict[str, str]:
     profile = (tuple(items) for items in profile if len(items) == 2)
     profile = {key.strip(): value.strip() for key, value in profile}
     return profile
+
+
+def account(fn, user: str, password: str, namespace: str="-"):
+    def wrapped(*args, **kwargs):
+        login(user, password, namespace)
+        fn(*args, **kwargs)
+    return wrapped
+
+
+def test_account(fn):
+    def wrapped(*args, **kwargs):
+        login(user=TEST_USER, password=TEST_PASSWORD, namespace=TEST_NAMESPACE)
+        fn(*args, **kwargs)
+    return wrapped
 
 #####################
 # DEFAULT NAMESPACE #
@@ -191,7 +210,34 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
         sh.chkit(*args, _stdin=json.dumps(depl, cls=Deployment)).execute()
 
 
-def delete_deploy(name: str, namespace: str=None, concurrency: int=None) -> None:
+__default_deployment = Deployment(
+    name="two-containers-test-depl",
+    replicas=1,
+    containers=[
+        Container(image="nginx", name="first", limits=Resources(cpu=10, memory=10)),
+        Container(
+            name="second",
+            limits=Resources(cpu=15, memory=15),
+            image="redis",
+            env={"HELLO": "world"},
+        )
+    ],
+)
+
+
+def with_deployment(fn, deployment: Deployment=__default_deployment, namespace: str=None):
+    def wrapper(*args, **kwargs):
+        create_deployment(depl=deployment, namespace=namespace)
+        try:
+            args = list(args) + [deployment]
+            fn(*args, **kwargs)
+        finally:
+            delete_deployment(name=deployment.name, namespace=namespace)
+            time.sleep(5)
+    return wrapper
+
+
+def delete_deployment(name: str, namespace: str=None, concurrency: int=None) -> None:
     args = ["delete", "deploy", "--force", name]
     if namespace is not None:
         args.extend(["--namespace", namespace])
@@ -200,8 +246,8 @@ def delete_deploy(name: str, namespace: str=None, concurrency: int=None) -> None
     sh.chkit(*args).execute()
 
 
-def set_deploy_replicas(deploy: str, replicas: int, namespace: str=None) -> None:
-    args = ["set", "replicas", "--deployment", deploy, "--replicas", replicas]
+def set_deployment_replicas(deployment: str, replicas: int, namespace: str=None) -> None:
+    args = ["set", "replicas", "--deployment", deployment, "--replicas", replicas]
     if namespace is not None:
         args.extend(["--namespace", namespace])
     sh.chkit(*args).execute()
@@ -271,6 +317,23 @@ def add_container(deployment: str="", container: Container=Container(), namespac
         sh.chkit(*args, _stdin=json.dumps(container, cls=Container)).execute()
     else:
         sh.chkit(*args).execute()
+
+
+__default_container = Container(
+    name="test-container",
+    limits=Resources(cpu=15, memory=15),
+    image="redis",
+    env={"HELLO": "world"},
+)
+
+
+def with_container(fn, container: Container=__default_container,
+                   deployment: str=__default_deployment.name, namespace: str=None):
+    def wrapper(*args, **kwargs):
+        add_container(deployment=deployment, container=container, namespace=namespace)
+        args = list(args)+[container]
+        fn(*args, **kwargs)
+    return wrapper
 
 
 def delete_container(deployment: str="", container: str="", namespace: str=None) -> None:
