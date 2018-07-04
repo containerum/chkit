@@ -6,16 +6,20 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/configmap/activeconfigmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 func Replace(ctx *context.Context) *cobra.Command {
 	var flags activeconfigmap.Flags
+	exportConfig := export.ExportConfig{}
 	var cmd = &cobra.Command{
 		Use:     "configmap",
 		Aliases: aliases,
@@ -29,6 +33,10 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
+				}
+				if err := export.ExportData(list, exportConfig); err != nil {
+					logrus.WithError(err).Errorf("unable to export data")
+					angel.Angel(ctx, err)
 				}
 				(&activekit.Menu{
 					Title: "Select configmap",
