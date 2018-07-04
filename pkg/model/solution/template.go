@@ -37,6 +37,12 @@ func (solution SolutionTemplate) ImagePreview() string {
 	return view
 }
 
+func (solution SolutionTemplate) Resources() string {
+	return fmt.Sprintf("CPU    : %v mCPU\n"+
+		"MEMORY : %v Mb",
+		solution.Limits.CPU, solution.Limits.RAM)
+}
+
 func (solution SolutionTemplate) Describe() string {
 	imgs := "Images:"
 	return fmt.Sprintf("Name: %s"+

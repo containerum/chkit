@@ -14,6 +14,7 @@ func (SolutionTemplate) TableHeaders() []string {
 	return []string{
 		"Name",
 		"URL",
+		"Resources (default)",
 		"Images",
 	}
 }
@@ -22,6 +23,7 @@ func (solution SolutionTemplate) TableRows() [][]string {
 	return [][]string{{
 		solution.Name,
 		solution.URL,
+		solution.Resources(),
 		strings.Join(solution.Images, "\n"),
 	}}
 }
