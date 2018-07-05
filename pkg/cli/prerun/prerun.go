@@ -187,7 +187,6 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 			ctx.SetTemporaryNamespace(ns)
 		}
 		logger.Debugf("using namespace %q", ctx.GetNamespace())
-
 	default:
 		panic(fmt.Sprintf("[prerun.PreRun] invalid NamespaceSelection mode %q", config.NamespaceSelection))
 	}

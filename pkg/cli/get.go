@@ -61,7 +61,5 @@ func Get(ctx *context.Context) *cobra.Command {
 			},
 		},
 	)
-	command.PersistentFlags().
-		StringP("namespace", "n", ctx.GetNamespace().ID, "")
 	return command
 }

@@ -13,13 +13,11 @@ import (
 func ReplaceWizard(config ConstructorConfig) (service.Service, error) {
 	var err error
 	var serv service.Service
-	fmt.Println("TEST2", config.Service)
 	if config.Service != nil {
 		serv = *config.Service
 	} else {
 		serv = DefaultService()
 	}
-	fmt.Println("TEST1", serv)
 	if len(config.Deployments) == 1 && serv.Deploy == "" {
 		serv.Deploy = config.Deployments[0]
 	}
