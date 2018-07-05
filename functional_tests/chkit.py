@@ -441,7 +441,7 @@ def ensure_pods_running(deployment: str=__default_deployment.name, max_attempts:
                 pods = get_pods()
                 not_running_pods = [pod for pod in pods if pod.deploy == deployment and pod.status.phase != "Running"]
                 if len(not_running_pods) == 0:
-                    return
+                    break
                 time.sleep(sleep_seconds)
                 attempts += 1
             if attempts > max_attempts:
@@ -449,3 +449,15 @@ def ensure_pods_running(deployment: str=__default_deployment.name, max_attempts:
             fn(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def pod_logs(pod: str, container: str=None, tail: int=None, namespace: str=None) -> List[str]:
+    args = ["logs", pod]
+    if container is not None:
+        args.append(container)
+    if tail is not None:
+        args.extend(["--tail", tail])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return sh.chkit(*args).execute().stdout().splitlines()
