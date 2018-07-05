@@ -87,3 +87,29 @@ func (container Container) Copy() Container {
 	cp.Ports = append([]kubeModels.ContainerPort{}, cp.Ports...)
 	return cp
 }
+
+func (container Container) Patch(overlay Container) Container {
+	var cp = container.Copy()
+	if overlay.Limits.CPU > 0 {
+		cp.Limits.CPU = overlay.Limits.CPU
+	}
+	if overlay.Limits.Memory > 0 {
+		cp.Limits.Memory = overlay.Limits.Memory
+	}
+	cp.Image = str.Vector{overlay.Image, cp.Image}.FirstNonEmpty()
+	cp.ConfigMaps = mergeMounts(container.ConfigMountsMap(), overlay.ConfigMountsMap())
+	cp.VolumeMounts = mergeMounts(container.VolumeMountsMap(), overlay.VolumeMountsMap())
+	cp.PutEnvMap(overlay.GetEnvMap())
+	return cp
+}
+
+func mergeMounts(lefts, rights map[string]kubeModels.ContainerVolume) []kubeModels.ContainerVolume {
+	var mounts = make([]kubeModels.ContainerVolume, 0, (len(lefts)+len(rights))/2)
+	for rightPath, right := range rights {
+		lefts[rightPath] = right
+	}
+	for _, patched := range lefts {
+		mounts = append(mounts, patched)
+	}
+	return mounts
+}

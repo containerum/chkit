@@ -7,6 +7,7 @@ import (
 	containerControl "github.com/containerum/chkit/pkg/controls/container"
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/configmap"
+	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
@@ -19,7 +20,7 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 		Force         bool   `flag:"force f" desc:"suppress confirmation"`
 		ContainerName string `flag:"container" desc:"container name, required on --force"`
 		Deployment    string `desc:"deployment name, required on --force"`
-		containerControl.Flags
+		containerControl.ReplaceFlags
 	}
 	command := &cobra.Command{
 		Use:     "deployment-container",
@@ -31,13 +32,43 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 			var logger = ctx.Log.Command("replace deployment container")
 			logger.Debugf("START")
 			defer logger.Debugf("END")
+			if flags.Force {
+				if flags.Deployment == "" {
+					ferr.Printf("deployment name must be provided as --deployment while using --force")
+					ctx.Exit(1)
+				}
+				if flags.ContainerName == "" {
+					ferr.Printf("container name must be provided as --container while using --force")
+					ctx.Exit(1)
+				}
+				var depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				cont, ok := depl.Containers.GetByName(flags.ContainerName)
+				if !ok {
+					ferr.Printf("container %q doesn't exist", flags.ContainerName)
+					ctx.Exit(1)
+				}
+				cont, err = flags.Patch(cont)
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				depl.Containers, _ = depl.Containers.Replace(cont)
+				if err := ctx.Client.ReplaceDeployment(ctx.GetNamespace().ID, depl); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				fmt.Println("Ok")
+				return
+			}
 
-			if flags.Deployment == "" && flags.Force {
-				ferr.Printf("deployment name must be provided as --deployment while using --force")
-				ctx.Exit(1)
-			} else if flags.Deployment == "" {
+			var depl deployment.Deployment
+			if flags.Deployment == "" {
 				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
-				var depl, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
+				deplList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
 					ferr.Println(err)
@@ -46,37 +77,60 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 				logger.Debugf("selecting deployment")
 				(&activekit.Menu{
 					Title: "Select deployment",
-					Items: activekit.StringSelector(depl.Names(), func(s string) error {
-						flags.Deployment = s
-						logger.Debugf("deployment %q selected", s)
-						return nil
+					Items: activekit.ItemsFromIter(uint(deplList.Len()), func(index uint) *activekit.MenuItem {
+						var d = deplList[index]
+						return &activekit.MenuItem{
+							Label: d.Name,
+							Action: func() error {
+								flags.Deployment = d.Name
+								depl = d
+								logger.Debugf("deployment %q selected", d.Name)
+								return nil
+							},
+						}
 					}),
 				}).Run()
-			}
-
-			if flags.ContainerName == "" && flags.Force {
-				ferr.Printf("container name must be provided as --container while using --force")
-				ctx.Exit(1)
-			} else if flags.ContainerName == "" {
+			} else {
 				logger.Debugf("getting deployment %q", flags.Deployment)
-				var depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
+				var err error
+				depl, err = ctx.Client.GetDeployment(ctx.GetNamespace().ID, flags.Deployment)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment %q", flags.Deployment)
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
+			}
+
+			var cont container.Container
+
+			if flags.ContainerName == "" {
 				logger.Debugf("selecting container")
 				(&activekit.Menu{
 					Title: fmt.Sprintf("Select container in deployment %q", depl.Name),
-					Items: activekit.StringSelector(depl.Containers.Names(), func(s string) error {
-						flags.ContainerName = s
-						logger.Debugf("selected container %q", s)
-						return nil
+					Items: activekit.ItemsFromIter(uint(len(depl.Containers)), func(index uint) *activekit.MenuItem {
+						var c = depl.Containers[index]
+						return &activekit.MenuItem{
+							Label: c.Name,
+							Action: func() error {
+								flags.ContainerName = c.Name
+								logger.Debugf("selected container %q", c.Name)
+								cont = c
+								return nil
+							},
+						}
 					}),
 				}).Run()
+			} else {
+				var ok = false
+				cont, ok = depl.Containers.GetByName(flags.ContainerName)
+				if !ok {
+					ferr.Printf("container %q not found in deployment %q", flags.ContainerName, depl.Name)
+					ctx.Exit(1)
+				}
 			}
+
 			logger.Debugf("building container from flags")
-			var cont, err = flags.Container()
+			cont, err := flags.Patch(cont)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to build container from flags")
 				ferr.Println(err)
@@ -84,25 +138,6 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 			}
 			cont.Name = flags.ContainerName
 			fmt.Println(cont.RenderTable())
-
-			if flags.Force {
-				logger.Debugf("running in --force mode")
-				logger.Debugf("validating changed container %q", cont.Name)
-				if err := cont.Validate(); err != nil {
-					logger.WithError(err).Errorf("invalid container %q", cont.Name)
-					ferr.Println(err)
-					ctx.Exit(1)
-				}
-				logger.Debugf("replacing container %q", cont.Name)
-				if err := ctx.Client.ReplaceDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
-					logger.WithError(err).Errorf("unable to replace container %q", cont.Name)
-					ferr.Println(err)
-					ctx.Exit(1)
-				}
-				logger.Debugf("Ok")
-				fmt.Println("Ok")
-				return
-			}
 
 			//	volumes, err := ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
 			//	if err != nil {

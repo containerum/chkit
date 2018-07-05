@@ -20,7 +20,7 @@ func componentLimits(cont *container.Container) *activekit.MenuItem {
 					Title: "Container -> Limits",
 					Items: activekit.MenuItems{
 						{
-							Label: "Set CPU limit",
+							Label: "Set CPU limit    : " + fmt.Sprintf("%d mCPU", contLimits.CPU),
 							Action: func() error {
 								for {
 									var cpuStr = activekit.Promt("Type CPU limit, hit Enter to leave %d, expected %v mCPU: ", contLimits.CPU, limits.CPULimit)
@@ -39,7 +39,7 @@ func componentLimits(cont *container.Container) *activekit.MenuItem {
 							},
 						},
 						{
-							Label: "Set memory limit",
+							Label: "Set memory limit : " + fmt.Sprintf("%d Mb", contLimits.Memory),
 							Action: func() error {
 								for {
 									var memStr = activekit.Promt("Type memory limit, hit Enter to leave %d, expected %v Mb: ", contLimits.Memory, limits.MemLimit)
