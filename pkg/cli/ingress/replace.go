@@ -93,7 +93,6 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				ingrChanged.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
 			}
-
 			if flags.Force {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
@@ -115,24 +114,24 @@ func Replace(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			services = services.AvailableForIngress()
-			ingrChanged.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
-			ingrChanged, err = activeingress.EditWizard(activeingress.Config{
+			ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
+			ingr, err = activeingress.EditWizard(activeingress.Config{
 				Services: services,
-				Ingress:  &ingrChanged,
+				Ingress:  &ingr,
 			})
 			if err != nil {
 				logger.WithError(err).Errorf("unable to build ingress")
 				activekit.Attention("Unable to build ingress:\n%v", err)
 			}
-			if activekit.YesNo("Do you really want to replace ingress %q?", ingrChanged.Name) {
-				if err := activeingress.ValidateIngress(ingrChanged); err != nil {
+			if activekit.YesNo("Do you really want to replace ingress %q?", ingr.Name) {
+				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
 					activekit.Attention("Invalid ingress:\n%v", err)
 					ctx.Exit(1)
 				}
-				if err := ctx.Client.ReplaceIngress(ctx.GetNamespace().ID, ingrChanged); err != nil {
+				if err := ctx.Client.ReplaceIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					logger.WithError(err).Errorf("unable to replace ingress")
-					activekit.Attention("Unable to replace ingress %q:\n%v", ingrChanged.Name, err)
+					activekit.Attention("Unable to replace ingress %q:\n%v", ingr.Name, err)
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")
