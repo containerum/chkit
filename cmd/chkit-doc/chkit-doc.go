@@ -114,15 +114,17 @@ func pop(stack *[]*cobra.Command) cobra.Command {
 	return *cmd
 }
 
+type M = map[string]interface{}
+
 func hugoHeader(category string, cmd doc.Doc) string {
 	var header map[string]interface{}
 	if category != "" {
-		header = map[string]interface{}{
+		header = M{
 			"title":       strings.Title(cmd.Path),
 			"linktitle":   cmd.Path,
 			"description": cmd.Description,
-			"menu": map[string]interface{}{
-				"docs": map[string]interface{}{
+			"menu": M{
+				"docs": M{
 					"parent": "commands",
 					"weight": 5,
 				},
