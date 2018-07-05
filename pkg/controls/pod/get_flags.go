@@ -47,7 +47,7 @@ func (gf GetFlags) Statuses() str.Vector {
 		if gf.Failed {
 			statuses = append(statuses, "failed")
 		}
-		return statuses.Filter(str.Longer(0))
+		return statuses.NonEmpty()
 	}
 	return []string{"running", "pending", "failed"}
 }
