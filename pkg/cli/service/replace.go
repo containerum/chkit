@@ -65,17 +65,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					external = true
 				}
 				if len(flagSvc.Ports) != 0 {
-					if external {
-						if flagSvc.Ports[0].Port != nil && *flagSvc.Ports[0].Port != 0 {
-							oldServ.Ports[0].Port = flagSvc.Ports[0].Port
-						}
-					}
-					if flagSvc.Ports[0].TargetPort != 0 {
-						oldServ.Ports[0].TargetPort = flagSvc.Ports[0].TargetPort
-					}
-					if flagSvc.Ports[0].Name != "" && (flags.PortName != "" || flags.ImportActivated()) {
-						oldServ.Ports[0].Name = flagSvc.Ports[0].Name
-					}
+					oldServ.Ports = append(oldServ.Ports, flagSvc.Ports[0])
 				}
 				if flagSvc.Deploy != "" {
 					oldServ.Deploy = flagSvc.Deploy
@@ -145,17 +135,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				fmt.Println("Unable to get deployment list :(")
 			}
 			if len(flagSvc.Ports) != 0 {
-				if external {
-					if flagSvc.Ports[0].Port != nil && *flagSvc.Ports[0].Port != 0 {
-						svc.Ports[0].Port = flagSvc.Ports[0].Port
-					}
-				}
-				if flagSvc.Ports[0].TargetPort != 0 {
-					svc.Ports[0].TargetPort = flagSvc.Ports[0].TargetPort
-				}
-				if flagSvc.Ports[0].Name != "" && (flags.PortName != "" || flags.ImportActivated()) {
-					svc.Ports[0].Name = flagSvc.Ports[0].Name
-				}
+				svc.Ports = append(svc.Ports, flagSvc.Ports[0])
 			}
 			if flagSvc.Deploy != "" {
 				svc.Deploy = flagSvc.Deploy
