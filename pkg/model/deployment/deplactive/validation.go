@@ -19,7 +19,7 @@ const (
 func ValidateContainer(cont container.Container) error {
 	var errs []error
 	if err := validation.ValidateLabel(cont.Name); err != nil {
-		errs = append(errs, fmt.Errorf("\n + invalid container name: %v", err))
+		errs = append(errs, fmt.Errorf("\n + invalid container name %q: %v", cont.Name, err))
 	}
 
 	if err := validation.ValidateImageName(cont.Image); err != nil || cont.Image == "" {

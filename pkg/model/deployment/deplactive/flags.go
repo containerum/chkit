@@ -97,11 +97,11 @@ func (flags Flags) BuildContainers() (chkitContainer.ContainerList, error) {
 
 	var list = make(chkitContainer.ContainerList, 0, len(flags.containers))
 	for containerName, container := range flags.containers {
-		containerName = str.Vector{
+		var names = str.Vector{
 			containerName,
 			flags.ContainerName,
-			namegen.Color() + "-" + container.Image}.FirstNonEmpty()
-		container.Name = containerName
+			namegen.Color() + "-" + container.ImageName()}
+		container.Name = names.FirstNonEmpty()
 		list = append(list, container)
 	}
 	return list, nil

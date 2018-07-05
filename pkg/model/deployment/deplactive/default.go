@@ -10,7 +10,7 @@ func Fill(depl *deployment.Deployment) {
 	if depl.Name == "" {
 		depl.Name = namegen.Aster() + "-" + namegen.Physicist()
 	}
-	if depl.Replicas < 1 {
+	if depl.Replicas <= 0 {
 		depl.Replicas = 1
 	}
 	if depl.Version.Patch == 0 &&
