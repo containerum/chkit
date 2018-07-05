@@ -180,14 +180,13 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 			if err != nil {
 				return chkitErrors.Fatal(err)
 			}
-			var ns, ok = nsList.GetByID(tokens.Join("/"))
+			var ns, ok = nsList.GetByUserFriendlyID(tokens.Join("/"))
 			if !ok {
 				return chkitErrors.FatalString("you have no namespaces")
 			}
 			ctx.SetTemporaryNamespace(ns)
 		}
 		logger.Debugf("using namespace %q", ctx.GetNamespace())
-
 	default:
 		panic(fmt.Sprintf("[prerun.PreRun] invalid NamespaceSelection mode %q", config.NamespaceSelection))
 	}
