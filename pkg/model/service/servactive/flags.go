@@ -23,8 +23,17 @@ func (flags Flags) Service() (service.Service, error) {
 
 	var flagPort = service.Port{
 		Protocol:   flags.Protocol,
-		Port:       &flags.Port,
 		TargetPort: flags.TargetPort,
+	}
+
+	if flags.Port != 0 {
+		flagPort.Port = &flags.Port
+	}
+
+	if flags.Protocol != "" {
+		flagPort.Protocol = flags.Protocol
+	} else {
+		flagPort.Protocol = "TCP"
 	}
 
 	if flags.Name == "" {
@@ -35,7 +44,11 @@ func (flags Flags) Service() (service.Service, error) {
 		flagPort.Name = namegen.ColoredPhysics()
 	}
 
-	flagSvc.Ports = []service.Port{flagPort}
+	if flags.Port != 0 || flags.TargetPort != 0 || flags.Protocol != "" || flags.PortName != "" {
+		flagSvc.Ports = []service.Port{flagPort}
+	} else {
+		flagSvc.Ports = []service.Port{}
+	}
 
 	return flagSvc, nil
 }

@@ -23,7 +23,7 @@ func (_ *Service) TableHeaders() []string {
 }
 
 func (serv *Service) TableRows() [][]string {
-	age := "undefine"
+	age := "undefined"
 	if serv.CreatedAt != (time.Time{}) {
 		age = model.Age(serv.CreatedAt)
 	}
