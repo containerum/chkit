@@ -1,7 +1,6 @@
 package activeconfigmap
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"path"
@@ -59,7 +58,7 @@ func getStringItems(rawItems []string) ([]configmap.Item, error) {
 		}
 		items = append(items, configmap.NewItem(
 			key,
-			base64.StdEncoding.EncodeToString([]byte(value)),
+			value,
 		))
 	}
 	return items, nil
@@ -85,7 +84,7 @@ func getFileItems(rawItems []string) ([]configmap.Item, error) {
 		}
 		items = append(items, configmap.NewItem(
 			key,
-			base64.StdEncoding.EncodeToString(value),
+			string(value),
 		))
 	}
 	return items, nil

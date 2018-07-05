@@ -58,7 +58,7 @@ func Create(ctx *context.Context) *cobra.Command {
 					}
 					return
 				}
-				if err := ctx.Client.CreateConfigMap(ctx.GetNamespace().ID, config); err != nil {
+				if err := ctx.Client.CreateConfigMap(ctx.GetNamespace().ID, config.ToBase64()); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -70,7 +70,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				ConfigMap: &config,
 			}.Wizard()
 			if activekit.YesNo("Are you sure you want create configmap %q?", config.Name) {
-				if err := ctx.Client.CreateConfigMap(ctx.GetNamespace().ID, config); err != nil {
+				if err := ctx.Client.CreateConfigMap(ctx.GetNamespace().ID, config.ToBase64()); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -88,7 +88,7 @@ func Create(ctx *context.Context) *cobra.Command {
 								ConfigMap: &config,
 							}.Wizard()
 							if activekit.YesNo("Push changes to server?") {
-								if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, config); err != nil {
+								if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, config.ToBase64()); err != nil {
 									ferr.Printf("unable to update configmap on server:\n%v\n", err)
 								}
 							}

@@ -25,19 +25,19 @@ func (config ConfigMap) Copy() ConfigMap {
 	for k, v := range config.Data {
 		cm.Data[k] = v
 	}
-	return config
+	return cm
 }
 
 func (config ConfigMap) Set(key string, value string) ConfigMap {
 	config = config.Copy()
-	config.Data[key] = base64.StdEncoding.EncodeToString([]byte(value))
+	config.Data[key] = value
 	return config
 }
 
 func (config ConfigMap) Add(data map[string]string) ConfigMap {
 	config = config.Copy()
 	for k, v := range data {
-		config.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
+		config.Data[k] = v
 	}
 	return config
 }
@@ -94,4 +94,13 @@ func (config ConfigMap) New() ConfigMap {
 	return ConfigMap{
 		Data: make(kubeModels.ConfigMapData, len(config.Data)),
 	}
+}
+
+func (config ConfigMap) ToBase64() ConfigMap {
+	var cm = config
+	cm.Data = make(kubeModels.ConfigMapData, len(config.Data))
+	for k, v := range config.Data {
+		cm.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
+	}
+	return cm
 }

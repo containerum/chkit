@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"encoding/base64"
-
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/configmap"
@@ -64,7 +62,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				for k, v := range flagCm.Data {
-					oldCm.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
+					oldCm.Data[k] = v
 				}
 
 				if err := activeconfigmap.ValidateConfigMap(oldCm); err != nil {
@@ -78,7 +76,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					}
 					return
 				}
-				if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, oldCm); err != nil {
+				if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, oldCm.ToBase64()); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -99,9 +97,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 								return func() error {
 									newCm = d
 									for k, v := range newCm.Data {
-										//TODO
-										//Fix it when update UI and kube-api
-										newCm.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
+										newCm.Data[k] = v
 									}
 									return nil
 								}
@@ -126,7 +122,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 			}
 			for k, v := range flagCm.Data {
-				newCm.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
+				newCm.Data[k] = v
 			}
 			if !flags.Force {
 				newCm = activeconfigmap.Config{
@@ -136,7 +132,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 			}
 			if flags.Force ||
 				activekit.YesNo("Do you really want to replace configmap %q on server?", newCm.Name) {
-				if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, newCm); err != nil {
+				if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, newCm.ToBase64()); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -153,7 +149,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 								ConfigMap: &newCm,
 							}.Wizard()
 							if activekit.YesNo("Push changes to server?") {
-								if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, newCm); err != nil {
+								if err := ctx.Client.ReplaceConfigmap(ctx.GetNamespace().ID, newCm.ToBase64()); err != nil {
 									ferr.Printf("unable to update configmap on server:\n%v\n", err)
 								}
 							}
