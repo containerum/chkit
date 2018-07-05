@@ -5,7 +5,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/activekit"
 )
 
-func portCreationWizard(port service.Port) service.Port {
+func portCreationWizard(port service.Port, external bool) service.Port {
 	oldPort := port
 	ok := false
 	for exit := false; !exit; {
@@ -14,7 +14,7 @@ func portCreationWizard(port service.Port) service.Port {
 				setPortName(&port),
 				setPortProto(&port),
 				setTargetPort(&port),
-				setPortPort(&port),
+				setPortPort(&port, external),
 				{
 					Label: "Confirm",
 					Action: func() error {

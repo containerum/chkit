@@ -65,7 +65,7 @@ func AutoForCommands(cmds []*cobra.Command) {
 			for _, child := range cmd.Commands() {
 				children = append(children, child.Use)
 			}
-			cmd.Short = cmd.Use + " " + children.Join(", ") + "."
+			cmd.Short = cmd.Use + " " + children.Map(str.Replace("-", " ", -1)).Join(", ") + "."
 		}
 		if len(cmd.Aliases) > 0 {
 			var short = strings.TrimSpace(cmd.Short)

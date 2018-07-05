@@ -85,7 +85,10 @@ func setPortProto(port *service.Port) *activekit.MenuItem {
 	}
 }
 
-func setPortPort(port *service.Port) *activekit.MenuItem {
+func setPortPort(port *service.Port, external bool) *activekit.MenuItem {
+	if external {
+		return nil
+	}
 	return &activekit.MenuItem{
 		Label: fmt.Sprintf("Set port : %s",
 			activekit.OrValue(port.Port, "undefined (optional)")),

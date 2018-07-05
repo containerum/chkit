@@ -32,6 +32,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 		Long: `Replace service.\n` +
 			`Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.`,
 		Run: func(cmd *cobra.Command, args []string) {
+			var external bool
 			var logger = coblog.Logger(cmd)
 			logger.Struct(flags)
 			logger.Debugf("running replace service command")
@@ -60,16 +61,11 @@ func Replace(ctx *context.Context) *cobra.Command {
 					activekit.Attention(err.Error())
 					ctx.Exit(1)
 				}
+				if oldServ.Domain != "" {
+					external = true
+				}
 				if len(flagSvc.Ports) != 0 {
-					if flagSvc.Ports[0].Port != nil && *flagSvc.Ports[0].Port != 0 {
-						oldServ.Ports[0].Port = flagSvc.Ports[0].Port
-					}
-					if flagSvc.Ports[0].TargetPort != 0 {
-						oldServ.Ports[0].TargetPort = flagSvc.Ports[0].TargetPort
-					}
-					if flagSvc.Ports[0].Name != "" && (flags.PortName != "" || flags.ImportActivated()) {
-						oldServ.Ports[0].Name = flagSvc.Ports[0].Name
-					}
+					oldServ.Ports = append(oldServ.Ports, flagSvc.Ports[0])
 				}
 				if flagSvc.Deploy != "" {
 					oldServ.Deploy = flagSvc.Deploy
@@ -105,6 +101,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 							Action: func(d service.Service) func() error {
 								return func() error {
 									svc = d
+									if svc.Domain != "" {
+										external = true
+									}
 									return nil
 								}
 							}(s),
@@ -121,6 +120,9 @@ func Replace(ctx *context.Context) *cobra.Command {
 				} else {
 					var err error
 					svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, args[0])
+					if svc.Domain != "" {
+						external = true
+					}
 					if err != nil {
 						activekit.Attention(err.Error())
 						ctx.Exit(1)
@@ -133,20 +135,13 @@ func Replace(ctx *context.Context) *cobra.Command {
 				fmt.Println("Unable to get deployment list :(")
 			}
 			if len(flagSvc.Ports) != 0 {
-				if flagSvc.Ports[0].Port != nil && *flagSvc.Ports[0].Port != 0 {
-					svc.Ports[0].Port = flagSvc.Ports[0].Port
-				}
-				if flagSvc.Ports[0].TargetPort != 0 {
-					svc.Ports[0].TargetPort = flagSvc.Ports[0].TargetPort
-				}
-				if flagSvc.Ports[0].Name != "" && (flags.PortName != "" || flags.ImportActivated()) {
-					svc.Ports[0].Name = flagSvc.Ports[0].Name
-				}
+				svc.Ports = append(svc.Ports, flagSvc.Ports[0])
 			}
 			if flagSvc.Deploy != "" {
 				svc.Deploy = flagSvc.Deploy
 			}
 			svc, err = servactive.ReplaceWizard(servactive.ConstructorConfig{
+				External:    external,
 				Deployments: depList.Names(),
 				Service:     &svc,
 			})
@@ -161,6 +156,11 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				fmt.Printf("Congratulations! Service %s updated!\n", svc.Name)
 			}
+			svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, svc.Name)
+			if err != nil {
+				logrus.WithError(err).Errorf("unable to get service")
+				fmt.Println("Unable to get service :(")
+			}
 			fmt.Println(svc.RenderTable())
 			(&activekit.Menu{
 				Items: activekit.MenuItems{
@@ -168,6 +168,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 						Label: "Edit service " + svc.Name,
 						Action: func() error {
 							changedSvc, err := servactive.ReplaceWizard(servactive.ConstructorConfig{
+								External:    external,
 								Deployments: depList.Names(),
 								Service:     &svc,
 							})
