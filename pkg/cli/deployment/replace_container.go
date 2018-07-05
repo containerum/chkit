@@ -101,6 +101,7 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 				}
 				logger.Debugf("Ok")
 				fmt.Println("Ok")
+				return
 			}
 
 			//	volumes, err := ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
