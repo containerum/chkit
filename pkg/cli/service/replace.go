@@ -65,7 +65,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					external = true
 				}
 				if len(flagSvc.Ports) != 0 {
-					oldServ.Ports = append(oldServ.Ports, flagSvc.Ports[0])
+					oldServ.Ports = []service.Port{flagSvc.Ports[0]}
 				}
 				if flagSvc.Deploy != "" {
 					oldServ.Deploy = flagSvc.Deploy
