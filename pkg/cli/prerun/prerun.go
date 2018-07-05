@@ -223,8 +223,15 @@ func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Comman
 				opt.Namespace, _ = cmd.Flags().GetString("namespace")
 			}
 			optional[i] = opt
+			break
 		}
-		if err := PreRun(ctx, optional...); err != nil {
+		switch err := PreRun(ctx, optional...).(type) {
+		case nil:
+			// pass
+		case chkitErrors.Fatality:
+			ferr.Println(err)
+			ctx.Exit(1)
+		default:
 			panic(err)
 		}
 	}
