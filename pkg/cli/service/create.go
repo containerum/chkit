@@ -84,6 +84,11 @@ func Create(ctx *context.Context) *cobra.Command {
 				}
 				fmt.Printf("Congratulations! Service %s created!\n", svc.Name)
 			}
+			svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, svc.Name)
+			if err != nil {
+				logrus.WithError(err).Errorf("unable to get service")
+				fmt.Println("Unable to get service :(")
+			}
 			fmt.Println(svc.RenderTable())
 			(&activekit.Menu{
 				Items: activekit.MenuItems{
