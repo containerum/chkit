@@ -36,7 +36,7 @@ func (serv *Service) TableRows() [][]string {
 					Scheme: "http",
 					Host:   serv.Domain + ":" + strconv.Itoa(*p.Port),
 				}).String())
-			case "upd":
+			case "udp":
 				links = append(links, (&url.URL{
 					Scheme: "udp",
 					Host:   serv.Domain + ":" + strconv.Itoa(*p.Port),
