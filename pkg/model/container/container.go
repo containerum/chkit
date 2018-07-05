@@ -2,11 +2,13 @@ package container
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
+	"github.com/ninedraft/boxofstuff/str"
 )
 
 var (
@@ -26,7 +28,10 @@ func ImageName(image string) string {
 	if err != nil {
 		return image
 	}
-	return img.Name
+	var alphaNumerical = regexp.MustCompile("^[a-z0-9]+$")
+	return str.SplitS(img.Name, "/", 3).Tail(1).Filter(func(str string) bool {
+		return alphaNumerical.MatchString(str)
+	}).FirstNonEmpty()
 }
 
 func (container Container) ImageName() string {

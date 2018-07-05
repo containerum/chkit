@@ -1,10 +1,9 @@
 package validation
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
-
-	"fmt"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/docker/distribution/reference"
@@ -36,8 +35,8 @@ func ValidateContainerName(name string) error {
 
 func ValidateImageName(image string) error {
 	image = strings.TrimSpace(image)
-	if !reference.NameRegexp.MatchString(image) || image == "" {
-		return ErrInvalidImageName
+	if !reference.ReferenceRegexp.MatchString(image) || image == "" {
+		return ErrInvalidImageName.CommentF("must match %v", reference.ReferenceRegexp)
 	}
 	return nil
 }
