@@ -3,7 +3,6 @@ package cli
 import (
 	"bufio"
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/prerun"
@@ -33,7 +32,6 @@ func Logs(ctx *context.Context) *cobra.Command {
 		Use:     "logs",
 		Aliases: logsCommandAliases,
 		Short:   "View pod logs",
-		Long:    `view pod logs. Aliases: ` + strings.Join(logsCommandAliases, ", "),
 		Example: `logs pod_label [container] [--follow] [--prev] [--tail n] [--quiet]`,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
@@ -56,8 +54,24 @@ func Logs(ctx *context.Context) *cobra.Command {
 			case 1:
 				podName = args[0]
 			default:
-				cmd.Help()
-				return
+				var pods, err = client.GetPodList(ctx.GetNamespace().ID)
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				(&activekit.Menu{
+					Title: "Select pod",
+					Items: activekit.ItemsFromIter(uint(pods.Len()), func(index uint) *activekit.MenuItem {
+						var po = pods[index]
+						return &activekit.MenuItem{
+							Label: po.Name,
+							Action: func() error {
+								podName = po.Name
+								return nil
+							},
+						}
+					}),
+				}).Run()
 			}
 
 			params := chClient.GetPodLogsParams{
@@ -71,10 +85,10 @@ func Logs(ctx *context.Context) *cobra.Command {
 			rc, err := client.GetPodLogs(params)
 			if err != nil {
 				logrus.WithError(err).Errorf("error while getting logs")
-				activekit.Attention(err.Error())
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 			defer rc.Close()
-
 			scanner := bufio.NewScanner(rc)
 			var nLines uint64
 			for scanner.Scan() {
@@ -92,6 +106,7 @@ func Logs(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 		},
+		PostRun: ctx.CobraPostRun,
 	}
 	command.PersistentFlags().
 		BoolVarP(&logsConfig.Quiet, "quiet", "q", false, "print only logs and errors")
