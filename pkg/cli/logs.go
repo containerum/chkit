@@ -85,7 +85,8 @@ func Logs(ctx *context.Context) *cobra.Command {
 			rc, err := client.GetPodLogs(params)
 			if err != nil {
 				logrus.WithError(err).Errorf("error while getting logs")
-				activekit.Attention(err.Error())
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 			defer rc.Close()
 			scanner := bufio.NewScanner(rc)
@@ -105,6 +106,7 @@ func Logs(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 		},
+		PostRun: ctx.CobraPostRun,
 	}
 	command.PersistentFlags().
 		BoolVarP(&logsConfig.Quiet, "quiet", "q", false, "print only logs and errors")
