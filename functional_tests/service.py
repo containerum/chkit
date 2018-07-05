@@ -1,6 +1,7 @@
 import unittest
 from timeout_decorator import timeout_decorator
 import functional_tests.chkit as chkit
+import time
 
 
 class TestService(unittest.TestCase):
@@ -29,6 +30,7 @@ class TestService(unittest.TestCase):
             self.assertFalse(got_svc.is_external())
         finally:
             chkit.delete_service(svc.name)
+            time.sleep(1)
             self.assertNotIn(svc.name, [service.name for service in chkit.get_services()])
 
     __default_internal_service = chkit.Service(

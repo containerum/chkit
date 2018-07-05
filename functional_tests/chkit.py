@@ -11,7 +11,7 @@ DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 TEST_USER = os.getenv("TEST_USER", "helpik94@yandex.com")
 TEST_PASSWORD = os.getenv("TEST_USER_PASSWORD", "12345678")
-TEST_NAMESPACE = os.getenv("TEST_NAMESPACE", "-")
+TEST_NAMESPACE = os.getenv("TEST_NAMESPACE", "for-tests")
 
 ######################
 # API URL MANAGEMENT #
@@ -34,7 +34,7 @@ def get_api_url() -> str:
 
 
 def login(user: str="test", password: str="test", namespace: str="-") -> None:
-    sh.chkit("login", "-u", user, "-p", password, "-n", namespace).execute()
+    sh.chkit("login", "--username", user, "--password", password, "--namespace", namespace).execute()
 
 
 def get_profile() -> Dict[str, str]:
@@ -74,7 +74,7 @@ def get_default_namespace() -> Tuple[str, str]:
 
 
 def set_default_namespace(namespace: str="-") -> None:
-    sh.chkit("set", "default-namespace", "-n", namespace).execute()
+    sh.chkit("set", "default-namespace", namespace).execute()
 
 #########################
 # DEPLOYMENT MANAGEMENT #
@@ -84,7 +84,6 @@ def set_default_namespace(namespace: str="-") -> None:
 class DeploymentStatus:
     def __init__(self, replicas: int=None, ready_replicas: int=None, available_replicas: int=None,
                  unavailable_replicas: int=None, updated_replicas: int=None):
-        super().__init__()
         self.replicas = replicas
         self.ready_replicas = ready_replicas
         self.available_replicas = available_replicas
@@ -104,7 +103,6 @@ class DeploymentStatus:
 
 class Resources:
     def __init__(self, cpu: int=None, memory: int=None):
-        super().__init__()
         self.cpu = cpu
         self.memory = memory
 
@@ -116,9 +114,28 @@ class Resources:
         )
 
 
+class EnvVariable:
+    def __init__(self, name: str, value: str):
+        self.name = name
+        self.value = value
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if not isinstance(other, EnvVariable):
+            raise TypeError(f"expected {type(self)}, got {type(other)}")
+        return self.name == other.name and self.value == other.value
+
+    @staticmethod
+    def json_decode(j):
+        return EnvVariable(
+            name=j.get("name"),
+            value=j.get("value")
+        )
+
+
 class Container:
-    def __init__(self, image: str=None, name: str=None, limits: Resources=None, env: Dict[str, str]=None):
-        super().__init__()
+    def __init__(self, image: str=None, name: str=None, limits: Resources=None, env: List[EnvVariable]=None):
         self.image = image
         self.name = name
         self.limits = limits
@@ -130,15 +147,14 @@ class Container:
             name=j.get('name'),
             image=j.get('image'),
             limits=Resources.json_decode(j.get('limits')),
-            env=j.get('env')
+            env=[EnvVariable.json_decode(env) for env in j.get("env")] if j.get("env") is not None else None,
         )
 
 
 class Deployment:
-    def __init__(self, created_at: datetime=None, status: DeploymentStatus=None,
-                 containers: List[Container]=None, name: str=None, replicas: int=None, total_cpu: int=None,
+    def __init__(self, name: str=None, created_at: datetime=None, status: DeploymentStatus=None,
+                 containers: List[Container]=None, replicas: int=None, total_cpu: int=None,
                  total_memory: int=None, active: bool=False, version: str=None):
-        super().__init__()
         self.created_at = created_at
         self.status = status
         self.containers = containers
@@ -185,8 +201,8 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
             args.extend(["--cpu", f"{container.name}@{container.limits.cpu}"])
             args.extend(["--memory", f"{container.name}@{container.limits.memory}"])
             if container.env is not None:
-                for key, value in container.env.items():
-                    args.extend(["--env", f"{container.name}@{key}:{value}"])
+                for var in container.env:
+                    args.extend(["--env", f"{container.name}@{var.name}:{var.value}"])
     else:
         args.extend(["--file", "-"])
     if namespace is not None:
@@ -207,7 +223,7 @@ __default_deployment = Deployment(
             name="second",
             limits=Resources(cpu=15, memory=15),
             image="redis",
-            env={"HELLO": "world"},
+            env=[EnvVariable("HELLO", "world")],
         )
     ],
 )
@@ -285,8 +301,8 @@ def replace_container(deployment: str="", container: Container=Container(), name
     if namespace is not None:
         args.extend(["--namespace", namespace])
     if container.env is not None:
-        for k, v in container.env.items():
-            args.extend(["--env", f"{k}:{v}"])
+        for var in container.env:
+            args.extend(["--env", f"{var.name}:{var.value}"])
     if container.limits is not None:
         if container.limits.cpu is not None:
             args.extend(["--cpu", container.limits.cpu])
@@ -304,8 +320,8 @@ def add_container(deployment: str="", container: Container=Container(), namespac
     else:
         args.extend(["--image", container.image, "--memory", container.limits.memory, "--cpu", container.limits.cpu])
         if container.env is not None:
-            for k, v in container.env.items():
-                args.extend(["--env", f"{k}:{v}"])
+            for var in container.env:
+                args.extend(["--env", f"{var.name}:{var.value}"])
     if namespace is not None:
         args.extend(["--namespace", namespace])
 
@@ -319,7 +335,7 @@ __default_container = Container(
     name="test-container",
     limits=Resources(cpu=15, memory=15),
     image="redis",
-    env={"HELLO": "world"},
+    env=[EnvVariable("HELLO", "world")],
 )
 
 
@@ -348,7 +364,6 @@ def delete_container(deployment: str="", container: str="", namespace: str=None)
 
 class PodStatus:
     def __init__(self, phase: str=None, restart_count: int=None, start_at: datetime=None):
-        super().__init__()
         self.phase = phase
         self.restart_count = restart_count
         self.start_at = start_at
@@ -366,7 +381,6 @@ class PodStatus:
 class Pod:
     def __init__(self, created_at: datetime=None, name: str=None, owner: str=None, containers: List[Container]=None,
                  status: PodStatus=None, deploy: str=None, total_cpu: int=None, total_memory: int=None):
-        super().__init__()
         self.created_at = created_at
         self.name = name
         self.owner = owner
@@ -413,8 +427,9 @@ def ensure_pods_running(deployment: str=__default_deployment.name, max_attempts:
             attempts = 1
             while attempts <= max_attempts:
                 pods = get_pods()
-                not_running_pods = [pod for pod in pods if pod.deploy == deployment and pod.status.phase != "Running"]
-                if len(not_running_pods) == 0:
+                deployment_pods = [pod for pod in pods if pod.deploy == deployment]
+                not_running_pods = [pod for pod in deployment_pods if pod.status.phase != "Running"]
+                if len(not_running_pods) == 0 and len(deployment_pods) > 0:
                     break
                 time.sleep(sleep_seconds)
                 attempts += 1
@@ -445,7 +460,6 @@ def pod_logs(pod: str, container: str=None, tail: int=None, namespace: str=None)
 class ServicePort:
 
     def __init__(self, name: str, target_port: int, protocol: str="TCP", port: int=None):
-        super().__init__()
         self.name = name
         self.target_port = target_port
         self.protocol = protocol
@@ -464,7 +478,6 @@ class ServicePort:
 class Service:
 
     def __init__(self, name: str, deploy: str, ports: List[ServicePort], ips: List[str]=None, domain: str=None):
-        super().__init__()
         self.name = name
         self.deploy = deploy
         self.ports = ports
@@ -506,7 +519,7 @@ def create_service(service: Service, file: bool=False, namespace: str=None) -> N
 
 
 def get_services(solution: str=None, namespace: str=None) -> List[Service]:
-    args = ["get", "svc", "-o", "json"]
+    args = ["get", "svc", "--output", "json"]
     if solution is not None:
         args.extend(["--solution-name", solution])
     if namespace is not None:
@@ -516,7 +529,7 @@ def get_services(solution: str=None, namespace: str=None) -> List[Service]:
 
 
 def get_service(service: str, solution: str=None, namespace: str=None) -> Service:
-    args = ["get", "svc", service, "-o", "json"]
+    args = ["get", "svc", service, "--output", "json"]
     if solution is not None:
         args.extend(["--solution-name", solution])
     if namespace is not None:
@@ -551,7 +564,7 @@ def replace_service(service: Service, file: bool=False, namespace: str=None) -> 
 
 
 def delete_service(service: str, namespace: str=None) -> None:
-    args = ["delete", "service", service]
+    args = ["delete", "service", service, "--force"]
     if namespace is not None:
         args.extend(["--namespace", namespace])
 
@@ -567,5 +580,6 @@ def with_service(service: Service, namespace: str=None):
                 fn(*args, **kwargs)
             finally:
                 delete_service(service.name)
+                time.sleep(5)
         return wrapper
     return decorator

@@ -22,6 +22,6 @@ class TestPod(unittest.TestCase):
         pod = [pod for pod in chkit.get_pods() if pod.deploy == depl.name][0]
         time.sleep(11)
         log_lines = chkit.pod_logs(pod=pod.name, tail=10)
-        print("got log lines:")
+        print("\ngot log lines:")
         print("\n".join(log_lines))
         self.assertEqual(len(log_lines), 10)

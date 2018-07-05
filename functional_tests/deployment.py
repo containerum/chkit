@@ -22,8 +22,9 @@ class TestDeployment(unittest.TestCase):
             attempts = 1
             while attempts <= 40:
                 pods = chkit.get_pods()
-                not_running_pods = [pod for pod in pods if pod.deploy == depl.name and pod.status.phase != "Running"]
-                if len(not_running_pods) == 0:
+                deployment_pods = [pod for pod in pods if pod.deploy == depl.name]
+                not_running_pods = [pod for pod in deployment_pods if pod.status.phase != "Running"]
+                if len(not_running_pods) == 0 and len(deployment_pods) > 0:
                     break
                 time.sleep(15)
                 attempts += 1
@@ -49,7 +50,7 @@ class TestDeployment(unittest.TestCase):
             name=depl.containers[0].name,
             limits=chkit.Resources(cpu=15, memory=15),
             image="redis",
-            env={"HELLO": "world"},
+            env=[chkit.EnvVariable("HELLO", "world")],
         )
         chkit.replace_container(deployment=depl.name, container=new_container)
         got_depl = chkit.get_deployment(depl.name)
@@ -68,11 +69,11 @@ class TestDeployment(unittest.TestCase):
             name="additional-container",
             limits=chkit.Resources(cpu=15, memory=15),
             image="redis",
-            env={"HELLO": "world"},
+            env=[chkit.EnvVariable("HELLO", "world")],
         )
         chkit.add_container(deployment=depl.name, container=new_container)
         got_depl = chkit.get_deployment(depl.name)
-        self.assertEqual(len(got_depl.containers), 2)
+        self.assertEqual(len(got_depl.containers), len(depl.containers)+1)
         needed_containers = [container for container in got_depl.containers if container.name == new_container.name]
         self.assertGreater(len(needed_containers), 0)
         self.assertEqual(needed_containers[0].name, new_container.name)
