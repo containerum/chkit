@@ -4,6 +4,7 @@ import os
 import json
 from datetime import datetime
 import time
+from functional_tests.util import JSONSerialize
 
 DEFAULT_API_URL = os.getenv("CONTAINERUM_API", "http://api.local.containerum.io")
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
@@ -80,7 +81,7 @@ def set_default_namespace(namespace: str="-") -> None:
 #########################
 
 
-class DeploymentStatus(json.JSONEncoder):
+class DeploymentStatus:
     def __init__(self, replicas: int=None, ready_replicas: int=None, available_replicas: int=None,
                  unavailable_replicas: int=None, updated_replicas: int=None):
         super().__init__()
@@ -100,11 +101,8 @@ class DeploymentStatus(json.JSONEncoder):
             updated_replicas=j.get('updated_replicas'),
         )
 
-    def default(self, o):
-        return o.__dict__
 
-
-class Resources(json.JSONEncoder):
+class Resources:
     def __init__(self, cpu: int=None, memory: int=None):
         super().__init__()
         self.cpu = cpu
@@ -117,11 +115,8 @@ class Resources(json.JSONEncoder):
             memory=j.get('memory')
         )
 
-    def default(self, o):
-        return o.__dict__
 
-
-class Container(json.JSONEncoder):
+class Container:
     def __init__(self, image: str=None, name: str=None, limits: Resources=None, env: Dict[str, str]=None):
         super().__init__()
         self.image = image
@@ -138,11 +133,8 @@ class Container(json.JSONEncoder):
             env=j.get('env')
         )
 
-    def default(self, o):
-        return o.__dict__
 
-
-class Deployment(json.JSONEncoder):
+class Deployment:
     def __init__(self, created_at: datetime=None, status: DeploymentStatus=None,
                  containers: List[Container]=None, name: str=None, replicas: int=None, total_cpu: int=None,
                  total_memory: int=None, active: bool=False, version: str=None):
@@ -171,12 +163,6 @@ class Deployment(json.JSONEncoder):
             active=j.get('active'),
             version=j.get('version')
         )
-
-    def default(self, o):
-        ret = {key: value for key, value in o.__dict__.items() if not isinstance(value, datetime)}
-        ret.update({key: value.strftime(DATETIME_FORMAT)
-                    for key, value in o.__dict__.items() if isinstance(value, datetime)})
-        return ret
 
 
 def get_deployment(name: str="") -> Deployment:
@@ -209,7 +195,7 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
     if not file:
         sh.chkit(*args).execute()
     else:
-        sh.chkit(*args, _stdin=json.dumps(depl, cls=Deployment)).execute()
+        sh.chkit(*args, _stdin=json.dumps(depl, cls=JSONSerialize)).execute()
 
 
 __default_deployment = Deployment(
@@ -324,7 +310,7 @@ def add_container(deployment: str="", container: Container=Container(), namespac
         args.extend(["--namespace", namespace])
 
     if file:
-        sh.chkit(*args, _stdin=json.dumps(container, cls=Container)).execute()
+        sh.chkit(*args, _stdin=json.dumps(container, cls=JSONSerialize)).execute()
     else:
         sh.chkit(*args).execute()
 
@@ -337,7 +323,7 @@ __default_container = Container(
 )
 
 
-def with_container(container: Container=__default_container,deployment: str=__default_deployment.name,
+def with_container(container: Container=__default_container, deployment: str=__default_deployment.name,
                    namespace: str=None):
     def decorator(fn):
         def wrapper(*args, **kwargs):
@@ -360,7 +346,7 @@ def delete_container(deployment: str="", container: str="", namespace: str=None)
 ##################
 
 
-class PodStatus(json.JSONEncoder):
+class PodStatus:
     def __init__(self, phase: str=None, restart_count: int=None, start_at: datetime=None):
         super().__init__()
         self.phase = phase
@@ -376,14 +362,8 @@ class PodStatus(json.JSONEncoder):
             not in (None, '') else None
         )
 
-    def default(self, o):
-        ret = {key: value for key, value in o.__dict__.items() if not isinstance(value, datetime)}
-        ret.update({key: value.strftime(DATETIME_FORMAT)
-                    for key, value in o.__dict__.items() if isinstance(value, datetime)})
-        return ret
 
-
-class Pod(json.JSONEncoder):
+class Pod:
     def __init__(self, created_at: datetime=None, name: str=None, owner: str=None, containers: List[Container]=None,
                  status: PodStatus=None, deploy: str=None, total_cpu: int=None, total_memory: int=None):
         super().__init__()
@@ -409,12 +389,6 @@ class Pod(json.JSONEncoder):
             total_cpu=j.get('total_cpu'),
             total_memory=j.get('total_memory')
         )
-
-    def default(self, o):
-        ret = {key: value for key, value in o.__dict__.items() if not isinstance(value, datetime)}
-        ret.update({key: value.strftime(DATETIME_FORMAT)
-                    for key, value in o.__dict__.items() if isinstance(value, datetime)})
-        return ret
 
 
 def get_pods(namespace: str=None, status: str=None) -> List[Pod]:
@@ -461,3 +435,137 @@ def pod_logs(pod: str, container: str=None, tail: int=None, namespace: str=None)
         args.extend(["--namespace", namespace])
 
     return sh.chkit(*args).execute().stdout().splitlines()
+
+
+#######################
+# SERVICES MANAGEMENT #
+#######################
+
+
+class ServicePort:
+
+    def __init__(self, name: str, target_port: int, protocol: str="TCP", port: int=None):
+        super().__init__()
+        self.name = name
+        self.target_port = target_port
+        self.protocol = protocol
+        self.port = port
+
+    @staticmethod
+    def json_decode(j):
+        return ServicePort(
+            name=j.get("name"),
+            target_port=j.get("target_port"),
+            protocol=j.get("protocol"),
+            port=j.get("port"),
+        )
+
+
+class Service:
+
+    def __init__(self, name: str, deploy: str, ports: List[ServicePort], ips: List[str]=None, domain: str=None):
+        super().__init__()
+        self.name = name
+        self.deploy = deploy
+        self.ports = ports
+        self.ips = ips
+        self.domain = domain
+
+    @staticmethod
+    def json_decode(j):
+        return Service(
+            name=j.get("name"),
+            deploy=j.get("deploy"),
+            ports=[ServicePort.json_decode(port) for port in j.get("ports")],
+            ips=j.get("ips"),
+            domain=j.get("domain")
+        )
+
+    def is_external(self):
+        return self.domain is not None or self.ips is not None
+
+
+def create_service(service: Service, file: bool=False, namespace: str=None) -> None:
+    args = ["create", "service", "--name", service.name, "--deploy", service.deploy, "--force"]
+    if file:
+        args.extend(["--input", "json"])
+    else:
+        port = service.ports[0]
+        args.extend(["--port-name", port.name, "--target-port", port.target_port, "--protocol", port.protocol])
+        if port.port is not None:
+            args.extend(["--port", port.port])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    if file:
+        service_to_create = Service(name=service.name, deploy=service.deploy, ports=service.ports)
+        sh.chkit(*args, _stdin=json.dumps(service_to_create, cls=JSONSerialize)).execute()
+    else:
+        sh.chkit(*args).execute()
+
+
+def get_services(solution: str=None, namespace: str=None) -> List[Service]:
+    args = ["get", "svc", "-o", "json"]
+    if solution is not None:
+        args.extend(["--solution-name", solution])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return [Service.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
+
+
+def get_service(service: str, solution: str=None, namespace: str=None) -> Service:
+    args = ["get", "svc", service, "-o", "json"]
+    if solution is not None:
+        args.extend(["--solution-name", solution])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return Service.json_decode(json.loads(sh.chkit(*args).execute().stdout()))
+
+
+def replace_service(service: Service, file: bool=False, namespace: str=None) -> None:
+    args = ["replace", "service", "--name", service.name, "--deploy", service.deploy, "--force"]
+    if file:
+        args.extend(["--input", "json"])
+    else:
+        port = service.ports[0]
+        if port.name is not None:
+            args.extend(["--port-name", port.name])
+        if port.target_port is not None:
+            args.extend(["--target-port", port.target_port])
+        if port.target_port is not None:
+            args.extend(["--protocol", port.protocol])
+        if port.port is not None:
+            args.extend(["--port", port.port])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    if file:
+        service_to_create = Service(name=service.name, deploy=service.deploy, ports=service.ports)
+        sh.chkit(*args, _stdin=json.dumps(service_to_create, cls=JSONSerialize)).execute()
+    else:
+        sh.chkit(*args).execute()
+
+
+def delete_service(service: str, namespace: str=None) -> None:
+    args = ["delete", "service", service]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    sh.chkit(*args).execute()
+
+
+def with_service(service: Service, namespace: str=None):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            create_service(service, file=True, namespace=namespace)
+            try:
+                args = list(args)+[service]
+                fn(*args, **kwargs)
+            finally:
+                delete_service(service.name)
+        return wrapper
+    return decorator
