@@ -180,7 +180,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 			if err != nil {
 				return chkitErrors.Fatal(err)
 			}
-			var ns, ok = nsList.GetByUserFriendlyID(tokens.Join("/"))
+			var ns, ok = nsList.GetByID(tokens.Join("/"))
 			if !ok {
 				return chkitErrors.FatalString("you have no namespaces")
 			}

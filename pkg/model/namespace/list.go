@@ -99,6 +99,13 @@ func (list NamespaceList) Filter(pred func(Namespace) bool) NamespaceList {
 	return filtered
 }
 
+// get Namespace by Id
+func (list NamespaceList) GetByID(id string) (Namespace, bool) {
+	return list.Filter(func(namespace Namespace) bool {
+		return namespace.ID == id
+	}).Head()
+}
+
 // get Namespace by string $LABEL or $OWNER_LOGIN/$LABEL
 func (list NamespaceList) GetByUserFriendlyID(id string) (Namespace, bool) {
 	return list.Filter(func(namespace Namespace) bool {
