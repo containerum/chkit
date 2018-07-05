@@ -38,6 +38,7 @@ func PostRun(ctx *context.Context) {
 		*/
 		logger.Debugf("writing new configuration")
 		configFile, err := os.Create(ctx.ConfigPath)
+		defer configFile.Close()
 		if err != nil {
 			logger.Debugf("unable to create new config file")
 			angel.Angel(ctx, err)

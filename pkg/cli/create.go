@@ -31,8 +31,6 @@ func Create(ctx *context.Context) *cobra.Command {
 		},
 		PersistentPostRun: ctx.CobraPostRun,
 	}
-	command.PersistentFlags().
-		StringP("namespace", "n", ctx.GetNamespace().ID, "")
 	command.AddCommand(
 		cliconfigmap.Create(ctx),
 		clideployment.Create(ctx),

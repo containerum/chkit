@@ -17,25 +17,41 @@ type Flags struct {
 
 func (flags Flags) Service() (service.Service, error) {
 	var flagSvc = service.Service{
-		Name:   flags.Name,
 		Deploy: flags.Deploy,
 	}
 
 	var flagPort = service.Port{
 		Protocol:   flags.Protocol,
-		Port:       &flags.Port,
 		TargetPort: flags.TargetPort,
 	}
 
-	if flags.Name == "" {
+	if flags.Port != 0 {
+		flagPort.Port = &flags.Port
+	}
+
+	if flags.Protocol != "" {
+		flagPort.Protocol = flags.Protocol
+	} else {
+		flagPort.Protocol = "TCP"
+	}
+
+	if flags.Name != "" {
+		flagSvc.Name = flags.Name
+	} else {
 		flagSvc.Name = namegen.ColoredPhysics()
 	}
 
-	if flags.PortName == "" {
+	if flags.PortName != "" {
+		flagPort.Name = flags.PortName
+	} else {
 		flagPort.Name = namegen.ColoredPhysics()
 	}
 
-	flagSvc.Ports = []service.Port{flagPort}
+	if flags.Port != 0 || flags.TargetPort != 0 || flags.Protocol != "" || flags.PortName != "" {
+		flagSvc.Ports = []service.Port{flagPort}
+	} else {
+		flagSvc.Ports = []service.Port{}
+	}
 
 	return flagSvc, nil
 }

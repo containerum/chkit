@@ -2,7 +2,6 @@ package servactive
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/validation"
@@ -32,7 +31,7 @@ func getName(defaultName string) string {
 
 }
 
-func editPorts(ports []service.Port) []service.Port {
+func editPorts(ports []service.Port, external bool) []service.Port {
 	oldPorts := make([]service.Port, len(ports))
 	copy(oldPorts, ports)
 	ok := false
@@ -43,7 +42,7 @@ func editPorts(ports []service.Port) []service.Port {
 				Label: fmt.Sprintf("Edit port %q", port.Name),
 				Action: func(i int) func() error {
 					return func() error {
-						port, deletePort := portEditorWizard(ports[i])
+						port, deletePort := portEditorWizard(ports[i], external)
 						if deletePort {
 							ports = append(ports[:i], ports[i+1:]...)
 						} else {
@@ -63,7 +62,7 @@ func editPorts(ports []service.Port) []service.Port {
 							Name:       namegen.Aster() + "-" + namegen.Color(),
 							TargetPort: 80,
 							Protocol:   "TCP",
-						}))
+						}, external))
 						return nil
 					},
 				},
@@ -90,139 +89,6 @@ func editPorts(ports []service.Port) []service.Port {
 		return ports
 	}
 	return oldPorts
-}
-
-func getPort(ports *[]service.Port, ind int) (service.Port, bool) {
-	var p service.Port
-	if ind < 0 || len(*ports) == 0 {
-		p = service.Port{
-			Name:     namegen.Aster() + "-" + namegen.Color(),
-			Protocol: "TCP",
-		}
-		*ports = append(*ports, p)
-	} else {
-		p = (*ports)[ind]
-	}
-	ok := false
-	for exit := false; !exit; {
-		(&activekit.Menu{
-			Items: []*activekit.MenuItem{
-				{
-					Label: fmt.Sprintf("Set name : %s",
-						activekit.OrString(p.Name, "undefined (required)")),
-					Action: func() error {
-						var promt string
-						if p.Name == "" {
-							promt = "Print port name: "
-						} else {
-							promt = fmt.Sprintf("Print port name (hit enter to use %q): ", p.Name)
-						}
-						name := strings.TrimSpace(activekit.Promt(promt))
-						if name == "" {
-							return nil
-						}
-						if err := validation.ValidateLabel(name); err != nil {
-							activekit.Attention(fmt.Sprintf("Invalid port name:\n%v", err))
-							return nil
-						}
-						p.Name = name
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set target port : %d (required)", p.TargetPort),
-					Action: func() error {
-						promt := fmt.Sprintf("Print target port (1..65535, hit enter to use %d): ", p.TargetPort)
-						portStr := strings.TrimSpace(activekit.Promt(promt))
-						if portStr == "" {
-							return nil
-						}
-						var port int
-						if _, err := fmt.Sscan(portStr, "%d", &port); err != nil || (port < 1 && port > 65535) {
-							fmt.Printf("Invalid target port %q: must be number 1..65535\n", portStr)
-							return nil
-						}
-						p.TargetPort = port
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set proto : %s",
-						activekit.OrString(p.Protocol, "undefined (required)")),
-					Action: func() error {
-						_, err := (&activekit.Menu{
-							Title: fmt.Sprintf("Select protocol (current: %s)", p.Protocol),
-							Items: []*activekit.MenuItem{
-								{
-									Label: "TCP",
-									Action: func() error {
-										p.Protocol = "TCP"
-										return nil
-									},
-								},
-								{
-									Label: "UDP",
-									Action: func() error {
-										p.Protocol = "UDP"
-										return nil
-									},
-								},
-								{
-									Label: "Return to previous menu",
-								},
-							}}).Run()
-						return err
-					},
-				},
-				{
-					Label: fmt.Sprintf("Set port : %s",
-						activekit.OrValue(p.Port, "undefined (optional)")),
-					Action: func() error {
-						var promt string
-						if p.Port == nil {
-							promt = "Print port (1..65535, hit enter to leave empty):"
-						} else {
-							promt = fmt.Sprintf("Print port (1..65535, hit enter to use %d, type 'none' to leave empty): ", *p.Port)
-						}
-						portStr := strings.TrimSpace(activekit.Promt(promt))
-						if portStr == "none" {
-							p.Port = nil
-						}
-						if portStr == "" {
-							return nil
-						}
-						var port int
-						if _, err := fmt.Sscan(portStr, "%d", &port); err != nil || (port < 1 && port > 65535) {
-							fmt.Printf("Invalid port %q: must be number in 1..65535\n", portStr)
-							return nil
-						}
-						p.Port = &port
-						return nil
-					},
-				},
-				{
-					Label: fmt.Sprintf("Delete port %q", p),
-					Action: func() error {
-						*ports = append((*ports)[:ind], (*ports)[ind+1:]...)
-						return nil
-					},
-				},
-				{
-					Label: "Confirm",
-					Action: func() error {
-						if err := validatePort(p); err != nil {
-							activekit.Attention(err.Error())
-							return nil
-						}
-						ok = true
-						exit = false
-						return nil
-					},
-				},
-			},
-		}).Run()
-	}
-	return p, ok
 }
 
 func validatePort(port service.Port) error {

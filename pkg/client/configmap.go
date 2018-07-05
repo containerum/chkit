@@ -5,9 +5,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (client *Client) CreateConfigMap(ns string, config configmap.ConfigMap) error {
+func (client *Client) CreateConfigMap(ns string, cm configmap.ConfigMap) error {
 	err := retry(4, func() (bool, error) {
-		err := client.kubeAPIClient.CreateConfigMap(ns, config.Name, config.Data)
+		err := client.kubeAPIClient.CreateConfigMap(ns, cm.Name, cm.Data)
 		return HandleErrorRetry(client, err)
 	})
 	if err != nil {

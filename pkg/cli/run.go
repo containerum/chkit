@@ -33,9 +33,5 @@ func Run(ctx *context.Context) *cobra.Command {
 		clisolution.Run(ctx),
 		clideployment.RunVersion(ctx),
 	)
-	command.PersistentFlags().
-		StringP("namespace", "n", ctx.GetNamespace().ID, "")
-	command.PersistentFlags().
-		BoolP("help", "h", false, "Print help for chkit")
 	return command
 }

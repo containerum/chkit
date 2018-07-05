@@ -93,7 +93,6 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				ingrChanged.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
 			}
-
 			if flags.Force {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")

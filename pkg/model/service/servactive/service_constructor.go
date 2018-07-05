@@ -12,7 +12,7 @@ import (
 )
 
 type ConstructorConfig struct {
-	Force       bool
+	External    bool
 	Deployments []string
 	Service     *service.Service
 }
@@ -51,7 +51,7 @@ func Wizard(config ConstructorConfig) (service.Service, error) {
 				{
 					Label: fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
 					Action: func() error {
-						ports := editPorts(serv.Ports)
+						ports := editPorts(serv.Ports, config.External)
 						serv.Ports = ports
 						return nil
 					},

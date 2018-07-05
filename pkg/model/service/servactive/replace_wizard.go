@@ -13,13 +13,11 @@ import (
 func ReplaceWizard(config ConstructorConfig) (service.Service, error) {
 	var err error
 	var serv service.Service
-	fmt.Println("TEST2", config.Service)
 	if config.Service != nil {
 		serv = *config.Service
 	} else {
 		serv = DefaultService()
 	}
-	fmt.Println("TEST1", serv)
 	if len(config.Deployments) == 1 && serv.Deploy == "" {
 		serv.Deploy = config.Deployments[0]
 	}
@@ -38,7 +36,7 @@ func ReplaceWizard(config ConstructorConfig) (service.Service, error) {
 				{
 					Label: fmt.Sprintf("Set ports : %v", service.PortList(serv.Ports)),
 					Action: func() error {
-						ports := editPorts(serv.Ports)
+						ports := editPorts(serv.Ports, config.External)
 						serv.Ports = ports
 						return nil
 					},

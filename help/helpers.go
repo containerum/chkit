@@ -60,6 +60,13 @@ func AutoForCommands(cmds []*cobra.Command) {
 		if err == nil {
 			cmd.Long = help
 		}
+		if len(cmd.Commands()) > 0 {
+			var children = make(str.Vector, 0, len(cmd.Commands()))
+			for _, child := range cmd.Commands() {
+				children = append(children, child.Use)
+			}
+			cmd.Short = cmd.Use + " " + children.Map(str.Replace("-", " ", -1)).Join(", ") + "."
+		}
 		if len(cmd.Aliases) > 0 {
 			var short = strings.TrimSpace(cmd.Short)
 			if !strings.HasSuffix(short, ".") {

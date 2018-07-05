@@ -187,7 +187,6 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 			ctx.SetTemporaryNamespace(ns)
 		}
 		logger.Debugf("using namespace %q", ctx.GetNamespace())
-
 	default:
 		panic(fmt.Sprintf("[prerun.PreRun] invalid NamespaceSelection mode %q", config.NamespaceSelection))
 	}
@@ -223,8 +222,15 @@ func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Comman
 				opt.Namespace, _ = cmd.Flags().GetString("namespace")
 			}
 			optional[i] = opt
+			break
 		}
-		if err := PreRun(ctx, optional...); err != nil {
+		switch err := PreRun(ctx, optional...).(type) {
+		case nil:
+			// pass
+		case chkitErrors.Fatality:
+			ferr.Println(err)
+			ctx.Exit(1)
+		default:
 			panic(err)
 		}
 	}

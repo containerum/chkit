@@ -44,12 +44,12 @@ func Setup(ctx *context.Context) error {
 		logger.WithError(ErrFatalError.Wrap(err)).Errorf("fatal error while config Setup")
 		return ErrFatalError.Wrap(err)
 	}
-	ctx.GetClient().Tokens = model.Tokens{}
 	logger.Debugf("client initialisation")
 	if err := Client(ctx, DoNotAlloSelfSignedTLSCerts); err != nil {
 		logger.WithError(err).Errorf("unable to init client")
 		return err
 	}
+	ctx.GetClient().Tokens = model.Tokens{}
 	if err := ctx.GetClient().Auth(); err != nil {
 		logger.WithError(err).Errorf("unable to auth")
 		return err
