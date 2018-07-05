@@ -17,7 +17,6 @@ type Flags struct {
 
 func (flags Flags) Service() (service.Service, error) {
 	var flagSvc = service.Service{
-		Name:   flags.Name,
 		Deploy: flags.Deploy,
 	}
 
@@ -36,11 +35,15 @@ func (flags Flags) Service() (service.Service, error) {
 		flagPort.Protocol = "TCP"
 	}
 
-	if flags.Name == "" {
+	if flags.Name != "" {
+		flagSvc.Name = flags.Name
+	} else {
 		flagSvc.Name = namegen.ColoredPhysics()
 	}
 
-	if flags.PortName == "" {
+	if flags.PortName != "" {
+		flagPort.Name = flags.PortName
+	} else {
 		flagPort.Name = namegen.ColoredPhysics()
 	}
 
