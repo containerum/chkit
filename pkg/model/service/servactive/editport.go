@@ -5,7 +5,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/activekit"
 )
 
-func portEditorWizard(port service.Port) (service.Port, bool) {
+func portEditorWizard(port service.Port, external bool) (service.Port, bool) {
 	oldPort := port
 	ok := false
 	deletePort := false
@@ -14,7 +14,7 @@ func portEditorWizard(port service.Port) (service.Port, bool) {
 			Items: []*activekit.MenuItem{
 				setPortName(&port),
 				setPortProto(&port),
-				setPortPort(&port),
+				setPortPort(&port, external),
 				setTargetPort(&port),
 				{
 					Label: "Confirm",
