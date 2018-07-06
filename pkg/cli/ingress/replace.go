@@ -86,7 +86,6 @@ func Replace(ctx *context.Context) *cobra.Command {
 				activekit.Attention("Unable to load ingress from flags:\n%v", err)
 				ctx.Exit(1)
 			}
-			ingrChanged.Name = ingr.Name
 
 			if ingrChanged.Rules != nil {
 				if ingrChanged.Rules[0].TLSSecret != "" {

@@ -7,7 +7,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/host2dnslabel"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/sirupsen/logrus"
 )
@@ -30,13 +29,24 @@ func Wizard(config Config) (ingress.Ingress, error) {
 		_, err := (&activekit.Menu{
 			Items: []*activekit.MenuItem{
 				{
+					Label: fmt.Sprintf("Set name       : %s",
+						activekit.OrString(ingr.Name, "undefined (required)")),
+					Action: func() error {
+						name := strings.TrimSpace(activekit.Promt(fmt.Sprintf("type ingress name (hit enter to leave %s): ",
+							activekit.OrString(ingr.Name, ingr.Name))))
+						if name != "" {
+							ingr.Name = name
+						}
+						return nil
+					},
+				},
+				{
 					Label: fmt.Sprintf("Set host       : %s",
 						activekit.OrString(ingr.Host(), "undefined (required)")),
 					Action: func() error {
 						host := strings.TrimSpace(activekit.Promt(fmt.Sprintf("type host name (hit enter to leave %s): ",
 							activekit.OrString(ingr.Host(), ingr.Host()))))
 						if host != "" {
-							ingr.Name = host2dnslabel.Host2DNSLabel(host)
 							rule.Host = host
 							ingr.Rules = []ingress.Rule{rule}
 						}
