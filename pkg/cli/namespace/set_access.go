@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/text"
@@ -33,7 +34,16 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 			return text.Indent(lvlsInfo, 2)
 		}(),
 		Example: "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $ID]",
-		PreRun:  prerun.PreRunFunc(ctx),
+		PreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				angel.Angel(ctx, err)
+				ctx.Exit(1)
+			}
+			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
+				ferr.Println(err)
+				ctx.Exit(1)
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			if len(args) != 2 {

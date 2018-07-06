@@ -8,6 +8,7 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"github.com/containerum/kube-client/pkg/model"
@@ -49,7 +50,16 @@ func Set(ctx *context.Context) *cobra.Command {
 		Short:   "Set container image for specific deployment.",
 		Long: "Set container image for specific deployment\n" +
 			"If a deployment contains only one container, the command will use that container by default.",
-		PreRun: prerun.PreRunFunc(ctx),
+		PreRun: func(cmd *cobra.Command, args []string) {
+			if err := prerun.PreRun(ctx); err != nil {
+				angel.Angel(ctx, err)
+				ctx.Exit(1)
+			}
+			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
+				ferr.Println(err)
+				ctx.Exit(1)
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("set image")
 			logger.Debugf("START")
