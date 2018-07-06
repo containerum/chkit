@@ -48,13 +48,17 @@ func Replace(ctx *context.Context) *cobra.Command {
 					activekit.Attention("Unable to get ingress list:\n%v", err)
 					ctx.Exit(1)
 				}
-				if err := export.ExportData(ingrList, exportConfig); err != nil {
-					logrus.WithError(err).Errorf("unable to export data")
-					angel.Angel(ctx, err)
-				}
 				if ingrList.Len() == 0 {
+					logger.Errorf("no ingresses exists")
+					fmt.Println("no ingresses exists\n")
+					ctx.Exit(1)
+				} else if ingrList.Len() == 1 {
 					ingr = ingrList.Head()
-				} else if ingrList.Len() > 0 {
+				} else if ingrList.Len() > 1 {
+					if err := export.ExportData(ingrList, exportConfig); err != nil {
+						logrus.WithError(err).Errorf("unable to export data")
+						angel.Angel(ctx, err)
+					}
 					var menu activekit.MenuItems
 					for _, i := range ingrList {
 						menu = menu.Append(&activekit.MenuItem{
