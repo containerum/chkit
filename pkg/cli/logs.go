@@ -23,7 +23,6 @@ var logsCommandAliases = []string{"log"}
 
 func Logs(ctx *context.Context) *cobra.Command {
 	var logsConfig = struct {
-		Quiet  bool
 		Follow bool
 		Prev   bool
 		Tail   uint
@@ -108,8 +107,6 @@ func Logs(ctx *context.Context) *cobra.Command {
 		},
 		PostRun: ctx.CobraPostRun,
 	}
-	command.PersistentFlags().
-		BoolVarP(&logsConfig.Quiet, "quiet", "q", false, "print only logs and errors")
 	command.PersistentFlags().
 		BoolVarP(&logsConfig.Follow, "follow", "f", false, `follow pod logs`)
 	command.PersistentFlags().
