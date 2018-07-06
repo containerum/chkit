@@ -3,9 +3,9 @@ package clideployment
 import (
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/ninedraft/boxofstuff/strset"
 	"github.com/octago/sflags/gen/gpflag"
@@ -21,9 +21,8 @@ var aliases = []string{"depl", "deployments", "deploy", "de", "dpl", "depls", "d
 
 func Get(ctx *context.Context) *cobra.Command {
 	var flags struct {
-		File     string `desc:"output file, STDOUT by default"`
-		Output   string `flag:"output o" desc:"output format, json/yaml"`
 		Solution string
+		porta.Exporter
 	}
 	command := &cobra.Command{
 		Use:     "deployment",
@@ -91,12 +90,8 @@ func Get(ctx *context.Context) *cobra.Command {
 				deplData = deplList
 			}
 			logger.Debugf("exporting deployment data")
-			if err := export.ExportData(deplData, export.ExportConfig{
-				Format:   export.ExportFormat(flags.Output),
-				Filename: flags.File,
-			}); err != nil {
-				logrus.WithError(err).Errorf("unable to export data")
-				ferr.Printf("unable to export data:\n%v\n", err)
+			if err := flags.Export(deplData); err != nil {
+				ferr.Println(err)
 				ctx.Exit(1)
 			}
 		},
