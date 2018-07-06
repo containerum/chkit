@@ -109,7 +109,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 	logger.Debugf("running client init in '%s' mode", config.InitClient)
 	switch config.InitClient {
 	case DoNotAllowSelfSignedTLSCerts:
-		err = setup.Client(ctx, setup.DoNotAlloSelfSignedTLSCerts)
+		err = setup.Client(ctx, setup.DoNotAllowSelfSignedTLSCerts)
 	case AllowSelfSignedTLSCerts:
 		err = setup.Client(ctx, setup.AllowSelfSignedTLSCerts)
 	case DoNotInitClient:

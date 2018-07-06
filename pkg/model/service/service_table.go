@@ -32,33 +32,29 @@ func (serv *Service) TableRows() [][]string {
 	kind := "internal"
 
 	var ports = make(str.Vector, 0, len(serv.Ports))
-	for _, p := range serv.Ports {
-		ports = append(ports, fmt.Sprintf("%5d >", *p.Port))
-	}
-	var links = make(str.Vector, 0, len(serv.Ports))
 	if serv.Domain != "" {
 		kind = "external"
 		for _, p := range serv.Ports {
 			switch strings.ToLower(p.Protocol) {
 			case "tcp":
-				links = append(links, fmt.Sprintf("%s -> %d (%s)", (&url.URL{
+				ports = append(ports, fmt.Sprintf("%s -> %d (%s)", (&url.URL{
 					Scheme: "http",
 					Host:   serv.Domain + ":" + strconv.Itoa(*p.Port),
 				}).String(), p.TargetPort, p.Protocol))
 			case "udp":
-				links = append(links, fmt.Sprintf("%s -> %d (%s)", (&url.URL{
+				ports = append(ports, fmt.Sprintf("%s -> %d (%s)", (&url.URL{
 					Scheme: "udp",
 					Host:   serv.Domain + ":" + strconv.Itoa(*p.Port),
 				}).String(), p.TargetPort, p.Protocol))
 			default:
-				links = append(links, fmt.Sprintf("%s -> %d (%s)", (&url.URL{
+				ports = append(ports, fmt.Sprintf("%s -> %d (%s)", (&url.URL{
 					Host: serv.Domain + ":" + strconv.Itoa(*p.Port),
 				}).String(), p.TargetPort, p.Protocol))
 			}
 		}
 	} else {
 		for _, p := range serv.Ports {
-			links = append(links, fmt.Sprintf("%5d -> %d (%s)", *p.Port, p.TargetPort, p.Protocol))
+			ports = append(ports, fmt.Sprintf("%5d -> %d (%s)", *p.Port, p.TargetPort, p.Protocol))
 		}
 	}
 
@@ -66,7 +62,7 @@ func (serv *Service) TableRows() [][]string {
 		serv.Name,
 		serv.Deploy,
 		kind,
-		strings.Join(links, "\n"),
+		strings.Join(ports, "\n"),
 		age,
 	}}
 }

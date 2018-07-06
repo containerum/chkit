@@ -4,13 +4,14 @@ import os
 import json
 from datetime import datetime
 import time
+from functional_tests.util import JSONSerialize
 
 DEFAULT_API_URL = os.getenv("CONTAINERUM_API", "http://api.local.containerum.io")
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 TEST_USER = os.getenv("TEST_USER", "helpik94@yandex.com")
 TEST_PASSWORD = os.getenv("TEST_USER_PASSWORD", "12345678")
-TEST_NAMESPACE = os.getenv("TEST_NAMESPACE", "-")
+TEST_NAMESPACE = os.getenv("TEST_NAMESPACE", "for-tests")
 
 ######################
 # API URL MANAGEMENT #
@@ -33,7 +34,7 @@ def get_api_url() -> str:
 
 
 def login(user: str="test", password: str="test", namespace: str="-") -> None:
-    sh.chkit("login", "-u", user, "-p", password, "-n", namespace).execute()
+    sh.chkit("login", "--username", user, "--password", password, "--namespace", namespace).execute()
 
 
 def get_profile() -> Dict[str, str]:
@@ -44,15 +45,19 @@ def get_profile() -> Dict[str, str]:
     return profile
 
 
-def account(fn, user: str, password: str, namespace: str="-"):
-    def wrapped(*args, **kwargs):
-        login(user, password, namespace)
-        fn(*args, **kwargs)
-    return wrapped
+def account(user: str, password: str, namespace: str="-"):
+    def decorator(fn):
+        def wrapped(*args, **kwargs):
+            set_api_url(DEFAULT_API_URL)
+            login(user, password, namespace)
+            fn(*args, **kwargs)
+        return wrapped
+    return decorator
 
 
 def test_account(fn):
     def wrapped(*args, **kwargs):
+        set_api_url(DEFAULT_API_URL)
         login(user=TEST_USER, password=TEST_PASSWORD, namespace=TEST_NAMESPACE)
         fn(*args, **kwargs)
     return wrapped
@@ -71,17 +76,16 @@ def get_default_namespace() -> Tuple[str, str]:
 
 
 def set_default_namespace(namespace: str="-") -> None:
-    sh.chkit("set", "default-namespace", "-n", namespace).execute()
+    sh.chkit("set", "default-namespace", namespace).execute()
 
 #########################
 # DEPLOYMENT MANAGEMENT #
 #########################
 
 
-class DeploymentStatus(json.JSONEncoder):
+class DeploymentStatus:
     def __init__(self, replicas: int=None, ready_replicas: int=None, available_replicas: int=None,
                  unavailable_replicas: int=None, updated_replicas: int=None):
-        super().__init__()
         self.replicas = replicas
         self.ready_replicas = ready_replicas
         self.available_replicas = available_replicas
@@ -98,13 +102,9 @@ class DeploymentStatus(json.JSONEncoder):
             updated_replicas=j.get('updated_replicas'),
         )
 
-    def default(self, o):
-        return o.__dict__
 
-
-class Resources(json.JSONEncoder):
+class Resources:
     def __init__(self, cpu: int=None, memory: int=None):
-        super().__init__()
         self.cpu = cpu
         self.memory = memory
 
@@ -115,13 +115,29 @@ class Resources(json.JSONEncoder):
             memory=j.get('memory')
         )
 
-    def default(self, o):
-        return o.__dict__
+
+class EnvVariable:
+    def __init__(self, name: str, value: str):
+        self.name = name
+        self.value = value
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if not isinstance(other, EnvVariable):
+            raise TypeError(f"expected {type(self)}, got {type(other)}")
+        return self.name == other.name and self.value == other.value
+
+    @staticmethod
+    def json_decode(j):
+        return EnvVariable(
+            name=j.get("name"),
+            value=j.get("value")
+        )
 
 
-class Container(json.JSONEncoder):
-    def __init__(self, image: str=None, name: str=None, limits: Resources=None, env: Dict[str, str]=None):
-        super().__init__()
+class Container:
+    def __init__(self, image: str=None, name: str=None, limits: Resources=None, env: List[EnvVariable]=None):
         self.image = image
         self.name = name
         self.limits = limits
@@ -133,18 +149,14 @@ class Container(json.JSONEncoder):
             name=j.get('name'),
             image=j.get('image'),
             limits=Resources.json_decode(j.get('limits')),
-            env=j.get('env')
+            env=[EnvVariable.json_decode(env) for env in j.get("env")] if j.get("env") is not None else None,
         )
 
-    def default(self, o):
-        return o.__dict__
 
-
-class Deployment(json.JSONEncoder):
-    def __init__(self, created_at: datetime=None, status: DeploymentStatus=None,
-                 containers: List[Container]=None, name: str=None, replicas: int=None, total_cpu: int=None,
+class Deployment:
+    def __init__(self, name: str=None, created_at: datetime=None, status: DeploymentStatus=None,
+                 containers: List[Container]=None, replicas: int=None, total_cpu: int=None,
                  total_memory: int=None, active: bool=False, version: str=None):
-        super().__init__()
         self.created_at = created_at
         self.status = status
         self.containers = containers
@@ -170,12 +182,6 @@ class Deployment(json.JSONEncoder):
             version=j.get('version')
         )
 
-    def default(self, o):
-        ret = {key: value for key, value in o.__dict__.items() if not isinstance(value, datetime)}
-        ret.update({key: value.strftime(DATETIME_FORMAT)
-                    for key, value in o.__dict__.items() if isinstance(value, datetime)})
-        return ret
-
 
 def get_deployment(name: str="") -> Deployment:
     output = sh.chkit("get", "deploy", name, "--output", "json").execute().stdout()
@@ -197,8 +203,8 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
             args.extend(["--cpu", f"{container.name}@{container.limits.cpu}"])
             args.extend(["--memory", f"{container.name}@{container.limits.memory}"])
             if container.env is not None:
-                for key, value in container.env.items():
-                    args.extend(["--env", f"{container.name}@{key}:{value}"])
+                for var in container.env:
+                    args.extend(["--env", f"{container.name}@{var.name}:{var.value}"])
     else:
         args.extend(["--file", "-"])
     if namespace is not None:
@@ -207,7 +213,7 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
     if not file:
         sh.chkit(*args).execute()
     else:
-        sh.chkit(*args, _stdin=json.dumps(depl, cls=Deployment)).execute()
+        sh.chkit(*args, _stdin=json.dumps(depl, cls=JSONSerialize)).execute()
 
 
 __default_deployment = Deployment(
@@ -219,22 +225,24 @@ __default_deployment = Deployment(
             name="second",
             limits=Resources(cpu=15, memory=15),
             image="redis",
-            env={"HELLO": "world"},
+            env=[EnvVariable("HELLO", "world")],
         )
     ],
 )
 
 
-def with_deployment(fn, deployment: Deployment=__default_deployment, namespace: str=None):
-    def wrapper(*args, **kwargs):
-        create_deployment(depl=deployment, namespace=namespace)
-        try:
-            args = list(args) + [deployment]
-            fn(*args, **kwargs)
-        finally:
-            delete_deployment(name=deployment.name, namespace=namespace)
-            time.sleep(5)
-    return wrapper
+def with_deployment(deployment: Deployment=__default_deployment, namespace: str=None):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            create_deployment(depl=deployment, namespace=namespace)
+            try:
+                args = list(args) + [deployment]
+                fn(*args, **kwargs)
+            finally:
+                delete_deployment(name=deployment.name, namespace=namespace)
+                time.sleep(5)
+        return wrapper
+    return decorator
 
 
 def delete_deployment(name: str, namespace: str=None, concurrency: int=None) -> None:
@@ -295,8 +303,8 @@ def replace_container(deployment: str="", container: Container=Container(), name
     if namespace is not None:
         args.extend(["--namespace", namespace])
     if container.env is not None:
-        for k, v in container.env.items():
-            args.extend(["--env", f"{k}:{v}"])
+        for var in container.env:
+            args.extend(["--env", f"{var.name}:{var.value}"])
     if container.limits is not None:
         if container.limits.cpu is not None:
             args.extend(["--cpu", container.limits.cpu])
@@ -314,13 +322,13 @@ def add_container(deployment: str="", container: Container=Container(), namespac
     else:
         args.extend(["--image", container.image, "--memory", container.limits.memory, "--cpu", container.limits.cpu])
         if container.env is not None:
-            for k, v in container.env.items():
-                args.extend(["--env", f"{k}:{v}"])
+            for var in container.env:
+                args.extend(["--env", f"{var.name}:{var.value}"])
     if namespace is not None:
         args.extend(["--namespace", namespace])
 
     if file:
-        sh.chkit(*args, _stdin=json.dumps(container, cls=Container)).execute()
+        sh.chkit(*args, _stdin=json.dumps(container, cls=JSONSerialize)).execute()
     else:
         sh.chkit(*args).execute()
 
@@ -329,17 +337,19 @@ __default_container = Container(
     name="test-container",
     limits=Resources(cpu=15, memory=15),
     image="redis",
-    env={"HELLO": "world"},
+    env=[EnvVariable("HELLO", "world")],
 )
 
 
-def with_container(fn, container: Container=__default_container,
-                   deployment: str=__default_deployment.name, namespace: str=None):
-    def wrapper(*args, **kwargs):
-        add_container(deployment=deployment, container=container, namespace=namespace)
-        args = list(args)+[container]
-        fn(*args, **kwargs)
-    return wrapper
+def with_container(container: Container=__default_container, deployment: str=__default_deployment.name,
+                   namespace: str=None):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            add_container(deployment=deployment, container=container, namespace=namespace)
+            args = list(args)+[container]
+            fn(*args, **kwargs)
+        return wrapper
+    return decorator
 
 
 def delete_container(deployment: str="", container: str="", namespace: str=None) -> None:
@@ -354,9 +364,8 @@ def delete_container(deployment: str="", container: str="", namespace: str=None)
 ##################
 
 
-class PodStatus(json.JSONEncoder):
+class PodStatus:
     def __init__(self, phase: str=None, restart_count: int=None, start_at: datetime=None):
-        super().__init__()
         self.phase = phase
         self.restart_count = restart_count
         self.start_at = start_at
@@ -370,17 +379,10 @@ class PodStatus(json.JSONEncoder):
             not in (None, '') else None
         )
 
-    def default(self, o):
-        ret = {key: value for key, value in o.__dict__.items() if not isinstance(value, datetime)}
-        ret.update({key: value.strftime(DATETIME_FORMAT)
-                    for key, value in o.__dict__.items() if isinstance(value, datetime)})
-        return ret
 
-
-class Pod(json.JSONEncoder):
+class Pod:
     def __init__(self, created_at: datetime=None, name: str=None, owner: str=None, containers: List[Container]=None,
                  status: PodStatus=None, deploy: str=None, total_cpu: int=None, total_memory: int=None):
-        super().__init__()
         self.created_at = created_at
         self.name = name
         self.owner = owner
@@ -404,12 +406,6 @@ class Pod(json.JSONEncoder):
             total_memory=j.get('total_memory')
         )
 
-    def default(self, o):
-        ret = {key: value for key, value in o.__dict__.items() if not isinstance(value, datetime)}
-        ret.update({key: value.strftime(DATETIME_FORMAT)
-                    for key, value in o.__dict__.items() if isinstance(value, datetime)})
-        return ret
-
 
 def get_pods(namespace: str=None, status: str=None) -> List[Pod]:
     args = ["get", "pods", "--output", "json"]
@@ -420,3 +416,172 @@ def get_pods(namespace: str=None, status: str=None) -> List[Pod]:
     output = sh.chkit(*args).execute().stdout()
 
     return [Pod.json_decode(j) for j in json.loads(output)]
+
+
+class PodWaitException(Exception):
+    pass
+
+
+def ensure_pods_running(deployment: str=__default_deployment.name, max_attempts: int=40, sleep_seconds: float=15,
+                        exception_on_fail: Exception=PodWaitException):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            attempts = 1
+            while attempts <= max_attempts:
+                pods = get_pods()
+                deployment_pods = [pod for pod in pods if pod.deploy == deployment]
+                not_running_pods = [pod for pod in deployment_pods if pod.status.phase != "Running"]
+                if len(not_running_pods) == 0 and len(deployment_pods) > 0:
+                    break
+                time.sleep(sleep_seconds)
+                attempts += 1
+            if attempts > max_attempts:
+                raise exception_on_fail
+            fn(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def pod_logs(pod: str, container: str=None, tail: int=None, namespace: str=None) -> List[str]:
+    args = ["logs", pod]
+    if container is not None:
+        args.append(container)
+    if tail is not None:
+        args.extend(["--tail", tail])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return sh.chkit(*args).execute().stdout().splitlines()
+
+
+#######################
+# SERVICES MANAGEMENT #
+#######################
+
+
+class ServicePort:
+
+    def __init__(self, name: str, target_port: int, protocol: str="TCP", port: int=None):
+        self.name = name
+        self.target_port = target_port
+        self.protocol = protocol
+        self.port = port
+
+    @staticmethod
+    def json_decode(j):
+        return ServicePort(
+            name=j.get("name"),
+            target_port=j.get("target_port"),
+            protocol=j.get("protocol"),
+            port=j.get("port"),
+        )
+
+
+class Service:
+
+    def __init__(self, name: str, deploy: str, ports: List[ServicePort], ips: List[str]=None, domain: str=None):
+        self.name = name
+        self.deploy = deploy
+        self.ports = ports
+        self.ips = ips
+        self.domain = domain
+
+    @staticmethod
+    def json_decode(j):
+        return Service(
+            name=j.get("name"),
+            deploy=j.get("deploy"),
+            ports=[ServicePort.json_decode(port) for port in j.get("ports")],
+            ips=j.get("ips"),
+            domain=j.get("domain")
+        )
+
+    def is_external(self):
+        return self.domain is not None or self.ips is not None
+
+
+def create_service(service: Service, file: bool=False, namespace: str=None) -> None:
+    args = ["create", "service", "--name", service.name, "--deploy", service.deploy, "--force"]
+    if file:
+        args.extend(["--input", "json"])
+    else:
+        port = service.ports[0]
+        args.extend(["--port-name", port.name, "--target-port", port.target_port, "--protocol", port.protocol])
+        if port.port is not None:
+            args.extend(["--port", port.port])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    if file:
+        service_to_create = Service(name=service.name, deploy=service.deploy, ports=service.ports)
+        sh.chkit(*args, _stdin=json.dumps(service_to_create, cls=JSONSerialize)).execute()
+    else:
+        sh.chkit(*args).execute()
+
+
+def get_services(solution: str=None, namespace: str=None) -> List[Service]:
+    args = ["get", "svc", "--output", "json"]
+    if solution is not None:
+        args.extend(["--solution-name", solution])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return [Service.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
+
+
+def get_service(service: str, solution: str=None, namespace: str=None) -> Service:
+    args = ["get", "svc", service, "--output", "json"]
+    if solution is not None:
+        args.extend(["--solution-name", solution])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return Service.json_decode(json.loads(sh.chkit(*args).execute().stdout()))
+
+
+def replace_service(service: Service, file: bool=False, namespace: str=None) -> None:
+    args = ["replace", "service", "--name", service.name, "--deploy", service.deploy, "--force"]
+    if file:
+        args.extend(["--input", "json"])
+    else:
+        port = service.ports[0]
+        if port.name is not None:
+            args.extend(["--port-name", port.name])
+        if port.target_port is not None:
+            args.extend(["--target-port", port.target_port])
+        if port.target_port is not None:
+            args.extend(["--protocol", port.protocol])
+        if port.port is not None:
+            args.extend(["--port", port.port])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    if file:
+        service_to_create = Service(name=service.name, deploy=service.deploy, ports=service.ports)
+        sh.chkit(*args, _stdin=json.dumps(service_to_create, cls=JSONSerialize)).execute()
+    else:
+        sh.chkit(*args).execute()
+
+
+def delete_service(service: str, namespace: str=None) -> None:
+    args = ["delete", "service", service, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    sh.chkit(*args).execute()
+
+
+def with_service(service: Service, namespace: str=None):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            create_service(service, file=True, namespace=namespace)
+            try:
+                args = list(args)+[service]
+                fn(*args, **kwargs)
+            finally:
+                delete_service(service.name)
+                time.sleep(5)
+        return wrapper
+    return decorator
