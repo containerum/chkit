@@ -14,9 +14,9 @@ import (
 
 func DeleteVersion(ctx *context.Context) *cobra.Command {
 	var flags struct {
-		Deployment string `desc:"deployment name, can be chosen in interactive menu"`
-		Version    string `desc:"deployment version, can be chosen in interactive menu"`
-		Force      bool   `desc:"suppress confirmation" flag:"flag f"`
+		Deployment string `desc:"deployment name, can be chosen in interactive menu, required in force mode"`
+		Version    string `desc:"deployment version, can be chosen in interactive menu, required in force mode"`
+		Force      bool   `desc:"suppress confirmation" flag:"force f"`
 	}
 	var command = &cobra.Command{
 		Use:     "deployment-version",

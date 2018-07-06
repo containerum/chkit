@@ -17,7 +17,7 @@ import (
 
 func Delete(ctx *context.Context) *cobra.Command {
 	var flags = struct {
-		Force       bool `dec:"suppress conftimation"`
+		Force       bool `dec:"suppress confirmation"`
 		Concurrency uint `desc:"how much concurrent requeste can be performed at once" flag:"concurrency c"`
 	}{
 		Concurrency: uint(runtime.NumCPU()),

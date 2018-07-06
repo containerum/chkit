@@ -48,6 +48,7 @@ def get_profile() -> Dict[str, str]:
 def account(user: str, password: str, namespace: str="-"):
     def decorator(fn):
         def wrapped(*args, **kwargs):
+            set_api_url(DEFAULT_API_URL)
             login(user, password, namespace)
             fn(*args, **kwargs)
         return wrapped
@@ -56,6 +57,7 @@ def account(user: str, password: str, namespace: str="-"):
 
 def test_account(fn):
     def wrapped(*args, **kwargs):
+        set_api_url(DEFAULT_API_URL)
         login(user=TEST_USER, password=TEST_PASSWORD, namespace=TEST_NAMESPACE)
         fn(*args, **kwargs)
     return wrapped

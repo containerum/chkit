@@ -1,11 +1,9 @@
 package container
 
 import (
-	"sort"
-
-	"strings"
-
 	"os"
+	"sort"
+	"strings"
 
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -76,7 +74,7 @@ func componentEnv(oldeEnv *model.Env, ok *bool) *activekit.MenuItem {
 						{
 							Label: "Edit name",
 							Action: func() error {
-								var name = activekit.Promt("Type env name, hit Enter to leave %s",
+								var name = activekit.Promt("Type env name, hit Enter to leave %s: ",
 									str.Vector{env.Name, "empty"}.FirstNonEmpty())
 								name = strings.TrimSpace(name)
 								switch {
@@ -93,8 +91,8 @@ func componentEnv(oldeEnv *model.Env, ok *bool) *activekit.MenuItem {
 						{
 							Label: "Edit value",
 							Action: func() error {
-								var value = activekit.Promt("Type env name, hit Enter to leave %s",
-									str.Vector{env.Name, "empty"}.FirstNonEmpty())
+								var value = activekit.Promt("Type env name, hit Enter to leave %s: ",
+									str.Vector{env.Value, "empty"}.FirstNonEmpty())
 								value = strings.TrimSpace(value)
 								switch {
 								case strings.HasPrefix(value, "$"):
