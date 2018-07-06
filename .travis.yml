@@ -40,3 +40,11 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+
+notifications:
+  webhooks:
+    urls:
+      - https://integrations.bonbotics.io/travis/webhook/Vv1nUUPlGoIq3Baehmzw6DsGEbwL0F4xZRhsBHk0Vdk
+    on_success: always
+    on_failure: always
+    on_start: never
