@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
@@ -21,6 +22,7 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 		ContainerName string `flag:"container" desc:"container name, required on --force"`
 		Deployment    string `desc:"deployment name, required on --force"`
 		containerControl.ReplaceFlags
+		porta.Importer
 	}
 	command := &cobra.Command{
 		Use:     "deployment-container",
@@ -50,6 +52,14 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 				if !ok {
 					ferr.Printf("container %q doesn't exist", flags.ContainerName)
 					ctx.Exit(1)
+				}
+				if flags.ImportActivated() {
+					var importedCont container.Container
+					if err := flags.Import(&importedCont); err != nil {
+						ferr.Println(err)
+						ctx.Exit(1)
+					}
+					cont = cont.Patch(importedCont)
 				}
 				cont, err = flags.Patch(cont)
 				if err != nil {
@@ -127,6 +137,15 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 					ferr.Printf("container %q not found in deployment %q", flags.ContainerName, depl.Name)
 					ctx.Exit(1)
 				}
+			}
+
+			if flags.ImportActivated() {
+				var importedCont container.Container
+				if err := flags.Import(&importedCont); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				cont = cont.Patch(importedCont)
 			}
 
 			logger.Debugf("building container from flags")
