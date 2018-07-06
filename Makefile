@@ -12,8 +12,8 @@ FILEBOX := $(shell command -v fileb0x 2>/dev/null)
 FUNCTIONAL_TEST_MODULES := config deployment pod service
 HELP_DIR := help
 HELP_CONTENT_FILES := $(shell find $(HELP_DIR)/content -name '*.md')
-PIP := pip
-PYTHON := python
+PIP := pip3
+PYTHON := python3
 
 COMMIT_HASH=$(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE=$(shell date +%FT%T%Z)
