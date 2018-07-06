@@ -176,7 +176,7 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 			}()
 
 			logger.Debugf("running wizard")
-			containerControl.Wizard{
+			cont = containerControl.Wizard{
 				Container:  cont,
 				Deployment: flags.Deployment,
 				//		Volumes:     volumes.Names(),
