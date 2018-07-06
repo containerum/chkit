@@ -45,7 +45,7 @@ func Setup(ctx *context.Context) error {
 		return ErrFatalError.Wrap(err)
 	}
 	logger.Debugf("client initialisation")
-	if err := Client(ctx, DoNotAlloSelfSignedTLSCerts); err != nil {
+	if err := Client(ctx, DoNotAllowSelfSignedTLSCerts); err != nil {
 		logger.WithError(err).Errorf("unable to init client")
 		return err
 	}

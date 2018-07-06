@@ -17,8 +17,8 @@ import (
 type CertPolicy string
 
 const (
-	DoNotAlloSelfSignedTLSCerts CertPolicy = ""
-	AllowSelfSignedTLSCerts     CertPolicy = "allow self signed certs"
+	DoNotAllowSelfSignedTLSCerts CertPolicy = ""
+	AllowSelfSignedTLSCerts      CertPolicy = "allow self signed certs"
 )
 
 func (certPolicy CertPolicy) String() string {
