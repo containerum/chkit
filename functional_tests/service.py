@@ -101,3 +101,26 @@ class TestExternalService(unittest.TestCase):
             chkit.delete_service(svc.name)
             time.sleep(1)
             self.assertNotIn(svc.name, [service.name for service in chkit.get_services()])
+
+    __default_external_service = chkit.Service(
+        name="test-external-service",
+        deploy=__default_services_deployment.name,
+        ports=[chkit.ServicePort(name="test-external-port", target_port=80)]
+    )
+
+    @timeout_decorator.timeout(seconds=30)
+    @chkit.test_account
+    @chkit.with_deployment(deployment=__default_services_deployment)
+    @chkit.with_service(service=__default_external_service)
+    def test_update(self, depl: chkit.Deployment, svc: chkit.Service):
+        new_svc = chkit.Service(
+            name=svc.name,
+            deploy=depl.name,
+            ports=[chkit.ServicePort(name="test-external-port-1", target_port=443)]
+        )
+        chkit.replace_service(service=new_svc, file=True)
+        got_svc = chkit.get_service(service=new_svc.name)
+        self.assertEqual(new_svc.name, got_svc.name)
+        self.assertEqual(len(got_svc.ports), 1)
+        self.assertEqual(got_svc.ports[0].name, new_svc.ports[0].name)
+        self.assertEqual(got_svc.ports[0].port, new_svc.ports[0].port)
