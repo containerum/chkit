@@ -3,8 +3,8 @@ package clideployment
 import (
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/export"
 	deployment2 "github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/octago/sflags/gen/gpflag"
@@ -13,10 +13,9 @@ import (
 
 func GetVersions(ctx *context.Context) *cobra.Command {
 	var flags struct {
-		LastN   uint64              `desc:"limit n versions to show"`
-		Output  export.ExportFormat `desc:"output format, json/yaml"`
-		File    string              `desc:"output file, optional, default is STDOUT"`
-		Version string              `desc:"version query, examples: <1.0.0, <=1.0.0, !1.0.0"`
+		LastN   uint64 `desc:"limit n versions to show"`
+		Version string `desc:"version query, examples: <1.0.0, <=1.0.0, !1.0.0"`
+		porta.Exporter
 	}
 	var command = &cobra.Command{
 		Use:     "deployment-versions",
@@ -100,11 +99,7 @@ func GetVersions(ctx *context.Context) *cobra.Command {
 				versions = versions[:flags.LastN]
 			}
 			logger.Debugf("exporting versions data")
-			if err := export.ExportData(versions, export.ExportConfig{
-				Filename: flags.File,
-				Format:   flags.Output,
-			}); err != nil {
-				logger.WithError(err).Errorf("unable to export versions data")
+			if err := flags.Export(versions); err != nil {
 				ferr.Println(err)
 				ctx.Exit(1)
 			}
