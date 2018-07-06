@@ -585,3 +585,123 @@ def with_service(service: Service, namespace: str=None):
                 time.sleep(5)
         return wrapper
     return decorator
+
+
+######################
+# INGRESS MANAGEMENT #
+######################
+
+
+class IngressPath:
+    def __init__(self, service_name: str, service_port: int, path="/"):
+        self.service_name = service_name
+        self.service_port = service_port
+        self.path = path
+
+    @staticmethod
+    def json_decode(j):
+        return IngressPath(
+            service_name=j.get("service_name"),
+            service_port=j.get("service_port"),
+            path=j.get("path")
+        )
+
+
+class IngressRule:
+    def __init__(self, host: str, path: List[IngressPath], tls_secret: str=None):
+        self.host = host
+        self.path = path
+        self.tls_secret = tls_secret
+
+    @staticmethod
+    def json_decode(j):
+        return IngressRule(
+            host=j.get("host"),
+            path=[IngressPath.json_decode(path) for path in j.get("path")],
+            tls_secret=j.get("tls_secret")
+        )
+
+
+class Ingress:
+    def __init__(self, name: str, rules: List[IngressRule]):
+        self.name = name
+        self.rules = rules
+
+    @staticmethod
+    def json_decode(j):
+        return Ingress(
+            name=j.get("name"),
+            rules=[IngressRule.json_decode(rule) for rule in j.get("rules")]
+        )
+
+
+def create_ingress(ingress: Ingress, file: bool=False, namespace: str=None) -> None:
+    args = ["create", "ingress", "--force"]
+    if file:
+        args.extend(["--input", "json"])
+    else:
+        rule = ingress.rules[0]
+        path = rule.path[0]
+        args.extend(["--host", rule.host,
+                     "--port", path.service_port,
+                     "--service", path.service_name,
+                     "--path", path.path,
+                     "--name", ingress.name])
+        if rule.tls_secret is not None:
+            args.extend(["--tls-secret", rule.tls_secret])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    if file:
+        sh.chkit(*args, _stdin=json.dumps(ingress, cls=JSONSerialize)).execute()
+    else:
+        sh.chkit(*args).execute()
+
+
+def get_ingress(name: str, namespace: str=None) -> Ingress:
+    args = ["get", "ingress", name, "--output", "json"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return Ingress.json_decode(json.loads(sh.chkit(*args).execute().stdout()))
+
+
+def get_ingresses(names: List[str]=(), namespace: str=None) -> List[Ingress]:
+    args = ["get", "ingresses", "--output", "json"]
+    args.extend([name for name in names])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return [Ingress.json_decode(ingress) for ingress in json.loads(sh.chkit(*args).execute().stdout())]
+
+
+def replace_ingress(ingress: Ingress, file: bool=False, namespace: str=None) -> None:
+    args = ["create", "ingress", ingress.name, "--force"]
+    if file:
+        args.extend(["--input", "json"])
+    else:
+        rule = ingress.rules[0]
+        path = rule.path[0]
+        args.extend(["--host", rule.host,
+                     "--port", path.service_port,
+                     "--service", path.service_name,
+                     "--path", path.path])
+        if rule.tls_secret is not None:
+            args.extend(["--tls-secret", rule.tls_secret])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    if file:
+        sh.chkit(*args, _stdin=json.dumps(ingress, cls=JSONSerialize)).execute()
+    else:
+        sh.chkit(*args).execute()
+
+
+def delete_ingress(name: str, namespace: str=None) -> None:
+    args = ["delete", "ingress", name, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    sh.chkit(*args).execute()
