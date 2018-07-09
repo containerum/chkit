@@ -7,6 +7,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/help"
 	"github.com/containerum/chkit/pkg/cli/doc"
+	"github.com/containerum/chkit/pkg/cli/logout"
 	"github.com/containerum/chkit/pkg/cli/mode"
 	"github.com/containerum/chkit/pkg/cli/postrun"
 	"github.com/containerum/chkit/pkg/cli/prerun"
@@ -80,6 +81,7 @@ func Root() error {
 		Run(ctx),
 		Rename(ctx),
 		Update(ctx),
+		logout.Logout(ctx),
 		&cobra.Command{
 			Use:   "version",
 			Short: "Print version",
@@ -105,6 +107,7 @@ func RootCommands() []*cobra.Command {
 		Logs(ctx),
 		Run(ctx),
 		Rename(ctx),
+		logout.Logout(ctx),
 		Update(ctx),
 		{
 			Use:   "version",
