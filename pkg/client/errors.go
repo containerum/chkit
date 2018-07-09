@@ -10,7 +10,6 @@ import (
 	vmErrors "git.containerum.net/ch/volume-manager/pkg/errors"
 	"github.com/containerum/cherry"
 	"github.com/containerum/chkit/pkg/chkitErrors"
-	"github.com/gorilla/websocket"
 )
 
 const (
@@ -80,7 +79,7 @@ func HandleErrorRetry(client *Client, err error) (bool, error) {
 	case cherry.In(err, retriable...):
 		//Retriable error
 		return true, chkitErrors.Fatal(err)
-	case cherry.In(err, auth...), err == websocket.ErrBadHandshake:
+	case cherry.In(err, auth...):
 		//Auth errors
 		return true, client.Auth()
 	case cherry.In(err, notExists...):
