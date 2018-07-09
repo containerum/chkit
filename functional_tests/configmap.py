@@ -2,7 +2,6 @@ import unittest
 from timeout_decorator import timeout_decorator
 import functional_tests.chkit as chkit
 import time
-import requests
 
 
 class TestConfigMap(unittest.TestCase):
