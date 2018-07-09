@@ -9,7 +9,7 @@ var (
 )
 
 func (Namespace) TableHeaders() []string {
-	return []string{"Label", "Access level", "ID", "CPU", "MEM", "Age"}
+	return []string{"Label", "Access level", "ID", "Limits", "Age"}
 }
 
 func (namespace Namespace) TableRows() [][]string {
@@ -17,8 +17,7 @@ func (namespace Namespace) TableRows() [][]string {
 		namespace.OwnerAndLabel(),
 		namespace.Access.String(),
 		namespace.ID,
-		namespace.UsageCPU(),
-		namespace.UsageMemory(),
+		"CPU: " + namespace.UsageCPU() + "\nMem: " + namespace.UsageMemory(),
 		namespace.Age(),
 	}}
 }
