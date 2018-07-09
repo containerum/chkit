@@ -111,3 +111,7 @@ func (list NamespaceList) GetByLabelAndOwner(owner, label string) (Namespace, bo
 		return namespace.OwnerLogin == owner && namespace.Label == label
 	}).Head()
 }
+
+func (list NamespaceList) Append(ns Namespace) NamespaceList {
+	return append(list.Copy(), ns.Copy())
+}

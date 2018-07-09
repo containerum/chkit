@@ -7,6 +7,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/model"
 	kubeModel "github.com/containerum/kube-client/pkg/model"
+	"github.com/ninedraft/boxofstuff/str"
 )
 
 type Namespace kubeModel.Namespace
@@ -62,4 +63,16 @@ func (namespace Namespace) LabelAndID() string {
 
 func (namespace Namespace) OwnerAndLabel() string {
 	return fmt.Sprintf("%s/%s", namespace.OwnerLogin, namespace.Label)
+}
+
+func (namespace Namespace) MatchLabel(label string) bool {
+	var tokens = str.SplitS(label, "/", 2)
+	switch tokens.Len() {
+	case 1:
+		return namespace.Label == tokens[0]
+	case 2:
+		return namespace.OwnerLogin == tokens[0] && namespace.Label == tokens[1]
+	default:
+		return false
+	}
 }
