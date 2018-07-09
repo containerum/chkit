@@ -31,11 +31,18 @@ func Replace(ctx *context.Context) *cobra.Command {
 			logger := coblog.Logger(cmd)
 			logger.Struct(flags)
 			logger.Debugf("running replace ingress command")
+
+			ingressName := ""
+			if flags.Name != "" {
+				ingressName = flags.Name
+			} else if len(args) != 0 {
+				ingressName = args[0]
+			}
+
 			var ingr ingress.Ingress
-			if len(args) == 1 {
-				ingrName := args[0]
+			if ingressName != "" {
 				var err error
-				ingr, err = ctx.Client.GetIngress(ctx.GetNamespace().ID, ingrName)
+				ingr, err = ctx.Client.GetIngress(ctx.GetNamespace().ID, ingressName)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get previous ingress")
 					activekit.Attention("unable to get previous ingress:\n%v", err)

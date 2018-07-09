@@ -50,13 +50,20 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 			}
 
+			cmName := ""
+			if flags.Name != "" {
+				cmName = flags.Name
+			} else if len(args) != 0 {
+				cmName = args[0]
+			}
+
 			var newCm configmap.ConfigMap
 			if flags.Force {
-				if len(args) != 1 {
+				if cmName == "" {
 					cmd.Help()
 					return
 				}
-				oldCm, err := ctx.Client.GetConfigmap(ctx.GetNamespace().ID, args[0])
+				oldCm, err := ctx.Client.GetConfigmap(ctx.GetNamespace().ID, cmName)
 				if err != nil {
 					activekit.Attention(err.Error())
 					ctx.Exit(1)
@@ -83,7 +90,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Congratulations! Configmap %s updated!\n", oldCm.Name)
 				return
 			} else {
-				if len(args) == 0 {
+				if cmName == "" {
 					list, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
 					if err != nil {
 						activekit.Attention(err.Error())
@@ -114,7 +121,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					}).Run()
 				} else {
 					var err error
-					newCm, err = ctx.Client.GetConfigmap(ctx.GetNamespace().ID, args[0])
+					newCm, err = ctx.Client.GetConfigmap(ctx.GetNamespace().ID, cmName)
 					if err != nil {
 						activekit.Attention(err.Error())
 						ctx.Exit(1)

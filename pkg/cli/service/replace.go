@@ -50,13 +50,20 @@ func Replace(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 			}
+			serviceName := ""
+			if flags.Name != "" {
+				serviceName = flags.Name
+			} else if len(args) != 0 {
+				serviceName = args[0]
+			}
+
 			var svc service.Service
 			if flags.Force {
-				if len(args) != 1 {
+				if serviceName == "" {
 					cmd.Help()
 					return
 				}
-				oldServ, err := ctx.Client.GetService(ctx.GetNamespace().ID, args[0])
+				oldServ, err := ctx.Client.GetService(ctx.GetNamespace().ID, serviceName)
 				if err != nil {
 					activekit.Attention(err.Error())
 					ctx.Exit(1)
@@ -88,7 +95,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Congratulations! Service %s updated!\n", oldServ.Name)
 				return
 			} else {
-				if len(args) == 0 {
+				if serviceName == "" {
 					list, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 					if err != nil {
 						activekit.Attention(err.Error())
@@ -119,7 +126,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 					}).Run()
 				} else {
 					var err error
-					svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, args[0])
+					svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, serviceName)
 					if svc.Domain != "" {
 						external = true
 					}
