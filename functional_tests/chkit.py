@@ -585,3 +585,106 @@ def with_service(service: Service, namespace: str=None):
                 time.sleep(5)
         return wrapper
     return decorator
+
+#######################
+# CONFIGMAPS MANAGEMENT #
+#######################
+
+class ConfigMap:
+
+    def __init__(self, name: str, data: Dict[str, str]):
+        self.name = name
+        self.data = data
+
+    @staticmethod
+    def json_decode(j):
+        return ConfigMap(
+            name=j.get("name"),
+            data=j.get("data")
+        )
+
+
+def get_configmap(configmap: str, namespace: str=None) -> ConfigMap:
+    args = ["get", "cm", configmap, "--output", "json"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return ConfigMap.json_decode(json.loads(sh.chkit(*args).execute().stdout()))
+
+
+def get_configmaps(namespace: str=None) -> List[ConfigMap]:
+    args = ["get", "cm", "--output", "json"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return [ConfigMap.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
+
+
+def create_configmap(cm: ConfigMap, file: bool=False, namespace: str=None) -> None:
+    args = ["create", "cm", "--name", cm.name, "--force"]
+    # if file:
+    #   args.extend(["--input", "json"])
+    # else:
+
+    sep = " "
+    envs = []
+    for d in cm.data:
+        buf = "%s:%s" % (d, cm.data[d])
+        envs.append(buf)
+
+    args.extend(["--item-string", sep.join(envs)])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    # if file:
+    #    cm_to_create = ConfigMap(name=cm.name, data=cm.data)
+    #    sh.chkit(*args, _stdin=json.dumps(cm_to_create, cls=JSONSerialize)).execute()
+    # else:
+    sh.chkit(*args).execute()
+
+
+def replace_configmap(cm: ConfigMap, file: bool=False, namespace: str=None) -> None:
+    args = ["replace", "cm", cm.name, "--force"]
+    # if file:
+    #   args.extend(["--input", "json"])
+    # else:
+
+    sep = " "
+    envs = []
+    for d in cm.data:
+        buf = "%s:%s" % (d, cm.data[d])
+        envs.append(buf)
+
+    args.extend(["--item-string", sep.join(envs)])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    # if file:
+    #    cm_to_create = ConfigMap(name=cm.name, data=cm.data)
+    #    sh.chkit(*args, _stdin=json.dumps(cm_to_create, cls=JSONSerialize)).execute()
+    # else:
+    sh.chkit(*args).execute()
+
+
+def delete_configmap(configmap: str, namespace: str=None) -> None:
+    args = ["delete", "cm", configmap, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    sh.chkit(*args).execute()
+
+
+def with_cm(configmap: ConfigMap, namespace: str=None):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            create_configmap(configmap, file=True, namespace=namespace)
+            try:
+                args = list(args)+[configmap]
+                fn(*args, **kwargs)
+            finally:
+                delete_configmap(configmap.name)
+                time.sleep(5)
+        return wrapper
+    return decorator
