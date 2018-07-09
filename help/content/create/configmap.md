@@ -5,5 +5,6 @@ There are several ways to construct configmap:
 - --item-string flag, formatted as KEY:VALUE pairs. The VALUE can be token, short init file, etc.
 - --item-file flag, KEY:FILE_PATH or FILE_PATH (filename will be used as KEY)
 - interactive wizard
+- --import-file flag. Fields in imported file must be not base64 encoded!
 
 Use the --force flag to skip wizard
