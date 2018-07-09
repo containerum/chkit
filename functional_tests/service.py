@@ -48,15 +48,15 @@ class TestInternalService(unittest.TestCase):
         new_svc = chkit.Service(
             name=svc.name,
             deploy=depl.name,
-            ports=[chkit.ServicePort(name="test-port-1", target_port=80)],
+            ports=[chkit.ServicePort(name="test-internal-port-update", target_port=443, port=9999)],
         )
         chkit.replace_service(new_svc)
         got_svc = chkit.get_service(svc.name)
         self.assertEqual(got_svc.name, new_svc.name)
         self.assertEqual(got_svc.deploy, new_svc.deploy)
         self.assertEqual(got_svc.ports[0].name, new_svc.ports[0].name)
-        self.assertEqual(got_svc.ports[0].target_port, new_svc.ports[0].target_port[0])
-        self.assertEqual(got_svc.ports[0].port, new_svc.ports[0].target_port)
+        self.assertEqual(got_svc.ports[0].target_port, new_svc.ports[0].target_port)
+        self.assertEqual(got_svc.ports[0].port, new_svc.ports[0].port)
 
 
 class TestExternalService(unittest.TestCase):
@@ -116,11 +116,11 @@ class TestExternalService(unittest.TestCase):
         new_svc = chkit.Service(
             name=svc.name,
             deploy=depl.name,
-            ports=[chkit.ServicePort(name="test-external-port-1", target_port=443)]
+            ports=[chkit.ServicePort(name="test-external-port-update", target_port=443)]
         )
         chkit.replace_service(service=new_svc, file=True)
         got_svc = chkit.get_service(service=new_svc.name)
         self.assertEqual(new_svc.name, got_svc.name)
         self.assertEqual(len(got_svc.ports), 1)
         self.assertEqual(got_svc.ports[0].name, new_svc.ports[0].name)
-        self.assertEqual(got_svc.ports[0].port, new_svc.ports[0].port)
+        self.assertEqual(got_svc.ports[0].target_port, new_svc.ports[0].target_port)
