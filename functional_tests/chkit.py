@@ -136,12 +136,29 @@ class EnvVariable:
         )
 
 
+
+class DeploymentConfigMap:
+    def __init__(self, name: str=None, mode: str=None, mount_path: str=None):
+        self.name = name
+        self.mode = mode
+        self.mount_path = mount_path
+
+    @staticmethod
+    def json_decode(j):
+        return DeploymentConfigMap(
+            name=j.get('name'),
+            mode=j.get('mode'),
+            mount_path=j.get('mount_path'),
+        )
+
+
 class Container:
-    def __init__(self, image: str=None, name: str=None, limits: Resources=None, env: List[EnvVariable]=None):
+    def __init__(self, image: str=None, name: str=None, limits: Resources=None, env: List[EnvVariable]=None, config_maps: List[DeploymentConfigMap]=None):
         self.image = image
         self.name = name
         self.limits = limits
         self.env = env
+        self.config_maps = config_maps
 
     @staticmethod
     def json_decode(j):
@@ -150,6 +167,7 @@ class Container:
             image=j.get('image'),
             limits=Resources.json_decode(j.get('limits')),
             env=[EnvVariable.json_decode(env) for env in j.get("env")] if j.get("env") is not None else None,
+            config_maps=[DeploymentConfigMap.json_decode(cm) for cm in j.get('config_maps')] if j.get("config_maps") is not None else None,
         )
 
 
@@ -205,6 +223,9 @@ def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -
             if container.env is not None:
                 for var in container.env:
                     args.extend(["--env", f"{container.name}@{var.name}:{var.value}"])
+            if container.config_maps is not None:
+                for var in container.config_maps:
+                    args.extend(["--configmap", f"{container.name}@{var.name}"])
     else:
         args.extend(["--file", "-"])
     if namespace is not None:
