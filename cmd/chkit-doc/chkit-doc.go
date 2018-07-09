@@ -32,7 +32,7 @@ func main() {
 	}
 	flag.Parse()
 
-	var stack = cli.RootCommands()
+	var stack = cli.RootCommandsWithEmptyContext()
 	var commands = make([]cobra.Command, 0, len(stack))
 	for len(stack) > 0 {
 		var cmd = pop(&stack)
