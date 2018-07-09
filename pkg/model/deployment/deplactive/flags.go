@@ -36,9 +36,9 @@ type Flags struct {
 
 	CPU []string `desc:"container memory limit, mCPU,\nCONTAINER_NAME@CPU in case of multiple containers or CPU in case of one container"` // container +
 
-	Volume []string `desc:"container volume,\nCONTAINER_NAME@VOLUME_NAME@MOUNTPATH in case of multiple containers or\nVOLUME_NAME@MOUNTPATH or VOLUME_NAME in case of one container.\nIf MOUNTPATH is omitted, then use /mnt/VOLUME_NAME as mountpath"` // container +
+	Volume []string `desc:"container volume,\nCONTAINER_NAME@VOLUME_NAME@MOUNTPATH in case of multiple containers or\nVOLUME_NAME@MOUNTPATH or VOLUME_NAME in case of one container.\nIf MOUNTPATH is omitted, then /mnt/VOLUME_NAME isused as mountpath"` // container +
 
-	Configmap []string `desc:"container configmap, CONTAINER_NAME@CONFIGMAP_NAME@MOUNTPATH in case of multiple containers or\nCONFIGMAP_NAME@MOUNTPATH or CONFIGMAP_NAME in case of one container.\nIf MOUNTPATH is omitted, then use /etc/CONFIGMAP_NAME as mountpath"` // container +
+	Configmap []string `desc:"container configmap, CONTAINER_NAME@CONFIGMAP_NAME@MOUNTPATH in case of multiple containers or\nCONFIGMAP_NAME@MOUNTPATH or CONFIGMAP_NAME in case of one container.\nIf MOUNTPATH is omitted, then /etc/CONFIGMAP_NAME is used as mountpath"` // container +
 
 	containers map[string]chkitContainer.Container
 }
