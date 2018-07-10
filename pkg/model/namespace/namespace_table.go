@@ -17,7 +17,7 @@ func (namespace Namespace) TableRows() [][]string {
 		namespace.OwnerAndLabel(),
 		namespace.Access.String(),
 		namespace.ID,
-		"CPU: " + namespace.UsageCPU() + "\nMem: " + namespace.UsageMemory(),
+		"CPU: " + namespace.UsageCPU() + " Mem: " + namespace.UsageMemory(),
 		namespace.Age(),
 	}}
 }

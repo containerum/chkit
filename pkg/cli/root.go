@@ -70,7 +70,12 @@ func Root() error {
 		panic(err)
 	}
 
-	root.AddCommand(
+	root.AddCommand(RootCommands(ctx)...)
+	return root.Execute()
+}
+
+func RootCommands(ctx *context.Context) []*cobra.Command {
+	var commands = []*cobra.Command{
 		setup.Login(ctx),
 		Get(ctx),
 		Delete(ctx),
@@ -80,9 +85,9 @@ func Root() error {
 		Logs(ctx),
 		Run(ctx),
 		Rename(ctx),
-		Update(ctx),
 		logout.Logout(ctx),
-		&cobra.Command{
+		Update(ctx),
+		{
 			Use:   "version",
 			Short: "Print version",
 			Run: func(cmd *cobra.Command, args []string) {
@@ -90,12 +95,12 @@ func Root() error {
 			},
 		},
 		doc.Doc(ctx),
-	)
-	help.Auto(root)
-	return root.Execute()
+	}
+	help.AutoForCommands(commands)
+	return commands
 }
 
-func RootCommands() []*cobra.Command {
+func RootCommandsWithEmptyContext() []*cobra.Command {
 	var ctx = &context.Context{}
 	var commands = []*cobra.Command{
 		setup.Login(ctx),
