@@ -31,6 +31,18 @@ func (client *Client) GetPodList(ns string) (pod.PodList, error) {
 	return gainedList, err
 }
 
+func (client *Client) GetDeploymentPodList(ns, deploy string) (pod.PodList, error) {
+	var gainedList pod.PodList
+	err := retry(4, func() (bool, error) {
+		kubePod, err := client.kubeAPIClient.GetDeploymentPodList(ns, deploy)
+		if err == nil {
+			gainedList = pod.PodListFromKube(kubePod)
+		}
+		return HandleErrorRetry(client, err)
+	})
+	return gainedList, err
+}
+
 func (client *Client) DeletePod(namespace, pod string) error {
 	return retry(4, func() (bool, error) {
 		err := client.kubeAPIClient.DeletePod(namespace, pod)

@@ -5,31 +5,31 @@
   branch = "develop"
   name = "git.containerum.net/ch/api-gateway"
   packages = ["pkg/gatewayErrors"]
-  revision = "ce11e7da02e36bc179d60be1670d72096e4c5b22"
+  revision = "850f078e862dc1854b3101777aa8dcaa6b852ce1"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/auth"
   packages = ["pkg/errors"]
-  revision = "fedb35e2736478939249210ce458bf136fd1bdf5"
+  revision = "5ec6f11de6e7d388b0d877593cccbdeebfce8558"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/kube-api"
   packages = ["pkg/kubeErrors"]
-  revision = "ca9078e3e1f0e8cd31f24f56158365746ef073c5"
+  revision = "5dc5c3265550d07ab5039dc63a32f90f99fe8c9e"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "2ae087161dacca015927c6dcd4be8db235159025"
+  revision = "4c8a08f1b7ca2fff70f8b6b28058d4e9d44d0bc7"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
   packages = ["pkg/rsErrors"]
-  revision = "1e960933dcf5cf6bf27fbe60bde512e7177067e2"
+  revision = "ed4ce4693c477a2adbc749339fa9c7ed031d21da"
 
 [[projects]]
   branch = "develop"
@@ -41,7 +41,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/user-manager"
   packages = ["pkg/umErrors"]
-  revision = "00679a5966623d5326c60227a582d9252cd5f61f"
+  revision = "b7142393be86fdec761364fd3ee8d468a43ba25f"
 
 [[projects]]
   branch = "develop"
@@ -81,8 +81,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "f89987e2c985f4022f2c8541f286165fd4cfe0f3"
-  version = "v0.23.11"
+  revision = "dc6188a6693607c4862a3233eb544c1af574a6f4"
+  version = "v0.23.12"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -102,8 +102,8 @@
 [[projects]]
   name = "github.com/go-resty/resty"
   packages = ["."]
-  revision = "fc3ad735b5565cada42d34bc298573fd3fe5adc6"
-  version = "v1.6"
+  revision = "fccc498aed22c31ff3768bcac00795f94149a21d"
+  version = "v1.7.0"
 
 [[projects]]
   name = "github.com/gorilla/websocket"
@@ -255,7 +255,7 @@
     "webdav",
     "webdav/internal/xml"
   ]
-  revision = "ed29d75add3d7c4bf7ca65aac0c6df3d1420216f"
+  revision = "292b43bbf7cb8d35ddf40f8d5100ef3837cced3f"
 
 [[projects]]
   branch = "master"
@@ -264,7 +264,7 @@
     "unix",
     "windows"
   ]
-  revision = "151529c776cdc58ddbe7963ba9af779f3577b419"
+  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -290,8 +290,8 @@
 [[projects]]
   name = "gopkg.in/resty.v1"
   packages = ["."]
-  revision = "fc3ad735b5565cada42d34bc298573fd3fe5adc6"
-  version = "v1.6"
+  revision = "fccc498aed22c31ff3768bcac00795f94149a21d"
+  version = "v1.7.0"
 
 [[projects]]
   branch = "v2"
@@ -314,11 +314,11 @@
     "pkg/util/validation",
     "pkg/util/validation/field"
   ]
-  revision = "f534d624797b270e5e46104dc7e2c2d61edbb85d"
+  revision = "241e268dc8e07223510442ab7d7902695c585d80"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9000679025ac1cb79ea45d28d86ee49351dbec913bae7b687442920d50df9583"
+  inputs-digest = "b6d9537b1c042cbe5eed22016d10d1b2dc3f752cd4a049dee0d7e5e1eee9e141"
   solver-name = "gps-cdcl"
   solver-version = 1
