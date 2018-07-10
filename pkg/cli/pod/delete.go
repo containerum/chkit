@@ -5,6 +5,7 @@ import (
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/export"
+	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/pod"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -26,18 +27,41 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Example: "chkit delete pod pod_name [-n namespace]",
 		Run: func(cmd *cobra.Command, args []string) {
 			var selectedPod string
+			var selectedDeploy string
 			if len(args) == 0 && !deletePodConfig.Force {
-				list, err := ctx.Client.GetPodList(ctx.GetNamespace().ID)
+				deployList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
-				if err := export.ExportData(list, exportConfig); err != nil {
+				var deployMenu activekit.MenuItems
+				for _, depl := range deployList {
+					deployMenu = deployMenu.Append(&activekit.MenuItem{
+						Label: depl.Name,
+						Action: func(depl deployment.Deployment) func() error {
+							return func() error {
+								selectedDeploy = depl.Name
+								return nil
+							}
+						}(depl.Copy()),
+					})
+				}
+				(&activekit.Menu{
+					Title: "Select deployment",
+					Items: deployMenu,
+				}).Run()
+
+				podList, err := ctx.Client.GetDeploymentPodList(ctx.GetNamespace().ID, selectedDeploy)
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				if err := export.ExportData(podList, exportConfig); err != nil {
 					logrus.WithError(err).Errorf("unable to export data")
 					angel.Angel(ctx, err)
 				}
 				var menu activekit.MenuItems
-				for _, pd := range list {
+				for _, pd := range podList {
 					menu = menu.Append(&activekit.MenuItem{
 						Label: pd.Name,
 						Action: func(pd pod.Pod) func() error {
