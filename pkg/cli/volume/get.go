@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
-	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/volume"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/ninedraft/boxofstuff/strset"
 	"github.com/octago/sflags/gen/gpflag"
@@ -18,9 +18,8 @@ var aliases = []string{"volumes", "vol"}
 
 func Get(ctx *context.Context) *cobra.Command {
 	var flags struct {
-		Output string `flag:"output o" desc:"output format json/yaml"`
-		File   string `desc:"output file, STDOUT by default"`
-		Names  bool   `desc:"print only names"`
+		porta.Exporter
+		Names bool `desc:"print only names"`
 	}
 	var command = &cobra.Command{
 		Use:     "volume",
@@ -69,11 +68,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				renderable = list
 			}
 			logger.Debugf("exporting data")
-			if err := export.ExportData(renderable, export.ExportConfig{
-				Filename: flags.File,
-				Format:   export.ExportFormat(flags.Output),
-			}); err != nil {
-				logger.WithError(err).Errorf("unable to export data")
+			if err := flags.Export(renderable); err != nil {
 				ferr.Println(err)
 				ctx.Exit(1)
 			}

@@ -8,8 +8,10 @@ import (
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
+	"github.com/containerum/chkit/pkg/model/volume"
 	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -35,7 +37,6 @@ func Create(ctx *context.Context) *cobra.Command {
 			logger.Struct(flags)
 			logger.Debugf("running create deployment command")
 			var depl deployment.Deployment
-			var err error
 			if flags.ImportActivated() {
 				if err := flags.Import(&depl); err != nil {
 					ferr.Printf("unable to import deployment:\n%v\n", err)
@@ -70,18 +71,45 @@ func Create(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Deployment %s created\n", depl.Name)
 				return
 			}
-			logger.Debugf("getting configmap list")
-			configmapList, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
-			if err != nil {
-				logger.WithError(err).Errorf("unable to get configmap list")
-				ferr.Println(err)
-				ctx.Exit(1)
-			}
+
+			var volumes = make(chan volume.VolumeList)
+			go func() {
+				logger := logger.Component("getting namespace list")
+				logger.Debugf("START")
+				defer logger.Debugf("END")
+				defer close(volumes)
+				var volumeList, err = ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
+				if err != nil {
+					logger.WithError(err).Errorf("unable to get volume list from namespace %q", ctx.GetNamespace())
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				volumes <- volumeList
+			}()
+
+			var configs = make(chan configmap.ConfigMapList)
+			go func() {
+				logger := logger.Component("getting configmap list")
+				logger.Debugf("START")
+				defer logger.Debugf("END")
+				defer close(configs)
+				configList, err := ctx.Client.GetConfigmapList(ctx.GetNamespace().ID)
+				if err != nil {
+					logger.WithError(err).Errorf("unable to get configmap list")
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				configs <- configList
+			}()
+
+			var configmapList = <-configs
+
 			fmt.Println(depl.RenderTable())
 			depl = deplactive.Wizard{
 				EditName:   true,
 				Deployment: &depl,
 				Configmaps: configmapList.Names(),
+				Volumes:    (<-volumes).Names(),
 			}.Run()
 			fmt.Println(depl.RenderTable())
 

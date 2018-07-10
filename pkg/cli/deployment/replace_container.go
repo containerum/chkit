@@ -9,6 +9,7 @@ import (
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
+	"github.com/containerum/chkit/pkg/model/volume"
 	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
@@ -158,11 +159,20 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 			cont.Name = flags.ContainerName
 			fmt.Println(cont.RenderTable())
 
-			//	volumes, err := ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
-			//	if err != nil {
-			//		ferr.Println(err)
-			//		os.Exit(1)
-			//	}
+			var volumes = make(chan volume.VolumeList)
+			go func() {
+				logger := logger.Component("getting namespace list")
+				logger.Debugf("START")
+				defer logger.Debugf("END")
+				defer close(volumes)
+				var volumeList, err = ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
+				if err != nil {
+					logger.WithError(err).Errorf("unable to get volume list from namespace %q", ctx.GetNamespace())
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				volumes <- volumeList
+			}()
 
 			var deployments = make(chan deployment.DeploymentList)
 			go func() {
@@ -196,9 +206,9 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 
 			logger.Debugf("running wizard")
 			cont = containerControl.Wizard{
-				Container:  cont,
-				Deployment: flags.Deployment,
-				//		Volumes:     volumes.Names(),
+				Container:   cont,
+				Deployment:  flags.Deployment,
+				Volumes:     (<-volumes).Names(),
 				Configs:     (<-configs).Names(),
 				Deployments: (<-deployments).Names(),
 			}.Run()

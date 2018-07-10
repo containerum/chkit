@@ -2,11 +2,11 @@ package clinamespace
 
 import (
 	"fmt"
+	"sync/atomic"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/namespace"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/atomsk"
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/limiter"
 	"github.com/ninedraft/boxofstuff/str"
@@ -84,8 +84,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 					return
 				}
 				var limit = limiter.New(4)
-				var ok atomsk.Bool
-				ok.Store(true)
+				var exitCode uint32
 				for _, ns := range namespacesToDelete {
 					go func(done func(), ns namespace.Namespace) {
 						logger.Debugf("deleting namespace %q", ns.OwnerAndLabel())
@@ -93,14 +92,15 @@ func Delete(ctx *context.Context) *cobra.Command {
 						if err := ctx.Client.DeleteNamespace(ns.ID); err != nil {
 							logger.WithError(err).Errorf("unable to delete namespace %q", ns.OwnerAndLabel())
 							ferr.Printf("unable to delete namespace: %v\n", err)
-							ok.Store(false)
+							atomic.AddUint32(&exitCode, 1)
 						}
 					}(limit.Start(), ns)
 				}
 				limit.Wait()
-				if ok.True() {
+				if exitCode == 0 {
 					fmt.Println("Ok")
 				}
+				ctx.Exit(int(exitCode))
 			}
 		},
 	}
