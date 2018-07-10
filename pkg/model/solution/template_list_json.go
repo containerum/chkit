@@ -11,11 +11,6 @@ var (
 )
 
 func (list TemplatesList) RenderJSON() (string, error) {
-	data, err := list.MarshalJSON()
-	return string(data), err
-}
-
-func (list TemplatesList) MarshalJSON() ([]byte, error) {
 	data, err := json.MarshalIndent(list, "", model.Indent)
-	return data, err
+	return string(data), err
 }

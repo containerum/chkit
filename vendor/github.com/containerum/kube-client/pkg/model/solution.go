@@ -70,7 +70,7 @@ func (solution AvailableSolution) Copy() AvailableSolution {
 // swagger:model
 type SolutionLimits struct {
 	CPU string `json:"cpu" yaml:"cpu"`
-	RAM string `json:"ram" yaml:"cpu"`
+	RAM string `json:"ram" yaml:"ram"`
 }
 
 // SolutionEnv -- solution environment variables

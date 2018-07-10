@@ -9,7 +9,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/model/solution"
-	"github.com/containerum/kube-client/pkg/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,17 +32,21 @@ func (client *Client) GetSolutionsTemplatesList() (solution.TemplatesList, error
 	return gainedList, err
 }
 
-func (client *Client) GetSolutionsTemplatesEnvs(template, branch string) (model.SolutionEnv, error) {
-	var kubeList model.SolutionEnv
+func (client *Client) GetSolutionsTemplatesEnvs(template, branch string) (solution.SolutionEnv, error) {
+	var gainedList solution.SolutionEnv
 	err := retry(4, func() (bool, error) {
 		var err error
-		kubeList, err = client.kubeAPIClient.GetSolutionsTemplateEnv(template, branch)
+		kubeList, err := client.kubeAPIClient.GetSolutionsTemplateEnv(template, branch)
+		if err == nil {
+			gainedList = solution.SolutionEnvFromKube(kubeList)
+		}
+
 		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
 		logrus.WithError(err).Errorf("unable to get solution template envs")
 	}
-	return kubeList, err
+	return gainedList, err
 }
 
 func (client *Client) RunSolution(sol solution.Solution) error {

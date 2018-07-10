@@ -8,14 +8,9 @@ import (
 
 var (
 	_ model.JSONrenderer = SolutionEnv{}
-	_ json.Marshaler     = SolutionEnv{}
 )
 
-func (solution SolutionEnv) RenderJSON() (string, error) {
-	data, err := solution.MarshalJSON()
+func (envs SolutionEnv) RenderJSON() (string, error) {
+	data, err := json.MarshalIndent(envs, "", model.Indent)
 	return string(data), err
-}
-
-func (solution SolutionEnv) MarshalJSON() ([]byte, error) {
-	return json.MarshalIndent(solution, "", model.Indent)
 }

@@ -1,17 +1,19 @@
 package clitemplate
 
 import (
-	"fmt"
-
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var aliases = []string{"tmpl", "templates", "tmpls", "tmp", "tmps"}
 
 func Get(ctx *context.Context) *cobra.Command {
+	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "template",
 		Aliases: aliases,
@@ -33,8 +35,15 @@ func Get(ctx *context.Context) *cobra.Command {
 				cmd.Help()
 				ctx.Exit(1)
 			}
-			fmt.Println(solutions.RenderTable())
+			if err := export.ExportData(solutions, exportConfig); err != nil {
+				logrus.WithError(err).Errorf("unable to export data")
+				angel.Angel(ctx, err)
+			}
 		},
 	}
+	command.PersistentFlags().
+		StringVarP((*string)(&exportConfig.Format), "output", "o", "", "output format (yaml/json)")
+	command.PersistentFlags().
+		StringVarP(&exportConfig.Filename, "file", "f", "", "output file")
 	return command
 }

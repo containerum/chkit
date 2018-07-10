@@ -5,7 +5,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/api-gateway"
   packages = ["pkg/gatewayErrors"]
-  revision = "850f078e862dc1854b3101777aa8dcaa6b852ce1"
+  revision = "98676de2d6b45fc953f2756c1a974fc0078a5f56"
 
 [[projects]]
   branch = "develop"
@@ -17,7 +17,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/kube-api"
   packages = ["pkg/kubeErrors"]
-  revision = "5dc5c3265550d07ab5039dc63a32f90f99fe8c9e"
+  revision = "31c60b3668cee955b04b72dc9888a2ff45648aee"
 
 [[projects]]
   branch = "develop"
@@ -81,8 +81,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "dc6188a6693607c4862a3233eb544c1af574a6f4"
-  version = "v0.23.12"
+  revision = "24caaa38dfcf1c77e6d7f1e98910236698ae25aa"
+  version = "v0.23.13"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -319,6 +319,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b6d9537b1c042cbe5eed22016d10d1b2dc3f752cd4a049dee0d7e5e1eee9e141"
+  inputs-digest = "80c12180bfd3df9a57c6ad424dc43299c4f8702b3af252ff7caa5b94f8fdbebd"
   solver-name = "gps-cdcl"
   solver-version = 1

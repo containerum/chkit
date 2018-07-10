@@ -7,14 +7,9 @@ import (
 
 var (
 	_ model.YAMLrenderer = SolutionEnv{}
-	_ yaml.Marshaler     = Solution{}
 )
 
-func (solution SolutionEnv) RenderYAML() (string, error) {
-	data, err := yaml.Marshal(solution)
+func (envs SolutionEnv) RenderYAML() (string, error) {
+	data, err := yaml.Marshal(envs)
 	return string(data), err
-}
-
-func (solution SolutionEnv) MarshalYAML() (interface{}, error) {
-	return solution, nil
 }
