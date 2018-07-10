@@ -11,14 +11,12 @@ var (
 )
 
 func (Volume) TableHeaders() []string {
-	return []string{"Name", "Age", "Storage, GB", "Access"}
+	return []string{"Name", "Access", "Storage, GB", "Age"}
 }
 
 func (volume Volume) TableRows() [][]string {
 	return [][]string{{
-		volume.Name,
-		volume.Age(),
-		fmt.Sprintf("%d", volume.Capacity),
+		volume.OwnerAndName(),
 		func() string {
 			var accessCell = fmt.Sprintf("You can %v\n", volume.Access)
 			for _, user := range volume.Users {
@@ -26,6 +24,8 @@ func (volume Volume) TableRows() [][]string {
 			}
 			return accessCell
 		}(),
+		fmt.Sprintf("%d", volume.Capacity),
+		volume.Age(),
 	}}
 }
 
