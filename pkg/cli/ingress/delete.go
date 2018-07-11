@@ -38,7 +38,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 								ingrName = name
 								return nil
 							}
-						}(ingr.Host()),
+						}(ingr.Name),
 					})
 				}
 				(&activekit.Menu{

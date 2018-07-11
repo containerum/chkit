@@ -63,9 +63,9 @@ func (client *Client) ReplaceIngress(ns string, ingr ingress.Ingress) error {
 	return err
 }
 
-func (client *Client) DeleteIngress(ns, domain string) error {
+func (client *Client) DeleteIngress(ns, name string) error {
 	err := retry(4, func() (bool, error) {
-		err := client.kubeAPIClient.DeleteIngress(ns, domain)
+		err := client.kubeAPIClient.DeleteIngress(ns, name)
 		return HandleErrorRetry(client, err)
 	})
 	if err != nil {
