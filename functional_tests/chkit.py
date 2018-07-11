@@ -84,8 +84,7 @@ def set_default_namespace(namespace: str="-") -> None:
 
 
 class DeploymentStatus:
-    def __init__(self, replicas: int=None, ready_replicas: int=None, available_replicas: int=None,
-                 unavailable_replicas: int=None, updated_replicas: int=None):
+    def __init__(self, replicas: int=None, ready_replicas: int=None, available_replicas: int=None, unavailable_replicas: int=None, updated_replicas: int=None):
         self.replicas = replicas
         self.ready_replicas = ready_replicas
         self.available_replicas = available_replicas
@@ -134,7 +133,6 @@ class EnvVariable:
             name=j.get("name"),
             value=j.get("value")
         )
-
 
 
 class DeploymentConfigMap:
@@ -189,9 +187,8 @@ class Deployment:
     @staticmethod
     def json_decode(j):
         return Deployment(
-            created_at=datetime.strptime(j.get('created_at'), DATETIME_FORMAT) if j.get('created_at')
-            not in (None, '') else None,
-            status=DeploymentStatus.json_decode(j.get('status')),
+            created_at=datetime.strptime(j.get('created_at'), DATETIME_FORMAT) if j.get('created_at') not in (None, '') else None,
+            status=DeploymentStatus.json_decode(j.get('status')) if j.get('status') not in (None, '') else None,
             containers=[Container.json_decode(container) for container in j.get('containers')],
             name=j.get('name'),
             replicas=j.get('replicas'),
