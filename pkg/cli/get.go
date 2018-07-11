@@ -15,7 +15,6 @@ import (
 	"github.com/containerum/chkit/pkg/cli/solution"
 	"github.com/containerum/chkit/pkg/cli/template"
 	"github.com/containerum/chkit/pkg/cli/user"
-	"github.com/containerum/chkit/pkg/cli/volume"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/spf13/cobra"
@@ -44,7 +43,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		containerumapi.Get(ctx),                      //
 		prerun.WithInit(ctx, diff.Get),               //
 		prerun.WithInit(ctx, cliconfigmap.Get),       //
-		prerun.WithInit(ctx, volume.Get),             //
+		//	prerun.WithInit(ctx, volume.Get),             //
 		prerun.WithInit(ctx, clideployment.GetVersions),
 		&cobra.Command{
 			Use:     "default-namespace",

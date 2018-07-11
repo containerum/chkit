@@ -11,7 +11,6 @@ import (
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/deployment/deplactive"
-	"github.com/containerum/chkit/pkg/model/volume"
 	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -71,22 +70,22 @@ func Create(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Deployment %s created\n", depl.Name)
 				return
 			}
-
-			var volumes = make(chan volume.VolumeList)
-			go func() {
-				logger := logger.Component("getting namespace list")
-				logger.Debugf("START")
-				defer logger.Debugf("END")
-				defer close(volumes)
-				var volumeList, err = ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
-				if err != nil {
-					logger.WithError(err).Errorf("unable to get volume list from namespace %q", ctx.GetNamespace())
-					ferr.Println(err)
-					ctx.Exit(1)
-				}
-				volumes <- volumeList
-			}()
-
+			/*
+				var volumes = make(chan volume.VolumeList)
+				go func() {
+					logger := logger.Component("getting namespace list")
+					logger.Debugf("START")
+					defer logger.Debugf("END")
+					defer close(volumes)
+					var volumeList, err = ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
+					if err != nil {
+						logger.WithError(err).Errorf("unable to get volume list from namespace %q", ctx.GetNamespace())
+						ferr.Println(err)
+						ctx.Exit(1)
+					}
+					volumes <- volumeList
+				}()
+			*/
 			var configs = make(chan configmap.ConfigMapList)
 			go func() {
 				logger := logger.Component("getting configmap list")
@@ -109,7 +108,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				EditName:   true,
 				Deployment: &depl,
 				Configmaps: configmapList.Names(),
-				Volumes:    (<-volumes).Names(),
+				//			Volumes:    (<-volumes).Names(),
 			}.Run()
 			fmt.Println(depl.RenderTable())
 

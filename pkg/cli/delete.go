@@ -9,7 +9,6 @@ import (
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/cli/solution"
-	"github.com/containerum/chkit/pkg/cli/volume"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/ferr"
@@ -39,7 +38,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		clinamespace.Delete(ctx),
 		clideployment.DeleteVersion(ctx),
 		//	clinamespace.DeleteAccess(ctx),
-		volume.Delete(ctx),
+		//	volume.Delete(ctx),
 		cliserv.Delete(ctx),
 		clideployment.Delete(ctx),
 		clideployment.DeleteContainer(ctx),
