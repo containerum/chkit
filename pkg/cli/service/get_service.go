@@ -28,7 +28,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				case 0:
 					var list service.ServiceList
 					var err error
-					if solutionName, _ := cmd.Flags().GetString("solution_name"); solutionName != "" {
+					if solutionName, _ := cmd.Flags().GetString("solution"); solutionName != "" {
 						list, err = ctx.Client.GetSolutionServices(ctx.GetNamespace().ID, solutionName)
 					} else {
 						list, err = ctx.Client.GetServiceList(ctx.GetNamespace().ID)
@@ -65,7 +65,7 @@ func Get(ctx *context.Context) *cobra.Command {
 	command.PersistentFlags().
 		StringVarP(&getServiceConfig.Filename, "file", "f", "-", "output file")
 	command.PersistentFlags().
-		StringP("solution_name", "s", "", "solution name")
+		StringP("solution", "s", "", "solution name")
 
 	return command
 }
