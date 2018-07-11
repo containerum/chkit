@@ -8,12 +8,13 @@ import (
 )
 
 type Service struct {
-	Name      string
-	CreatedAt time.Time
-	Deploy    string
-	IPs       []string
-	Domain    string
-	Ports     []Port
+	Name       string
+	CreatedAt  time.Time
+	Deploy     string
+	IPs        []string
+	Domain     string
+	SolutionID string
+	Ports      []Port
 }
 
 func ServiceFromKube(kubeService kubeModels.Service) Service {
@@ -26,21 +27,23 @@ func ServiceFromKube(kubeService kubeModels.Service) Service {
 		createdAt = t
 	}
 	return Service{
-		Name:      kubeService.Name,
-		CreatedAt: createdAt,
-		Deploy:    kubeService.Deploy,
-		IPs:       kubeService.IPs,
-		Domain:    kubeService.Domain,
-		Ports:     ports,
+		Name:       kubeService.Name,
+		CreatedAt:  createdAt,
+		Deploy:     kubeService.Deploy,
+		IPs:        kubeService.IPs,
+		Domain:     kubeService.Domain,
+		SolutionID: kubeService.SolutionID,
+		Ports:      ports,
 	}
 }
 
 func (serv *Service) ToKube() kubeModels.Service {
 	kubeServ := kubeModels.Service{
-		Name:   serv.Name,
-		Deploy: serv.Deploy,
-		IPs:    serv.IPs,
-		Domain: serv.Domain,
+		Name:       serv.Name,
+		Deploy:     serv.Deploy,
+		IPs:        serv.IPs,
+		Domain:     serv.Domain,
+		SolutionID: serv.SolutionID,
 	}
 	ports := make([]kubeModels.ServicePort, 0, len(serv.Ports))
 	for _, port := range serv.Ports {

@@ -19,6 +19,7 @@ type Deployment struct {
 	CreatedAt   time.Time
 	TotalCPU    uint
 	TotalMemory uint
+	SolutionID  string
 	Containers  container.ContainerList
 }
 
@@ -46,6 +47,7 @@ func DeploymentFromKube(kubeDeployment model.Deployment) Deployment {
 		CreatedAt:   timestamp,
 		TotalCPU:    kubeDeployment.TotalCPU,
 		TotalMemory: kubeDeployment.TotalMemory,
+		SolutionID:  kubeDeployment.SolutionID,
 	}
 }
 
@@ -64,6 +66,7 @@ func (depl *Deployment) ToKube() model.Deployment {
 		TotalCPU:    depl.TotalCPU,
 		CreatedAt:   depl.CreatedAt.Format(model2.TimestampFormat),
 		Status:      depl.Status.ToKube(),
+		SolutionID:  depl.SolutionID,
 	}
 	return kubeDepl
 }

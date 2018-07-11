@@ -136,9 +136,9 @@ func (client *Client) GetSolutionDeployments(namespace, solutionName string) (de
 func (client *Client) GetSolutionServices(namespace, solutionName string) (service.ServiceList, error) {
 	var gainedList service.ServiceList
 	err := retry(4, func() (bool, error) {
-		kubeLsit, err := client.kubeAPIClient.GetSolutionServices(namespace, solutionName)
+		kubeList, err := client.kubeAPIClient.GetSolutionServices(namespace, solutionName)
 		if err == nil {
-			gainedList = service.ServiceListFromKube(kubeLsit)
+			gainedList = service.ServiceListFromKube(kubeList)
 		}
 		return HandleErrorRetry(client, err)
 	})
