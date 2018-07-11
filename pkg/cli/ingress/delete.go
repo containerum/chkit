@@ -4,13 +4,17 @@ import (
 	"fmt"
 
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 func Delete(ctx *context.Context) *cobra.Command {
 	var force = false
+	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "ingress",
 		Short:   "delete ingress",
@@ -28,6 +32,10 @@ func Delete(ctx *context.Context) *cobra.Command {
 					logger.WithError(err).Errorf("unable to get ingress list")
 					activekit.Attention("Unable to get ingress list:\n%v", err)
 					ctx.Exit(1)
+				}
+				if err := export.ExportData(ingrList, exportConfig); err != nil {
+					logrus.WithError(err).Errorf("unable to export data")
+					angel.Angel(ctx, err)
 				}
 				var menu activekit.MenuItems
 				for _, ingr := range ingrList {

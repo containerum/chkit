@@ -2,7 +2,6 @@ package activeingress
 
 import (
 	"github.com/containerum/chkit/pkg/model/ingress"
-	"github.com/containerum/chkit/pkg/util/host2dnslabel"
 	"github.com/containerum/chkit/pkg/util/namegen"
 )
 
@@ -49,7 +48,6 @@ func (flags Flags) Ingress() (ingress.Ingress, error) {
 		flags.Service != "" ||
 		flags.Port != 0 {
 		flagIngress.Rules = ingress.RuleList{flagRule}
-		flagIngress.Name = host2dnslabel.Host2DNSLabel(flagRule.Host)
 	}
 	return flagIngress, nil
 }
