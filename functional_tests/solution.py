@@ -35,6 +35,7 @@ class TestSolution(unittest.TestCase):
         finally:
             chkit.delete_solution("test-solution")
             time.sleep(5)
+            self.assertNotIn("test-solution", [sol.name for sol in chkit.get_solutions()])
 
             try:
                 chkit.get_deployments(solution="test-solution")
