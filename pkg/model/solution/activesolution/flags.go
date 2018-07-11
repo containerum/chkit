@@ -35,10 +35,9 @@ func (flags Flags) Solution(nsID string, args []string) (solution.Solution, erro
 	}
 
 	if flags.Name == "" {
+		sol.Name = namegen.ColoredPhysics()
 		if sol.Template != "" {
-			sol.Name = namegen.Color() + "-" + sol.Template
-		} else {
-			sol.Name = namegen.ColoredPhysics()
+			sol.Name += "-" + sol.Template
 		}
 	}
 
