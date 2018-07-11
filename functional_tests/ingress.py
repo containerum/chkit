@@ -20,9 +20,10 @@ class TestIngress(unittest.TestCase):
         ports=[chkit.ServicePort(name="test-external-port", target_port=80), chkit.ServicePort(name="test-external-port-2", target_port=443)]
     )
 
-    @timeout_decorator.timeout(seconds=30)
+    @timeout_decorator.timeout(seconds=650*2)
     @chkit.test_account
     @chkit.with_deployment(deployment=__default_services_deployment)
+    @chkit.ensure_pods_running(deployment=__default_services_deployment.name)
     @chkit.with_service(service=__default_external_service)
     def test_base(self, depl: chkit.Deployment, svc: chkit.Service):
         ingr = chkit.Ingress(
@@ -47,6 +48,11 @@ class TestIngress(unittest.TestCase):
             self.assertEqual(got_ingr.rules[0].path[0].path, ingr.rules[0].path[0].path)
             self.assertEqual(got_ingr.rules[0].path[0].service_port, ingr.rules[0].path[0].service_port)
             self.assertEqual(got_ingr.rules[0].path[0].service_name, ingr.rules[0].path[0].service_name)
+
+            url = "http://" + got_ingr.rules[0].host
+            r = requests.get(url)
+            if r.status_code > 399:
+                raise LookupError("Ingress check failed, code ", r.status_code)
         finally:
             chkit.delete_ingress(ingr.name[0])
             time.sleep(1)
@@ -55,7 +61,12 @@ class TestIngress(unittest.TestCase):
     __default_internal_service = chkit.Service(
         name="test-internal-service",
         deploy=__default_services_deployment.name,
-        ports=[chkit.ServicePort(name="test-int-port", port=80, target_port=80), chkit.ServicePort(name="test-int-port-2", port=443, target_port=443)]
+        ports=[chkit.ServicePort(name="test-int-port",
+                                 port=80,
+                                 target_port=80),
+               chkit.ServicePort(name="test-int-port-2",
+                                 port=443,
+                                 target_port=443)]
     )
 
     __default_update_ingress = chkit.Ingress(
