@@ -174,7 +174,7 @@ class Container:
 class Deployment:
     def __init__(self, name: str=None, created_at: datetime=None, status: DeploymentStatus=None,
                  containers: List[Container]=None, replicas: int=None, total_cpu: int=None,
-                 total_memory: int=None, active: bool=False, version: str=None):
+                 total_memory: int=None, active: bool=False, version: str=None, solution: str=None):
         self.created_at = created_at
         self.status = status
         self.containers = containers
@@ -184,6 +184,7 @@ class Deployment:
         self.total_memory = total_memory
         self.active = active
         self.version = version
+        self.solution = solution
 
     @staticmethod
     def json_decode(j):
@@ -197,7 +198,8 @@ class Deployment:
             total_cpu=j.get('total_cpu'),
             total_memory=j.get('total_memory'),
             active=j.get('active'),
-            version=j.get('version')
+            version=j.get('version'),
+            solution=j.get('solution_id')
         )
 
 
@@ -206,9 +208,14 @@ def get_deployment(name: str="") -> Deployment:
     return Deployment.json_decode(json.loads(output))
 
 
-def get_deployments() -> List[Deployment]:
-    output = sh.chkit("get", "deploy", "--output", "json").execute().stdout()
-    return [Deployment.json_decode(j) for j in json.loads(output)]
+def get_deployments(solution: str=None, namespace: str=None) -> List[Deployment]:
+    args = ["get", "deploy", "--output", "json"]
+    if solution is not None:
+        args.extend(["--solution", solution])
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    return [Deployment.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
 
 
 def create_deployment(depl: Deployment, namespace: str=None, file: bool=False) -> None:
@@ -500,12 +507,13 @@ class ServicePort:
 
 class Service:
 
-    def __init__(self, name: str, deploy: str, ports: List[ServicePort], ips: List[str]=None, domain: str=None):
+    def __init__(self, name: str, deploy: str, ports: List[ServicePort], ips: List[str]=None, domain: str=None, solution: str=None):
         self.name = name
         self.deploy = deploy
         self.ports = ports
         self.ips = ips
         self.domain = domain
+        self.solution = solution
 
     @staticmethod
     def json_decode(j):
@@ -514,7 +522,8 @@ class Service:
             deploy=j.get("deploy"),
             ports=[ServicePort.json_decode(port) for port in j.get("ports")],
             ips=j.get("ips"),
-            domain=j.get("domain")
+            domain=j.get("domain"),
+            solution=j.get("solution_id")
         )
 
     def is_external(self):
@@ -544,17 +553,16 @@ def create_service(service: Service, file: bool=False, namespace: str=None) -> N
 def get_services(solution: str=None, namespace: str=None) -> List[Service]:
     args = ["get", "svc", "--output", "json"]
     if solution is not None:
-        args.extend(["--solution-name", solution])
+        args.extend(["--solution", solution])
     if namespace is not None:
         args.extend(["--namespace", namespace])
-
     return [Service.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
 
 
 def get_service(service: str, solution: str=None, namespace: str=None) -> Service:
     args = ["get", "svc", service, "--output", "json"]
     if solution is not None:
-        args.extend(["--solution-name", solution])
+        args.extend(["--solution", solution])
     if namespace is not None:
         args.extend(["--namespace", namespace])
 
@@ -607,9 +615,10 @@ def with_service(service: Service, namespace: str=None):
         return wrapper
     return decorator
 
-#######################
+#########################
 # CONFIGMAPS MANAGEMENT #
-#######################
+#########################
+
 
 class ConfigMap:
 
@@ -709,3 +718,72 @@ def with_cm(configmap: ConfigMap, namespace: str=None):
                 time.sleep(5)
         return wrapper
     return decorator
+
+#######################
+# SOLUTIONS MANAGEMENT #
+#######################
+
+
+class Templates:
+    def __init__(self, name: str):
+        self.name = name
+
+    @staticmethod
+    def json_decode(j):
+        return Templates(
+            name=j.get("name"),
+        )
+
+
+def get_templates() -> List[Templates]:
+    args = ["get", "tmpl", "--output", "json"]
+    return [Templates.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout()).get("solutions")]
+
+
+class TemplateEnvs:
+    def __init__(self, env: str):
+        self.env = env
+
+    @staticmethod
+    def json_decode(j):
+        return TemplateEnvs(
+            env=j
+        )
+
+
+def get_template_envs(tmpl: str) -> TemplateEnvs:
+    args = ["get", "envs", tmpl, "--output", "json"]
+    return TemplateEnvs.json_decode(json.loads(sh.chkit(*args).execute().stdout()))
+
+
+class Solution:
+    def __init__(self, name: str, template: str):
+        self.name = name
+        self.template = template
+
+    @staticmethod
+    def json_decode(j):
+        return Solution(
+            name=j.get("name"),
+            template=j.get("template"),
+        )
+
+
+def run_solution(tmpl: str, name: str) -> None:
+    args = ["run", "sol", tmpl, "--name", name, "--force"]
+    sh.chkit(*args).execute()
+
+
+def get_solutions() -> List[Solution]:
+    args = ["get", "sol", "--output", "json"]
+    return [Solution.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout()).get("solutions")]
+
+
+def get_solution(name: str) -> Solution:
+    args = ["get", "sol", name, "--output", "json"]
+    return Solution.json_decode(json.loads(sh.chkit(*args).execute().stdout()))
+
+
+def delete_solution(name: str) -> None:
+    args = ["delete", "sol", name, "--force"]
+    sh.chkit(*args).execute()
