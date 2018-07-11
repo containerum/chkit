@@ -51,11 +51,11 @@ func Get(ctx *context.Context) *cobra.Command {
 			}()
 			if err != nil {
 				ferr.Println(err)
-				return
+				ctx.Exit(1)
 			}
 			if err := export.ExportData(serviceData, getServiceConfig.ExportConfig); err != nil {
 				ferr.Println(err)
-				return
+				ctx.Exit(1)
 			}
 
 		},
