@@ -7,8 +7,8 @@ import (
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/host2dnslabel"
-	"github.com/containerum/chkit/pkg/util/tlsview"
+	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -29,13 +29,24 @@ func Wizard(config Config) (ingress.Ingress, error) {
 		_, err := (&activekit.Menu{
 			Items: []*activekit.MenuItem{
 				{
+					Label: fmt.Sprintf("Set name       : %s",
+						activekit.OrString(ingr.Name, "undefined (required)")),
+					Action: func() error {
+						name := strings.TrimSpace(activekit.Promt(fmt.Sprintf("type ingress name (hit enter to leave %s): ",
+							activekit.OrString(ingr.Name, ingr.Name))))
+						if name != "" {
+							ingr.Name = name
+						}
+						return nil
+					},
+				},
+				{
 					Label: fmt.Sprintf("Set host       : %s",
 						activekit.OrString(ingr.Host(), "undefined (required)")),
 					Action: func() error {
 						host := strings.TrimSpace(activekit.Promt(fmt.Sprintf("type host name (hit enter to leave %s): ",
-							activekit.OrString(ingr.Host(), "empty"))))
+							activekit.OrString(ingr.Host(), ingr.Host()))))
 						if host != "" {
-							ingr.Name = host2dnslabel.Host2DNSLabel(host)
 							rule.Host = host
 							ingr.Rules = []ingress.Rule{rule}
 						}
@@ -44,10 +55,10 @@ func Wizard(config Config) (ingress.Ingress, error) {
 				},
 				{
 					Label: fmt.Sprintf("Set TLS secret : %s", func() string {
-						if rule.TLSSecret == nil {
+						if rule.TLSSecret == "" {
 							return "none"
 						}
-						return tlsview.SmallView([]byte(*rule.TLSSecret))
+						return rule.TLSSecret
 					}()),
 					Action: func() error {
 						rule.TLSSecret = tlsSecretMenu(rule.TLSSecret)
@@ -58,6 +69,20 @@ func Wizard(config Config) (ingress.Ingress, error) {
 					Label: "Edit paths",
 					Action: func() error {
 						rule.Paths = pathsMenu(config.Services, rule.Paths)
+						return nil
+					},
+				},
+				{
+					Label: "Print to terminal",
+					Action: func() error {
+						ingr.Rules = ingress.RuleList{rule}
+						data, err := ingr.RenderYAML()
+						if err != nil {
+							logrus.WithError(err).Errorf("unable to render ingress to yaml")
+							activekit.Attention(err.Error())
+						}
+						border := strings.Repeat("_", text.Width(data))
+						fmt.Printf("%s\n%s\n%s\n", border, data, border)
 						return nil
 					},
 				},

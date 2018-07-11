@@ -5,17 +5,16 @@ import (
 
 	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
-	"github.com/sirupsen/logrus"
 )
 
 type Service struct {
-	Name      string
-	CreatedAt *time.Time
-	Deploy    string
-	IPs       []string
-	Domain    string
-	Ports     []Port
-	origin    *kubeModels.Service
+	Name       string
+	CreatedAt  time.Time
+	Deploy     string
+	IPs        []string
+	Domain     string
+	SolutionID string
+	Ports      []Port
 }
 
 func ServiceFromKube(kubeService kubeModels.Service) Service {
@@ -23,32 +22,28 @@ func ServiceFromKube(kubeService kubeModels.Service) Service {
 	for _, kubePort := range kubeService.Ports {
 		ports = append(ports, PortFromKube(kubePort))
 	}
-	var createdAt *time.Time
-	if kubeService.CreatedAt != nil {
-		t, err := time.Parse(model.TimestampFormat, *kubeService.CreatedAt)
-		if err != nil {
-			logrus.WithError(err).Debugf("invalid created_at timestamp")
-		} else {
-			createdAt = &t
-		}
+	var createdAt time.Time
+	if t, err := time.Parse(model.TimestampFormat, kubeService.CreatedAt); err == nil {
+		createdAt = t
 	}
 	return Service{
-		Name:      kubeService.Name,
-		CreatedAt: createdAt,
-		Deploy:    kubeService.Deploy,
-		IPs:       kubeService.IPs,
-		Domain:    kubeService.Domain,
-		Ports:     ports,
-		origin:    &kubeService,
+		Name:       kubeService.Name,
+		CreatedAt:  createdAt,
+		Deploy:     kubeService.Deploy,
+		IPs:        kubeService.IPs,
+		Domain:     kubeService.Domain,
+		SolutionID: kubeService.SolutionID,
+		Ports:      ports,
 	}
 }
 
 func (serv *Service) ToKube() kubeModels.Service {
 	kubeServ := kubeModels.Service{
-		Name:   serv.Name,
-		Deploy: serv.Deploy,
-		IPs:    serv.IPs,
-		Domain: serv.Domain,
+		Name:       serv.Name,
+		Deploy:     serv.Deploy,
+		IPs:        serv.IPs,
+		Domain:     serv.Domain,
+		SolutionID: serv.SolutionID,
 	}
 	ports := make([]kubeModels.ServicePort, 0, len(serv.Ports))
 	for _, port := range serv.Ports {
@@ -60,8 +55,7 @@ func (serv *Service) ToKube() kubeModels.Service {
 		}))
 	}
 	kubeServ.Ports = ports
-	serv.origin = &kubeServ
-	return *serv.origin
+	return kubeServ
 }
 
 func (service Service) Copy() Service {

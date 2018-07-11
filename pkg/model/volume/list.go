@@ -42,6 +42,14 @@ func (list VolumeList) Names() []string {
 	return names
 }
 
+func (list VolumeList) OwnersAndNames() []string {
+	var names = make([]string, 0, len(list))
+	for _, volume := range list {
+		names = append(names, volume.OwnerAndName())
+	}
+	return names
+}
+
 func (list VolumeList) Filter(pred func(Volume) bool) VolumeList {
 	var filtered = list.New()
 	for _, volume := range list {
@@ -50,4 +58,26 @@ func (list VolumeList) Filter(pred func(Volume) bool) VolumeList {
 		}
 	}
 	return filtered
+}
+
+func (list VolumeList) Get(i int) Volume {
+	return list[i]
+}
+
+func (list VolumeList) GetDefault(i int, def Volume) (Volume, bool) {
+	if i >= 0 && i < len(list) {
+		return list.Get(i), true
+	}
+	return def.Copy(), false
+}
+
+func (list VolumeList) Head() (Volume, bool) {
+	return list.GetDefault(0, Volume{})
+}
+
+// get by Name or by OwnerLogin/Name
+func (list VolumeList) GetByUserFriendlyID(ID string) (Volume, bool) {
+	return list.Filter(func(volume Volume) bool {
+		return volume.Name == ID || volume.OwnerAndName() == ID
+	}).Head()
 }

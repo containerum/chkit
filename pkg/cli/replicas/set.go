@@ -2,13 +2,14 @@ package replicas
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/spf13/cobra"
 )
 
@@ -17,22 +18,26 @@ func Set(ctx *context.Context) *cobra.Command {
 	var replicas uint64
 	command := &cobra.Command{
 		Use:     "replicas",
-		Short:   "set deployment replicas",
-		Long:    "Sets deployment replicas",
+		Short:   "Set deployment replicas",
+		Long:    "Set deployment replicas.",
 		Example: "chkit set replicas [-n namespace_label] [-d depl_label] [N_replicas]",
 		Aliases: []string{"re", "rep", "repl", "replica"},
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
-				activekit.Attention(err.Error())
-				os.Exit(1)
+				angel.Angel(ctx, err)
+				ctx.Exit(1)
+			}
+			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if !cmd.Flag("deployment").Changed {
-				deplList, err := ctx.Client.GetDeploymentList(ctx.Namespace.ID)
+				deplList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
 					activekit.Attention(fmt.Sprintf("Unable to get deployment list:\n%v", err))
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				var menu []*activekit.MenuItem
 				for _, depl := range deplList {
@@ -64,11 +69,11 @@ func Set(ctx *context.Context) *cobra.Command {
 			}
 			if replicas < 1 || replicas > 15 {
 				activekit.Attention(fmt.Sprintf("replicas parameter must be number 1..15, but it %d\n", replicas))
-				os.Exit(1)
+				ctx.Exit(1)
 			}
-			if err := ctx.Client.SetReplicas(ctx.Namespace.ID, deplName, replicas); err != nil {
+			if err := ctx.Client.SetReplicas(ctx.GetNamespace().ID, deplName, replicas); err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			fmt.Println("OK")
 		},

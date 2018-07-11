@@ -1,53 +1,85 @@
 package activeconfigmap
 
 import (
-	"fmt"
-
+	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/util/activekit"
-	"github.com/containerum/chkit/pkg/util/interview"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/ninedraft/boxofstuff/str"
 )
 
-func itemMenu(item configmap.Item) *configmap.Item {
-	var oldItem = item
-	var ok = false
-	var del = false
+type configmapItemComponentStatus struct {
+	Delete      bool
+	Replace     bool
+	DropChanges bool
+}
+
+func componentConfigmapItem(configmapItem configmap.Item) (configmap.Item, configmapItemComponentStatus) {
+	var item = configmapItem
+	var result configmap.Item
+	var status = configmapItemComponentStatus{Replace: true}
+
 	for exit := false; !exit; {
 		(&activekit.Menu{
-			Title: fmt.Sprintf("Item %s", text.Crop(interview.View([]byte(item.Value)), 64)),
+			Title: "Configmap -> Items",
 			Items: activekit.MenuItems{
 				{
-					Label: fmt.Sprintf("Edit name  : %s",
-						activekit.OrString(item.Key, "undefined, required")),
+					Label: "Edit name : " + str.Vector{item.Key(), "none"}.FirstNonEmpty(),
 					Action: func() error {
-						var key = activekit.Promt("Type name (hit Enter to leave %s): ",
-							activekit.OrString(item.Key, "empty"))
-						key = strings.TrimSpace(key)
-						if ok := configmap.KeyRegexp().MatchString(key); key != "" && ok {
-							item.Key = key
-						} else if !ok {
-							fmt.Printf("Invalid key %q: must match %q\n", key, configmap.KeyRegexp())
+						var name = activekit.Promt("Type new name, hit Enter to leave %s: ", str.Vector{item.Key(), "empty"}.FirstNonEmpty())
+						name = strings.TrimSpace(name)
+						switch {
+						case name == "":
+							// default
+						case strings.HasPrefix(name, "$"):
+							name = strings.TrimPrefix(name, "$")
+							item = configmap.NewItem(name, os.Getenv(name))
+						case strings.HasPrefix(name, "file://"):
+							name = strings.TrimPrefix(name, "file://")
+							var data, err = ioutil.ReadFile(name)
+							if err != nil {
+								ferr.Println(err)
+								os.Exit(1)
+								return nil
+							}
+							item = configmap.NewItem(name, string(data))
+						default:
+							item = item.WithKey(name)
 						}
 						return nil
 					},
 				},
 				{
-					Label: fmt.Sprintf("Edit value :	 %q", text.Crop(interview.View([]byte(item.Value)), 64)),
+					Label: "Edit value: " + str.Vector{item.Value(), "empty"}.FirstNonEmpty(),
 					Action: func() error {
-						item.Value = itemValueMenu(item.Value)
+						var value = activekit.Promt("Type value, hit Enter to leave %s: ", str.Vector{text.Crop(item.Value(), 16), "empty"}.FirstNonEmpty())
+						value = strings.TrimSpace(value)
+						switch {
+						case value == "":
+							// pass
+						case strings.HasPrefix(value, "$"):
+							value = strings.TrimPrefix(value, "$")
+							item = item.WithValue(os.Getenv(value))
+						}
 						return nil
 					},
 				},
 				{
-					Label: "Delete",
+					Label: "Load from file",
 					Action: func() error {
-						if activekit.YesNo("Are you sure?") {
-							del = true
-							exit = true
-							ok = false
+						var fname = activekit.Promt("Type filename, hit Enter to skip: ")
+						fname = strings.TrimSpace(fname)
+						if fname != "" {
+							var data, err = ioutil.ReadFile(fname)
+							if err != nil {
+								ferr.Println(err)
+								return nil
+							}
+							item = item.WithValue(string(data))
 						}
 						return nil
 					},
@@ -55,29 +87,32 @@ func itemMenu(item configmap.Item) *configmap.Item {
 				{
 					Label: "Confirm",
 					Action: func() error {
-						ok = true
+						result = item
 						exit = true
-						del = false
+						status = configmapItemComponentStatus{Replace: true}
 						return nil
 					},
 				},
 				{
-					Label: "Return to previous menu",
+					Label: "Return to previous menu, drop all changes",
 					Action: func() error {
-						ok = false
 						exit = true
-						del = false
+						status = configmapItemComponentStatus{DropChanges: true}
+						return nil
+					},
+				},
+				{
+					Label: "Delete item",
+					Action: func() error {
+						if activekit.YesNo("Are you sure?") {
+							exit = true
+							status = configmapItemComponentStatus{Delete: true}
+						}
 						return nil
 					},
 				},
 			},
 		}).Run()
 	}
-	if del {
-		return nil
-	}
-	if ok {
-		return &item
-	}
-	return &oldItem
+	return result, status
 }

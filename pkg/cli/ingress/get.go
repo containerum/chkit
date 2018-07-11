@@ -3,8 +3,8 @@ package clingress
 import (
 	"fmt"
 
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/util/angel"
@@ -16,26 +16,26 @@ import (
 var aliases = []string{"ingr", "ingresses", "ing"}
 
 func Get(ctx *context.Context) *cobra.Command {
-	exportConfig := configuration.ExportConfig{}
+	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "ingress",
 		Short:   "show ingress data",
-		Long:    "Shows ingress data",
+		Long:    "Print ingress data.",
 		Example: "chkit get ingress ingress_names... [-n namespace_label] [-o yaml/json]",
 		Aliases: aliases,
 		Run: func(command *cobra.Command, args []string) {
 			ingrData, err := func() (model.Renderer, error) {
 				switch len(args) {
 				case 0:
-					logrus.Debugf("getting ingress from %q", ctx.Namespace)
-					list, err := ctx.Client.GetIngressList(ctx.Namespace.ID)
+					logrus.Debugf("getting ingress from %q", ctx.GetNamespace())
+					list, err := ctx.Client.GetIngressList(ctx.GetNamespace().ID)
 					if err != nil {
 						return nil, err
 					}
 					return list, nil
 				case 1:
-					logrus.Debugf("getting ingress from %q", ctx.Namespace)
-					ingr, err := ctx.Client.GetIngress(ctx.Namespace.ID, args[0])
+					logrus.Debugf("getting ingress from %q", ctx.GetNamespace())
+					ingr, err := ctx.Client.GetIngress(ctx.GetNamespace().ID, args[0])
 					if err != nil {
 						return nil, err
 					}
@@ -43,7 +43,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				default:
 					deplNames := strset.NewSet(args)
 					var showList = make(ingress.IngressList, 0) // prevents panic
-					list, err := ctx.Client.GetIngressList(ctx.Namespace.ID)
+					list, err := ctx.Client.GetIngressList(ctx.GetNamespace().ID)
 					if err != nil {
 						return nil, err
 					}
@@ -60,7 +60,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				fmt.Printf("%v :(\n", err)
 				return
 			}
-			if err := configuration.ExportData(ingrData, exportConfig); err != nil {
+			if err := export.ExportData(ingrData, exportConfig); err != nil {
 				logrus.WithError(err).Errorf("unable to export data")
 				angel.Angel(ctx, err)
 			}

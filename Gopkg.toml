@@ -3,13 +3,9 @@
   unused-packages = true
   non-go = true
 
-#[[constraint]]
-#  name = "k8s.io/apimachinery"
-#  version = "kubernetes-1.9.3"
-
 [[constraint]]
   name = "github.com/containerum/kube-client"
-  version = "~0.19.0"
+  version = "~0.23.13"
 
 [[constraint]]
   branch = "master"
@@ -45,7 +41,7 @@
 
 [[constraint]]
   name = "github.com/vbauerster/mpb"
-  version = "3.2.0"
+  version = "~3.2.0"
 
 [[constraint]]
   name = "git.containerum.net/ch/api-gateway"
@@ -58,3 +54,23 @@
 [[constraint]]
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
+
+[[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/permissions"
+
+[[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/kube-api"
+
+[[constraint]]
+  name = "github.com/octago/sflags"
+  version = "~0.2.0"
+
+[[constraint]]
+  name = "github.com/oleiade/reflections"
+  version = "~v1.0.0"
+
+[[constraint]]
+  name = "github.com/ninedraft/boxofstuff"
+  version = "~v0.3.0"

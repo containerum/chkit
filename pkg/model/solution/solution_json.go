@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/containerum/chkit/pkg/model"
+	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
 
 var (
@@ -17,6 +18,14 @@ func (solution Solution) RenderJSON() (string, error) {
 }
 
 func (solution Solution) MarshalJSON() ([]byte, error) {
-	data, err := json.MarshalIndent(solution.ToKube(), "", model.Indent)
-	return data, err
+	return json.MarshalIndent(solution.ToKube(), "", model.Indent)
+}
+
+func (solution *Solution) UnmarshalJSON(data []byte) error {
+	var kubeSol kubeModels.UserSolution
+	if err := json.Unmarshal(data, &kubeSol); err != nil {
+		return err
+	}
+	*solution = SolutionFromKube(kubeSol)
+	return nil
 }

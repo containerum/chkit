@@ -1,8 +1,9 @@
 package configmap
 
 import (
-	"fmt"
 	"time"
+
+	"encoding/base64"
 
 	"github.com/containerum/chkit/pkg/model"
 	kubeModels "github.com/containerum/kube-client/pkg/model"
@@ -24,7 +25,7 @@ func (config ConfigMap) Copy() ConfigMap {
 	for k, v := range config.Data {
 		cm.Data[k] = v
 	}
-	return config
+	return cm
 }
 
 func (config ConfigMap) Set(key string, value string) ConfigMap {
@@ -44,20 +45,20 @@ func (config ConfigMap) Add(data map[string]string) ConfigMap {
 func (config ConfigMap) AddItems(items ...Item) ConfigMap {
 	config = config.Copy()
 	for _, item := range items {
-		config.Data[item.Key] = item.Value
+		config.Data[item.key] = item.value
 	}
 	return config
 }
 
-func (config ConfigMap) Items() []Item {
-	var items = make([]Item, 0, len(config.Data))
+func (config ConfigMap) Items() Items {
+	var items = make(Items, 0, len(config.Data))
 	for k, v := range config.Data {
 		items = append(items, Item{
-			Key:   k,
-			Value: v,
+			key:   k,
+			value: v,
 		})
 	}
-	return items
+	return items.Sorted()
 }
 
 //  Get -- if defaultValues passed, then first return
@@ -83,18 +84,23 @@ func (config ConfigMap) SetName(name string) ConfigMap {
 }
 
 func (config ConfigMap) Age() string {
-	if config.CreatedAt == nil {
-		return "undefined"
+	if timestamp, err := time.Parse(model.TimestampFormat, config.CreatedAt); err == nil {
+		return model.Age(timestamp)
 	}
-	timestamp, err := time.Parse(time.RFC3339, *config.CreatedAt)
-	if err != nil {
-		return fmt.Sprintf("invlalid timestamp %q", *config.CreatedAt)
-	}
-	return model.Age(timestamp)
+	return "undefined"
 }
 
 func (config ConfigMap) New() ConfigMap {
 	return ConfigMap{
 		Data: make(kubeModels.ConfigMapData, len(config.Data)),
 	}
+}
+
+func (config ConfigMap) ToBase64() ConfigMap {
+	var cm = config
+	cm.Data = make(kubeModels.ConfigMapData, len(config.Data))
+	for k, v := range config.Data {
+		cm.Data[k] = base64.StdEncoding.EncodeToString([]byte(v))
+	}
+	return cm
 }

@@ -28,3 +28,16 @@ func (list ServiceList) GetByName(name string) (Service, bool) {
 	}
 	return Service{}, false
 }
+
+func (list ServiceList) AvailableForIngress() ServiceList {
+	var sortedList ServiceList = make([]Service, 0)
+	for _, svc := range list {
+		for _, port := range svc.Ports {
+			if port.Protocol == "TCP" {
+				sortedList = append(sortedList, svc)
+				break
+			}
+		}
+	}
+	return sortedList
+}

@@ -5,20 +5,46 @@ language: go
 env:
   global:
   - IMAGE_NAME=containerum/chkit
+  - CONTAINERUM_HOME="/home/travis/.config/containerum/.chkit-sign"
+  - CONTAINERUM_API="https://api.containerum.io"
 
 services:
-  - docker
+- docker
+
+before_install:
+- sudo openssl aes-256-cbc -K $encrypted_a90173ef0ca0_key -iv $encrypted_a90173ef0ca0_iv
+  -in .enc/keys.tar.enc -out keys.tar -d
+- tar xvf keys.tar
+- sudo mkdir -p ${CONTAINERUM_HOME}
+- sudo mv privkey.pem ${CONTAINERUM_HOME}/privkey.pem
+- sudo mv pubkey.pem ${CONTAINERUM_HOME}/pubkey.pem
 
 script:
-  - docker build -t "$IMAGE_NAME" .
+- make release
+- docker build -t "$IMAGE_NAME" .
 
 before_deploy:
-  - docker login -u="$DOCKER_LOGIN" -p="$DOCKER_PASSWORD"
-  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
-  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
+- docker login -u="$DOCKER_LOGIN" -p="$DOCKER_PASSWORD"
+- docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+- docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
 
 deploy:
-  provider: script
+- provider: script
   script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
   on:
     tags: true
+- provider: releases
+  api_key: "$GITHUB_TOKEN"
+  file_glob: true
+  file: build/*
+  skip_cleanup: true
+  on:
+    tags: true
+
+notifications:
+  webhooks:
+    urls:
+      - https://integrations.bonbotics.io/travis/webhook/Vv1nUUPlGoIq3Baehmzw6DsGEbwL0F4xZRhsBHk0Vdk
+    on_success: always
+    on_failure: always
+    on_start: never

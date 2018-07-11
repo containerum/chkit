@@ -13,7 +13,11 @@ type Namespace struct {
 }
 
 func (ns Namespace) String() string {
-	return fmt.Sprintf("%s (%s)", ns.Label, ns.OwnerLogin)
+	return fmt.Sprintf("%s/%s", ns.OwnerLogin, ns.Label)
+}
+
+func (ns Namespace) Match(owner, label string) bool {
+	return ns.Label == label && (ns.OwnerLogin == owner || owner == "")
 }
 
 func NamespaceFromModel(ns namespace.Namespace) Namespace {

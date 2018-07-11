@@ -1,5 +1,5 @@
 # chkit
-[![Build Status](https://travis-ci.org/containerum/chkit.svg?branch=master)](https://travis-ci.org/containerum/chkit)
+[![Build Status](https://travis-ci.org/containerum/chkit.svg?branch=master)](https://travis-ci.org/containerum/chkit) [![LOC](https://tokei.rs/b1/github/containerum/chkit)](https://github.com/Aaronepower/tokei) [![GitHub release](https://img.shields.io/github/release/containerum/chkit.svg)](https://github.com/containerum/chkit/releases/latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Chkit is a desktop CLI client for [Containerum](https://github.com/containerum/containerum).
 

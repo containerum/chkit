@@ -2,88 +2,104 @@ package cliserv
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/service"
 	"github.com/containerum/chkit/pkg/model/service/servactive"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
-	"github.com/containerum/chkit/pkg/util/text"
+	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/octago/sflags/gen/gpflag"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 func Replace(ctx *context.Context) *cobra.Command {
-	var file string
-	var force bool
-	var flagService service.Service
-	var flagPort = service.Port{
-		Port: new(int),
+	var flags struct {
+		servactive.Flags
+		porta.Importer
+		porta.Exporter
 	}
+	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "service",
 		Aliases: aliases,
-		Short:   "replace service",
-		Long: `Replaces service.
-Has an one-line mode, suitable for integration with other tools, and an interactive wizard mode`,
+		Short:   "Replace service.",
+		Long: `Replace service.\n` +
+			`Runs in one-line mode, suitable for integration with other tools, and in interactive wizard mode.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			serv := service.Service{}
-			if cmd.Flag("file").Changed {
-				var err error
-				serv, err = servactive.FromFile(file)
-				if err != nil {
-					logrus.WithError(err).Errorf("unable to load service data from file %s", file)
-					fmt.Printf("Unable to load service data from file :(\n%v", err)
-					os.Exit(1)
+			var external bool
+			var logger = coblog.Logger(cmd)
+			logger.Struct(flags)
+			logger.Debugf("running replace service command")
+			var flagSvc service.Service
+			if flags.ImportActivated() {
+				if err := flags.Import(&flagSvc); err != nil {
+					ferr.Printf("unable to import service:\n%v\n", err)
+					ctx.Exit(1)
 				}
-			} else if cmd.Flag("force").Changed {
-				serv = flagService
+			} else {
+				var err error
+				flagSvc, err = flags.Service()
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
 			}
-			if cmd.Flag("force").Changed {
-				if len(args) != 1 {
+			serviceName := ""
+			if flags.Name != "" {
+				serviceName = flags.Name
+			} else if len(args) != 0 {
+				serviceName = args[0]
+			}
+
+			var svc service.Service
+			if flags.Force {
+				if serviceName == "" {
 					cmd.Help()
 					return
 				}
-				serv.Name = args[0]
-				serv.Ports = []service.Port{flagPort}
-
-				oldServ, err := ctx.Client.GetService(ctx.Namespace.ID, args[0])
+				oldServ, err := ctx.Client.GetService(ctx.GetNamespace().ID, serviceName)
 				if err != nil {
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
-				if !cmd.Flag("port").Changed {
-					flagPort.Port = nil
+				if oldServ.Domain != "" {
+					external = true
 				}
-				if !cmd.Flag("port-name").Changed {
-					serv.Ports = oldServ.Ports
+				if len(flagSvc.Ports) != 0 {
+					oldServ.Ports = []service.Port{flagSvc.Ports[0]}
 				}
-				if !cmd.Flag("deployment").Changed {
-					serv.Deploy = oldServ.Deploy
+				if flagSvc.Deploy != "" {
+					oldServ.Deploy = flagSvc.Deploy
 				}
-				if !cmd.Flag("domain").Changed {
-					serv.Domain = oldServ.Domain
+				if err := servactive.ValidateService(oldServ); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
-				if err := servactive.ValidateService(serv); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+				if flags.ExporterActivated() {
+					if err := flags.Export(oldServ); err != nil {
+						ferr.Printf("unable to export service:\n%v\n", err)
+						ctx.Exit(1)
+					}
+					return
 				}
-				fmt.Println(serv.RenderTable())
-				if err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+				if err := ctx.Client.ReplaceService(ctx.GetNamespace().ID, oldServ); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
 				}
-				fmt.Println("OK")
+				fmt.Printf("Congratulations! Service %s updated!\n", oldServ.Name)
 				return
 			} else {
-				if len(args) == 0 {
-					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+				if serviceName == "" {
+					list, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 					if err != nil {
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 					var menu []*activekit.MenuItem
 					for _, s := range list {
@@ -91,11 +107,18 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 							Label: s.Name,
 							Action: func(d service.Service) func() error {
 								return func() error {
-									serv = d
+									svc = d
+									if svc.Domain != "" {
+										external = true
+									}
 									return nil
 								}
 							}(s),
 						})
+					}
+					if err := export.ExportData(list, exportConfig); err != nil {
+						logrus.WithError(err).Errorf("unable to export data")
+						angel.Angel(ctx, err)
 					}
 					(&activekit.Menu{
 						Title: "Choose service to replace",
@@ -103,123 +126,91 @@ Has an one-line mode, suitable for integration with other tools, and an interact
 					}).Run()
 				} else {
 					var err error
-					serv, err = ctx.Client.GetService(ctx.Namespace.ID, args[0])
+					svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, serviceName)
+					if svc.Domain != "" {
+						external = true
+					}
 					if err != nil {
 						activekit.Attention(err.Error())
-						os.Exit(1)
+						ctx.Exit(1)
 					}
 				}
 			}
-			serv, err := servactive.ReplaceWizard(servactive.ConstructorConfig{
-				Service: &serv,
+			depList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
+			if err != nil {
+				logrus.WithError(err).Errorf("unable to get deployment list")
+				fmt.Println("Unable to get deployment list :(")
+			}
+			if len(flagSvc.Ports) != 0 {
+				svc.Ports = append(svc.Ports, flagSvc.Ports[0])
+			}
+			if flagSvc.Deploy != "" {
+				svc.Deploy = flagSvc.Deploy
+			}
+			svc, err = servactive.ReplaceWizard(servactive.ConstructorConfig{
+				External:    external,
+				Deployments: depList.Names(),
+				Service:     &svc,
 			})
 			if err != nil {
-				logrus.WithError(err).Errorf("unable to replace service")
-				fmt.Println(err)
-				os.Exit(1)
+				activekit.Attention(err.Error())
+				ctx.Exit(1)
 			}
-			for {
-				_, err := (&activekit.Menu{
-					Items: []*activekit.MenuItem{
-						{
-							Label: fmt.Sprintf("Update service %q on server", serv.Name),
-							Action: func() error {
-								fmt.Println(serv.RenderTable())
-								if activekit.YesNo(fmt.Sprintf("Are you sure you want to update service %q on server?", serv.Name)) {
-									err := ctx.Client.ReplaceService(ctx.Namespace.ID, serv)
-									if err != nil {
-										logrus.WithError(err).Errorf("unable to replace service %q", serv.Name)
-										fmt.Println(err)
-										return nil
-									}
-									fmt.Printf("Congratulations! Service %q updated!\n", serv.Name)
-								}
+			if activekit.YesNo("Are you sure you want update service %q?", svc.Name) {
+				if err := ctx.Client.ReplaceService(ctx.GetNamespace().ID, svc); err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				fmt.Printf("Congratulations! Service %s updated!\n", svc.Name)
+			}
+			svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, svc.Name)
+			if err != nil {
+				logrus.WithError(err).Errorf("unable to get service")
+				fmt.Println("Unable to get service :(")
+			}
+			fmt.Println(svc.RenderTable())
+			(&activekit.Menu{
+				Items: activekit.MenuItems{
+					{
+						Label: "Edit service " + svc.Name,
+						Action: func() error {
+							changedSvc, err := servactive.ReplaceWizard(servactive.ConstructorConfig{
+								External:    external,
+								Deployments: depList.Names(),
+								Service:     &svc,
+							})
+							if err != nil {
+								ferr.Println(err)
 								return nil
-							},
-						},
-						{
-							Label: "Edit service",
-							Action: func() error {
-								var err error
-								serv, err = servactive.ReplaceWizard(servactive.ConstructorConfig{
-									Service: &serv,
-								})
-								if err != nil {
-									logrus.WithError(err).Errorf("unable to update service")
-									fmt.Println(err)
-									os.Exit(1)
+							}
+							svc = changedSvc
+							if activekit.YesNo("Push changes to server?") {
+								if err := ctx.Client.ReplaceService(ctx.GetNamespace().ID, svc); err != nil {
+									ferr.Printf("unable to update service on server:\n%v\n", err)
 								}
-								return nil
-							},
-						},
-						{
-							Label: "Print to terminal",
-							Action: activekit.ActionWithErr(func() error {
-								if data, err := serv.RenderYAML(); err != nil {
-									return err
-								} else {
-									upBorders := strings.Repeat("_", text.Width(data))
-									downBorders := strings.Repeat("_", text.Width(data))
-									fmt.Printf("%s\n\n%s\n%s\n", upBorders, data, downBorders)
-								}
-								return nil
-							}),
-						},
-						{
-							Label: "Save to file",
-							Action: func() error {
-								filename, _ := activekit.AskLine("Print filename: ")
-								if filename == "" {
-									return nil
-								}
-								data, err := serv.RenderJSON()
-								if err != nil {
-									return err
-								}
-								if err := ioutil.WriteFile(filename, []byte(data), os.ModePerm); err != nil {
-									logrus.WithError(err).Errorf("unable to save service %q to file", serv.Name)
-									fmt.Printf("Unable to save service to file :(\n%v", err)
-									return nil
-								}
-								fmt.Printf("OK\n")
-								return nil
-							},
-						},
-						{
-							Label: "Exit",
-							Action: func() error {
-								if yes, _ := activekit.Yes("Are you sure you want to exit?"); yes {
-									os.Exit(0)
-								}
-								return nil
-							},
+							}
+							return nil
 						},
 					},
-				}).Run()
-				if err != nil {
-					logrus.WithError(err).Errorf("error while menu execution")
-					angel.Angel(ctx, err)
-					os.Exit(1)
-				}
-			}
+					{
+						Label: "Export service to file",
+						Action: func() error {
+							var fname = activekit.Promt("Type filename: ")
+							fname = strings.TrimSpace(fname)
+							if fname != "" {
+								if err := (porta.Exporter{OutFile: fname}.Export(svc)); err != nil {
+									ferr.Printf("unable to export service:\n%v\n", err)
+								}
+							}
+							return nil
+						},
+					},
+				},
+			}).Run()
 		},
 	}
-	command.PersistentFlags().
-		StringVar(&file, "file", "", "create service from file")
-	command.PersistentFlags().
-		BoolVarP(&force, "force", "f", false, "suppress confirmation")
-
-	command.PersistentFlags().
-		StringVar(&flagService.Deploy, "deployment", "", "deployment name, optional")
-	command.PersistentFlags().
-		StringVar(&flagService.Domain, "domain", "", "service domain, optional")
-	command.PersistentFlags().
-		IntVar(flagPort.Port, "port", 0, "service external port, optional")
-	command.PersistentFlags().
-		IntVar(&flagPort.TargetPort, "target-port", 80, "service target port, optional")
-	command.PersistentFlags().
-		StringVar(&flagPort.Name, "port-name", "", "service port name")
-	command.PersistentFlags().
-		StringVar(&flagPort.Protocol, "protocol", "TCP", "service port protocol, optional")
+	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
+		panic(err)
+	}
 	return command
 }

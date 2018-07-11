@@ -5,37 +5,49 @@
   branch = "develop"
   name = "git.containerum.net/ch/api-gateway"
   packages = ["pkg/gatewayErrors"]
-  revision = "5faa89b30076cd0fe69dc9f44c64e12602ad8011"
+  revision = "98676de2d6b45fc953f2756c1a974fc0078a5f56"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/auth"
   packages = ["pkg/errors"]
-  revision = "f5be2683b112903d242654db72e9b21d060555d4"
+  revision = "5ec6f11de6e7d388b0d877593cccbdeebfce8558"
 
 [[projects]]
+  branch = "develop"
   name = "git.containerum.net/ch/kube-api"
   packages = ["pkg/kubeErrors"]
-  revision = "bb4ec38ff060c55d3e7983f4919088e6fe88922d"
-  version = "v1.0.0"
+  revision = "31c60b3668cee955b04b72dc9888a2ff45648aee"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/permissions"
   packages = ["pkg/errors"]
-  revision = "f9f444b6bb19ed6f7fcc251243f98d52d731b00a"
+  revision = "4c8a08f1b7ca2fff70f8b6b28058d4e9d44d0bc7"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/resource-service"
   packages = ["pkg/rsErrors"]
-  revision = "f763a4536868dc97ac69cd738431148b5bfe5921"
+  revision = "ed4ce4693c477a2adbc749339fa9c7ed031d21da"
+
+[[projects]]
+  branch = "develop"
+  name = "git.containerum.net/ch/solutions"
+  packages = ["pkg/sErrors"]
+  revision = "88034926fcd77c3f01dac5fc6a953b31171ca917"
 
 [[projects]]
   branch = "develop"
   name = "git.containerum.net/ch/user-manager"
   packages = ["pkg/umErrors"]
-  revision = "ecbf4d476f6ccfd53e92c6425b52fd9b54d3f78a"
+  revision = "b7142393be86fdec761364fd3ee8d468a43ba25f"
+
+[[projects]]
+  branch = "develop"
+  name = "git.containerum.net/ch/volume-manager"
+  packages = ["pkg/errors"]
+  revision = "3739b7b0854eaa77402992d3e7d10423a4ed2505"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -69,8 +81,8 @@
     "pkg/websocket/wsmock",
     "pkg/websocket/wsmock/errwsmock"
   ]
-  revision = "2b8f5ddce4423867372d607726e241df69b96f73"
-  version = "v0.19.6"
+  revision = "24caaa38dfcf1c77e6d7f1e98910236698ae25aa"
+  version = "v0.23.13"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -88,22 +100,10 @@
   version = "v2.6.2"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/gin-gonic/gin"
-  packages = ["json"]
-  revision = "bf7803815b0baa22ff7a10457932882dfbf09925"
-
-[[projects]]
   name = "github.com/go-resty/resty"
   packages = ["."]
-  revision = "f0976a825c7520308909ce5a9e8b4f8675fdd6de"
-  version = "v1.5"
-
-[[projects]]
-  name = "github.com/go-siris/siris"
-  packages = ["core/errors"]
-  revision = "bf3b6eec68567b4a1c7b4a26c9dd87815abb363c"
-  version = "v7.3.4"
+  revision = "fccc498aed22c31ff3768bcac00795f94149a21d"
+  version = "v1.7.0"
 
 [[projects]]
   name = "github.com/gorilla/websocket"
@@ -127,12 +127,6 @@
   version = "v1.0"
 
 [[projects]]
-  name = "github.com/json-iterator/go"
-  packages = ["."]
-  revision = "ca39e5af3ece67bbcda3d0f4f56a8e24d9f2dad4"
-  version = "1.1.3"
-
-[[projects]]
   branch = "master"
   name = "github.com/matishsiao/goInfo"
   packages = ["."]
@@ -154,25 +148,16 @@
   branch = "master"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
-  revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
+  revision = "3864e76763d94a6df2f9960b16a20a33da9f9a66"
 
 [[projects]]
-  name = "github.com/modern-go/concurrent"
-  packages = ["."]
-  revision = "bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94"
-  version = "1.0.3"
-
-[[projects]]
-  name = "github.com/modern-go/reflect2"
-  packages = ["."]
-  revision = "1df9eeb2bb81f327b96228865c5687bc2194af3f"
-  version = "1.0.0"
-
-[[projects]]
-  branch = "master"
   name = "github.com/ninedraft/boxofstuff"
-  packages = ["strset"]
-  revision = "402d25bcc03750de7fc34975a397beb9ea32d17e"
+  packages = [
+    "str",
+    "strset"
+  ]
+  revision = "2b74bc874f1a8ee6911d655378be9025aeaf6021"
+  version = "v0.3.7"
 
 [[projects]]
   branch = "master"
@@ -184,10 +169,17 @@
   name = "github.com/octago/sflags"
   packages = [
     ".",
+    "gen/gflag",
     "gen/gpflag"
   ]
   revision = "efb9cde83c817d30590cf630661142196dea4b6b"
   version = "v0.2.0"
+
+[[projects]]
+  name = "github.com/oleiade/reflections"
+  packages = ["."]
+  revision = "2b6ec3da648e3e834dc41bad8d9ed7f2dc6a9496"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -234,8 +226,8 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   name = "github.com/vbauerster/mpb"
@@ -251,16 +243,19 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
+  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = [
+    "context",
     "idna",
-    "publicsuffix"
+    "publicsuffix",
+    "webdav",
+    "webdav/internal/xml"
   ]
-  revision = "8e0cdda24ed423affc8f35c241e5e9b16180338e"
+  revision = "292b43bbf7cb8d35ddf40f8d5100ef3837cced3f"
 
 [[projects]]
   branch = "master"
@@ -269,7 +264,7 @@
     "unix",
     "windows"
   ]
-  revision = "89da893103a6ed6c87fb4bb5c19fcf97812df621"
+  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -295,8 +290,8 @@
 [[projects]]
   name = "gopkg.in/resty.v1"
   packages = ["."]
-  revision = "f0976a825c7520308909ce5a9e8b4f8675fdd6de"
-  version = "v1.5"
+  revision = "fccc498aed22c31ff3768bcac00795f94149a21d"
+  version = "v1.7.0"
 
 [[projects]]
   branch = "v2"
@@ -319,11 +314,11 @@
     "pkg/util/validation",
     "pkg/util/validation/field"
   ]
-  revision = "d3a2c12799ab9db57db937746b671a1594aad117"
+  revision = "241e268dc8e07223510442ab7d7902695c585d80"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ef4c2164b20aa8ba279269c768bcdbd7208d7a7d77f82607f2771587b5b6f9cb"
+  inputs-digest = "80c12180bfd3df9a57c6ad424dc43299c4f8702b3af252ff7caa5b94f8fdbebd"
   solver-name = "gps-cdcl"
   solver-version = 1

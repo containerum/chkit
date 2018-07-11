@@ -1,18 +1,28 @@
 package model
 
+import (
+	"fmt"
+
+	"github.com/blang/semver"
+	"github.com/docker/distribution/reference"
+)
+
 // DeploymentStatus -- kubernetes status of deployment
 //
 // swagger:model
 type DeploymentStatus struct {
-	//creation date in RFC3339 format
-	CreatedAt string `json:"created_at"`
-	//update date in RFC3339 format
-	UpdatedAt           string `json:"updated_at"`
-	Replicas            int    `json:"replicas"`
-	ReadyReplicas       int    `json:"ready_replicas"`
-	AvailableReplicas   int    `json:"available_replicas"`
-	UnavailableReplicas int    `json:"unavailable_replicas"`
-	UpdatedReplicas     int    `json:"updated_replicas"`
+	Replicas            int `json:"replicas"`
+	ReadyReplicas       int `json:"ready_replicas"`
+	AvailableReplicas   int `json:"available_replicas"`
+	UnavailableReplicas int `json:"unavailable_replicas"`
+	UpdatedReplicas     int `json:"updated_replicas"`
+}
+
+// DeploymentVersion -- model for deployment version update
+//
+// swagger:model
+type DeploymentVersion struct {
+	Version string `json:"version"`
 }
 
 // UpdateReplicas -- contains new number of replicas
@@ -34,18 +44,61 @@ type DeploymentsList struct {
 //
 // swagger:model
 type Deployment struct {
-	Status *DeploymentStatus `json:"status,omitempty"`
+	//creation date in RFC3339 format
+	CreatedAt string `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	//delete date in RFC3339 format
+	DeletedAt string            `json:"deleted_at,omitempty" yaml:"deleted_at,omitempty"`
+	Status    *DeploymentStatus `json:"status,omitempty" yaml:"status,omitempty"`
 	// required: true
-	Containers []Container `json:"containers"`
+	Containers []Container `json:"containers" yaml:"containers"`
 	// required: true
-	Name string `json:"name"`
+	Name string `json:"name" yaml:"name"`
 	// required: true
-	Replicas int `json:"replicas"`
+	Replicas int `json:"replicas" yaml:"replicas"`
 	//total CPU usage by all containers in this deployment
-	TotalCPU uint `json:"total_cpu,omitempty"`
+	TotalCPU uint `json:"total_cpu,omitempty" yaml:"total_cpu,omitempty"`
 	//total RAM usage by all containers in this deployment
-	TotalMemory uint   `json:"total_memory,omitempty"`
-	Owner       string `json:"owner,omitempty"`
+	TotalMemory uint `json:"total_memory,omitempty"`
+	//Solution ID (only if deployment is part of solution)
+	SolutionID string         `json:"solution_id,omitempty" yaml:"solution_id,omitempty"`
+	Owner      string         `json:"owner,omitempty" yaml:"owner,omitempty"`
+	Active     bool           `json:"active" yaml:"active"`
+	Version    semver.Version `json:"version" yaml:"version"`
+}
+
+func (deployment Deployment) ImagesNames() []string {
+	var images = make([]string, 0, len(deployment.Containers))
+	for _, container := range deployment.Containers {
+		images = append(images, container.Image)
+	}
+	return images
+}
+
+func (deployment Deployment) Images() []Image {
+	var images = make([]Image, 0, len(deployment.Containers))
+	for _, container := range deployment.Containers {
+		var img, err = ImageFromString(container.Image)
+		if err == nil {
+			images = append(images, img)
+		}
+	}
+	return images
+}
+
+func (deployment Deployment) ContainersNames() []string {
+	var names = make([]string, 0, len(deployment.Containers))
+	for _, container := range deployment.Containers {
+		names = append(names, container.Name)
+	}
+	return names
+}
+
+func (deployment Deployment) ContainersAndImages() []string {
+	var items = make([]string, 0, len(deployment.Containers))
+	for _, container := range deployment.Containers {
+		items = append(items, fmt.Sprintf("%s [%s]", container.Name, container.Image))
+	}
+	return items
 }
 
 // Container -- model for container in deployment
@@ -63,6 +116,78 @@ type Container struct {
 	Ports        []ContainerPort   `json:"ports,omitempty"`
 	VolumeMounts []ContainerVolume `json:"volume_mounts,omitempty"`
 	ConfigMaps   []ContainerVolume `json:"config_maps,omitempty"`
+}
+
+func (container Container) Version() string {
+	var ref, err = reference.Parse(container.Image)
+	if err != nil {
+		return ""
+	}
+	if tagged, ok := ref.(reference.Tagged); ok && tagged != nil {
+		return tagged.Tag()
+	}
+	return ""
+}
+
+func (container *Container) AddEnv(env Env) {
+	for i, cont := range container.Env {
+		if cont.Name == env.Name {
+			container.Env[i].Value = env.Value
+			return
+		}
+	}
+	container.Env = append(container.Env, env)
+}
+
+func (container *Container) GetEnv(name string) (Env, bool) {
+	for _, env := range container.Env {
+		if env.Name == name {
+			return env, true
+		}
+	}
+	return Env{}, false
+}
+
+func (container *Container) GetEnvMap() map[string]string {
+	var envs = make(map[string]string, len(container.Env))
+	for _, env := range container.Env {
+		envs[env.Name] = env.Value
+	}
+	return envs
+}
+
+func (container *Container) PutEnvMap(envs map[string]string) {
+	for k, v := range envs {
+		container.AddEnv(Env{
+			Name:  k,
+			Value: v,
+		})
+	}
+}
+
+type Image struct {
+	Name string
+	Tag  string
+}
+
+func ImageFromString(str string) (Image, error) {
+	var img, err = reference.ParseNamed(str)
+	if err != nil {
+		return Image{}, err
+	}
+	if tagged, ok := img.(reference.NamedTagged); tagged != nil && ok {
+		return Image{
+			Name: tagged.Name(),
+			Tag:  tagged.Tag(),
+		}, nil
+	}
+	return Image{
+		Name: img.Name(),
+	}, nil
+}
+
+func (image Image) String() string {
+	return image.Name + ":" + image.Tag
 }
 
 // Env -- key-value pair of environment variables
@@ -91,13 +216,11 @@ type ContainerPort struct {
 //
 // swagger:model
 type ContainerVolume struct {
-	// required: true
 	Name string  `json:"name"`
 	Mode *string `json:"mode,omitempty"`
 	// required: true
-	MountPath                 string  `json:"mount_path"`
-	SubPath                   *string `json:"sub_path,omitempty"`
-	PersistentVolumeClaimName *string `json:"pvc_name,omitempty"`
+	MountPath string  `json:"mount_path"`
+	SubPath   *string `json:"sub_path,omitempty"`
 }
 
 // Mask removes information not interesting for users

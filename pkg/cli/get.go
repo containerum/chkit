@@ -2,19 +2,18 @@ package cli
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/sirupsen/logrus"
 
 	"github.com/containerum/chkit/pkg/cli/configmap"
 	"github.com/containerum/chkit/pkg/cli/containerumapi"
 	"github.com/containerum/chkit/pkg/cli/deployment"
+	"github.com/containerum/chkit/pkg/cli/diff"
 	"github.com/containerum/chkit/pkg/cli/ingress"
 	"github.com/containerum/chkit/pkg/cli/namespace"
 	"github.com/containerum/chkit/pkg/cli/pod"
 	"github.com/containerum/chkit/pkg/cli/prerun"
 	"github.com/containerum/chkit/pkg/cli/service"
 	"github.com/containerum/chkit/pkg/cli/solution"
+	"github.com/containerum/chkit/pkg/cli/template"
 	"github.com/containerum/chkit/pkg/cli/user"
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
@@ -28,20 +27,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Run: func(command *cobra.Command, args []string) {
 			command.Help()
 		},
-		PersistentPostRun: func(command *cobra.Command, args []string) {
-			if ctx.Changed {
-				if err := configuration.SyncConfig(ctx); err != nil {
-					logrus.WithError(err).Errorf("unable to save config")
-					fmt.Printf("Unable to save config: %v\n", err)
-					return
-				}
-			}
-			if err := configuration.SaveTokens(ctx, ctx.Client.Tokens); err != nil {
-				logrus.WithError(err).Errorf("unable to save tokens")
-				fmt.Printf("Unable to save tokens: %v\n", err)
-				return
-			}
-		},
+		PersistentPostRun: ctx.CobraPostRun,
 	}
 	command.AddCommand(
 		prerun.WithInit(ctx, clideployment.Get),      //
@@ -51,25 +37,29 @@ func Get(ctx *context.Context) *cobra.Command {
 		prerun.WithInit(ctx, clipod.Get),             //
 		prerun.WithInit(ctx, clingress.Get),          //
 		prerun.WithInit(ctx, cliuser.Get),            //
+		prerun.WithInit(ctx, clitemplate.Get),        //
+		prerun.WithInit(ctx, clitemplate.GetEnvs),    //
 		prerun.WithInit(ctx, clisolution.Get),        //
 		containerumapi.Get(ctx),                      //
+		prerun.WithInit(ctx, diff.Get),               //
 		prerun.WithInit(ctx, cliconfigmap.Get),       //
+		//	prerun.WithInit(ctx, volume.Get),             //
+		prerun.WithInit(ctx, clideployment.GetVersions),
 		&cobra.Command{
 			Use:     "default-namespace",
-			Short:   "print default",
+			Short:   "print default namespace",
+			Long:    "Print default namespace.",
 			Aliases: []string{"default-ns", "def-ns"},
 			PreRun: func(cmd *cobra.Command, args []string) {
 				if err := configuration.SyncConfig(ctx); err != nil {
 					fmt.Printf("Unable to setup config:\n%v\n", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			},
 			Run: func(cmd *cobra.Command, args []string) {
-				fmt.Printf("%s\n", ctx.Namespace)
+				fmt.Printf("%s\n", ctx.GetNamespace())
 			},
 		},
 	)
-	command.PersistentFlags().
-		StringP("namespace", "n", ctx.Namespace.ID, "")
 	return command
 }

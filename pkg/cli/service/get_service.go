@@ -1,12 +1,11 @@
 package cliserv
 
 import (
-	"fmt"
-
-	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/service"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/strset"
 	"github.com/spf13/cobra"
 )
@@ -15,25 +14,31 @@ var aliases = []string{"srv", "services", "svc", "serv"}
 
 func Get(ctx *context.Context) *cobra.Command {
 	var getServiceConfig = struct {
-		configuration.ExportConfig
+		export.ExportConfig
 	}{}
 	command := &cobra.Command{
 		Use:     "service",
 		Aliases: aliases,
-		Short:   "shows service info",
-		Long:    "chkit get service service_label [-o yaml/json] [-f output_file]",
-		Example: "Shows service info",
+		Short:   "show service info",
+		Long:    "Show service info.",
+		Example: "chkit get service service_label [-o yaml/json] [-f output_file]",
 		Run: func(cmd *cobra.Command, args []string) {
 			serviceData, err := func() (model.Renderer, error) {
 				switch len(args) {
 				case 0:
-					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+					var list service.ServiceList
+					var err error
+					if solutionName, _ := cmd.Flags().GetString("solution"); solutionName != "" {
+						list, err = ctx.Client.GetSolutionServices(ctx.GetNamespace().ID, solutionName)
+					} else {
+						list, err = ctx.Client.GetServiceList(ctx.GetNamespace().ID)
+					}
 					return list, err
 				case 1:
-					svc, err := ctx.Client.GetDeployment(ctx.Namespace.ID, args[0])
+					svc, err := ctx.Client.GetService(ctx.GetNamespace().ID, args[0])
 					return svc, err
 				default:
-					list, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+					list, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 					var filteredList service.ServiceList
 					names := strset.NewSet(args)
 					for _, svc := range list {
@@ -45,12 +50,12 @@ func Get(ctx *context.Context) *cobra.Command {
 				}
 			}()
 			if err != nil {
-				fmt.Println(err)
-				return
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
-			if err := configuration.ExportData(serviceData, getServiceConfig.ExportConfig); err != nil {
-				fmt.Println(err)
-				return
+			if err := export.ExportData(serviceData, getServiceConfig.ExportConfig); err != nil {
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 
 		},
@@ -59,5 +64,8 @@ func Get(ctx *context.Context) *cobra.Command {
 		StringVarP((*string)(&getServiceConfig.Format), "output", "o", "", "output format [yaml/json]")
 	command.PersistentFlags().
 		StringVarP(&getServiceConfig.Filename, "file", "f", "-", "output file")
+	command.PersistentFlags().
+		StringP("solution", "s", "", "solution name")
+
 	return command
 }

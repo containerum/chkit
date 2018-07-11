@@ -3,9 +3,6 @@ package cli
 import (
 	"bufio"
 	"fmt"
-	"strings"
-
-	"os"
 
 	"github.com/containerum/chkit/pkg/chkitErrors"
 	"github.com/containerum/chkit/pkg/cli/prerun"
@@ -13,6 +10,7 @@ import (
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/angel"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -25,7 +23,6 @@ var logsCommandAliases = []string{"log"}
 
 func Logs(ctx *context.Context) *cobra.Command {
 	var logsConfig = struct {
-		Quiet  bool
 		Follow bool
 		Prev   bool
 		Tail   uint
@@ -34,22 +31,21 @@ func Logs(ctx *context.Context) *cobra.Command {
 		Use:     "logs",
 		Aliases: logsCommandAliases,
 		Short:   "View pod logs",
-		Long:    `view pod logs. Aliases: ` + strings.Join(logsCommandAliases, ", "),
 		Example: `logs pod_label [container] [--follow] [--prev] [--tail n] [--quiet]`,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 			if err := prerun.GetNamespaceByUserfriendlyID(ctx, cmd.Flags()); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			var podName string
 			var containerName string
-			client := ctx.Client
+			client := ctx.GetClient()
 			switch len(args) {
 			case 2:
 				containerName = args[1]
@@ -57,12 +53,28 @@ func Logs(ctx *context.Context) *cobra.Command {
 			case 1:
 				podName = args[0]
 			default:
-				cmd.Help()
-				return
+				var pods, err = client.GetPodList(ctx.GetNamespace().ID)
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				(&activekit.Menu{
+					Title: "Select pod",
+					Items: activekit.ItemsFromIter(uint(pods.Len()), func(index uint) *activekit.MenuItem {
+						var po = pods[index]
+						return &activekit.MenuItem{
+							Label: po.Name,
+							Action: func() error {
+								podName = po.Name
+								return nil
+							},
+						}
+					}),
+				}).Run()
 			}
 
 			params := chClient.GetPodLogsParams{
-				Namespace: ctx.Namespace.ID,
+				Namespace: ctx.GetNamespace().ID,
 				Pod:       podName,
 				Container: containerName,
 				Follow:    logsConfig.Follow,
@@ -72,10 +84,10 @@ func Logs(ctx *context.Context) *cobra.Command {
 			rc, err := client.GetPodLogs(params)
 			if err != nil {
 				logrus.WithError(err).Errorf("error while getting logs")
-				activekit.Attention(err.Error())
+				ferr.Println(err)
+				ctx.Exit(1)
 			}
 			defer rc.Close()
-
 			scanner := bufio.NewScanner(rc)
 			var nLines uint64
 			for scanner.Scan() {
@@ -83,19 +95,18 @@ func Logs(ctx *context.Context) *cobra.Command {
 					err = ErrUnableToReadLogs.Wrap(err)
 					logrus.WithError(err).Errorf("unable to scan logs byte stream")
 					activekit.Attention(err.Error())
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println(scanner.Text())
 				nLines++
 			}
 			if err != nil {
 				activekit.Attention(err.Error())
-				os.Exit(1)
+				ctx.Exit(1)
 			}
 		},
+		PostRun: ctx.CobraPostRun,
 	}
-	command.PersistentFlags().
-		BoolVarP(&logsConfig.Quiet, "quiet", "q", false, "print only logs and errors")
 	command.PersistentFlags().
 		BoolVarP(&logsConfig.Follow, "follow", "f", false, `follow pod logs`)
 	command.PersistentFlags().

@@ -70,7 +70,7 @@ func (client *Client) UpdateIngress(namespace, domain string, ingress model.Ingr
 
 // DeleteIngress -- deletes ingress on provided domain
 func (client *Client) DeleteIngress(namespace, domain string) error {
-	return client.RestAPI.Put(rest.Rq{
+	return client.RestAPI.Delete(rest.Rq{
 		URL: rest.URL{
 			Path: ingressPath,
 			Params: rest.P{

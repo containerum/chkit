@@ -2,50 +2,70 @@ package clingress
 
 import (
 	"fmt"
-	"os"
+
+	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/model/ingress/activeingress"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/containerum/chkit/pkg/util/coblog"
+	"github.com/octago/sflags/gen/gpflag"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 func Replace(ctx *context.Context) *cobra.Command {
-	var flags = struct {
-		Force bool
-	}{}
+	var flags activeingress.Flags
+	exportConfig := export.ExportConfig{}
 	command := &cobra.Command{
 		Use:     "ingress",
-		Short:   "patch ingress with new attributes",
+		Short:   "Replace ingress.",
 		Aliases: aliases,
-		Long:    "Replaces ingress with new, use --force flag to write one-liner command, omitted attributes are inherited from previous ingress.",
+		Long: "Replace ingress with a new one, use --force flag to write one-liner command, " +
+			"omitted attributes are inherited from the previous ingress.",
 		Example: "chkit replace ingress $INGRESS [--force] [--service $SERVICE] [--port 80] [--tls-secret letsencrypt]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
+			logger.Struct(flags)
 			logger.Debugf("running replace ingress command")
+
+			ingressName := ""
+			if flags.Name != "" {
+				ingressName = flags.Name
+			} else if len(args) != 0 {
+				ingressName = args[0]
+			}
+
 			var ingr ingress.Ingress
-			if len(args) == 1 {
-				ingrName := args[0]
+			if ingressName != "" {
 				var err error
-				ingr, err = ctx.Client.GetIngress(ctx.Namespace.ID, ingrName)
+				ingr, err = ctx.Client.GetIngress(ctx.GetNamespace().ID, ingressName)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get previous ingress")
 					activekit.Attention("unable to get previous ingress:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 			} else if !flags.Force {
-				ingrList, err := ctx.Client.GetIngressList(ctx.Namespace.ID)
+				ingrList, err := ctx.Client.GetIngressList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get ingress list")
 					activekit.Attention("Unable to get ingress list:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
-				fmt.Println(ingrList)
-				if ingrList.Len() == 1 {
+				if ingrList.Len() == 0 {
+					logger.Errorf("no ingresses exists")
+					fmt.Println("no ingresses exists\n")
+					ctx.Exit(1)
+				} else if ingrList.Len() == 1 {
 					ingr = ingrList.Head()
-				} else if ingrList.Len() == 0 {
+				} else if ingrList.Len() > 1 {
+					if err := export.ExportData(ingrList, exportConfig); err != nil {
+						logrus.WithError(err).Errorf("unable to export data")
+						angel.Angel(ctx, err)
+					}
 					var menu activekit.MenuItems
 					for _, i := range ingrList {
 						menu = menu.Append(&activekit.MenuItem{
@@ -65,31 +85,46 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 			} else {
 				cmd.Help()
-				os.Exit(1)
+				ctx.Exit(1)
 			}
-			ingr, ingrChanged := buildIngress(cmd, ingr)
-			if cmd.Flag("force").Changed && ingrChanged {
+			ingrChanged, err := flags.Ingress()
+			if err != nil {
+				logger.WithError(err).Errorf("unable to load ingress from flags")
+				activekit.Attention("Unable to load ingress from flags:\n%v", err)
+				ctx.Exit(1)
+			}
+
+			if ingrChanged.Rules != nil {
+				if ingrChanged.Rules[0].TLSSecret != "" {
+					ingr.Rules[0].TLSSecret = ingrChanged.Rules[0].TLSSecret
+				}
+				if ingrChanged.Rules[0].Paths != nil {
+					ingr.Rules[0].Paths = ingrChanged.Rules[0].Paths
+				}
+				ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
+			}
+			if flags.Force {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
 					activekit.Attention("Invalid ingress:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
-				if err := ctx.Client.ReplaceIngress(ctx.Namespace.ID, ingr); err != nil {
+				if err := ctx.Client.ReplaceIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					logger.WithError(err).Errorf("unable to replace ingress")
 					activekit.Attention("Unable to replace ingress %q:\n%v", ingr.Name, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 				return
-			} else if !ingrChanged {
-				fmt.Println("Nothing to do")
 			}
-			services, err := ctx.Client.GetServiceList(ctx.Namespace.ID)
+			services, err := ctx.Client.GetServiceList(ctx.GetNamespace().ID)
 			if err != nil {
 				logger.WithError(err).Errorf("unable to get service list")
 				activekit.Attention("Unable to get service list:\n%v", err)
-				os.Exit(1)
+				ctx.Exit(1)
 			}
+			services = services.AvailableForIngress()
+			ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
 			ingr, err = activeingress.EditWizard(activeingress.Config{
 				Services: services,
 				Ingress:  &ingr,
@@ -102,27 +137,20 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
 					activekit.Attention("Invalid ingress:\n%v", err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
-				if err := ctx.Client.ReplaceIngress(ctx.Namespace.ID, ingr); err != nil {
+				if err := ctx.Client.ReplaceIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					logger.WithError(err).Errorf("unable to replace ingress")
 					activekit.Attention("Unable to replace ingress %q:\n%v", ingr.Name, err)
-					os.Exit(1)
+					ctx.Exit(1)
 				}
 				fmt.Println("OK")
 			}
 		},
 	}
 
-	command.PersistentFlags().
-		BoolVarP(&flags.Force, "force", "f", false, "replace ingress without confirmation")
-	command.PersistentFlags().
-		String("host", "", "ingress host, optional")
-	command.PersistentFlags().
-		String("tls-secret", "", "ingress tls-secret, use 'letsencrypt' for automatic HTTPS, '-' to use HTTP, optional")
-	command.PersistentFlags().
-		Int("port", 8080, "ingress endpoint port, optional")
-	command.PersistentFlags().
-		String("service", "", "ingress endpoin service, optional")
+	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
+		panic(err)
+	}
 	return command
 }

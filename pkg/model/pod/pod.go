@@ -26,9 +26,6 @@ func PodFromKube(pod kubeModel.Pod) Pod {
 				container.Image))
 	}
 	hostname := ""
-	if pod.Hostname != nil {
-		hostname = *pod.Hostname
-	}
 	var status Status
 	if pod.Status != nil {
 		status = StatusFromKube(*pod.Status)
@@ -45,4 +42,10 @@ func PodFromKube(pod kubeModel.Pod) Pod {
 		CreatedAt:  createdAt,
 		origin:     pod,
 	}
+}
+
+func (po Pod) Copy() Pod {
+	var cp = po
+	cp.Containers = append(make([]string, len(po.Containers)), po.Containers...)
+	return cp
 }

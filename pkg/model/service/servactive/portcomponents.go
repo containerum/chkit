@@ -85,16 +85,19 @@ func setPortProto(port *service.Port) *activekit.MenuItem {
 	}
 }
 
-func setPortPort(port *service.Port) *activekit.MenuItem {
+func setPortPort(port *service.Port, external bool) *activekit.MenuItem {
+	if external {
+		return nil
+	}
 	return &activekit.MenuItem{
 		Label: fmt.Sprintf("Set port : %s",
 			activekit.OrValue(port.Port, "undefined (optional)")),
 		Action: func() error {
 			var promt string
 			if port.Port == nil {
-				promt = "Print port (11000..65535, hit enter to leave empty):"
+				promt = "Print port (1..65535, hit enter to leave empty):"
 			} else {
-				promt = fmt.Sprintf("Print port (11000..65535, hit enter to use %d, type 'none' to leave empty): ", *port.Port)
+				promt = fmt.Sprintf("Print port (1..65535, hit enter to use %d, type 'none' to leave empty): ", *port.Port)
 			}
 			portStr := strings.TrimSpace(activekit.Promt(promt))
 			if portStr == "none" {
@@ -104,8 +107,8 @@ func setPortPort(port *service.Port) *activekit.MenuItem {
 				return nil
 			}
 			var enternalPort int
-			if _, err := fmt.Sscanf(portStr, "%d", &enternalPort); err != nil || (enternalPort < 11000 && enternalPort > 65535) {
-				fmt.Printf("Invalid port %q: must be number in 11000..65535\n", portStr)
+			if _, err := fmt.Sscanf(portStr, "%d", &enternalPort); err != nil || (enternalPort < 1 && enternalPort > 65535) {
+				fmt.Printf("Invalid port %q: must be number in 1..65535\n", portStr)
 				return nil
 			}
 			port.Port = &enternalPort

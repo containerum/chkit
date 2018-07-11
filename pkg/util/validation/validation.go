@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -27,22 +28,22 @@ var (
 func ValidateContainerName(name string) error {
 	name = strings.TrimSpace(name)
 	if !containerNameRe.MatchString(name) {
-		return ErrInvalidContainerName
+		return ErrInvalidContainerName.CommentF("expect %v", containerNameRe)
 	}
 	return nil
 }
 
 func ValidateImageName(image string) error {
 	image = strings.TrimSpace(image)
-	if !reference.NameRegexp.MatchString(image) || image == "" {
-		return ErrInvalidImageName
+	if !reference.ReferenceRegexp.MatchString(image) || image == "" {
+		return ErrInvalidImageName.CommentF("must match %v", reference.ReferenceRegexp)
 	}
 	return nil
 }
 
 func ValidateLabel(label string) error {
 	if !labelRe.MatchString(label) {
-		return ErrInvalidLabel
+		return fmt.Errorf("%v: must satsify %v", ErrInvalidLabel, labelRe)
 	}
 	return nil
 }

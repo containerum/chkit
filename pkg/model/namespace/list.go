@@ -2,7 +2,6 @@ package namespace
 
 import (
 	"fmt"
-	"strings"
 
 	kubeModels "github.com/containerum/kube-client/pkg/model"
 )
@@ -101,13 +100,9 @@ func (list NamespaceList) Filter(pred func(Namespace) bool) NamespaceList {
 }
 
 // get Namespace by string $LABEL or $OWNER_LOGIN/$LABEL
-func (list NamespaceList) GetByUserFriendlyID(label string) (Namespace, bool) {
-	var tokens = strings.SplitN(label, "/", 2)
-	if len(tokens) == 2 {
-		return list.GetByLabelAndOwner(tokens[0], tokens[1])
-	}
+func (list NamespaceList) GetByUserFriendlyID(id string) (Namespace, bool) {
 	return list.Filter(func(namespace Namespace) bool {
-		return namespace.Label == label
+		return namespace.Label == id || namespace.OwnerAndLabel() == id
 	}).Head()
 }
 
@@ -115,4 +110,8 @@ func (list NamespaceList) GetByLabelAndOwner(owner, label string) (Namespace, bo
 	return list.Filter(func(namespace Namespace) bool {
 		return namespace.OwnerLogin == owner && namespace.Label == label
 	}).Head()
+}
+
+func (list NamespaceList) Append(ns Namespace) NamespaceList {
+	return append(list.Copy(), ns.Copy())
 }

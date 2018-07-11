@@ -1,4 +1,4 @@
-.PHONY: docker genkey build test clean install release single_release dev mock
+.PHONY: docker genkey build test clean install release single_release dev mock functional_tests
 
 CMD_DIR:=cmd/chkit
 CLI_DIR:=pkg/cli
@@ -8,11 +8,17 @@ PACKAGE := $(PACKAGE:%/$(CLI_DIR)=%)
 SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
 PUBLIC_KEY_FILE:=pubkey.pem
+FILEBOX := $(shell command -v fileb0x 2>/dev/null)
+FUNCTIONAL_TEST_MODULES := config deployment pod service configmap solution
+HELP_DIR := help
+HELP_CONTENT_FILES := $(shell find $(HELP_DIR)/content -name '*.md')
+PIP := pip3
+PYTHON := python3
 
 COMMIT_HASH=$(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE=$(shell date +%FT%T%Z)
 LATEST_TAG=$(shell git describe --tags $(shell git rev-list --tags --max-count=1))
-CONTAINERUM_API?=https://api.containerum.io:8082
+CONTAINERUM_API?=https://api.containerum.io
 VERSION?=$(LATEST_TAG:v%=%)
 
 # make directory and store path to variable
@@ -43,8 +49,14 @@ $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE):
 
 genkey: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 
+help/ab0x.go: help/b0x.toml $(HELP_CONTENT_FILES)
+ifndef FILEBOX
+	$(error "fileb0x is not available, please install it from https://github.com/UnnoTed/fileb0x)
+endif
+	go generate ./help
+
 # go has build artifacts caching so soruce tracking not needed
-build: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
+build: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE) help/ab0x.go
 	@echo "Building chkit for current OS/architecture, without signing"
 	go build -v -ldflags="$(RELEASE_LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE) ./$(CMD_DIR)
 
@@ -55,8 +67,8 @@ test:
 clean:
 	@rm -rf $(BUILDS_DIR)
 
-install:
-	@go install -ldflags="$(RELEASE_LDFLAGS)"
+install: help/ab0x.go
+	@go install -v -ldflags="$(RELEASE_LDFLAGS)" ./$(CMD_DIR)
 
 # lambda to generate build dir name using os,arch,version
 temp_dir_name=$(EXECUTABLE)_$(1)_$(2)_v$(3)
@@ -87,7 +99,7 @@ endif)
 @$(pack_cmd)
 endef
 
-release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
+release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE) help/ab0x.go
 	$(call build_release,linux,amd64)
 	$(call build_release,linux,386)
 	$(call build_release,linux,arm)
@@ -95,15 +107,19 @@ release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
 	$(call build_release,windows,amd64)
 	$(call build_release,windows,386)
 
-single_release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE)
+single_release: $(SIGNING_KEY_DIR)/$(PRIVATE_KEY_FILE) help/ab0x.go
 	$(call build_release,$(OS),$(ARCH))
 
-dev:
+dev: help/ab0x.go
 	$(eval VERSION=$(LATEST_TAG:v%=%)+dev)
 	@echo building $(VERSION)
-	go build -v --tags="dev" --ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
+	go build -v -race --tags="dev" --ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
 
-mock:
+mock: help/ab0x.go
 	$(eval VERSION=$(LATEST_TAG:v%=%)+mock)
 	@echo building $(VERSION)
 	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
+
+functional_tests: install
+	@$(PIP) install -r functional_tests/requirements.txt
+	@$(PYTHON) -m unittest $(foreach module,$(FUNCTIONAL_TEST_MODULES),functional_tests.$(module) ) -v

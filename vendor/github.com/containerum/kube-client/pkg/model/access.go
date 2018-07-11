@@ -10,7 +10,7 @@ func (access UserAccess) String() string {
 }
 
 // ResourceUpdateUserAccess -- contains user access data
-//swagger:ignore
+//swagger:model
 type ResourceUpdateUserAccess struct {
 	Username string      `json:"username"`
 	Access   AccessLevel `json:"access,omitempty"`
