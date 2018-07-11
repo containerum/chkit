@@ -25,6 +25,10 @@ func (flags Flags) Service() (service.Service, error) {
 		TargetPort: flags.TargetPort,
 	}
 
+	if flagPort.TargetPort == 0 {
+		flagPort.TargetPort = 80
+	}
+
 	if flags.Port != 0 {
 		flagPort.Port = &flags.Port
 	}
