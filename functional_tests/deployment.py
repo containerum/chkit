@@ -108,7 +108,7 @@ class TestDeployment(unittest.TestCase):
     @chkit.with_container()
     def test_change_deploy_version(self, depl: chkit.Deployment, container: chkit.Container):
         got_depl = chkit.get_deployment(depl.name)
-        self.assertIn("2.0.0", got_depl.version)
+        self.assertIn("1.1.0", got_depl.version)
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
@@ -135,7 +135,7 @@ class TestDeployment(unittest.TestCase):
     @chkit.with_container()
     def test_delete_active_deployment_version(self, depl: chkit.Deployment, container: chkit.Container):
         with self.assertRaisesRegex(psh.exceptions.ExecutionError, r".*(\[resource-service-19\]).*"):
-            chkit.delete_version(deploy=depl.name, version="2.0.0")
+            chkit.delete_version(deploy=depl.name, version="1.1.0")
 
     @timeout_decorator.timeout(seconds=30)
     @chkit.test_account
@@ -145,4 +145,4 @@ class TestDeployment(unittest.TestCase):
         chkit.delete_version(deploy=depl.name, version="1.0.0")
         depl_versions = chkit.get_versions(depl.name)
         self.assertEqual(len(depl_versions), 1)
-        self.assertIn("2.0.0", depl_versions[0].version)
+        self.assertIn("1.1.0", depl_versions[0].version)
