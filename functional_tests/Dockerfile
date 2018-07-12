@@ -12,7 +12,12 @@ RUN go get -u -v -d github.com/UnnoTed/fileb0x && \
         go install
 RUN go get -u -v -d github.com/containerum/chkit/cmd/chkit
 WORKDIR $GOPATH/src/github.com/containerum/chkit
+
 ENV CONTAINERUM_API="http://local.dev"
+ENV TEST_USER=""
+ENV TEST_USER_PASSWORD=""
+ENV TEST_NAMESPACE=""
+
 RUN git checkout chkit-v3 && \
     make genkey && \
     make build && \
