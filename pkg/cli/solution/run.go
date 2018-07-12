@@ -2,7 +2,6 @@ package clisolution
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/solution"
@@ -92,23 +91,6 @@ func Run(ctx *context.Context) *cobra.Command {
 				fmt.Printf("Congratulations! Solution %s is running!\n", sol.Name)
 			}
 			fmt.Println(sol.RenderTable())
-			(&activekit.Menu{
-				Items: activekit.MenuItems{
-					{
-						Label: "Export solution to file",
-						Action: func() error {
-							var fname = activekit.Promt("Type filename: ")
-							fname = strings.TrimSpace(fname)
-							if fname != "" {
-								if err := (porta.Exporter{OutFile: fname}.Export(sol)); err != nil {
-									ferr.Printf("unable to export solution:\n%v\n", err)
-								}
-							}
-							return nil
-						},
-					},
-				},
-			}).Run()
 		},
 	}
 	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
