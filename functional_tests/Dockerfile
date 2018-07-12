@@ -6,7 +6,10 @@ RUN wget -O go.tar.gz https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz && \
     rm go.tar.gz
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
-RUN go get -u -v github.com/UnnoTed/fileb0x
+RUN go get -u -v -d github.com/UnnoTed/fileb0x && \
+        cd $GOPATH/src/github.com/UnnoTed/fileb0x && \
+        git checkout 033c2ecc1c0f93d04afe94186f15193dd4441646 && \
+        go install
 RUN go get -u -v -d github.com/containerum/chkit/cmd/chkit
 WORKDIR $GOPATH/src/github.com/containerum/chkit
 ENV CONTAINERUM_API="http://local.dev"
