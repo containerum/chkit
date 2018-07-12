@@ -50,9 +50,19 @@ class TestIngress(unittest.TestCase):
             self.assertEqual(got_ingr.rules[0].path[0].service_name, ingr.rules[0].path[0].service_name)
 
             url = "http://" + got_ingr.rules[0].host
-            r = requests.get(url)
-            if r.status_code > 399:
-                raise LookupError("Ingress check failed, code ", r.status_code)
+            attempts, max_attempts = 1, 40
+            while attempts <= max_attempts:
+                try:
+                    response = requests.get(url)
+                    response.raise_for_status()
+                    if response.status_code < 400:
+                        break
+                except requests.exceptions.ConnectionError:
+                    pass
+                time.sleep(15)
+                attempts += 1
+            self.assertLessEqual(attempts, max_attempts)
+
         finally:
             chkit.delete_ingress(ingr.name[0])
             time.sleep(1)
