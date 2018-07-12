@@ -5,6 +5,8 @@ import (
 
 	"strings"
 
+	"os"
+
 	"github.com/containerum/chkit/pkg/model/ingress"
 	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
@@ -81,6 +83,13 @@ func EditWizard(config Config) (ingress.Ingress, error) {
 							return nil
 						}
 						exit = true
+						return nil
+					},
+				},
+				{
+					Label: "Exit",
+					Action: func() error {
+						os.Exit(0)
 						return nil
 					},
 				},

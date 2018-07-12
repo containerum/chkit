@@ -2,6 +2,7 @@ package servactive
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/service"
@@ -77,6 +78,13 @@ func ReplaceWizard(config ConstructorConfig) (service.Service, error) {
 							return nil
 						}
 						exit = true
+						return nil
+					},
+				},
+				{
+					Label: "Exit",
+					Action: func() error {
+						os.Exit(0)
 						return nil
 					},
 				},

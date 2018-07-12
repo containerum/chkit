@@ -2,7 +2,6 @@ package cliconfigmap
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/configmap"
@@ -96,15 +95,9 @@ func Create(ctx *context.Context) *cobra.Command {
 						},
 					},
 					{
-						Label: "Export configmap to file",
+						Label: "Exit",
 						Action: func() error {
-							var fname = activekit.Promt("Type filename: ")
-							fname = strings.TrimSpace(fname)
-							if fname != "" {
-								if err := (porta.Exporter{OutFile: fname}.Export(config)); err != nil {
-									ferr.Printf("unable to export configmap:\n%v\n", err)
-								}
-							}
+							ctx.Exit(0)
 							return nil
 						},
 					},

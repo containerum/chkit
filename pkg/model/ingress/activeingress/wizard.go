@@ -2,6 +2,7 @@ package activeingress
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/ingress"
@@ -110,6 +111,13 @@ func Wizard(config Config) (ingress.Ingress, error) {
 							return nil
 						}
 						exit = true
+						return nil
+					},
+				},
+				{
+					Label: "Exit",
+					Action: func() error {
+						os.Exit(0)
 						return nil
 					},
 				},

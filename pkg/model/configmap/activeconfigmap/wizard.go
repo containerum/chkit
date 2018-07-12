@@ -5,10 +5,15 @@ import (
 
 	"os"
 
+	"fmt"
+
 	"github.com/containerum/chkit/pkg/model/configmap"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
 	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/ninedraft/boxofstuff/str"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -74,6 +79,32 @@ func (c Config) Wizard() configmap.ConfigMap {
 				},
 			},
 			{
+				Label: "Print to terminal",
+				Action: func() error {
+					data, err := config.RenderYAML()
+					if err != nil {
+						logrus.WithError(err).Errorf("unable to render configmap to yaml")
+						activekit.Attention(err.Error())
+					}
+					border := strings.Repeat("_", text.Width(data))
+					fmt.Printf("%s\n%s\n%s\n", border, data, border)
+					return nil
+				},
+			},
+			{
+				Label: "Export configmap to file",
+				Action: func() error {
+					var fname = activekit.Promt("Type filename: ")
+					fname = strings.TrimSpace(fname)
+					if fname != "" {
+						if err := (porta.Exporter{OutFile: fname}.Export(config)); err != nil {
+							ferr.Printf("unable to export configmap:\n%v\n", err)
+						}
+					}
+					return nil
+				},
+			},
+			{
 				Label: "Confirm",
 				Action: func() error {
 					if err := ValidateConfigMap(config); err != nil {
@@ -87,7 +118,7 @@ func (c Config) Wizard() configmap.ConfigMap {
 			{
 				Label: "Exit",
 				Action: func() error {
-					os.Exit(1)
+					os.Exit(0)
 					return nil
 				},
 			},

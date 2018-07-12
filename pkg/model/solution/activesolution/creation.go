@@ -2,6 +2,7 @@ package activesolution
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
@@ -215,6 +216,13 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 							return nil
 						}
 						exit = true
+						return nil
+					},
+				},
+				{
+					Label: "Exit",
+					Action: func() error {
+						os.Exit(0)
 						return nil
 					},
 				},
