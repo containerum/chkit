@@ -50,7 +50,7 @@ class TestDeployment(unittest.TestCase):
             name=depl.containers[0].name,
             limits=chkit.Resources(cpu=16, memory=16),
             image="redis:3-alpine",
-            env=[chkit.EnvVariable("HELLO!!!", "world!!!")],
+            env=[chkit.EnvVariable("HELLOHELLO", "worldworld")],
         )
         chkit.replace_container(deployment=depl.name, container=new_container)
         got_depl = chkit.get_deployment(depl.name)
