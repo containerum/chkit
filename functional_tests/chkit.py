@@ -528,7 +528,7 @@ class Service:
 
 
 def create_service(service: Service, file: bool=False, namespace: str=None) -> None:
-    args = ["create", "service", "--name", service.name, "--deploy", service.deploy, "--force"]
+    args = ["create", "service", "--name", service.name, "--deployment", service.deploy, "--force"]
     if file:
         args.extend(["--input", "json"])
     else:
@@ -567,7 +567,7 @@ def get_service(service: str, solution: str=None, namespace: str=None) -> Servic
 
 
 def replace_service(service: Service, file: bool=False, namespace: str=None) -> None:
-    args = ["replace", "service", service.name, "--deploy", service.deploy, "--force"]
+    args = ["replace", "service", service.name, "--deployment", service.deploy, "--force"]
     if file:
         args.extend(["--input", "json"])
     else:
