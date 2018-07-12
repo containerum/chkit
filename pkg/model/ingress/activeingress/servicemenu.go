@@ -175,10 +175,10 @@ func editPathMenu(services service.ServiceList, paths ingress.PathList, ind int)
 				},
 				{
 					Label: fmt.Sprintf("Set path         : %s",
-						activekit.OrString(path.Path, "undefined (required)")),
+						activekit.OrString(path.Path, "/")),
 					Action: func() error {
 						p := strings.TrimSpace(activekit.Promt("Type path (hit Enter to leave %s): ",
-							activekit.OrString(path.Path, "empty")))
+							activekit.OrString(path.Path, "/")))
 						if p == "" {
 							return nil
 						}
@@ -307,10 +307,10 @@ func pathMenu(services service.ServiceList, path ingress.Path) (ingress.Path, bo
 				},
 				{
 					Label: fmt.Sprintf("Set path         : %s",
-						activekit.OrString(path.Path, "undefined (required)")),
+						activekit.OrString(path.Path, "/")),
 					Action: func() error {
 						p := strings.TrimSpace(activekit.Promt("Type path (hit Enter to leave %s): ",
-							activekit.OrString(path.Path, "empty")))
+							activekit.OrString(path.Path, "/")))
 						if p == "" {
 							return nil
 						}
