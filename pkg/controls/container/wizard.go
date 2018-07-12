@@ -2,12 +2,17 @@ package container
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/container"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/chkit/pkg/util/validation"
 	"github.com/ninedraft/boxofstuff/str"
+	"github.com/sirupsen/logrus"
 )
 
 type Wizard struct {
@@ -36,6 +41,32 @@ func (wizard Wizard) Run() container.Container {
 				componentConfigmaps(&cont, wizard.Configs),
 				componentEnvs(&cont),
 				&activekit.MenuItem{
+					Label: "Print to terminal",
+					Action: func() error {
+						data, err := cont.RenderYAML()
+						if err != nil {
+							logrus.WithError(err).Errorf("unable to render container to yaml")
+							activekit.Attention(err.Error())
+						}
+						border := strings.Repeat("_", text.Width(data))
+						fmt.Printf("%s\n%s\n%s\n", border, data, border)
+						return nil
+					},
+				},
+				&activekit.MenuItem{
+					Label: "Export container to file",
+					Action: func() error {
+						var fname = activekit.Promt("Type filename: ")
+						fname = strings.TrimSpace(fname)
+						if fname != "" {
+							if err := (porta.Exporter{OutFile: fname}.Export(cont)); err != nil {
+								ferr.Printf("unable to export configmap:\n%v\n", err)
+							}
+						}
+						return nil
+					},
+				},
+				&activekit.MenuItem{
 					Label: "Confirm",
 					Action: func() error {
 						if err := cont.Validate(); err != nil {
@@ -43,6 +74,13 @@ func (wizard Wizard) Run() container.Container {
 							return nil
 						}
 						exit = true
+						return nil
+					},
+				},
+				&activekit.MenuItem{
+					Label: "Exit",
+					Action: func() error {
+						os.Exit(0)
 						return nil
 					},
 				},

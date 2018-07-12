@@ -5,7 +5,6 @@ import (
 
 	"github.com/containerum/chkit/pkg/context"
 	containerControl "github.com/containerum/chkit/pkg/controls/container"
-	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -167,7 +166,6 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					Configs:     (<-configs).Names(),
 					Deployments: (<-deployments).Names(),
 				}.Run()
-				fmt.Println(cont.RenderTable())
 				if activekit.YesNo("Are you sure you want to create container %q in deployment %q?", cont.Name, flags.Deployment) {
 					logger.Debugf("creating container %q in deployment %q", cont.Name, flags.Deployment)
 					if err := ctx.Client.CreateDeploymentContainer(ctx.GetNamespace().ID, flags.Deployment, cont); err != nil {
@@ -176,24 +174,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					}
 					fmt.Println("Ok")
 				}
-				(&activekit.Menu{
-					Items: activekit.MenuItems{
-						{
-							Label: "Save container to file",
-							Action: func() error {
-								for {
-									var fname = activekit.Promt("Type output filename: ")
-									export.ExportData(cont, export.ExportConfig{
-										Filename: fname,
-										Format:   export.YAML,
-									})
-								}
-
-								return nil
-							},
-						},
-					},
-				}).Run()
+				fmt.Println(cont.RenderTable())
 			}
 		},
 	}

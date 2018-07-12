@@ -5,7 +5,6 @@ import (
 
 	"github.com/containerum/chkit/pkg/context"
 	containerControl "github.com/containerum/chkit/pkg/controls/container"
-	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -233,24 +232,6 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 				}
 			}
-			(&activekit.Menu{
-				Items: activekit.MenuItems{
-					{
-						Label: "Save container to file",
-						Action: func() error {
-							for {
-								var fname = activekit.Promt("Type output filename: ")
-								export.ExportData(cont, export.ExportConfig{
-									Filename: fname,
-									Format:   export.YAML,
-								})
-							}
-
-							return nil
-						},
-					},
-				},
-			}).Run()
 		},
 	}
 	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {
