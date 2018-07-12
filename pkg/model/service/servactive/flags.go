@@ -8,7 +8,7 @@ import (
 type Flags struct {
 	Force      bool   `flag:"force f" desc:"suppress confirmation, optional"`
 	Name       string `desc:"service name, optional"`
-	Deploy     string `desc:"service deployment, required"`
+	Deployment string `desc:"service deployment, required"`
 	TargetPort int    `desc:"service target port, optional"`
 	Port       int    `desc:"service port, optional"`
 	Protocol   string `desc:"service protocol, optional"`
@@ -17,7 +17,7 @@ type Flags struct {
 
 func (flags Flags) Service() (service.Service, error) {
 	var flagSvc = service.Service{
-		Deploy: flags.Deploy,
+		Deploy: flags.Deployment,
 	}
 
 	var flagPort = service.Port{
