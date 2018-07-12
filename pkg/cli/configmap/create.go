@@ -68,7 +68,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				EditName:  true,
 				ConfigMap: &config,
 			}.Wizard()
-			if activekit.YesNo("Are you sure you want create configmap %q?", config.Name) {
+			if activekit.YesNo("Are you sure you want to create configmap %q?", config.Name) {
 				if err := ctx.Client.CreateConfigMap(ctx.GetNamespace().ID, config.ToBase64()); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)

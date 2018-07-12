@@ -155,7 +155,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 				ctx.Exit(1)
 			}
-			if activekit.YesNo("Are you sure you want update service %q?", svc.Name) {
+			if activekit.YesNo("Are you sure you want to update service %q?", svc.Name) {
 				if err := ctx.Client.ReplaceService(ctx.GetNamespace().ID, svc); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)

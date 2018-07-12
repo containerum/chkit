@@ -67,7 +67,6 @@ func componentConfigmapItem(configmapItem configmap.Item) (configmap.Item, confi
 						default:
 							item = item.WithValue(value)
 						}
-
 						return nil
 					},
 				},

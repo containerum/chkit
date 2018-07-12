@@ -77,7 +77,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 				ctx.Exit(1)
 			}
-			if activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
+			if activekit.YesNo("Are you sure you want to create ingress %q?", ingr.Name) {
 				if err := ctx.Client.CreateIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)

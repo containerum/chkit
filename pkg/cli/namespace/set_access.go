@@ -53,7 +53,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 			var username = args[0]
 			accessLevel := model.AccessLevel(args[1])
 			if force, _ := cmd.Flags().GetBool("force"); force ||
-				activekit.YesNo("Are you sure you want give %s %v access to %s?", username, accessLevel, ctx.GetNamespace()) {
+				activekit.YesNo("Are you sure you want to give %s %v access to %s?", username, accessLevel, ctx.GetNamespace()) {
 				if err := ctx.Client.SetAccess(ctx.GetNamespace().ID, username, accessLevel); err != nil {
 					logger.WithError(err).Errorf("unable to update access to %q for user %q", username, accessLevel)
 					ferr.Println(err)

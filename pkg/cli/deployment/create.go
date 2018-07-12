@@ -113,7 +113,7 @@ func Create(ctx *context.Context) *cobra.Command {
 			fmt.Println(depl.RenderTable())
 
 			var pushed = false
-			if activekit.YesNo("Are you sure you want create deployment %s?", depl.Name) {
+			if activekit.YesNo("Are you sure you want to  create deployment %s?", depl.Name) {
 				if err := ctx.Client.CreateDeployment(ctx.GetNamespace().ID, depl); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)

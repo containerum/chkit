@@ -76,7 +76,7 @@ func Create(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 				ctx.Exit(1)
 			}
-			if activekit.YesNo("Are you sure you want create service %q?", svc.Name) {
+			if activekit.YesNo("Are you sure you want to create service %q?", svc.Name) {
 				if err := ctx.Client.CreateService(ctx.GetNamespace().ID, svc); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
