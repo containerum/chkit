@@ -121,5 +121,5 @@ mock: help/ab0x.go
 	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
 
 functional_tests: install
-	@$(PIP) install -r functional_tests/requirements.txt
+	# @$(PIP) install -r functional_tests/requirements.txt
 	@$(PYTHON) -m unittest $(foreach module,$(FUNCTIONAL_TEST_MODULES),functional_tests.$(module) ) -v
