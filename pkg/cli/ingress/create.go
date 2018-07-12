@@ -2,7 +2,6 @@ package clingress
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/ingress"
@@ -109,15 +108,9 @@ func Create(ctx *context.Context) *cobra.Command {
 						},
 					},
 					{
-						Label: "Export ingress to file",
+						Label: "Exit",
 						Action: func() error {
-							var fname = activekit.Promt("Type filename: ")
-							fname = strings.TrimSpace(fname)
-							if fname != "" {
-								if err := (porta.Exporter{OutFile: fname}.Export(ingr)); err != nil {
-									ferr.Printf("unable to export ingress:\n%v\n", err)
-								}
-							}
+							ctx.Exit(0)
 							return nil
 						},
 					},

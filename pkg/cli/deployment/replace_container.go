@@ -59,13 +59,20 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 						ferr.Println(err)
 						ctx.Exit(1)
 					}
-					cont = cont.Patch(importedCont)
+					cont, err = flags.Patch(importedCont)
+				} else {
+					flagCont, err := flags.Container()
+					if err != nil {
+						ferr.Println(err)
+						ctx.Exit(1)
+					}
+					cont, err = flags.Patch(flagCont)
 				}
-				cont, err = flags.Patch(cont)
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
+				cont.Name = flags.ContainerName
 				depl.Containers, _ = depl.Containers.Replace(cont)
 				if err := ctx.Client.ReplaceDeployment(ctx.GetNamespace().ID, depl); err != nil {
 					ferr.Println(err)
@@ -146,6 +153,13 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				cont = cont.Patch(importedCont)
+			} else {
+				flagCont, err := flags.Container()
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				cont = cont.Patch(flagCont)
 			}
 
 			logger.Debugf("building container from flags")

@@ -2,10 +2,13 @@ package servactive
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/model/service"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/sirupsen/logrus"
 )
@@ -55,6 +58,19 @@ func ReplaceWizard(config ConstructorConfig) (service.Service, error) {
 					},
 				},
 				{
+					Label: "Export service to file",
+					Action: func() error {
+						var fname = activekit.Promt("Type filename: ")
+						fname = strings.TrimSpace(fname)
+						if fname != "" {
+							if err := (porta.Exporter{OutFile: fname}.Export(serv)); err != nil {
+								ferr.Printf("unable to export service:\n%v\n", err)
+							}
+						}
+						return nil
+					},
+				},
+				{
 					Label: "Confirm",
 					Action: func() error {
 						if err = ValidateService(serv); err != nil {
@@ -62,6 +78,13 @@ func ReplaceWizard(config ConstructorConfig) (service.Service, error) {
 							return nil
 						}
 						exit = true
+						return nil
+					},
+				},
+				{
+					Label: "Exit",
+					Action: func() error {
+						os.Exit(0)
 						return nil
 					},
 				},

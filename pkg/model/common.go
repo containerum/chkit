@@ -18,6 +18,8 @@ func Age(timestamp time.Time) string {
 	var ageString string
 	const year = 365 * 24
 	switch {
+	case age < 0:
+		return "just created"
 	case age.Hours() > year:
 		years := uint64(age.Hours()) / year
 		ageString = fmt.Sprintf("%dy", years)
