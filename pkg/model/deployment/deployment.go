@@ -74,10 +74,10 @@ func (depl *Deployment) ToKube() model.Deployment {
 func (depl *Deployment) StatusString() string {
 	if depl.Active {
 		if depl.Status != nil {
-			return fmt.Sprintf("running: %2d/%d\n"+
-				"CPU    : %4d mCPU\n"+
-				"MEMORY : %4d Mb",
-				depl.Status.NonTerminated, depl.Replicas,
+			return fmt.Sprintf("Running pods: %2d/%d\n"+
+				"CPU usage:   %4d mCPU\n"+
+				"RAM usage:   %4d Mb",
+				depl.Status.AvailableReplicas, depl.Replicas,
 				depl.TotalCPU,
 				depl.TotalMemory)
 		} else {
