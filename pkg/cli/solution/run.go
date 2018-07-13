@@ -89,6 +89,8 @@ func Run(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				fmt.Printf("Congratulations! Solution %s is running!\n", sol.Name)
+			} else {
+				ctx.Exit(0)
 			}
 			fmt.Println(sol.RenderTable())
 		},

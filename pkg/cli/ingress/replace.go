@@ -155,6 +155,8 @@ func Replace(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")
+			} else {
+				ctx.Exit(0)
 			}
 		},
 	}

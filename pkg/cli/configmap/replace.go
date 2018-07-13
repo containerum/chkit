@@ -143,6 +143,8 @@ func Replace(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				fmt.Printf("Congratulations! Configmap %s updated!\n", newCm.Name)
+			} else {
+				ctx.Exit(0)
 			}
 			fmt.Println(newCm.RenderTable())
 			(&activekit.Menu{

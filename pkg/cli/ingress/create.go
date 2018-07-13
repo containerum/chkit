@@ -83,6 +83,8 @@ func Create(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				fmt.Printf("Congratulations! Ingress %s created!\n", ingr.Name)
+			} else {
+				ctx.Exit(0)
 			}
 			fmt.Println(ingr.RenderTable())
 			(&activekit.Menu{

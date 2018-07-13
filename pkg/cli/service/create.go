@@ -82,6 +82,8 @@ func Create(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				fmt.Printf("Congratulations! Service %s created!\n", svc.Name)
+			} else {
+				ctx.Exit(0)
 			}
 			svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, svc.Name)
 			if err != nil {
