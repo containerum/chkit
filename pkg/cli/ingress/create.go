@@ -25,7 +25,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Aliases: aliases,
 		Short:   "create ingress",
 		Long:    "Create ingress. Available options: TLS with LetsEncrypt and custom certs.",
-		Example: "chkit create ingress [--force] [--filename ingress.json] [-n prettyNamespace]",
+		Example: "chkit create ingress [--force] [--filename ingress.json] [-p project]",
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			logger.Struct(flags)
