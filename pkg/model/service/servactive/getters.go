@@ -34,7 +34,7 @@ func getName(defaultName string) string {
 func editPorts(ports []service.Port, external bool) []service.Port {
 	oldPorts := make([]service.Port, len(ports))
 	copy(oldPorts, ports)
-	ok := false
+	var ok bool
 	for exit := false; !exit; {
 		var menu []*activekit.MenuItem
 		for i, port := range ports {
@@ -102,7 +102,7 @@ func validatePort(port service.Port) error {
 		}
 	}
 	if port.TargetPort < 1 || port.TargetPort > 65535 {
-		errs = append(errs, fmt.Errorf("\n + invalid target port %d: must be 1..65535"))
+		errs = append(errs, fmt.Errorf("\n + invalid target port %d: must be 1..65535", port.TargetPort))
 	}
 	if port.Protocol != "TCP" && port.Protocol != "UDP" {
 		errs = append(errs, fmt.Errorf("\n + invalid port protocol: must be TCP or UDP"))

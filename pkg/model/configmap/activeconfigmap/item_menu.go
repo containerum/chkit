@@ -64,6 +64,8 @@ func componentConfigmapItem(configmapItem configmap.Item) (configmap.Item, confi
 						case strings.HasPrefix(value, "$"):
 							value = strings.TrimPrefix(value, "$")
 							item = item.WithValue(os.Getenv(value))
+						default:
+							item = item.WithValue(value)
 						}
 						return nil
 					},

@@ -29,11 +29,11 @@ func (serv *Service) TableRows() [][]string {
 	if serv.CreatedAt != (time.Time{}) {
 		age = model.Age(serv.CreatedAt)
 	}
-	kind := "internal"
+	kind := "Internal"
 
 	var ports = make(str.Vector, 0, len(serv.Ports))
 	if serv.Domain != "" {
-		kind = "external"
+		kind = "External"
 		for _, p := range serv.Ports {
 			switch strings.ToLower(p.Protocol) {
 			case "tcp":
@@ -60,7 +60,7 @@ func (serv *Service) TableRows() [][]string {
 
 	return [][]string{{
 		serv.Name,
-		serv.Deploy,
+		str.Vector{serv.Deploy, "!MISSING DEPLOYMENT!"}.FirstNonEmpty(),
 		kind,
 		strings.Join(ports, "\n"),
 		age,

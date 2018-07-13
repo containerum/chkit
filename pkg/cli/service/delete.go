@@ -63,8 +63,8 @@ func Delete(ctx *context.Context) *cobra.Command {
 			case 1:
 				svcName := args[0]
 				if !deleteServiceConfig.Force {
-					if yes, _ := activekit.Yes(fmt.Sprintf("Do you really want delete service %q?", svcName)); !yes {
-						return
+					if !activekit.YesNo(fmt.Sprintf("Do you really want delete service %q?", svcName)) {
+						ctx.Exit(0)
 					}
 				}
 				logrus.Debugf("deleting service %q from %q", svcName, ctx.GetNamespace().ID)

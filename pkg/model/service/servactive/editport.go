@@ -7,7 +7,7 @@ import (
 
 func portEditorWizard(port service.Port, external bool) (service.Port, bool) {
 	oldPort := port
-	ok := false
+	var ok bool
 	deletePort := false
 	for exit := false; !exit; {
 		(&activekit.Menu{

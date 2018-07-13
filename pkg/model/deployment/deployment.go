@@ -8,6 +8,7 @@ import (
 	model2 "github.com/containerum/chkit/pkg/model"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/kube-client/pkg/model"
+	"github.com/ninedraft/boxofstuff/str"
 )
 
 type Deployment struct {
@@ -72,19 +73,23 @@ func (depl *Deployment) ToKube() model.Deployment {
 }
 
 func (depl *Deployment) StatusString() string {
+	var status string
 	if depl.Active {
 		if depl.Status != nil {
-			return fmt.Sprintf("running: %2d/%d\n"+
-				"CPU    : %4d mCPU\n"+
-				"MEMORY : %4d Mb",
-				depl.Status.NonTerminated, depl.Replicas,
+			status += fmt.Sprintf("Running pods: %2d/%d\n"+
+				"CPU usage:   %4d mCPU\n"+
+				"RAM usage:   %4d Mb",
+				depl.Status.AvailableReplicas, depl.Replicas,
 				depl.TotalCPU,
 				depl.TotalMemory)
 		} else {
-			return fmt.Sprintf("local\nreplicas %d", depl.Replicas)
+			status += fmt.Sprintf("local\nreplicas %d", depl.Replicas)
 		}
 	}
-	return "inactive"
+	if len(depl.Containers) == 0 {
+		status += "\n!MISSING CONTAINERS!"
+	}
+	return str.Vector{status, "inactive"}.FirstNonEmpty()
 }
 
 func (depl Deployment) Copy() Deployment {

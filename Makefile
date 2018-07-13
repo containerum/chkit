@@ -9,7 +9,7 @@ SIGNING_KEY_DIR:=~/.config/containerum/.chkit-sign
 PRIVATE_KEY_FILE:=privkey.pem
 PUBLIC_KEY_FILE:=pubkey.pem
 FILEBOX := $(shell command -v fileb0x 2>/dev/null)
-FUNCTIONAL_TEST_MODULES := config deployment pod service configmap solution
+FUNCTIONAL_TEST_MODULES := config deployment pod service configmap ingress solution
 HELP_DIR := help
 HELP_CONTENT_FILES := $(shell find $(HELP_DIR)/content -name '*.md')
 PIP := pip3
@@ -121,5 +121,5 @@ mock: help/ab0x.go
 	@go build -v --tags="dev mock" -ldflags="$(DEV_LDFLAGS)" ./$(CMD_DIR)
 
 functional_tests: install
-	@$(PIP) install -r functional_tests/requirements.txt
+	# @$(PIP) install -r functional_tests/requirements.txt
 	@$(PYTHON) -m unittest $(foreach module,$(FUNCTIONAL_TEST_MODULES),functional_tests.$(module) ) -v

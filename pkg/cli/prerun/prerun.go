@@ -68,11 +68,13 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		RunLoginOnMissingCreds: false,
 		NamespaceSelection:     TemporarySetNamespace,
 	}
-	for _, c := range optional {
-		config = c
+	if len(optional) > 0 {
+		config = optional[0]
 	}
 	logger.StructFields(config)
-	setup.SetupLogs(ctx)
+	if err := setup.SetupLogs(ctx); err != nil {
+		return err
+	}
 
 	logger.Debugf("syncing config")
 	err := configuration.SyncConfig(ctx)
@@ -131,7 +133,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		var ns namespace.Namespace
 		switch config.Namespace {
 		case "-":
-			var ok = false
+			var ok bool
 			ns, ok = nsList.Head()
 			if !ok {
 				return chkitErrors.FatalString("you have no namespaces")
@@ -217,12 +219,12 @@ func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Comman
 		if len(optional) == 0 {
 			optional = []Config{{}}
 		}
-		for i, opt := range optional {
+		if len(optional) > 0 {
+			var opt = optional[0]
 			if opt.Namespace == "" {
 				opt.Namespace, _ = cmd.Flags().GetString("namespace")
 			}
-			optional[i] = opt
-			break
+			optional = []Config{opt}
 		}
 		switch err := PreRun(ctx, optional...).(type) {
 		case nil:
@@ -249,7 +251,7 @@ func ResolveLabel(ctx *context.Context, label string) (namespace.Namespace, erro
 	}
 	ns, ok := nsList.GetByUserFriendlyID(label)
 	if !ok {
-		return namespace.Namespace{}, fmt.Errorf("unable to find deployment %q", ns)
+		return namespace.Namespace{}, fmt.Errorf("unable to find deployment %q", ns.Label)
 	}
 	return ns, nil
 }

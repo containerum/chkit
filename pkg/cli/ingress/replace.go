@@ -57,7 +57,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				if ingrList.Len() == 0 {
 					logger.Errorf("no ingresses exists")
-					fmt.Println("no ingresses exists\n")
+					fmt.Println("no ingresses exists")
 					ctx.Exit(1)
 				} else if ingrList.Len() == 1 {
 					ingr = ingrList.Head()
@@ -98,17 +98,26 @@ func Replace(ctx *context.Context) *cobra.Command {
 				if ingrChanged.Rules[0].TLSSecret != "" {
 					ingr.Rules[0].TLSSecret = ingrChanged.Rules[0].TLSSecret
 				}
-				if ingrChanged.Rules[0].Paths != nil {
-					ingr.Rules[0].Paths = ingrChanged.Rules[0].Paths
+				if len(ingrChanged.Rules[0].Paths) != 0 {
+					if ingrChanged.Rules[0].Paths[0].ServiceName != "" {
+						ingr.Rules[0].Paths[0].ServiceName = ingrChanged.Rules[0].Paths[0].ServiceName
+					}
+					if ingrChanged.Rules[0].Paths[0].ServicePort != 0 {
+						ingr.Rules[0].Paths[0].ServicePort = ingrChanged.Rules[0].Paths[0].ServicePort
+					}
+					if ingrChanged.Rules[0].Paths[0].Path != "" {
+						ingr.Rules[0].Paths[0].Path = ingrChanged.Rules[0].Paths[0].Path
+					}
 				}
-				ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
+				ingr.Rules[0].Host = strings.TrimSuffix(ingr.Rules[0].Host, ".hub.containerum.io")
 			}
 			if flags.Force {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
-					activekit.Attention("Invalid ingress:\n%v", err)
+					activekit.Attention("%v", err)
 					ctx.Exit(1)
 				}
+
 				if err := ctx.Client.ReplaceIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					logger.WithError(err).Errorf("unable to replace ingress")
 					activekit.Attention("Unable to replace ingress %q:\n%v", ingr.Name, err)
@@ -124,7 +133,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			services = services.AvailableForIngress()
-			ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
+			ingr.Rules[0].Host = strings.TrimSuffix(ingr.Rules[0].Host, ".hub.containerum.io")
 			ingr, err = activeingress.EditWizard(activeingress.Config{
 				Services: services,
 				Ingress:  &ingr,
@@ -145,6 +154,8 @@ func Replace(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				fmt.Println("OK")
+			} else {
+				ctx.Exit(0)
 			}
 		},
 	}

@@ -2,7 +2,6 @@ package clingress
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/ingress"
@@ -78,12 +77,14 @@ func Create(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 				ctx.Exit(1)
 			}
-			if activekit.YesNo("Are you sure you want create ingress %q?", ingr.Name) {
+			if activekit.YesNo("Are you sure you want to create ingress %q?", ingr.Name) {
 				if err := ctx.Client.CreateIngress(ctx.GetNamespace().ID, ingr); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Printf("Congratulations! Ingress %s created!\n", ingr.Name)
+			} else {
+				ctx.Exit(0)
 			}
 			fmt.Println(ingr.RenderTable())
 			(&activekit.Menu{
@@ -109,15 +110,9 @@ func Create(ctx *context.Context) *cobra.Command {
 						},
 					},
 					{
-						Label: "Export ingress to file",
+						Label: "Exit",
 						Action: func() error {
-							var fname = activekit.Promt("Type filename: ")
-							fname = strings.TrimSpace(fname)
-							if fname != "" {
-								if err := (porta.Exporter{OutFile: fname}.Export(ingr)); err != nil {
-									ferr.Printf("unable to export ingress:\n%v\n", err)
-								}
-							}
+							ctx.Exit(0)
 							return nil
 						},
 					},

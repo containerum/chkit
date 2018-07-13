@@ -13,10 +13,6 @@ import (
 	"github.com/ninedraft/boxofstuff/str"
 )
 
-func missingContainerNameErr(flag, value string) error {
-	return fmt.Errorf("invalid %s flag value %q: container name can be omitted only if only one container defined", flag, value)
-}
-
 func invalidFlagValueErr(flag, value, reason string) error {
 	return fmt.Errorf("invalid %s flag value %q: %s", flag, value, reason)
 }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/containerum/chkit/pkg/context"
 	containerControl "github.com/containerum/chkit/pkg/controls/container"
-	"github.com/containerum/chkit/pkg/export"
 	"github.com/containerum/chkit/pkg/model/configmap"
 	"github.com/containerum/chkit/pkg/model/container"
 	"github.com/containerum/chkit/pkg/model/deployment"
@@ -59,13 +58,24 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 						ferr.Println(err)
 						ctx.Exit(1)
 					}
-					cont = cont.Patch(importedCont)
+					cont, err = flags.Patch(importedCont)
+				} else {
+					flagCont, err := flags.Container()
+					if err != nil {
+						ferr.Println(err)
+						ctx.Exit(1)
+					}
+					cont, err = flags.Patch(flagCont)
+					if err != nil {
+						ferr.Println(err)
+						ctx.Exit(1)
+					}
 				}
-				cont, err = flags.Patch(cont)
 				if err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
+				cont.Name = flags.ContainerName
 				depl.Containers, _ = depl.Containers.Replace(cont)
 				if err := ctx.Client.ReplaceDeployment(ctx.GetNamespace().ID, depl); err != nil {
 					ferr.Println(err)
@@ -131,7 +141,7 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 					}),
 				}).Run()
 			} else {
-				var ok = false
+				var ok bool
 				cont, ok = depl.Containers.GetByName(flags.ContainerName)
 				if !ok {
 					ferr.Printf("container %q not found in deployment %q", flags.ContainerName, depl.Name)
@@ -146,6 +156,13 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				cont = cont.Patch(importedCont)
+			} else {
+				flagCont, err := flags.Container()
+				if err != nil {
+					ferr.Println(err)
+					ctx.Exit(1)
+				}
+				cont = cont.Patch(flagCont)
 			}
 
 			logger.Debugf("building container from flags")
@@ -219,24 +236,6 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 				}
 			}
-			(&activekit.Menu{
-				Items: activekit.MenuItems{
-					{
-						Label: "Save container to file",
-						Action: func() error {
-							for {
-								var fname = activekit.Promt("Type output filename: ")
-								export.ExportData(cont, export.ExportConfig{
-									Filename: fname,
-									Format:   export.YAML,
-								})
-							}
-
-							return nil
-						},
-					},
-				},
-			}).Run()
 		},
 	}
 	if err := gpflag.ParseTo(&flags, command.PersistentFlags()); err != nil {

@@ -2,12 +2,15 @@ package activesolution
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 
 	"github.com/containerum/chkit/pkg/model/solution"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/namegen"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/kube-client/pkg/model"
@@ -31,8 +34,8 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 			Branch: "master",
 		}
 	}()
-	userEnv := make(map[string]string, 0)
-	sol.Env = make(map[string]string, 0)
+	userEnv := make(map[string]string)
+	sol.Env = make(map[string]string)
 	for k, v := range sol.Env {
 		userEnv[k] = v
 	}
@@ -193,6 +196,19 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 					},
 				},
 				{
+					Label: "Export solution to file",
+					Action: func() error {
+						var fname = activekit.Promt("Type filename: ")
+						fname = strings.TrimSpace(fname)
+						if fname != "" {
+							if err := (porta.Exporter{OutFile: fname}.Export(sol)); err != nil {
+								ferr.Printf("unable to export solution:\n%v\n", err)
+							}
+						}
+						return nil
+					},
+				},
+				{
 					Label: "Confirm",
 					Action: func() error {
 						if err := ValidateSolution(sol); err != nil {
@@ -200,6 +216,13 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 							return nil
 						}
 						exit = true
+						return nil
+					},
+				},
+				{
+					Label: "Exit",
+					Action: func() error {
+						os.Exit(0)
 						return nil
 					},
 				},

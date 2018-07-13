@@ -2,7 +2,6 @@ package cliserv
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/containerum/chkit/pkg/context"
 	"github.com/containerum/chkit/pkg/model/service"
@@ -77,12 +76,14 @@ func Create(ctx *context.Context) *cobra.Command {
 				activekit.Attention(err.Error())
 				ctx.Exit(1)
 			}
-			if activekit.YesNo("Are you sure you want create service %q?", svc.Name) {
+			if activekit.YesNo("Are you sure you want to create service %q?", svc.Name) {
 				if err := ctx.Client.CreateService(ctx.GetNamespace().ID, svc); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				fmt.Printf("Congratulations! Service %s created!\n", svc.Name)
+			} else {
+				ctx.Exit(0)
 			}
 			svc, err = ctx.Client.GetService(ctx.GetNamespace().ID, svc.Name)
 			if err != nil {
@@ -113,15 +114,9 @@ func Create(ctx *context.Context) *cobra.Command {
 						},
 					},
 					{
-						Label: "Export service to file",
+						Label: "Exit",
 						Action: func() error {
-							var fname = activekit.Promt("Type filename: ")
-							fname = strings.TrimSpace(fname)
-							if fname != "" {
-								if err := (porta.Exporter{OutFile: fname}.Export(svc)); err != nil {
-									ferr.Printf("unable to export service:\n%v\n", err)
-								}
-							}
+							ctx.Exit(0)
 							return nil
 						},
 					},

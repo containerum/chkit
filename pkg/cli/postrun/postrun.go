@@ -38,11 +38,11 @@ func PostRun(ctx *context.Context) {
 		*/
 		logger.Debugf("writing new configuration")
 		configFile, err := os.Create(ctx.ConfigPath)
-		defer configFile.Close()
 		if err != nil {
 			logger.Debugf("unable to create new config file")
 			angel.Angel(ctx, err)
 		}
+		defer configFile.Close()
 		logger.Debugf("encoding configuration to TOML")
 		if err := toml.NewEncoder(configFile).Encode(ctx.GetStorable()); err != nil {
 			logger.Debugf("unable to encode configuration to TOML file")

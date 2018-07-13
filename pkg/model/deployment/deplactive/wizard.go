@@ -2,14 +2,19 @@ package deplactive
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/pkg/model/deployment"
 	"github.com/containerum/chkit/pkg/model/limits"
+	"github.com/containerum/chkit/pkg/porta"
 	"github.com/containerum/chkit/pkg/util/activekit"
+	"github.com/containerum/chkit/pkg/util/ferr"
+	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/chkit/pkg/util/validation"
+	"github.com/sirupsen/logrus"
 )
 
 type Wizard struct {
@@ -34,16 +39,50 @@ func (config Wizard) Run() deployment.Deployment {
 			componentEditVersion(config.Deployment)).
 			Append(componentEditContainers(config)...).
 			Append(&activekit.MenuItem{
-				Label: "Confirm",
+				Label: "Print to terminal",
 				Action: func() error {
-					if err := ValidateDeployment(*config.Deployment); err != nil {
-						fmt.Println(err)
-					} else {
-						exit = true
+					data, err := config.Deployment.RenderYAML()
+					if err != nil {
+						logrus.WithError(err).Errorf("unable to render container to yaml")
+						activekit.Attention(err.Error())
 					}
+					border := strings.Repeat("_", text.Width(data))
+					fmt.Printf("%s\n%s\n%s\n", border, data, border)
 					return nil
 				},
-			})
+			},
+				&activekit.MenuItem{
+					Label: "Export container to file",
+					Action: func() error {
+						var fname = activekit.Promt("Type filename: ")
+						fname = strings.TrimSpace(fname)
+						if fname != "" {
+							if err := (porta.Exporter{OutFile: fname}.Export(config.Deployment)); err != nil {
+								ferr.Printf("unable to export configmap:\n%v\n", err)
+							}
+						}
+						return nil
+					},
+				},
+				&activekit.MenuItem{
+					Label: "Confirm",
+					Action: func() error {
+						if err := ValidateDeployment(*config.Deployment); err != nil {
+							fmt.Println(err)
+						} else {
+							exit = true
+						}
+						return nil
+					},
+				},
+				&activekit.MenuItem{
+					Label: "Exit",
+					Action: func() error {
+						os.Exit(0)
+						return nil
+					},
+				},
+			)
 		(&activekit.Menu{
 			Title: fmt.Sprintf("Edit deployment"),
 			Items: menuItems,

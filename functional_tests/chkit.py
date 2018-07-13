@@ -528,7 +528,7 @@ class Service:
 
 
 def create_service(service: Service, file: bool=False, namespace: str=None) -> None:
-    args = ["create", "service", "--name", service.name, "--deploy", service.deploy, "--force"]
+    args = ["create", "service", "--name", service.name, "--deployment", service.deploy, "--force"]
     if file:
         args.extend(["--input", "json"])
     else:
@@ -567,7 +567,7 @@ def get_service(service: str, solution: str=None, namespace: str=None) -> Servic
 
 
 def replace_service(service: Service, file: bool=False, namespace: str=None) -> None:
-    args = ["replace", "service", service.name, "--deploy", service.deploy, "--force"]
+    args = ["replace", "service", service.name, "--deployment", service.deploy, "--force"]
     if file:
         args.extend(["--input", "json"])
     else:
@@ -716,9 +716,9 @@ def with_cm(configmap: ConfigMap, namespace: str=None):
         return wrapper
     return decorator
 
-#######################
+########################
 # SOLUTIONS MANAGEMENT #
-#######################
+########################
 
 
 class Templates:
@@ -784,3 +784,115 @@ def get_solution(name: str) -> Solution:
 def delete_solution(name: str) -> None:
     args = ["delete", "sol", name, "--force"]
     sh.chkit(*args).execute()
+
+
+########################
+# INGRESSES MANAGEMENT #
+########################
+
+class IngressPath:
+    def __init__(self, path: str=None, service_name: str=None, service_port: int=None):
+        self.path = path
+        self.service_name = service_name
+        self.service_port = service_port
+
+    @staticmethod
+    def json_decode(j):
+        return IngressPath(
+            path=j.get('path'),
+            service_name=j.get('service_name'),
+            service_port=j.get('service_port')
+        )
+
+
+class IngressRules:
+    def __init__(self, host: str=None, path: List[IngressPath]=None):
+        self.host = host
+        self.path = path
+
+    @staticmethod
+    def json_decode(j):
+        return IngressRules(
+            host=j.get('host'),
+            path=[IngressPath.json_decode(path) for path in j.get("path")]
+        )
+
+
+class Ingress:
+    def __init__(self, name: str=None, rules: List[IngressRules]=None):
+        self.name = name,
+        self.rules = rules
+
+    @staticmethod
+    def json_decode(j):
+        return Ingress(
+            name=j.get("name"),
+            rules=[IngressRules.json_decode(rule) for rule in j.get("rules")]
+        )
+
+
+def create_ingress(ingress: Ingress, file: bool=False, namespace: str=None) -> None:
+    args = ["create", "ingr", "--name", ingress.name[0], "--force"]
+    if file:
+        args.extend(["--input", "json"])
+    else:
+        rule = ingress.rules[0]
+        args.extend(["--host", rule.host])
+        path = rule.path[0]
+        args.extend(["--path", path.path, "--service", path.service_name, "--port", path.service_port])
+
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    sh.chkit(*args).execute()
+
+
+def replace_ingress(ingress: Ingress, file: bool=False, namespace: str=None) -> None:
+    args = ["replace", "ingr", ingress.name[0], "--force"]
+    if file:
+        args.extend(["--input", "json"])
+    else:
+        path = ingress.rules[0].path[0]
+        if path.path is not None:
+            args.extend(["--path", path.path])
+        if path.service_name is not None:
+            args.extend(["--service", path.service_name])
+        if path.service_port != 0:
+            args.extend(["--port", path.service_port])
+
+        if namespace is not None:
+            args.extend(["--namespace", namespace])
+
+    sh.chkit(*args).execute()
+
+
+def delete_ingress(ingr: str, namespace: str=None) -> None:
+    args = ["delete", "ingr", ingr, "--force"]
+    if namespace is not None:
+        args.extend(["--namespace", namespace])
+
+    sh.chkit(*args).execute()
+
+
+def get_ingresses() -> List[Ingress]:
+    args = ["get", "ingr", "--output", "json"]
+    return [Ingress.json_decode(j) for j in json.loads(sh.chkit(*args).execute().stdout())]
+
+
+def get_ingress(name: str) -> Ingress:
+    args = ["get", "ingr", name, "--output", "json"]
+    return Ingress.json_decode(json.loads(sh.chkit(*args).execute().stdout()))
+
+
+def with_ingress(ingress: Ingress, namespace: str=None):
+    def decorator(fn):
+        def wrapper(*args, **kwargs):
+            create_ingress(ingress, namespace=namespace)
+            try:
+                args = list(args)+[ingress]
+                fn(*args, **kwargs)
+            finally:
+                delete_ingress(ingress.name[0])
+                time.sleep(5)
+        return wrapper
+    return decorator
