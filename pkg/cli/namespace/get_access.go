@@ -40,7 +40,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 			logger.Debugf("getting namespace %q access", ctx.GetNamespace())
 			acc, err := ctx.Client.GetAccess(nsID)
 			if err != nil {
-				logger.WithError(err).Errorf("unable to get namespace %q access", nsID)
+				logger.WithError(err).Errorf("unable to get project %q access", nsID)
 				ferr.Println(err)
 				ctx.Exit(1)
 			}

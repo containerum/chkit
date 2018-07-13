@@ -19,7 +19,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 		Aliases: aliases,
 		Short:   "delete service in specific project",
 		Long:    "Delete service in project.",
-		Example: "chkit delete service service_label [-n namespace]",
+		Example: "chkit delete service service_label [--project $PROJECT]",
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.Debugf("running command delete service")
 			switch len(args) {

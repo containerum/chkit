@@ -81,7 +81,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 					}).Run()
 				}
 			}
-			if flags.Force || activekit.YesNo("Do you really want to delete namespaces?") {
+			if flags.Force || activekit.YesNo("Do you really want to delete project?") {
 				if namespacesToDelete.Len() == 0 {
 					return
 				}
@@ -93,7 +93,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 						defer done()
 						if err := ctx.Client.DeleteNamespace(ns.ID); err != nil {
 							logger.WithError(err).Errorf("unable to delete namespace %q", ns.OwnerAndLabel())
-							ferr.Printf("unable to delete namespace: %v\n", err)
+							ferr.Printf("unable to delete project: %v\n", err)
 							atomic.AddUint32(&exitCode, 1)
 						}
 					}(limit.Start(), ns)

@@ -25,11 +25,11 @@ func Get(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "project",
 		Aliases: aliases,
-		Short:   `show namespace data or namespace list`,
-		Long:    "show namespace data or namespace list.",
+		Short:   `show project data or project list`,
+		Long:    "show project data or project list.",
 		Example: "chkit get $ID... [-o yaml/json] [-f output_file]",
 		Run: func(command *cobra.Command, args []string) {
-			var logger = ctx.Log.Command("get namespace")
+			var logger = ctx.Log.Command("get project")
 			logger.Debugf("START")
 			defer logger.Debugf("END")
 			var namespaces, err = ctx.Client.GetNamespaceList()

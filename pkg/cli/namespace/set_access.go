@@ -13,6 +13,7 @@ import (
 	"github.com/containerum/chkit/pkg/util/ferr"
 	"github.com/containerum/chkit/pkg/util/text"
 	"github.com/containerum/kube-client/pkg/model"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -65,4 +66,31 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 	command.PersistentFlags().
 		BoolP("force", "f", false, "suppress confirmation")
 	return command
+}
+
+func selectNamespace(ctx *context.Context, logger logrus.FieldLogger) string {
+	nsList, err := ctx.Client.GetNamespaceList()
+	if err != nil {
+		logger.WithError(err).Errorf("unable to get project list")
+		ferr.Println(err)
+		ctx.Exit(1)
+	}
+	var ns string
+	var menu activekit.MenuItems
+	for _, n := range nsList {
+		menu = menu.Append(&activekit.MenuItem{
+			Label: n.Label,
+			Action: func(nsName string) func() error {
+				return func() error {
+					ns = nsName
+					return nil
+				}
+			}(n.Label),
+		})
+	}
+	(&activekit.Menu{
+		Title: "Select project",
+		Items: menu,
+	}).Run()
+	return ns
 }
