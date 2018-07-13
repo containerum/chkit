@@ -45,7 +45,6 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			fmt.Println(acc.RenderTable())
-			return
 		},
 	}
 	return command

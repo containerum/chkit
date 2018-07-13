@@ -34,8 +34,8 @@ func Wizard(ctx *context.Context, config WizardConfig) solution.Solution {
 			Branch: "master",
 		}
 	}()
-	userEnv := make(map[string]string, 0)
-	sol.Env = make(map[string]string, 0)
+	userEnv := make(map[string]string)
+	sol.Env = make(map[string]string)
 	for k, v := range sol.Env {
 		userEnv[k] = v
 	}
