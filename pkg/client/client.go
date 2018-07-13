@@ -41,6 +41,5 @@ func (client *Client) ReInit() error {
 	if client.factory == nil || !client.isInitialized {
 		panic("[chkit/pkg/client.Client.ReInit] try to reinit not initialized client")
 	}
-	client.Init(client.factory)
-	return nil
+	return client.Init(client.factory)
 }

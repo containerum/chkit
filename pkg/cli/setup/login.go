@@ -138,7 +138,7 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 		nsList, err := ctx.GetClient().GetNamespaceList()
 		logger.Debugf("Getting projects list")
 		if err != nil {
-			logger.WithError(err).Errorf("unable to get namespace list")
+			logger.WithError(err).Errorf("unable to get namespace lsit")
 			ferr.Println(err)
 			ctx.Exit(1)
 		}

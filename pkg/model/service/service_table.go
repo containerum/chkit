@@ -60,7 +60,7 @@ func (serv *Service) TableRows() [][]string {
 
 	return [][]string{{
 		serv.Name,
-		serv.Deploy,
+		str.Vector{serv.Deploy, "!MISSING DEPLOYMENT!"}.FirstNonEmpty(),
 		kind,
 		strings.Join(ports, "\n"),
 		age,

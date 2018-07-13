@@ -14,7 +14,7 @@ func Age(timestamp time.Time) string {
 	if timestamp.Equal(time.Unix(0, 0)) {
 		return "unknown"
 	}
-	age := time.Now().Sub(timestamp)
+	age := time.Since(timestamp)
 	var ageString string
 	const year = 365 * 24
 	switch {

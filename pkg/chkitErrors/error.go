@@ -84,9 +84,7 @@ func Wrap(err error, reasons ...error) *Wrapper {
 }
 
 func (wrapper *Wrapper) AddReasons(reasons ...error) *Wrapper {
-	for _, reason := range reasons {
-		wrapper.reasons = append(wrapper.reasons, reason)
-	}
+	wrapper.reasons = append(wrapper.reasons, reasons...)
 	return wrapper
 }
 

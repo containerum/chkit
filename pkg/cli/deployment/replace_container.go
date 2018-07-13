@@ -66,6 +66,10 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 						ctx.Exit(1)
 					}
 					cont, err = flags.Patch(flagCont)
+					if err != nil {
+						ferr.Println(err)
+						ctx.Exit(1)
+					}
 				}
 				if err != nil {
 					ferr.Println(err)
@@ -137,7 +141,7 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 					}),
 				}).Run()
 			} else {
-				var ok = false
+				var ok bool
 				cont, ok = depl.Containers.GetByName(flags.ContainerName)
 				if !ok {
 					ferr.Printf("container %q not found in deployment %q", flags.ContainerName, depl.Name)

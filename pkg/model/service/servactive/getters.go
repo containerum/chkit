@@ -34,7 +34,7 @@ func getName(defaultName string) string {
 func editPorts(ports []service.Port, external bool) []service.Port {
 	oldPorts := make([]service.Port, len(ports))
 	copy(oldPorts, ports)
-	ok := false
+	var ok bool
 	for exit := false; !exit; {
 		var menu []*activekit.MenuItem
 		for i, port := range ports {

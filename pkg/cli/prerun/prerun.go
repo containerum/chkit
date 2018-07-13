@@ -68,12 +68,12 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		RunLoginOnMissingCreds: false,
 		NamespaceSelection:     TemporarySetNamespace,
 	}
-	for _, c := range optional {
-		config = c
+	if len(optional) > 0 {
+		config = optional[0]
 	}
 	logger.StructFields(config)
 	if err := setup.SetupLogs(ctx); err != nil {
-		panic(err)
+		return err
 	}
 
 	logger.Debugf("syncing config")
@@ -133,7 +133,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		var ns namespace.Namespace
 		switch config.Namespace {
 		case "-":
-			ok := false
+			var ok bool
 			ns, ok = nsList.Head()
 			if !ok {
 				return chkitErrors.FatalString("you have no projects")
@@ -219,12 +219,12 @@ func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Comman
 		if len(optional) == 0 {
 			optional = []Config{{}}
 		}
-		for i, opt := range optional {
+		if len(optional) > 0 {
+			var opt = optional[0]
 			if opt.Namespace == "" {
 				opt.Namespace, _ = cmd.Flags().GetString("project")
 			}
-			optional[i] = opt
-			break
+			optional = []Config{opt}
 		}
 		switch err := PreRun(ctx, optional...).(type) {
 		case nil:

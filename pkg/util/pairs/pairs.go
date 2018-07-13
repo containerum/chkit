@@ -12,7 +12,7 @@ type Pair struct {
 }
 
 var (
-	wordRe = regexp.MustCompile("^\\w+$")
+	wordRe = regexp.MustCompile(`^\w+$`)
 )
 
 func Parse(txt, kvDelim string) ([]Pair, error) {

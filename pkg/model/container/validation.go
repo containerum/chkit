@@ -46,7 +46,7 @@ func (container Container) validateEnvs() error {
 		}
 	}
 	if len(errs) > 0 {
-		return fmt.Errorf(" + invalid envs:\n",
+		return fmt.Errorf(" + invalid envs:\n %s",
 			str.FromErrs(errs...).
 				Map(str.Prefix(" ++ ")).
 				Join("\n"))

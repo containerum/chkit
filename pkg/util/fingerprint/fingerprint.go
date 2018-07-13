@@ -30,7 +30,7 @@ func Fingerprint() string {
 			err.Error())
 	}
 	for _, netInterface := range interfaces {
-		if bytes.Compare(netInterface.HardwareAddr, nil) != 0 {
+		if !bytes.Equal(netInterface.HardwareAddr, nil) {
 			userData += netInterface.HardwareAddr.String()
 		}
 	}

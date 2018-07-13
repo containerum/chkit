@@ -19,10 +19,10 @@ const (
 )
 
 var (
-	dnsLabelRe      = regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z0-9\\-]{1,63}[a-zA-Z0-9]$")
-	numericRe       = regexp.MustCompile("^[0-9]+$")
-	labelRe         = regexp.MustCompile("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$")
-	containerNameRe = regexp.MustCompile("^[a-z0-9]([a-z0-9-[^-]){1,61}[a-z0-9]$")
+	dnsLabelRe      = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]{1,63}[a-zA-Z0-9]$`)
+	numericRe       = regexp.MustCompile(`^[0-9]+$`)
+	labelRe         = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
+	containerNameRe = regexp.MustCompile(`^[a-z0-9]([a-z0-9-[^-]){1,61}[a-z0-9]$`)
 )
 
 func ValidateContainerName(name string) error {

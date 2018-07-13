@@ -35,7 +35,9 @@ func Root() error {
 		ConfigPath: path.Join(configdir.ConfigDir(), "config.toml"),
 	}
 	setup.Config.DebugRequests = true
-	setup.SetupLogs(ctx)
+	if err := setup.SetupLogs(ctx); err != nil {
+		return err
+	}
 
 	var flags struct {
 		Namespace string `flag:"project"`

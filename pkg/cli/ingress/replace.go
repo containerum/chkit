@@ -109,11 +109,10 @@ func Replace(ctx *context.Context) *cobra.Command {
 						ingr.Rules[0].Paths[0].Path = ingrChanged.Rules[0].Paths[0].Path
 					}
 				}
-				ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
+				ingr.Rules[0].Host = strings.TrimSuffix(ingr.Rules[0].Host, ".hub.containerum.io")
 			}
 			if flags.Force {
 				if err := activeingress.ValidateIngress(ingr); err != nil {
-					fmt.Println("TEST1", ingr)
 					logger.WithError(err).Errorf("invalid flag-defined ingress")
 					activekit.Attention("%v", err)
 					ctx.Exit(1)
@@ -134,7 +133,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				ctx.Exit(1)
 			}
 			services = services.AvailableForIngress()
-			ingr.Rules[0].Host = strings.TrimRight(ingr.Rules[0].Host, ".hub.containerum.io")
+			ingr.Rules[0].Host = strings.TrimSuffix(ingr.Rules[0].Host, ".hub.containerum.io")
 			ingr, err = activeingress.EditWizard(activeingress.Config{
 				Services: services,
 				Ingress:  &ingr,

@@ -128,5 +128,8 @@ func (list RuleList) ServicesTableView() []string {
 	for _, rule := range list {
 		services = append(services, rule.Paths.ServicesTableView()...)
 	}
+	if len(services) == 0 {
+		return []string{"!MISSING SERVICE!"}
+	}
 	return services
 }
