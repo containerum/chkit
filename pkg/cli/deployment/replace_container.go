@@ -137,7 +137,7 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 					}),
 				}).Run()
 			} else {
-				ok := false
+				var ok bool
 				cont, ok = depl.Containers.GetByName(flags.ContainerName)
 				if !ok {
 					ferr.Printf("container %q not found in deployment %q", flags.ContainerName, depl.Name)

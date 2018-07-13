@@ -7,7 +7,7 @@ import (
 
 func portCreationWizard(port service.Port, external bool) service.Port {
 	oldPort := port
-	ok := false
+	var ok bool
 	for exit := false; !exit; {
 		(&activekit.Menu{
 			Items: []*activekit.MenuItem{

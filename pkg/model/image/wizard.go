@@ -23,7 +23,7 @@ func Wizard(config Config) kubeModel.UpdateImage {
 		len(config.Containers) == 1 {
 		updImage.Container = config.Containers[0].Name
 	}
-	ok := false
+	var ok bool
 	for exit := false; !exit; {
 		(&activekit.Menu{
 			Title: "Update image data",

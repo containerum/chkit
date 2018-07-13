@@ -133,7 +133,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 		var ns namespace.Namespace
 		switch config.Namespace {
 		case "-":
-			ok := false
+			var ok bool
 			ns, ok = nsList.Head()
 			if !ok {
 				return chkitErrors.FatalString("you have no namespaces")
