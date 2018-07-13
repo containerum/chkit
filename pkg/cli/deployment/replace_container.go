@@ -66,6 +66,10 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 						ctx.Exit(1)
 					}
 					cont, err = flags.Patch(flagCont)
+					if err != nil {
+						ferr.Println(err)
+						ctx.Exit(1)
+					}
 				}
 				if err != nil {
 					ferr.Println(err)
