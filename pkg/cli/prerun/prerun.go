@@ -134,12 +134,12 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 			var ok = false
 			ns, ok = nsList.Head()
 			if !ok {
-				return chkitErrors.FatalString("you have no namespaces")
+				return chkitErrors.FatalString("you have no projects")
 			}
 			ctx.SetNamespace(context.NamespaceFromModel(ns))
 		case "":
 			if nsList.Len() == 0 {
-				return chkitErrors.FatalString("you have no namespaces")
+				return chkitErrors.FatalString("you have no projects")
 			}
 			(&activekit.Menu{
 				Items: activekit.StringSelector(nsList.OwnersAndLabels(), func(s string) error {
@@ -166,7 +166,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 				logger.Debugf("searching namespace %q", tokens.Join("/"))
 				var ns, ok = nsList.GetByUserFriendlyID(tokens.Join("/"))
 				if !ok {
-					return chkitErrors.FatalString("namespace %s not found", tokens.Join("/"))
+					return chkitErrors.FatalString("project %s not found", tokens.Join("/"))
 				}
 				logger.Debugf("%v", ns.OwnerAndLabel())
 				ctx.SetNamespace(context.NamespaceFromModel(ns))
@@ -182,7 +182,7 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 			}
 			var ns, ok = nsList.GetByUserFriendlyID(tokens.Join("/"))
 			if !ok {
-				return chkitErrors.FatalString("you have no namespaces")
+				return chkitErrors.FatalString("you have no projects")
 			}
 			ctx.SetTemporaryNamespace(ns)
 		}
@@ -195,8 +195,8 @@ func PreRun(ctx *context.Context, optional ...Config) error {
 
 func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) error {
 	var userfriendlyID string
-	if flags.Changed("namespace") {
-		userfriendlyID, _ = flags.GetString("namespace")
+	if flags.Changed("project") {
+		userfriendlyID, _ = flags.GetString("project")
 	} else {
 		return nil
 	}
@@ -206,7 +206,7 @@ func GetNamespaceByUserfriendlyID(ctx *context.Context, flags *pflag.FlagSet) er
 	}
 	ns, ok := nsList.GetByUserFriendlyID(userfriendlyID)
 	if !ok {
-		return fmt.Errorf("unable to find namespace %q", userfriendlyID)
+		return fmt.Errorf("unable to find project %q", userfriendlyID)
 	}
 	ctx.SetTemporaryNamespace(ns)
 	return nil
@@ -219,7 +219,7 @@ func PreRunFunc(ctx *context.Context, optional ...Config) func(cmd *cobra.Comman
 		}
 		for i, opt := range optional {
 			if opt.Namespace == "" {
-				opt.Namespace, _ = cmd.Flags().GetString("namespace")
+				opt.Namespace, _ = cmd.Flags().GetString("project")
 			}
 			optional[i] = opt
 			break

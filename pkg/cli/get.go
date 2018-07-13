@@ -46,9 +46,9 @@ func Get(ctx *context.Context) *cobra.Command {
 		//	prerun.WithInit(ctx, volume.Get),             //
 		prerun.WithInit(ctx, clideployment.GetVersions),
 		&cobra.Command{
-			Use:     "default-namespace",
-			Short:   "print default namespace",
-			Long:    "Print default namespace.",
+			Use:     "default-project",
+			Short:   "print default project",
+			Long:    "Print default project.",
 			Aliases: []string{"default-ns", "def-ns"},
 			PreRun: func(cmd *cobra.Command, args []string) {
 				if err := configuration.SyncConfig(ctx); err != nil {

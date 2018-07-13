@@ -17,14 +17,14 @@ import (
 func Delete(ctx *context.Context) *cobra.Command {
 	var flags struct {
 		Force bool     `desc:"suppress confirmation"`
-		ID    []string `desc:"namespace id to delete"`
-		Label []string `desc:"namespace label or owner/label to delete"`
+		ID    []string `desc:"project id to delete"`
+		Label []string `desc:"project label or owner/label to delete"`
 	}
 	command := &cobra.Command{
-		Use:     "namespace",
-		Short:   "delete namespace",
-		Long:    "Delete namespace provided in the first arg.",
-		Example: "chkit delete namespace $ID",
+		Use:     "project",
+		Short:   "delete project",
+		Long:    "Delete project provided in the first arg.",
+		Example: "chkit delete project $ID",
 		Aliases: aliases,
 		Run: func(command *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("delete namespace")

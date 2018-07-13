@@ -22,9 +22,9 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "pod",
 		Aliases: aliases,
-		Short:   "delete pod in specific namespace",
+		Short:   "delete pod in specific project",
 		Long:    "Delete pods.",
-		Example: "chkit delete pod pod_name [-n namespace]",
+		Example: "chkit delete pod pod_name [-n project]",
 		Run: func(cmd *cobra.Command, args []string) {
 			var selectedPod string
 			var selectedDeploy string
@@ -83,7 +83,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				}
 				selectedPod = args[0]
 			}
-			if deletePodConfig.Force || activekit.YesNo("Are you sure you want to delete pod %q in namespace %q?", selectedPod, ctx.GetNamespace()) {
+			if deletePodConfig.Force || activekit.YesNo("Are you sure you want to delete pod %q in project %q?", selectedPod, ctx.GetNamespace()) {
 				if err := ctx.Client.DeletePod(ctx.GetNamespace().ID, selectedPod); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)

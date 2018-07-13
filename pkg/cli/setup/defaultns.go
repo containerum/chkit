@@ -14,12 +14,12 @@ func GetDefaultNS(ctx *context.Context, force bool) error {
 	list, err := ctx.GetClient().GetNamespaceList()
 	if err != nil {
 		logrus.WithError(err).Errorf("unable to get user namespace list")
-		fmt.Printf("Unable to get default namespace\n")
+		fmt.Printf("Unable to get default project\n")
 		return err
 	}
 	if len(list) == 0 {
-		fmt.Printf("You have no namespaces!\n")
-		return fmt.Errorf("no namespaces")
+		fmt.Printf("You have no projects!\n")
+		return fmt.Errorf("no project")
 	} else if force {
 		ctx.SetNamespace(context.NamespaceFromModel(list[0]))
 		return nil
@@ -37,7 +37,7 @@ func GetDefaultNS(ctx *context.Context, force bool) error {
 			})
 		}
 		(&activekit.Menu{
-			Title: "Select default namespace",
+			Title: "Select default project",
 			Items: menu,
 		}).Run()
 	}

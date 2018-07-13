@@ -92,7 +92,7 @@ func Login(ctx *context.Context) *cobra.Command {
 				angel.Angel(ctx, err)
 				ctx.Exit(1)
 			}
-			flags.Namespace, _ = command.Flags().GetString("namespace")
+			flags.Namespace, _ = command.Flags().GetString("project")
 			if err := RunLogin(ctx, flags); err != nil {
 				fmt.Println(err)
 				ctx.Exit(1)
@@ -130,9 +130,9 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 		GetDefaultNS(ctx, false)
 	default:
 		nsList, err := ctx.GetClient().GetNamespaceList()
-		logger.Debugf("Getting namespace list")
+		logger.Debugf("Getting projects list")
 		if err != nil {
-			logger.WithError(err).Errorf("unable to get namespace lsit")
+			logger.WithError(err).Errorf("unable to get namespace list")
 			ferr.Println(err)
 			ctx.Exit(1)
 		}

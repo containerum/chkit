@@ -38,7 +38,7 @@ func Root() error {
 	setup.SetupLogs(ctx)
 
 	var flags struct {
-		Namespace string `flag:"namespace n"`
+		Namespace string `flag:"project"`
 		Username  string `flag:"username u"`
 		Password  string `flag:"password p"`
 	}

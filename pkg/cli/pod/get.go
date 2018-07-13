@@ -32,7 +32,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				po, err := ctx.Client.GetPod(ctx.GetNamespace().ID, args[0])
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get pod %q from namespace %q", args[0], ctx.GetNamespace())
-					fmt.Printf("Unable to get pod from namespace %q :(\n", ctx.GetNamespace())
+					fmt.Printf("Unable to get pod from project %q :(\n", ctx.GetNamespace())
 					ctx.Exit(1)
 				}
 				logger.Debugf("exporting data")
@@ -45,7 +45,7 @@ func Get(ctx *context.Context) *cobra.Command {
 				polist, err := ctx.Client.GetPodList(ctx.GetNamespace().ID)
 				if err != nil {
 					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
-					fmt.Printf("Unable to get pod list from namespace %q :(\n", ctx.GetNamespace())
+					fmt.Printf("Unable to get pod list from project %q :(\n", ctx.GetNamespace())
 					ctx.Exit(1)
 				}
 				if flags.IsStatusesDefined() {

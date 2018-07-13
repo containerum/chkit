@@ -41,10 +41,10 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 				ferr.Printf("deployment name must be provided as --deployment while using --force")
 				ctx.Exit(1)
 			} else if flags.Deployment == "" {
-				logger.Debugf("getting deployment list from namespace %q", ctx.GetNamespace())
+				logger.Debugf("getting deployment list from project %q", ctx.GetNamespace())
 				var depl, err = ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 				if err != nil {
-					logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
+					logger.WithError(err).Errorf("unable to get deployment list from project %q", ctx.GetNamespace())
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
@@ -121,7 +121,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 						defer close(volumes)
 						var volumeList, err = ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
 						if err != nil {
-							logger.WithError(err).Errorf("unable to get volume list from namespace %q", ctx.GetNamespace())
+							logger.WithError(err).Errorf("unable to get volume list from project %q", ctx.GetNamespace())
 							ferr.Println(err)
 							ctx.Exit(1)
 						}
@@ -136,7 +136,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 					defer close(deployments)
 					deplList, err := ctx.Client.GetDeploymentList(ctx.GetNamespace().ID)
 					if err != nil {
-						logger.WithError(err).Errorf("unable to get deployment list from namespace %q", ctx.GetNamespace())
+						logger.WithError(err).Errorf("unable to get deployment list from project %q", ctx.GetNamespace())
 						ferr.Println(err)
 						ctx.Exit(1)
 					}

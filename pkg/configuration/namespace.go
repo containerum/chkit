@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	ErrNoNamespaces chkitErrors.Err = "no namespaces in account"
+	ErrNoNamespaces chkitErrors.Err = "no projects in account"
 )
 
 // GetFirstClientNamespace -- fetches namespace list and returns first element. Needed for login.
