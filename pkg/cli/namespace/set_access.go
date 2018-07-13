@@ -33,7 +33,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 			var lvlsInfo = strings.Join(levels, "\n")
 			return text.Indent(lvlsInfo, 2)
 		}(),
-		Example: "chkit set access $USERNAME $ACCESS_LEVEL [--namespace $ID]",
+		Example: "chkit set access $USERNAME $ACCESS_LEVEL [--project $ID]",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {
 				angel.Angel(ctx, err)
@@ -89,7 +89,7 @@ func selectNamespace(ctx *context.Context, logger logrus.FieldLogger) string {
 		})
 	}
 	(&activekit.Menu{
-		Title: "Select namespace",
+		Title: "Select project",
 		Items: menu,
 	}).Run()
 	return ns

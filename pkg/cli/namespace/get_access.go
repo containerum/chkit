@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var accessAliases = []string{"namespace-access", "ns-access"}
+var accessAliases = []string{"project-access", "pr-access"}
 
 func GetAccess(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
