@@ -18,6 +18,11 @@ before_install:
 - sudo mkdir -p ${CONTAINERUM_HOME}
 - sudo mv privkey.pem ${CONTAINERUM_HOME}/privkey.pem
 - sudo mv pubkey.pem ${CONTAINERUM_HOME}/pubkey.pem
+- go get -u -v -d github.com/UnnoTed/fileb0x && \
+      cd $GOPATH/src/github.com/UnnoTed/fileb0x && \
+      git checkout 033c2ecc1c0f93d04afe94186f15193dd4441646 && \
+      go install  && \
+      cp $GOPATH/bin/fileb0x /bin
 
 script:
 - make release
