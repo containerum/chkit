@@ -49,7 +49,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			}
 			switch {
 			case flags.Force && namespacesToDelete.Len() == 0:
-				ferr.Printf("namespaces to delete must be defined as args, --id flag or --label flag")
+				ferr.Printf("projects to delete must be defined as args, --id flag or --label flag")
 				ctx.Exit(1)
 			case !flags.Force && namespacesToDelete.Len() == 0:
 				for exit := false; !exit; {

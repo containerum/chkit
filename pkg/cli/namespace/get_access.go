@@ -29,7 +29,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 				}
 				ns, ok := nsList.GetByUserFriendlyID(args[0])
 				if !ok {
-					fmt.Printf("namespace %q not found\n", args[0])
+					fmt.Printf("project %q not found\n", args[0])
 					ctx.Exit(1)
 				}
 				nsID = ns.ID
