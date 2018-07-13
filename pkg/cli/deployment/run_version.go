@@ -42,7 +42,7 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				if deploymentList.Len() == 0 {
-					ferr.Printf("You have no deployments in namespace %q!\n", ctx.GetNamespace())
+					ferr.Printf("You have no deployments in project %q!\n", ctx.GetNamespace())
 					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployment list")
@@ -75,7 +75,7 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 				}
 				deploymentVersions = deploymentVersions.Inactive()
 				if deploymentVersions.Len() == 0 {
-					ferr.Printf("Deployment %q in namespace %q have no inactive versions\n", deplName, ctx.GetNamespace())
+					ferr.Printf("Deployment %q in project %q have no inactive versions\n", deplName, ctx.GetNamespace())
 					ctx.Exit(1)
 				}
 				switch flags.Version {
@@ -109,13 +109,13 @@ func RunVersion(ctx *context.Context) *cobra.Command {
 			}
 
 			if flags.Force || activekit.YesNo("Are you sure you want to run version %v of deployment %q?", version, deplName) {
-				logger.Debugf("running version %q of deployment %q in namespace %q", version, deplName, ctx.GetNamespace())
+				logger.Debugf("running version %q of deployment %q in project %q", version, deplName, ctx.GetNamespace())
 				if err := ctx.Client.RunDeploymentVersion(ctx.GetNamespace().ID, deplName, version); err != nil {
 					ferr.Println(err)
 					logger.WithError(err).Errorf("unable to run version %v of deployment %q", version, deplName)
 					ctx.Exit(1)
 				}
-				fmt.Printf("Version %v of deployment %q in namespace %q is started\n", version, deplName, ctx.GetNamespace())
+				fmt.Printf("Version %v of deployment %q in project %q is started\n", version, deplName, ctx.GetNamespace())
 			}
 
 		},

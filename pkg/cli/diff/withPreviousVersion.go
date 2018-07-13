@@ -32,7 +32,7 @@ func Get(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				if deplList.Len() == 0 {
-					ferr.Printf("You have no deployments in namespace %q!", ctx.GetNamespace())
+					ferr.Printf("You have no deployments in project %q!", ctx.GetNamespace())
 				}
 				var depl = selectDeploment(ctx, deplList)
 				flags.Deployment = depl.Name
