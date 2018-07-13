@@ -169,7 +169,6 @@ func Create(ctx *context.Context) *cobra.Command {
 									ferr.Println(err)
 								}
 							}
-							return nil
 						},
 					},
 				},
