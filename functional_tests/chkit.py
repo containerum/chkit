@@ -6,7 +6,7 @@ from datetime import datetime
 import time
 from functional_tests.util import JSONSerialize
 
-DEFAULT_API_URL = os.getenv("CONTAINERUM_API", "http://api.local.containerum.io")
+DEFAULT_API_URL = os.getenv("CONTAINERUM_API", "http://192.168.88.210:18082")
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 TEST_USER = os.getenv("TEST_USER", "helpik94@yandex.com")
@@ -34,7 +34,7 @@ def get_api_url() -> str:
 
 
 def login(user: str="test", password: str="test", namespace: str="-") -> None:
-    sh.chkit("login", "--username", user, "--password", password, "--namespace", namespace).execute()
+    sh.chkit("login", "--username", user, "--password", password, "--project", namespace).execute()
 
 
 def get_profile() -> Dict[str, str]:
@@ -68,7 +68,7 @@ def test_account(fn):
 
 
 def get_default_namespace() -> Tuple[str, str]:
-    output = sh.chkit("get", "default-namespace").execute().stdout()
+    output = sh.chkit("get", "default-project").execute().stdout()
     line = output.splitlines()[0]
     kv = line.split("/")
     owner_login, namespace_name = kv[0], kv[1]
@@ -76,7 +76,7 @@ def get_default_namespace() -> Tuple[str, str]:
 
 
 def set_default_namespace(namespace: str="-") -> None:
-    sh.chkit("set", "default-namespace", namespace).execute()
+    sh.chkit("set", "default-project", namespace).execute()
 
 #########################
 # DEPLOYMENT MANAGEMENT #
@@ -201,12 +201,12 @@ class Deployment:
 
 
 def get_deployment(name: str="") -> Deployment:
-    output = sh.chkit("get", "deploy", name, "--output", "json").execute().stdout()
+    output = sh.chkit("get", "deployment", name, "--output", "json").execute().stdout()
     return Deployment.json_decode(json.loads(output))
 
 
 def get_deployments(solution: str=None, namespace: str=None) -> List[Deployment]:
-    args = ["get", "deploy", "--output", "json"]
+    args = ["get", "deployment", "--output", "json"]
     if solution is not None:
         args.extend(["--solution", solution])
     if namespace is not None:
@@ -271,7 +271,7 @@ def with_deployment(deployment: Deployment=__default_deployment, namespace: str=
 
 
 def delete_deployment(name: str, namespace: str=None, concurrency: int=None) -> None:
-    args = ["delete", "deploy", "--force", name]
+    args = ["delete", "deployment", "--force", name]
     if namespace is not None:
         args.extend(["--namespace", namespace])
     if concurrency is not None:
