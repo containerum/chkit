@@ -5,13 +5,17 @@ import (
 
 	"github.com/containerum/chkit/pkg/configuration"
 	"github.com/containerum/chkit/pkg/context"
+	"github.com/containerum/chkit/pkg/util/angel"
 	"github.com/spf13/cobra"
 )
 
 var aliases = []string{"api", "current-api", "api-addr", "API"}
 
 func Get(ctx *context.Context) *cobra.Command {
-	configuration.LoadConfig(ctx)
+	if err := configuration.LoadConfig(ctx); err != nil {
+		angel.Angel(ctx, err)
+		ctx.Exit(1)
+	}
 
 	command := &cobra.Command{
 		Use:     "containerum-api",
