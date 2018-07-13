@@ -15,6 +15,7 @@ const (
 	// ErrUnableToLogin -- unable to login
 	ErrUnableToLogin chkitErrors.Err = "unable to login"
 	// ErrUnableToRefreshToken -- unable to refresh token
+	// nolint:gas
 	ErrUnableToRefreshToken chkitErrors.Err = "unable to refresh token"
 	// ErrWrongPasswordLoginCombination -- wrong login-password combination
 	ErrWrongPasswordLoginCombination chkitErrors.Err = "wrong login-password combination"

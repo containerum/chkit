@@ -20,8 +20,10 @@ const (
 	// ErrInvalidAPIurl -- invalid API url
 	ErrInvalidAPIurl chkitErrors.Err = "invalid API url"
 	// ErrUnableToLoadTokens -- unable to load tokens
+	// nolint:gas
 	ErrUnableToLoadTokens chkitErrors.Err = "unable to load tokens"
 	// ErrUnableToSaveTokens -- unable to save tokens
+	// nolint:gas
 	ErrUnableToSaveTokens chkitErrors.Err = "unable to save tokens"
 )
 
