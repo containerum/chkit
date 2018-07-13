@@ -42,7 +42,7 @@ func (container Container) validateEnvs() error {
 			errs = append(errs, fmt.Errorf("invalid env name %q", env.Name))
 		}
 		if env.Value == "" {
-			errs = append(errs, fmt.Errorf("invalud env %q value: empty values are not allowed", env.Name, env.Value))
+			errs = append(errs, fmt.Errorf("invalud env %q value: empty values are not allowed", env.Name))
 		}
 	}
 	if len(errs) > 0 {

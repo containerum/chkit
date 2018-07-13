@@ -57,7 +57,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 					namespaces = namespaces.Filter(func(i namespace.Namespace) bool {
 						return !idsToDelete.Contains(i.ID)
 					})
-					var title = "Namespaces to delete: " + str.Vector(namespacesToDelete.OwnersAndLabels()).Join(", ") +
+					var title = "Projects to delete: " + str.Vector(namespacesToDelete.OwnersAndLabels()).Join(", ") +
 						"\nSelect namespace"
 					(&activekit.Menu{
 						Title: title,

@@ -57,7 +57,7 @@ func Replace(ctx *context.Context) *cobra.Command {
 				}
 				if ingrList.Len() == 0 {
 					logger.Errorf("no ingresses exists")
-					fmt.Println("no ingresses exists\n")
+					fmt.Println("no ingresses exists")
 					ctx.Exit(1)
 				} else if ingrList.Len() == 1 {
 					ingr = ingrList.Head()
