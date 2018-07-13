@@ -18,8 +18,8 @@ import (
 )
 
 type Flags struct {
-	Username  string `flag:"username u"`
-	Password  string `flag:"password p"`
+	Username  string `flag:"username"`
+	Password  string `flag:"password"`
 	Namespace string `flag:"-"`
 }
 
