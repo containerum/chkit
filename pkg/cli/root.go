@@ -40,9 +40,9 @@ func Root() error {
 	}
 
 	var flags struct {
-		Namespace string `flag:"project"`
-		Username  string `flag:"username u"`
-		Password  string `flag:"password p"`
+		Namespace string `flag:"project p"`
+		Username  string `flag:"username"`
+		Password  string `flag:"password"`
 	}
 
 	root := &cobra.Command{
