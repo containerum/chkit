@@ -27,7 +27,7 @@ func DefaultNamespace(ctx *context.Context) *cobra.Command {
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Using %q as default namespace", ctx.GetNamespace())
+			fmt.Printf("Using %q as default project", ctx.GetNamespace())
 		},
 	}
 

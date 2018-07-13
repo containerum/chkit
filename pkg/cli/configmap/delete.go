@@ -58,7 +58,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 				selectedCM = args[0]
 			}
 			if deleteCMConfig.Force ||
-				activekit.YesNo("Are you sure you want to delete configmap %q in namespace %q?", selectedCM, ctx.GetNamespace()) {
+				activekit.YesNo("Are you sure you want to delete configmap %q in project %q?", selectedCM, ctx.GetNamespace()) {
 				if err := ctx.Client.DeleteConfigmap(ctx.GetNamespace().ID, selectedCM); err != nil {
 					ferr.Println(err)
 					ctx.Exit(1)

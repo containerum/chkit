@@ -20,7 +20,7 @@ func Set(ctx *context.Context) *cobra.Command {
 		Use:     "replicas",
 		Short:   "Set deployment replicas",
 		Long:    "Set deployment replicas.",
-		Example: "chkit set replicas [-n namespace_label] [-d depl_label] [N_replicas]",
+		Example: "chkit set replicas [-n $PROJECT] [-d depl_label] [N_replicas]",
 		Aliases: []string{"re", "rep", "repl", "replica"},
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx); err != nil {

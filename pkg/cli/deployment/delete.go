@@ -25,7 +25,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "deployment",
 		Aliases: aliases,
-		Short:   "delete deployment in specific namespace",
+		Short:   "delete deployment in specific project",
 		// Long:    help.MustGetString("delete deployment"),
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("delete deployment")

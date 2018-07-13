@@ -25,12 +25,12 @@ func Rename(ctx *context.Context) *cobra.Command {
 			case 0:
 				nsList, err := ctx.GetClient().GetNamespaceList()
 				if err != nil {
-					logger.WithError(err).Errorf("unable to get namespace list")
+					logger.WithError(err).Errorf("unable to get project list")
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
 				(&activekit.Menu{
-					Title: "Select namespace to rename",
+					Title: "Select project to rename",
 					Items: activekit.StringSelector(nsList.OwnersAndLabels(), func(label string) error {
 						ns, err := prerun.ResolveLabel(ctx, label)
 						if err != nil {
@@ -57,13 +57,13 @@ func Rename(ctx *context.Context) *cobra.Command {
 				}
 				newName := args[1]
 				if err := validation.ValidateLabel(newName); err != nil {
-					fmt.Printf("invalid new namespace name:\n%v\n", err)
+					fmt.Printf("invalid new project name:\n%v\n", err)
 					ctx.Exit(1)
 				}
 				if force, _ := cmd.Flags().GetBool("force"); force ||
-					activekit.YesNo("Are you sure you want to rename namespace %q?", oldNs.OwnerAndLabel()) {
+					activekit.YesNo("Are you sure you want to rename project %q?", oldNs.OwnerAndLabel()) {
 					if err := ctx.GetClient().RenameNamespace(oldNs.ID, newName); err != nil {
-						logger.WithError(err).Errorf("unable to rename namespace %q")
+						logger.WithError(err).Errorf("unable to rename project %q")
 						ferr.Println(err)
 						ctx.Exit(1)
 					}
@@ -81,12 +81,12 @@ func Rename(ctx *context.Context) *cobra.Command {
 
 func interactiveRename(ctx *context.Context, logger logrus.FieldLogger, ns namespace.Namespace) {
 	for {
-		newName := activekit.Promt("Type new namespace name: ")
+		newName := activekit.Promt("Type new project name: ")
 		if err := validation.ValidateLabel(newName); err != nil {
-			fmt.Printf("invalid new namespace name:\n%v\n", err)
+			fmt.Printf("invalid new project name:\n%v\n", err)
 			continue
 		}
-		if activekit.YesNo("Are you sure you want to rename namespace %q?", ns.OwnerAndLabel()) {
+		if activekit.YesNo("Are you sure you want to rename project %q?", ns.OwnerAndLabel()) {
 			if err := ctx.GetClient().RenameNamespace(ns.ID, newName); err != nil {
 				logger.WithError(err).Errorf("unable to rename namespace %q", ns.OwnerAndLabel())
 				ferr.Println(err)

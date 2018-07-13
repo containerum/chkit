@@ -142,7 +142,7 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 			ctx.SetNamespace(context.NamespaceFromModel(ns))
 			ctx.Changed = true
 		} else {
-			ferr.Printf("Namespace %q not found!\n", nsName)
+			ferr.Printf("Project %q not found!\n", nsName)
 			GetDefaultNS(ctx, false)
 		}
 	}

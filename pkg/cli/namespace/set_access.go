@@ -71,7 +71,7 @@ func SetAccess(ctx *context.Context) *cobra.Command {
 func selectNamespace(ctx *context.Context, logger logrus.FieldLogger) string {
 	nsList, err := ctx.Client.GetNamespaceList()
 	if err != nil {
-		logger.WithError(err).Errorf("unable to get namespace list")
+		logger.WithError(err).Errorf("unable to get project list")
 		ferr.Println(err)
 		ctx.Exit(1)
 	}
