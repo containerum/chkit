@@ -25,9 +25,8 @@ func FramesFromSlice(frames []string) *sliceFrames {
 }
 
 func FramesFromString(frames string) *sliceFrames {
-	runes := []rune(frames)
 	sliceFrames := make([]string, 0, len(frames))
-	for _, frame := range runes {
+	for _, frame := range frames {
 		sliceFrames = append(sliceFrames, string(frame))
 	}
 	return FramesFromSlice(sliceFrames)
