@@ -19,7 +19,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Deployment     string `desc:"deployment name, optional"`
 		Version        string `desc:"first deployment version to compare"`
 		AnotherVersion string `desc:"second deployment version to compare"`
-		Output         string `desc:"diff output, STDOUT by default"'`
+		Output         string `desc:"diff output, STDOUT by default"`
 	}
 	var command = &cobra.Command{
 		Use:   "diff",

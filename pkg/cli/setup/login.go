@@ -125,9 +125,15 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 
 	switch flags.Namespace {
 	case "-":
-		GetDefaultNS(ctx, true)
+		if err := GetDefaultNS(ctx, true); err != nil {
+			angel.Angel(ctx, err)
+			ctx.Exit(1)
+		}
 	case "":
-		GetDefaultNS(ctx, false)
+		if err := GetDefaultNS(ctx, false); err != nil {
+			angel.Angel(ctx, err)
+			ctx.Exit(1)
+		}
 	default:
 		nsList, err := ctx.GetClient().GetNamespaceList()
 		logger.Debugf("Getting namespace list")
@@ -143,7 +149,10 @@ func RunLogin(ctx *context.Context, flags Flags) error {
 			ctx.Changed = true
 		} else {
 			ferr.Printf("Namespace %q not found!\n", nsName)
-			GetDefaultNS(ctx, false)
+			if err := GetDefaultNS(ctx, false); err != nil {
+				angel.Angel(ctx, err)
+				ctx.Exit(1)
+			}
 		}
 	}
 	return nil
