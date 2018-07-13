@@ -28,7 +28,7 @@ func Get(ctx *context.Context) *cobra.Command {
 		Use:     "deployment",
 		Short:   "show deployment data",
 		Long:    "Print deployment data.",
-		Example: "namespace deployment_names... [-n namespace_label]",
+		Example: "get deployment_names... [-n project_label]",
 		Aliases: aliases,
 		Run: func(command *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("get deployment")

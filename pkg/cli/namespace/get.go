@@ -13,17 +13,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var aliases = []string{"ns", "namespaces"}
+var aliases = []string{"pr", "project"}
 
 func Get(ctx *context.Context) *cobra.Command {
 	var flags struct {
-		Names bool   `desc:"print namespace names"`
-		Find  string `desc:"find namespace which name contains substring"`
+		Names bool   `desc:"print projects names"`
+		Find  string `desc:"find project which name contains substring"`
 		porta.Exporter
 	}
 
 	command := &cobra.Command{
-		Use:     "namespace",
+		Use:     "project",
 		Aliases: aliases,
 		Short:   `show namespace data or namespace list`,
 		Long:    "show namespace data or namespace list.",

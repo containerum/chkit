@@ -179,7 +179,7 @@ func ReplaceContainer(ctx *context.Context) *cobra.Command {
 				defer close(volumes)
 				var volumeList, err = ctx.Client.GetVolumeList(ctx.GetNamespace().ID)
 				if err != nil {
-					logger.WithError(err).Errorf("unable to get volume list from namespace %q", ctx.GetNamespace())
+					logger.WithError(err).Errorf("unable to get volume list from project %q", ctx.GetNamespace())
 					ferr.Println(err)
 					ctx.Exit(1)
 				}

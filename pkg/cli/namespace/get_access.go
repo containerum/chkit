@@ -9,14 +9,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var accessAliases = []string{"namespace-access", "ns-access"}
+var accessAliases = []string{"project-access", "pr-access"}
 
 func GetAccess(ctx *context.Context) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "access",
 		Aliases: accessAliases,
-		Short:   "print namespace access data",
-		Long:    "Print namespace access data.",
+		Short:   "print project access data",
+		Long:    "Print project access data.",
 		Example: "chkit get ns-access $ID",
 		Run: func(cmd *cobra.Command, args []string) {
 			logger := coblog.Logger(cmd)
@@ -29,7 +29,7 @@ func GetAccess(ctx *context.Context) *cobra.Command {
 				}
 				ns, ok := nsList.GetByUserFriendlyID(args[0])
 				if !ok {
-					fmt.Printf("namespace %q not found\n", args[0])
+					fmt.Printf("project %q not found\n", args[0])
 					ctx.Exit(1)
 				}
 				nsID = ns.ID

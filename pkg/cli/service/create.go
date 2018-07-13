@@ -25,7 +25,7 @@ func Create(ctx *context.Context) *cobra.Command {
 		Use:     "service",
 		Aliases: aliases,
 		Short:   "create service",
-		Long:    "Create service for the specified pod in the specified namespace.",
+		Long:    "Create service for the specified pod in the specified project.",
 		Run: func(cmd *cobra.Command, args []string) {
 			var logger = coblog.Logger(cmd)
 			logger.Struct(flags)

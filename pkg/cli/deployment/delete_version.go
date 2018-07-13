@@ -41,7 +41,7 @@ func DeleteVersion(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 				if deploymentList.Len() == 0 {
-					ferr.Printf("You have no deployments in namespace %q!\n", ctx.GetNamespace())
+					ferr.Printf("You have no deployments in project %q!\n", ctx.GetNamespace())
 					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployment")
@@ -74,7 +74,7 @@ func DeleteVersion(ctx *context.Context) *cobra.Command {
 				}
 				deploymentVersions = deploymentVersions.Inactive()
 				if deploymentVersions.Len() == 0 {
-					ferr.Printf("Deployment %q in namespace %q has no inactive versions. Only inactive versions can be deleted!\n", deplName, ctx.GetNamespace())
+					ferr.Printf("Deployment %q in project %q has no inactive versions. Only inactive versions can be deleted!\n", deplName, ctx.GetNamespace())
 					ctx.Exit(1)
 				}
 				logger.Debugf("selecting deployment version")
@@ -108,7 +108,7 @@ func DeleteVersion(ctx *context.Context) *cobra.Command {
 					logger.WithError(err).Errorf("unable to delete version %v of deployment %q", version, deplName)
 					ctx.Exit(1)
 				}
-				fmt.Printf("Version %v of deployment %q in namespace %q deleted\n", version, deplName, ctx.GetNamespace())
+				fmt.Printf("Version %v of deployment %q in project %q deleted\n", version, deplName, ctx.GetNamespace())
 			}
 		},
 	}

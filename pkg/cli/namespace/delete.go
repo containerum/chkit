@@ -17,14 +17,14 @@ import (
 func Delete(ctx *context.Context) *cobra.Command {
 	var flags struct {
 		Force bool     `desc:"suppress confirmation"`
-		ID    []string `desc:"namespace id to delete"`
-		Label []string `desc:"namespace label or owner/label to delete"`
+		ID    []string `desc:"project id to delete"`
+		Label []string `desc:"project label or owner/label to delete"`
 	}
 	command := &cobra.Command{
-		Use:     "namespace",
-		Short:   "delete namespace",
-		Long:    "Delete namespace provided in the first arg.",
-		Example: "chkit delete namespace $ID",
+		Use:     "project",
+		Short:   "delete project",
+		Long:    "Delete project provided in the first arg.",
+		Example: "chkit delete project $ID",
 		Aliases: aliases,
 		Run: func(command *cobra.Command, args []string) {
 			var logger = ctx.Log.Command("delete namespace")
@@ -49,7 +49,7 @@ func Delete(ctx *context.Context) *cobra.Command {
 			}
 			switch {
 			case flags.Force && namespacesToDelete.Len() == 0:
-				ferr.Printf("namespaces to delete must be defined as args, --id flag or --label flag")
+				ferr.Printf("projects to delete must be defined as args, --id flag or --label flag")
 				ctx.Exit(1)
 			case !flags.Force && namespacesToDelete.Len() == 0:
 				for exit := false; !exit; {
