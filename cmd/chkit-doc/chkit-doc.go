@@ -31,13 +31,15 @@ func main() {
 		os.Exit(1)
 	}
 	flag.Parse()
-
+	fmt.Println("Getting command tree")
 	var stack = cli.RootCommandsWithEmptyContext()
 	var commands = make([]cobra.Command, 0, len(stack))
+	fmt.Println("Building command list")
 	for len(stack) > 0 {
 		var cmd = pop(&stack)
 		if flags.Command != "" && "chkit "+flags.Command == cmd.Name() {
 			commands = append(commands, cmd)
+			fmt.Println("List builded")
 			break
 		}
 		stack = append(stack, cmd.Commands()...)
@@ -76,6 +78,7 @@ func main() {
 	}
 
 	if flags.Command != "" {
+		fmt.Println("searching command", flags.Command)
 		var command = str.Vector(strings.Fields(flags.Command)).Join(" ")
 		for _, cmd := range commands {
 			if cmd.CommandPath() != command {
