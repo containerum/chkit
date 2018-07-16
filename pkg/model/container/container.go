@@ -28,7 +28,7 @@ func ImageName(image string) string {
 	if err != nil {
 		return image
 	}
-	var alphaNumerical = regexp.MustCompile("^[a-z0-9]+$")
+	var alphaNumerical = regexp.MustCompile("^[a-z-0-9]+$")
 	return str.SplitS(img.Name, "/", 3).Tail(1).Filter(func(str string) bool {
 		return alphaNumerical.MatchString(str)
 	}).FirstNonEmpty()
