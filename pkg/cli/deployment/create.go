@@ -173,7 +173,6 @@ func Create(ctx *context.Context) *cobra.Command {
 					},
 				},
 			}).Run()
-
 		},
 	}
 	if err := gpflag.ParseTo(&flags, command.Flags()); err != nil {
