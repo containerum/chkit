@@ -12,15 +12,16 @@ import (
 var aliases = []string{"api", "current-api", "api-addr", "API"}
 
 func Get(ctx *context.Context) *cobra.Command {
-	if err := configuration.LoadConfig(ctx); err != nil {
-		angel.Angel(ctx, err)
-		ctx.Exit(1)
-	}
-
 	command := &cobra.Command{
 		Use:     "containerum-api",
 		Short:   "print Containerum API URL",
 		Aliases: aliases,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			if err := configuration.LoadConfig(ctx); err != nil {
+				angel.Angel(ctx, err)
+				ctx.Exit(1)
+			}
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(ctx.GetClient().APIaddr)
 		},
