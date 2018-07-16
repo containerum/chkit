@@ -46,9 +46,11 @@ func WithTestAPI(config model.Config) (*kubeClient.Client, error) {
 	dialer := &websocket.Dialer{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
+		// nolint:gas
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client, err := kubeClient.NewClient(kubeClient.Config{
+		// nolint:gas
 		RestAPI: re.NewResty(re.WithHost(config.APIaddr), re.WithLogger(config.Log), re.SkipTLSVerify),
 		User: kubeClient.User{
 			Role: "user",
@@ -73,6 +75,7 @@ func WithMock(config model.Config) (*kubeClient.Client, error) {
 	dialer := &websocket.Dialer{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
+		// nolint:gas
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 

@@ -18,6 +18,7 @@ before_install:
 - sudo mkdir -p ${CONTAINERUM_HOME}
 - sudo mv privkey.pem ${CONTAINERUM_HOME}/privkey.pem
 - sudo mv pubkey.pem ${CONTAINERUM_HOME}/pubkey.pem
+- go get -u -v github.com/UnnoTed/fileb0x
 
 script:
 - make release

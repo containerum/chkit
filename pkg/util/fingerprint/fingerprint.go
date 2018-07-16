@@ -2,6 +2,7 @@ package fingerpint
 
 import (
 	"bytes"
+	// nolint:gas
 	"crypto/md5"
 	"encoding/hex"
 	"net"
