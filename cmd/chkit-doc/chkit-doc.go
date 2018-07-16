@@ -46,7 +46,7 @@ func main() {
 		commands = append(commands, cmd)
 	}
 	if flags.Hugo {
-		fmt.Println("generating hugo docs")
+		fmt.Println("Generating hugo docs")
 		var categories = map[string]*bytes.Buffer{}
 		for _, cmd := range commands {
 			if cmd.Parent() != nil &&
@@ -78,7 +78,7 @@ func main() {
 	}
 
 	if flags.Command != "" {
-		fmt.Println("searching command", flags.Command)
+		fmt.Println("Searching command", flags.Command)
 		var command = str.Vector(strings.Fields(flags.Command)).Join(" ")
 		for _, cmd := range commands {
 			if cmd.CommandPath() != command {
