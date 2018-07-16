@@ -37,11 +37,11 @@ func Create(ctx *context.Context) *cobra.Command {
 			logger.Debugf("running create deployment command")
 			var depl deployment.Deployment
 			if flags.ImportActivated() {
+				logger.Debugf("importing deployment")
 				if err := flags.Import(&depl); err != nil {
 					ferr.Printf("unable to import deployment:\n%v\n", err)
 					ctx.Exit(1)
 				}
-				flags.Flags = deplactive.FlagsFromDeployment(flags.Flags, depl)
 			} else {
 				var err error
 				depl, err = flags.Deployment()
@@ -50,6 +50,7 @@ func Create(ctx *context.Context) *cobra.Command {
 					ctx.Exit(1)
 				}
 			}
+			logger.Debugf("generating default values")
 			deplactive.Fill(&depl)
 			switch {
 			case flags.Force && flags.ExporterActivated():
@@ -57,6 +58,7 @@ func Create(ctx *context.Context) *cobra.Command {
 					ferr.Println(err)
 					ctx.Exit(1)
 				}
+				fmt.Printf("Deployment %q exported!", depl.Name)
 				return
 			case flags.Force && !flags.ExporterActivated():
 				if err := deplactive.ValidateDeployment(depl); err != nil {
@@ -86,6 +88,8 @@ func Create(ctx *context.Context) *cobra.Command {
 					volumes <- volumeList
 				}()
 			*/
+			logger.Debugf("getting resources")
+
 			var configs = make(chan configmap.ConfigMapList)
 			go func() {
 				logger := logger.Component("getting configmap list")

@@ -10,6 +10,8 @@ type Service struct {
 	DependsOn Dependecies
 	EnvFile   string
 	Secrets   []string
+	Extends   Parent
+	Command   Command
 }
 
 func (service Service) Copy() Service {
