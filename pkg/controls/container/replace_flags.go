@@ -1,6 +1,8 @@
 package container
 
-import "github.com/containerum/chkit/pkg/model/container"
+import (
+	"github.com/containerum/chkit/pkg/model/container"
+)
 
 type ReplaceFlags struct {
 	Flags

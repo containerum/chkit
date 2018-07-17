@@ -17,12 +17,13 @@ func componentEnvs(cont *container.Container) *activekit.MenuItem {
 		Label: "Edit enviroment variables",
 		Action: func() error {
 			for exit := false; !exit; {
+				envs = deleteEmptyEnv(envs)
 				sort.Slice(envs, func(i, j int) bool {
 					return envs[i].Name < envs[j].Name
 				})
 				var menuEnvs activekit.MenuItems
-				for _, env := range envs {
-					menuEnvs = append(menuEnvs, componentEnv(&env, nil))
+				for i := range envs {
+					menuEnvs = append(menuEnvs, componentEnv(&envs[i], nil))
 				}
 				menuEnvs = menuEnvs.Append(&activekit.MenuItem{
 					Label: "Add env",
@@ -61,12 +62,12 @@ func componentEnvs(cont *container.Container) *activekit.MenuItem {
 	}
 }
 
-func componentEnv(oldeEnv *model.Env, ok *bool) *activekit.MenuItem {
-	var label = str.Vector{oldeEnv.Name, oldeEnv.Value, "empty env"}.FirstNonEmpty()
+func componentEnv(oldEnv *model.Env, ok *bool) *activekit.MenuItem {
+	var label = str.Vector{oldEnv.Name, oldEnv.Value, "empty env"}.FirstNonEmpty()
 	return &activekit.MenuItem{
 		Label: "Edit env " + label,
 		Action: func() error {
-			var env = *oldeEnv
+			var env = *oldEnv
 			for exit := false; !exit; {
 				(&activekit.Menu{
 					Title: "Container -> Envs -> " + label,
@@ -105,9 +106,19 @@ func componentEnv(oldeEnv *model.Env, ok *bool) *activekit.MenuItem {
 							},
 						},
 						{
+							Label: "Delete env",
+							Action: func() error {
+								env.Name = ""
+								env.Value = ""
+								*oldEnv = env
+								exit = true
+								return nil
+							},
+						},
+						{
 							Label: "Confirm",
 							Action: func() error {
-								*oldeEnv = env
+								*oldEnv = env
 								exit = true
 								if ok != nil {
 									*ok = true
@@ -128,4 +139,14 @@ func componentEnv(oldeEnv *model.Env, ok *bool) *activekit.MenuItem {
 			return nil
 		},
 	}
+}
+
+func deleteEmptyEnv(s []model.Env) []model.Env {
+	var r []model.Env
+	for _, str := range s {
+		if str.Name != "" && str.Value != "" {
+			r = append(r, str)
+		}
+	}
+	return r
 }

@@ -13,9 +13,10 @@ import (
 )
 
 func componentEnvs(cont *container.Container) activekit.MenuItems {
-	var items = make(activekit.MenuItems, 0, len(cont.Env))
-	for _, env := range cont.Env {
-		items = items.Append(componentEditEnv(&env))
+	var items activekit.MenuItems
+	cont.Env = deleteEmptyEnv(cont.Env)
+	for i := range cont.Env {
+		items = items.Append(componentEditEnv(&cont.Env[i]))
 	}
 	return items.Append(&activekit.MenuItem{
 		Label: "Add env",
@@ -74,6 +75,16 @@ func componentEditEnv(oldEnv *model.Env) *activekit.MenuItem {
 							},
 						},
 						{
+							Label: "Delete env",
+							Action: func() error {
+								env.Name = ""
+								env.Value = ""
+								*oldEnv = env
+								exit = true
+								return nil
+							},
+						},
+						{
 							Label: "Confirm",
 							Action: func() error {
 								if env.Name == "" {
@@ -104,4 +115,14 @@ func componentEditEnv(oldEnv *model.Env) *activekit.MenuItem {
 			return nil
 		},
 	}
+}
+
+func deleteEmptyEnv(s []model.Env) []model.Env {
+	var r []model.Env
+	for _, str := range s {
+		if str.Name != "" && str.Value != "" {
+			r = append(r, str)
+		}
+	}
+	return r
 }

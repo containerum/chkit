@@ -40,6 +40,7 @@ func (wizard Wizard) Run() container.Container {
 				componentVolumes(&cont, wizard.Volumes),
 				componentConfigmaps(&cont, wizard.Configs),
 				componentEnvs(&cont),
+				componentCmds(&cont),
 				&activekit.MenuItem{
 					Label: "Print to terminal",
 					Action: func() error {

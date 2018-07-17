@@ -100,6 +100,10 @@ func (container Container) Patch(overlay Container) Container {
 	cp.ConfigMaps = mergeMounts(container.ConfigMountsMap(), overlay.ConfigMountsMap())
 	cp.VolumeMounts = mergeMounts(container.VolumeMountsMap(), overlay.VolumeMountsMap())
 	cp.PutEnvMap(overlay.GetEnvMap())
+
+	if len(overlay.Commands) != 0 {
+		cp.Commands = overlay.Commands
+	}
 	return cp
 }
 

@@ -60,6 +60,7 @@ func componentEditContainer(oldCont *container.Container, volumes, configmaps []
 						componentEditContainerImage(cont),
 					}.
 						Append(componentEnvs(cont)...).
+						Append(componentCmd(cont)...).
 						Append(
 							componentEditCPU(cont),
 							componentEditMemory(cont),

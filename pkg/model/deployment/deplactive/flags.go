@@ -28,6 +28,8 @@ type Flags struct {
 
 	Env []string `desc:"container environment variable,\nCONTAINER_NAME@KEY:VALUE in case of multiple containers or KEY:VALUE in case of one container"` // container +
 
+	Commands []string `desc:"container commands,\nCONTAINER_NAME@VALUE in case of multiple containers or VALUE in case of one container"` // container +
+
 	Memory []string `desc:"container memory limit, Mb,\nCONTAINER_NAME@MEMORY in case of multiple containers or MEMORY in case of one container"` // container +
 
 	CPU []string `desc:"container memory limit, mCPU,\nCONTAINER_NAME@CPU in case of multiple containers or CPU in case of one container"` // container +
@@ -82,6 +84,9 @@ func (flags Flags) BuildContainers() (chkitContainer.ContainerList, error) {
 		return nil, err
 	}
 	if err := flags.extractEnvs(); err != nil {
+		return nil, err
+	}
+	if err := flags.extractCommands(); err != nil {
 		return nil, err
 	}
 	if err := flags.extractVolumes(); err != nil {
@@ -169,6 +174,19 @@ func (flags Flags) extractEnvs() error {
 		}
 		var cont = flags.containers[container]
 		cont.AddEnv(env)
+		flags.containers[container] = cont
+	}
+	return nil
+}
+
+func (flags Flags) extractCommands() error {
+	for _, cmdValue := range flags.Commands {
+		var container, cmd = flags.extractContainerAndValue(cmdValue)
+		// if container == "" {
+		//	return missingContainerNameErr("--env", envValue)
+		// }
+		var cont = flags.containers[container]
+		cont.Commands = append(cont.Commands, cmd)
 		flags.containers[container] = cont
 	}
 	return nil

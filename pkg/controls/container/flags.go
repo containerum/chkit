@@ -15,6 +15,7 @@ type Flags struct {
 	Memory    uint     `desc:"container memory limit, Mb"`
 	CPU       uint     `desc:"container CPU limit, mCPU"`
 	Env       []string `desc:"container environment variables, NAME:VALUE, 'NAME:$HOST_ENV' or '$HOST_ENV' (to user host env).\nWARNING: single quotes are required to prevent env from interpolation"`
+	Commands  []string `desc:"container commands,\nCONTAINER_NAME@VALUE in case of multiple containers or VALUE in case of one container"`
 	Volume    []string `desc:"container volume mounts, VOLUME:MOUNT_PATH or VOLUME (then MOUNT_PATH is /mnt/VOLUME)"`
 	Configmap []string `desc:"container configmap mount, CONFIG:MOUNT_PATH or CONFIG (then MOUNTPATH is /etc/CONFIG)"`
 }
@@ -43,6 +44,13 @@ func (flags Flags) Container() (container.Container, error) {
 	} else {
 		errs = append(errs, err)
 	}
+
+	if cmds, err := flags.cmds(); err == nil {
+		cont.Commands = cmds
+	} else {
+		errs = append(errs, err)
+	}
+
 	if len(errs) > 0 {
 		return container.Container{}, fmt.Errorf("unable to build container:\n%s\n",
 			str.FromErrs(errs...).Map(str.Prefix(" + ")).Join("\n"))
@@ -91,6 +99,14 @@ func (flags Flags) envs() ([]model.Env, error) {
 		envs = append(envs, env)
 	}
 	return envs, nil
+}
+
+func (flags Flags) cmds() ([]string, error) {
+	var cmds = make([]string, 0, len(flags.Commands))
+	for _, cmdString := range flags.Commands {
+		cmds = append(cmds, cmdString)
+	}
+	return cmds, nil
 }
 
 func parseContainerEnv(envStr string) (model.Env, error) {
