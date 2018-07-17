@@ -92,7 +92,7 @@ func componentEnv(oldEnv *model.Env, ok *bool) *activekit.MenuItem {
 						{
 							Label: "Edit value",
 							Action: func() error {
-								var value = activekit.Promt("Type env name, hit Enter to leave %s: ",
+								var value = activekit.Promt("Type env value, hit Enter to leave %s: ",
 									str.Vector{env.Value, "empty"}.FirstNonEmpty())
 								value = strings.TrimSpace(value)
 								switch {
