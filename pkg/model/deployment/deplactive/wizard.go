@@ -52,13 +52,13 @@ func (config Wizard) Run() deployment.Deployment {
 				},
 			},
 				&activekit.MenuItem{
-					Label: "Export container to file",
+					Label: "Export deployment to file",
 					Action: func() error {
 						var fname = activekit.Promt("Type filename: ")
 						fname = strings.TrimSpace(fname)
 						if fname != "" {
 							if err := (porta.Exporter{OutFile: fname}.Export(config.Deployment)); err != nil {
-								ferr.Printf("unable to export configmap:\n%v\n", err)
+								ferr.Printf("unable to export deployment:\n%v\n", err)
 							}
 						}
 						return nil

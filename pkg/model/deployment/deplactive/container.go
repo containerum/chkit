@@ -16,9 +16,9 @@ import (
 
 func componentEditContainers(config Wizard) activekit.MenuItems {
 	var menuItems = make(activekit.MenuItems, 0, len(config.Deployment.Containers))
-	for _, container := range config.Deployment.Containers {
+	for i := range config.Deployment.Containers {
 		menuItems = menuItems.Append(componentEditContainer(
-			&container,
+			&config.Deployment.Containers[i],
 			config.Volumes,
 			config.Configmaps))
 	}
