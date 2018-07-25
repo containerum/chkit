@@ -66,7 +66,7 @@ By default chkit connects to [Containerum Online](https://containerum.com/price/
 To learn more about **chkit** commands, please refer to the [Docs section](https://docs.containerum.com/docs/about/) on our website.
 
 ## Contributions
-Please submit all contributions concerning chkit component to this repository. If you want to make contributions to the project, please start by checking the source code at chkit/pkg/cli/. Contributing guidelines are available [here](https://github.com/containerum/chkit/blob/master/CONTRIBUTING.md).
+Please submit all contributions concerning chkit component to this repository. If you want to make contributions to the project, please start by checking the source code at chkit/pkg/cli/. Contributing guidelines are available [here](https://github.com/containerum/containerum/blob/master/CONTRIBUTING.md).
 
 ## License
 Chkit project is licensed under the terms of the MIT license. Please see LICENSE in this repository for more details. 
