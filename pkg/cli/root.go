@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"path"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/blang/semver"
 	"github.com/containerum/chkit/help"
@@ -45,9 +47,22 @@ func Root() error {
 		Password  string `flag:"password p"`
 	}
 
+	prerun.PreRun(ctx, prerun.Config{
+		InitClient:         prerun.DoNotInitClient,
+		NamespaceSelection: prerun.TemporarySetNamespace,
+	})
+
 	root := &cobra.Command{
-		Use:     "chkit",
-		Short:   "Chkit is a terminal client for containerum.io powerful API",
+		Use:   "chkit",
+		Short: "Chkit is a terminal client for containerum.io powerful API",
+		Long: func() string {
+			if ctx.Client.APIaddr == "https://api.containerum.com" {
+				var msg = "You are  using Containerum Cloud API. Use 'chkit set api' command to set custom api address"
+				var frame = strings.Repeat("!", utf8.RuneCountInString(msg))
+				return frame + "\n" + msg + "\n" + frame
+			}
+			return ""
+		}(),
 		Version: ctx.Version,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if err := prerun.PreRun(ctx, prerun.Config{
