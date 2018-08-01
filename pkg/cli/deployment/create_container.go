@@ -20,7 +20,7 @@ import (
 func CreateContainer(ctx *context.Context) *cobra.Command {
 	var flags struct {
 		Force      bool   `flag:"force f" desc:"suppress confirmation"`
-		Name       string `desc:"container name, required on --force"`
+		Name       string `flag:"container" desc:"container name, required on --force"`
 		Deployment string `desc:"deployment name, required on --force"`
 		porta.Importer
 		porta.Exporter
@@ -28,7 +28,7 @@ func CreateContainer(ctx *context.Context) *cobra.Command {
 	}
 	command := &cobra.Command{
 		Use:     "deployment-container",
-		Aliases: []string{"depl-cont", "container", "dc"},
+		Aliases: []string{"depl-cont", "container", "dc", "cont"},
 		Short:   "create deployment container",
 		//		Long:    help.MustGetString("create container"),
 		Run: func(cmd *cobra.Command, args []string) {
