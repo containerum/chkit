@@ -56,7 +56,7 @@ func Root() error {
 		Use:   "chkit",
 		Short: "Chkit is a terminal client for containerum.io powerful API",
 		Long: func() string {
-			if ctx.Client.APIaddr == "https://api.containerum.com" {
+			if ctx.Client.APIaddr == mode.API_ADDR {
 				var msg = "You are  using Containerum Cloud API. Use 'chkit set api' command to set custom api address"
 				var frame = strings.Repeat("!", utf8.RuneCountInString(msg))
 				return frame + "\n" + msg + "\n" + frame
